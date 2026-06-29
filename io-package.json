@@ -1,0 +1,115 @@
+{
+	"common": {
+		"name": "futterautomat",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"uk": "Початкова версія",
+				"zh-cn": "首次出版"
+			}
+		},
+		"titleLang": {
+			"en": "Futterautomat",
+			"de": "Futterautomat",
+			"ru": "Футтеравтомат",
+			"pt": "Futterautomático",
+			"nl": "Futterautomaat",
+			"fr": "Futterautomate",
+			"it": "Futterautomat",
+			"es": "Futterautomat",
+			"pl": "Futterautomat",
+			"uk": "Futterautomat",
+			"zh-cn": "富特自动机"
+		},
+		"desc": {
+			"en": "Steuerung für umgebaute Futterautomaten",
+			"de": "Steuerung für umgebaute Futterautomaten",
+			"ru": "Steuerung für umgebaute Futterautomaten",
+			"pt": "Steuerung para umgebaute Futterautomaten",
+			"nl": "Steuerung voor umgebaute Futterautomaten",
+			"fr": "Steuerung für umgebaute Futterautomaten",
+			"it": "Steuerung für umgebaute Futterautomaten",
+			"es": "Steuerung für umgebaute Futterautomaten",
+			"pl": "Steuerung für umgebaute Futterautomaten",
+			"uk": "Steuerung für umgebaute Futterautomaten",
+			"zh-cn": "自动化管理"
+		},
+		"authors": [
+			"ssbingo <s.sternitzke@online.de>"
+		],
+		"keywords": [
+			"Futterautomat",
+			"Koi",
+			"Fisch"
+		],
+		"licenseInformation": {
+			"type": "free",
+			"license": "MIT"
+		},
+		"platform": "Javascript/Node.js",
+		"icon": "futterautomat.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/ssbingo/ioBroker.futterautomat/main/admin/futterautomat.png",
+		"readme": "https://github.com/ssbingo/ioBroker.futterautomat/blob/main/README.md",
+		"loglevel": "info",
+		"tier": 3,
+		"mode": "daemon",
+		"type": "garden",
+		"compact": true,
+		"messagebox": true,
+		"connectionType": "local",
+		"dataSource": "push",
+		"adminUI": {
+			"config": "materialize"
+		},
+		"eraseOnUpload": true,
+		"dependencies": [
+			{
+				"js-controller": ">=6.0.11"
+			}
+		],
+		"globalDependencies": [
+			{
+				"admin": ">=7.0.23"
+			}
+		]
+	},
+	"native": {
+		"coordinateSource": "system",
+		"latitude": "",
+		"longitude": "",
+		"address": "",
+		"sunOffsetMorning": 0,
+		"sunOffsetEvening": 0,
+		"airTempEnabled": false,
+		"airTempObjectId": "",
+		"waterTempEnabled": false,
+		"waterTempObjectId": "",
+		"switches": []
+	},
+	"objects": [],
+	"instanceObjects": [
+		{
+			"_id": "info.connection",
+			"type": "state",
+			"common": {
+				"role": "indicator.connected",
+				"name": "Adapter running / configuration valid",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		}
+	]
+}
