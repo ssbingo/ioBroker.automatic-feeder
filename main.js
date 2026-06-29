@@ -31,9 +31,14 @@ class Futterautomat extends utils.Adapter {
 
 		/** next-feeding timer per switch id */
 		this.scheduleTimers = new Map();
-		/** switch-off timer per switch id */
-		this.offTimers = new Map();
 		this.midnightTimer = null;
+
+		/** pending switch-state verifications: objectId -> { expected, resolve, timer } */
+		this.verifyWatchers = new Map();
+		/** switch ids that currently have an active feeding cycle (overlap guard) */
+		this.feedingBusy = new Set();
+		/** set during onUnload so in-flight feeding cycles abort cleanly */
+		this.terminating = false;
 
 		this.coords = null;
 		/** effective feeding window (sun +/- offsets) */
@@ -119,6 +124,21 @@ class Futterautomat extends utils.Adapter {
 
 			// --- temperature sources ---
 			await this.setupTemperatureSources();
+
+			// --- switch-state supervision: subscribe to the controlled foreign states ---
+			const verify = this.config.verifyEnabled !== false;
+			if (verify) {
+				for (const sw of this.switches) {
+					if (sw.enabled && sw.objectId) {
+						this.subscribeForeignStates(sw.objectId);
+					}
+				}
+				this.log.debug(
+					`Switch supervision enabled (timeout ${Number(this.config.verifyTimeoutSec) || 5}s); subscribed to switch states.`,
+				);
+			} else {
+				this.log.debug('Switch supervision disabled.');
+			}
 
 			// --- subscribe to our own manual trigger states ---
 			this.subscribeStates('switches.*.feedNow');
@@ -351,6 +371,30 @@ class Futterautomat extends utils.Adapter {
 				common: { name: 'Block reason', type: 'string', role: 'text', read: true, write: false, def: '' },
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.lastResult`, {
+				type: 'state',
+				common: {
+					name: 'Result of the last feeding attempt',
+					type: 'string',
+					role: 'text',
+					read: true,
+					write: false,
+					def: '',
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.error`, {
+				type: 'state',
+				common: {
+					name: 'Last feeding had a switching fault',
+					type: 'boolean',
+					role: 'indicator.error',
+					read: true,
+					write: false,
+					def: false,
+				},
+				native: {},
+			});
 			await this.setObjectNotExistsAsync(`${base}.feedNow`, {
 				type: 'state',
 				common: {
@@ -544,6 +588,10 @@ class Futterautomat extends utils.Adapter {
 			this.log.warn(`Switch ${this.swLabel(sw)} has no target object, skipping.`);
 			return;
 		}
+		if (this.feedingBusy.has(sw.id)) {
+			this.log.debug(`Switch ${this.swLabel(sw)}: a feeding cycle is already running, ignoring this trigger.`);
+			return;
+		}
 
 		this.log.debug(`Evaluating feeding for ${this.swLabel(sw)} (ignoreBlocks=${ignoreBlocks}).`);
 		const reason = ignoreBlocks ? null : this.getBlockReason(sw);
@@ -555,25 +603,126 @@ class Futterautomat extends utils.Adapter {
 			return;
 		}
 
-		this.log.info(`Feeding ${this.swLabel(sw)} for ${sw.durationSec || 0}s.`);
-		await this.writeSwitch(sw, true);
-		await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: true, ack: true });
-		await this.setStateAsync(`switches.${sw.id}.lastFeeding`, { val: new Date().toISOString(), ack: true });
+		const verify = this.config.verifyEnabled !== false;
+		const seconds = Number(sw.durationSec) || 0;
+		this.feedingBusy.add(sw.id);
+		try {
+			// --- switch ON ---
+			this.log.info(`Feeding ${this.swLabel(sw)} for ${seconds}s.`);
+			await this.writeSwitch(sw, true);
+			await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: true, ack: true });
+			await this.setStateAsync(`switches.${sw.id}.lastFeeding`, { val: new Date().toISOString(), ack: true });
 
-		const existingOff = this.offTimers.get(sw.id);
-		if (existingOff) {
-			clearTimeout(existingOff);
-			this.log.silly(`Cleared previous off-timer for ${this.swLabel(sw)}.`);
-		}
-		const duration = Math.max(0, Number(sw.durationSec) || 0) * 1000;
-		this.log.debug(`Switch ${this.swLabel(sw)} turned ON, will turn OFF in ${duration}ms.`);
-		const off = setTimeout(async () => {
-			this.offTimers.delete(sw.id);
+			if (verify) {
+				const onConfirmed = await this.verifyState(sw, true);
+				if (this.terminating) {
+					return;
+				}
+				if (!onConfirmed) {
+					// Scenario 2: the switch never confirmed the ON state
+					await this.writeSwitch(sw, false); // safety: try to switch off again
+					await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: false, ack: true });
+					this.log.error(
+						`Feeding of ${this.swLabel(sw)} could not be performed - switch did not confirm ON. Check the switch!`,
+					);
+					await this.reportResult(sw, true, 'Fütterung konnte nicht durchgeführt werden. Schalter prüfen!');
+					return;
+				}
+				this.log.debug(`${this.swLabel(sw)}: ON confirmed by target.`);
+			}
+
+			// --- keep on for the configured duration (this.delay is cleared on unload) ---
+			this.log.debug(`Switch ${this.swLabel(sw)} is ON, will switch OFF in ${seconds}s.`);
+			if (seconds > 0) {
+				await this.delay(seconds * 1000);
+			}
+			if (this.terminating) {
+				return;
+			}
+
+			// --- switch OFF ---
 			await this.writeSwitch(sw, false);
 			await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: false, ack: true });
-			this.log.debug(`Switch ${this.swLabel(sw)} turned OFF (feeding finished).`);
-		}, duration);
-		this.offTimers.set(sw.id, off);
+
+			if (verify) {
+				const offConfirmed = await this.verifyState(sw, false);
+				if (this.terminating) {
+					return;
+				}
+				if (!offConfirmed) {
+					// Scenario 3: ON worked, but the switch did not turn OFF again
+					this.log.error(
+						`Fault: ${this.swLabel(sw)} did not switch OFF as planned (still ON?). Check the switch!`,
+					);
+					await this.reportResult(sw, true, 'Störung Abschaltung Futterautomat!');
+					return;
+				}
+				this.log.debug(`${this.swLabel(sw)}: OFF confirmed by target.`);
+			}
+
+			// --- Scenario 1: everything worked ---
+			const okMsg = `Fütterung wurde für ${seconds}s ausgelöst.`;
+			await this.reportResult(sw, false, okMsg);
+			this.log.info(`${this.swLabel(sw)}: ${okMsg}`);
+		} finally {
+			this.feedingBusy.delete(sw.id);
+		}
+	}
+
+	/**
+	 * Waits until the controlled switch reaches the expected (acknowledged) value
+	 * within the configured timeout. Requires the target to report its state with
+	 * ack=true, otherwise it cannot be distinguished from our own command.
+	 *
+	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {boolean} expectOn - true = wait for the on value, false = off value
+	 * @returns {Promise<boolean>} true if confirmed, false on timeout
+	 */
+	verifyState(sw, expectOn) {
+		const expected = coerce(expectOn ? (sw.onValue ?? true) : (sw.offValue ?? false));
+		const timeoutMs = Math.max(1, Number(this.config.verifyTimeoutSec) || 5) * 1000;
+		return new Promise(resolve => {
+			const timer = setTimeout(() => {
+				this.verifyWatchers.delete(sw.objectId);
+				this.log.debug(
+					`Verification TIMEOUT for ${this.swLabel(sw)} expecting ${expectOn ? 'ON' : 'OFF'}=${JSON.stringify(expected)} after ${timeoutMs}ms.`,
+				);
+				resolve(false);
+			}, timeoutMs);
+			this.verifyWatchers.set(sw.objectId, { expected, resolve, timer });
+			this.log.silly(
+				`Verification armed for ${this.swLabel(sw)} expecting ${expectOn ? 'ON' : 'OFF'}=${JSON.stringify(expected)} (timeout ${timeoutMs}ms).`,
+			);
+		});
+	}
+
+	/**
+	 * Loose comparison of an actual state value against the expected value.
+	 *
+	 * @param {ioBroker.StateValue} actual - the value reported by the switch
+	 * @param {boolean | number | string} expected - the configured target value
+	 * @returns {boolean} true if they are considered equal
+	 */
+	valuesMatch(actual, expected) {
+		if (typeof expected === 'boolean') {
+			return Boolean(actual) === expected;
+		}
+		if (typeof expected === 'number') {
+			return Number(actual) === expected;
+		}
+		return String(actual) === String(expected);
+	}
+
+	/**
+	 * Stores the outcome of a feeding attempt in the per-switch status datapoints.
+	 *
+	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {boolean} isError - true if the attempt had a switching fault
+	 * @param {string} message - human readable result text
+	 */
+	async reportResult(sw, isError, message) {
+		await this.setStateAsync(`switches.${sw.id}.lastResult`, { val: message, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.error`, { val: isError, ack: true });
 	}
 
 	/**
@@ -672,6 +821,19 @@ class Futterautomat extends utils.Adapter {
 			return;
 		}
 
+		// switch-state supervision: confirm an acknowledged on/off transition.
+		// Only ack=true counts - our own command (ack=false) must not confirm itself.
+		const watcher = this.verifyWatchers.get(id);
+		if (watcher && state.ack === true && this.valuesMatch(state.val, watcher.expected)) {
+			clearTimeout(watcher.timer);
+			this.verifyWatchers.delete(id);
+			this.log.debug(
+				`Verification CONFIRMED for ${id}: acknowledged value ${state.val} matches expected ${JSON.stringify(watcher.expected)}.`,
+			);
+			watcher.resolve(true);
+			return;
+		}
+
 		// manual trigger (own state, command => ack === false)
 		const m = id.match(/switches\.([^.]+)\.feedNow$/);
 		if (m && state.ack === false && state.val) {
@@ -746,8 +908,9 @@ class Futterautomat extends utils.Adapter {
 	 */
 	onUnload(callback) {
 		try {
+			this.terminating = true;
 			this.log.debug(
-				`Shutting down: clearing ${this.scheduleTimers.size} schedule timer(s) and ${this.offTimers.size} off-timer(s).`,
+				`Shutting down: clearing ${this.scheduleTimers.size} schedule timer(s) and ${this.verifyWatchers.size} verification(s).`,
 			);
 			if (this.midnightTimer) {
 				clearTimeout(this.midnightTimer);
@@ -758,9 +921,13 @@ class Futterautomat extends utils.Adapter {
 			}
 			this.scheduleTimers.clear();
 
-			// turn off switches that are still feeding (best effort) and clear their timers
-			for (const [sid, t] of this.offTimers.entries()) {
-				clearTimeout(t);
+			for (const w of this.verifyWatchers.values()) {
+				clearTimeout(w.timer);
+			}
+			this.verifyWatchers.clear();
+
+			// turn off switches that are still in an active feeding cycle (best effort)
+			for (const sid of this.feedingBusy) {
 				const sw = this.switches.find(s => s.id === sid);
 				if (sw && sw.objectId) {
 					const value = coerce(sw.offValue ?? false);
@@ -768,7 +935,7 @@ class Futterautomat extends utils.Adapter {
 					this.setForeignState(sw.objectId, { val: value, ack: false }, () => {});
 				}
 			}
-			this.offTimers.clear();
+			this.feedingBusy.clear();
 
 			this.log.info('Adapter stopped.');
 			callback();

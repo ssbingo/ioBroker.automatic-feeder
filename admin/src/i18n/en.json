@@ -52,5 +52,9 @@
 	"Block if above (°C)": "Block if above (°C)",
 	"Restrictions": "Restrictions",
 	"Do not feed at night (between sunset and sunrise, incl. offsets)": "Do not feed at night (between sunset and sunrise, incl. offsets)",
-	"Manual trigger ignores all blocks": "Manual trigger ignores all blocks"
+	"Manual trigger ignores all blocks": "Manual trigger ignores all blocks",
+	"Switching supervision": "Switching supervision",
+	"Verify that the switch actually turns on and off": "Verify that the switch actually turns on and off",
+	"Only works if the switch reports its real state back (acknowledged / ack=true).": "Only works if the switch reports its real state back (acknowledged / ack=true).",
+	"Verification timeout (seconds)": "Verification timeout (seconds)"
 }

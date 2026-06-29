@@ -94,6 +94,8 @@
 		"airTempObjectId": "",
 		"waterTempEnabled": false,
 		"waterTempObjectId": "",
+		"verifyEnabled": true,
+		"verifyTimeoutSec": 5,
 		"switches": []
 	},
 	"objects": [],

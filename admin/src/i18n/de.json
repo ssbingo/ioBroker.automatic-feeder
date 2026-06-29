@@ -52,5 +52,9 @@
 	"Water temperature object": "Objekt Wassertemperatur",
 	"Window end": "Ende Zeitraum",
 	"Window start": "Beginn Zeitraum",
+	"Switching supervision": "Schaltüberwachung",
+	"Verify that the switch actually turns on and off": "Prüfen, ob der Schalter tatsächlich ein- und ausschaltet",
+	"Only works if the switch reports its real state back (acknowledged / ack=true).": "Funktioniert nur, wenn der Schalter seinen Ist-Zustand zurückmeldet (bestätigt / ack=true).",
+	"Verification timeout (seconds)": "Überwachungs-Timeout (Sekunden)",
 	"futterautomat adapter settings": "Adaptereinstellungen für Futterautomat"
 }

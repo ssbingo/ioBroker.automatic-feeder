@@ -57,6 +57,10 @@ declare global {
 			airTempObjectId: string;
 			waterTempEnabled: boolean;
 			waterTempObjectId: string;
+			/** Verify (read back) that the switch actually turned on and off. */
+			verifyEnabled: boolean;
+			/** Timeout in seconds to wait for the acknowledged on/off confirmation. */
+			verifyTimeoutSec: number;
 			switches: FutterautomatSwitchConfig[];
 		}
 	}
