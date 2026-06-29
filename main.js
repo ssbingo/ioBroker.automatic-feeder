@@ -231,7 +231,7 @@ class Futterautomat extends utils.Adapter {
 		this.log.debug(
 			`Midnight recalculation scheduled for ${midnight.toISOString()} (in ${Math.round(delay / 1000)}s).`,
 		);
-		this.midnightTimer = setTimeout(() => {
+		this.midnightTimer = this.setTimeout(() => {
 			this.log.debug('Midnight reached: recomputing sun window and rescheduling all switches.');
 			this.recomputeSunWindow();
 			this.scheduleMidnightRecalc();
@@ -460,7 +460,7 @@ class Futterautomat extends utils.Adapter {
 		// clear an existing schedule timer for this switch
 		const existing = this.scheduleTimers.get(sw.id);
 		if (existing) {
-			clearTimeout(existing);
+			this.clearTimeout(existing);
 			this.scheduleTimers.delete(sw.id);
 			this.log.silly(`Cleared existing schedule timer for ${this.swLabel(sw)}.`);
 		}
@@ -478,7 +478,7 @@ class Futterautomat extends utils.Adapter {
 			`Switch ${this.swLabel(sw)}: mode=${sw.mode}, next feeding at ${next.toISOString()} (in ${Math.round(delay / 1000)}s).`,
 		);
 
-		const timer = setTimeout(async () => {
+		const timer = this.setTimeout(async () => {
 			this.scheduleTimers.delete(sw.id);
 			this.log.debug(`Scheduled feeding timer fired for ${this.swLabel(sw)}.`);
 			await this.feed(sw, false);
@@ -688,7 +688,7 @@ class Futterautomat extends utils.Adapter {
 		const expected = coerce(expectOn ? (sw.onValue ?? true) : (sw.offValue ?? false));
 		const timeoutMs = Math.max(1, Number(sw.verifyTimeoutSec) || 5) * 1000;
 		return new Promise(resolve => {
-			const timer = setTimeout(() => {
+			const timer = this.setTimeout(() => {
 				this.verifyWatchers.delete(sw.objectId);
 				this.log.debug(
 					`Verification TIMEOUT for ${this.swLabel(sw)} expecting ${expectOn ? 'ON' : 'OFF'}=${JSON.stringify(expected)} after ${timeoutMs}ms.`,
@@ -859,7 +859,7 @@ class Futterautomat extends utils.Adapter {
 		// Only ack=true counts - our own command (ack=false) must not confirm itself.
 		const watcher = this.verifyWatchers.get(id);
 		if (watcher && state.ack === true && this.valuesMatch(state.val, watcher.expected)) {
-			clearTimeout(watcher.timer);
+			this.clearTimeout(watcher.timer);
 			this.verifyWatchers.delete(id);
 			this.log.debug(
 				`Verification CONFIRMED for ${id}: acknowledged value ${state.val} matches expected ${JSON.stringify(watcher.expected)}.`,
@@ -973,16 +973,16 @@ class Futterautomat extends utils.Adapter {
 				`Shutting down: clearing ${this.scheduleTimers.size} schedule timer(s) and ${this.verifyWatchers.size} verification(s).`,
 			);
 			if (this.midnightTimer) {
-				clearTimeout(this.midnightTimer);
+				this.clearTimeout(this.midnightTimer);
 				this.midnightTimer = null;
 			}
 			for (const t of this.scheduleTimers.values()) {
-				clearTimeout(t);
+				this.clearTimeout(t);
 			}
 			this.scheduleTimers.clear();
 
 			for (const w of this.verifyWatchers.values()) {
-				clearTimeout(w.timer);
+				this.clearTimeout(w.timer);
 			}
 			this.verifyWatchers.clear();
 

@@ -77,9 +77,7 @@ VIS-Ansicht).
 ## 3. Installation
 
 1. Im ioBroker-**admin** den Reiter **Adapter** öffnen.
-2. Aus der GitHub-URL installieren (solange der Adapter noch nicht im offiziellen Repo ist): den
-   Button „Adapter aus eigener URL installieren" (Katze/GitHub-Icon, Experten-Modus) nutzen und
-   `ssbingo/ioBroker.futterautomat` eingeben.
+2. In der Adapter-Liste **futterautomat** suchen und auf **Installieren** klicken.
 3. Eine **Instanz** des Adapters anlegen.
 4. Die Instanz-Einstellungen öffnen (Zahnrad-Symbol) – es sollte die Konfigurationsseite mit dem
    Tab **Grundeinstellungen** erscheinen. Bleibt sie leer, siehe [Fehlerbehebung](#9-fehlerbehebung--faq).
@@ -325,12 +323,11 @@ auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslös
 ## 9. Fehlerbehebung & FAQ
 
 **Die Einstellungsseite ist leer / weiß.**
-Die kompilierte Oberfläche wurde nicht hochgeladen. Adapter neu von GitHub installieren,
-`iobroker upload futterautomat` ausführen, Instanz neu starten und den Browser mit
-**Strg+Shift+R** neu laden.
+Den Browser mit **Strg+Shift+R** neu laden. Bleibt die Seite leer, die Instanz neu starten und
+die Einstellungen erneut öffnen.
 
 **Das neue Icon / eine Änderung erscheint nicht.**
-Browser-Cache. `iobroker upload futterautomat` ausführen und hart neu laden (Strg+Shift+R).
+Browser-Cache. Mit **Strg+Shift+R** hart neu laden.
 
 **Es wird gar nicht gefüttert.**
 Der Reihe nach prüfen: Schalter **Aktiv**; ein **Schalter-Objekt** ausgewählt; **Zeitplan**

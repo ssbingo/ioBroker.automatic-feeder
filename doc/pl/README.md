@@ -77,9 +77,7 @@ VIS).
 ## 3. Instalacja
 
 1. W **admin** ioBroker otwórz zakładkę **Adapter**.
-2. Zainstaluj z adresu URL GitHub (dopóki adapter nie znajduje się jeszcze w oficjalnym repozytorium):
-   użyj przycisku „Zainstaluj adapter z własnego adresu URL" (ikona kota/GitHub, tryb eksperta)
-   i wpisz `ssbingo/ioBroker.futterautomat`.
+2. Znajdź **futterautomat** na liście adapterów i kliknij **Zainstaluj**.
 3. Utwórz **instancję** adaptera.
 4. Otwórz ustawienia instancji (ikona zębatki) – powinna pojawić się strona konfiguracji z
    zakładką **Ustawienia podstawowe** (Grundeinstellungen). Jeśli pozostaje pusta, zobacz [Rozwiązywanie problemów](#9-rozwiązywanie-problemów-i-faq).
@@ -332,13 +330,11 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
 ## 9. Rozwiązywanie problemów i FAQ
 
 **Strona ustawień jest pusta / biała.**
-Skompilowany interfejs nie został przesłany. Zainstaluj adapter ponownie z GitHub,
-wykonaj `iobroker upload futterautomat`, uruchom ponownie instancję i przeładuj przeglądarkę
-za pomocą **Strg+Shift+R**.
+Przeładuj przeglądarkę za pomocą **Strg+Shift+R**. Jeśli problem nadal występuje, uruchom
+ponownie instancję i otwórz ustawienia jeszcze raz.
 
 **Nowa ikona / zmiana nie pojawia się.**
-Pamięć podręczna przeglądarki. Wykonaj `iobroker upload futterautomat` i przeładuj na twardo
-(Strg+Shift+R).
+Pamięć podręczna przeglądarki. Przeładuj na twardo za pomocą **Strg+Shift+R**.
 
 **Karmienie w ogóle się nie odbywa.**
 Sprawdź po kolei: przełącznik **Aktywny**; wybrany **obiekt przełącznika**; prawidłowy

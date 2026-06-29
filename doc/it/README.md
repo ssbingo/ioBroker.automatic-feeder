@@ -78,9 +78,7 @@ delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramit
 ## 3. Installazione
 
 1. Nell'**admin** di ioBroker apri la scheda **Adattatori** (Adapter).
-2. Installa dall'URL GitHub (finché l'adattatore non è ancora nel repository ufficiale): usa il
-   pulsante „Installa adattatore da URL personalizzato" (Adapter aus eigener URL installieren –
-   icona gatto/GitHub, modalità esperto) e inserisci `ssbingo/ioBroker.futterautomat`.
+2. Cerca futterautomat nell'elenco degli adattatori e fai clic su **Installa**.
 3. Crea un'**istanza** dell'adattatore.
 4. Apri le impostazioni dell'istanza (icona ingranaggio): dovrebbe comparire la pagina di
    configurazione con la scheda **Impostazioni di base** (Grundeinstellungen). Se rimane vuota,
@@ -346,11 +344,11 @@ mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzat
 ## 9. Risoluzione dei problemi & FAQ
 
 **La pagina delle impostazioni è vuota / bianca.**
-L'interfaccia compilata non è stata caricata. Reinstalla l'adattatore da GitHub, esegui
-`iobroker upload futterautomat`, riavvia l'istanza e ricarica il browser con **Strg+Shift+R**.
+Ricarica il browser con **Strg+Shift+R**. Se il problema persiste, riavvia l'istanza e riapri le
+impostazioni.
 
 **La nuova icona / una modifica non compare.**
-Cache del browser. Esegui `iobroker upload futterautomat` e ricarica forzatamente (Strg+Shift+R).
+Cache del browser. Ricarica forzatamente con **Strg+Shift+R**.
 
 **Non viene distribuito alcun mangime.**
 Controlla nell'ordine: l'interruttore è **Attivo**; è selezionato un **Oggetto interruttore**; il

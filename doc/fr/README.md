@@ -81,9 +81,7 @@ dans une vue VIS).
 ## 3. Installation
 
 1. Dans l'**admin** ioBroker, ouvre l'onglet **Adaptateurs**.
-2. Installe depuis l'URL GitHub (tant que l'adaptateur n'est pas encore dans le dépôt officiel) :
-   utilise le bouton « Installer un adaptateur depuis une URL personnalisée » (icône chat/GitHub,
-   mode expert) et saisis `ssbingo/ioBroker.futterautomat`.
+2. Recherche **futterautomat** dans la liste des adaptateurs et clique sur **Installer**.
 3. Crée une **instance** de l'adaptateur.
 4. Ouvre les paramètres de l'instance (icône en forme d'engrenage) — la page de configuration avec
    l'onglet **Réglages de base** (Grundeinstellungen) devrait apparaître. Si elle reste vide,
@@ -350,13 +348,11 @@ true`.
 ## 9. Dépannage & FAQ
 
 **La page de configuration est vide / blanche.**
-L'interface compilée n'a pas été téléversée. Réinstalle l'adaptateur depuis GitHub, exécute
-`iobroker upload futterautomat`, redémarre l'instance et recharge le navigateur avec
-**Strg+Shift+R**.
+Recharge le navigateur avec **Strg+Shift+R**. Si le problème persiste, redémarre l'instance et
+rouvre les paramètres.
 
 **Le nouvel icône / une modification n'apparaît pas.**
-Cache du navigateur. Exécute `iobroker upload futterautomat` et effectue un rechargement forcé
-(Strg+Shift+R).
+Cache du navigateur. Effectue un rechargement forcé (Strg+Shift+R).
 
 **Rien n'est distribué du tout.**
 Vérifie dans l'ordre : l'interrupteur est **Actif** ; un **objet interrupteur** est sélectionné ;

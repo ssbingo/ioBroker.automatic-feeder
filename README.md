@@ -89,9 +89,7 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 ## 3. Installation
 
 1. In the ioBroker **admin**, open the **Adapters** tab.
-2. Install from the GitHub URL (until the adapter is in the official repository): use the
-   "install from own URL" button (cat/GitHub icon, expert mode) and enter
-   `ssbingo/ioBroker.futterautomat`.
+2. Find **futterautomat** in the list and click **Install**.
 3. Create an **instance** of the adapter.
 4. Open the instance settings (the gear icon) – you should see the configuration page with the
    **General settings** tab. If it stays blank, see [Troubleshooting](#9-troubleshooting--faq).
@@ -334,12 +332,11 @@ dashboard, or react on `error = true` to send your own alarm.
 ## 9. Troubleshooting & FAQ
 
 **The settings page is blank / white.**
-The compiled UI was not uploaded. Reinstall the adapter from GitHub, run
-`iobroker upload futterautomat`, restart the instance, and reload the browser with
-**Ctrl+Shift+R**.
+Reload the browser with **Ctrl+Shift+R** (the admin may have cached an old page). If it
+persists, restart the instance and reopen the settings.
 
 **The new icon / a change does not show up.**
-Browser cache. Run `iobroker upload futterautomat` and hard-reload (Ctrl+Shift+R).
+Browser cache – hard-reload with **Ctrl+Shift+R**.
 
 **Nothing gets fed.**
 Check, in order: the switch is **Active**; a **switch object** is selected; the **schedule** is
@@ -381,6 +378,14 @@ log level (Instances → futterautomat.x → log level) to **debug** or **silly*
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 0.1.3 (2026-06-29)
+* (ssbingo) Use this.setTimeout/this.clearTimeout instead of global timers (repository checker E5005)
+* (ssbingo) CI: run check-and-lint and deploy on Node 24; adapter-tests now needs check-and-lint
+* (ssbingo) Migrate Dependabot auto-merge to iobroker-bot-orga/action-automerge-dependabot
+* (ssbingo) dependabot.yml: add cooldown, ignore @types/node major updates, raise PR limit to 15
+* (ssbingo) README/docs: install via the ioBroker admin (removed GitHub/CLI install instructions)
+* (ssbingo) i18n: complete all 11 languages and drop obsolete keys; remove obsolete .prettierignore
 
 ### 0.1.2 (2026-06-29)
 * (ssbingo) Require admin >= 7.6.20 (repository checker E1057)

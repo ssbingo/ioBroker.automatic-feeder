@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "futterautomat",
-		"version": "0.1.2",
+		"version": "0.1.3",
 		"news": {
-			"0.1.2": {
-				"en": "Repository checker fixes: require admin >= 7.6.20, add the \"ioBroker\" keyword and update minor dependencies.",
-				"de": "Repository-Checker-Korrekturen: admin >= 7.6.20 vorausgesetzt, Schlüsselwort \"ioBroker\" ergänzt und kleinere Abhängigkeiten aktualisiert.",
-				"ru": "Исправления для repository checker: требуется admin >= 7.6.20, добавлено ключевое слово \"ioBroker\" и обновлены второстепенные зависимости.",
-				"pt": "Correções do repository checker: requer admin >= 7.6.20, palavra-chave \"ioBroker\" adicionada e dependências menores atualizadas.",
-				"nl": "Repository-checker-correcties: vereist admin >= 7.6.20, trefwoord \"ioBroker\" toegevoegd en kleine afhankelijkheden bijgewerkt.",
-				"fr": "Corrections du repository checker : admin >= 7.6.20 requis, mot-clé « ioBroker » ajouté et dépendances mineures mises à jour.",
-				"it": "Correzioni del repository checker: richiede admin >= 7.6.20, aggiunta la parola chiave \"ioBroker\" e aggiornate dipendenze minori.",
-				"es": "Correcciones del repository checker: requiere admin >= 7.6.20, añadida la palabra clave \"ioBroker\" y actualizadas dependencias menores.",
-				"pl": "Poprawki repository checkera: wymagany admin >= 7.6.20, dodano słowo kluczowe \"ioBroker\" i zaktualizowano drobne zależności.",
-				"uk": "Виправлення для repository checker: потрібен admin >= 7.6.20, додано ключове слово \"ioBroker\" та оновлено другорядні залежності.",
-				"zh-cn": "仓库检查器修复：要求 admin >= 7.6.20，添加 \"ioBroker\" 关键字并更新次要依赖。"
+			"0.1.3": {
+				"en": "More repository checker fixes: use this.setTimeout, CI on Node 24, migrated Dependabot auto-merge, dependabot cooldown, README and i18n cleanup.",
+				"de": "Weitere Repository-Checker-Korrekturen: this.setTimeout, CI auf Node 24, Dependabot-Auto-Merge migriert, Dependabot-Cooldown, README- und i18n-Bereinigung.",
+				"ru": "Дополнительные исправления repository checker: this.setTimeout, CI на Node 24, перенос авто-слияния Dependabot, cooldown Dependabot, очистка README и i18n.",
+				"pt": "Mais correções do repository checker: this.setTimeout, CI no Node 24, auto-merge do Dependabot migrado, cooldown do Dependabot, limpeza de README e i18n.",
+				"nl": "Meer repository-checker-correcties: this.setTimeout, CI op Node 24, Dependabot-auto-merge gemigreerd, Dependabot-cooldown, opschoning van README en i18n.",
+				"fr": "Autres corrections du repository checker : this.setTimeout, CI sur Node 24, auto-merge Dependabot migré, cooldown Dependabot, nettoyage du README et de l'i18n.",
+				"it": "Altre correzioni del repository checker: this.setTimeout, CI su Node 24, auto-merge di Dependabot migrato, cooldown di Dependabot, pulizia di README e i18n.",
+				"es": "Más correcciones del repository checker: this.setTimeout, CI en Node 24, auto-merge de Dependabot migrado, cooldown de Dependabot, limpieza de README e i18n.",
+				"pl": "Kolejne poprawki repository checkera: this.setTimeout, CI na Node 24, migracja auto-merge Dependabota, cooldown Dependabota, porządki w README i i18n.",
+				"uk": "Додаткові виправлення repository checker: this.setTimeout, CI на Node 24, міграція авто-злиття Dependabot, cooldown Dependabot, очищення README та i18n.",
+				"zh-cn": "更多仓库检查器修复：使用 this.setTimeout、CI 改用 Node 24、迁移 Dependabot 自动合并、Dependabot 冷却期、清理 README 与 i18n。"
 			}
 		},
 		"titleLang": {
@@ -47,7 +47,6 @@
 			"ssbingo <s.sternitzke@online.de>"
 		],
 		"keywords": [
-			"ioBroker",
 			"Futterautomat",
 			"Koi",
 			"Fisch"

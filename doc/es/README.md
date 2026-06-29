@@ -76,9 +76,7 @@ vista de VIS).
 ## 3. Instalación
 
 1. En el **admin** de ioBroker, abre la pestaña **Adaptadores** (Adapter).
-2. Instala desde la URL de GitHub (mientras el adaptador aún no esté en el repositorio oficial):
-   usa el botón «Instalar adaptador desde una URL propia» (icono de gato/GitHub, modo experto) e
-   introduce `ssbingo/ioBroker.futterautomat`.
+2. Busca **futterautomat** en la lista de adaptadores y haz clic en **Instalar**.
 3. Crea una **instancia** del adaptador.
 4. Abre los ajustes de la instancia (icono de engranaje): debería aparecer la página de
    configuración con la pestaña **Ajustes básicos** (Grundeinstellungen). Si permanece vacía,
@@ -343,13 +341,11 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
 ## 9. Solución de problemas y preguntas frecuentes
 
 **La página de ajustes está vacía / en blanco.**
-La interfaz compilada no se ha subido. Reinstala el adaptador desde GitHub, ejecuta
-`iobroker upload futterautomat`, reinicia la instancia y recarga el navegador con
-**Strg+Shift+R**.
+Recarga el navegador con **Ctrl+Shift+R**. Si el problema persiste, reinicia la instancia y vuelve a
+abrir los ajustes.
 
 **El nuevo icono / un cambio no aparece.**
-Caché del navegador. Ejecuta `iobroker upload futterautomat` y recarga de forma forzada
-(Strg+Shift+R).
+Caché del navegador. Recarga de forma forzada con **Ctrl+Shift+R**.
 
 **No se alimenta en absoluto.**
 Comprueba en orden: el interruptor está **Activo**; hay un **objeto interruptor** seleccionado; el

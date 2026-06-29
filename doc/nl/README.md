@@ -77,9 +77,7 @@ VIS-weergave).
 ## 3. Installatie
 
 1. In de ioBroker-**admin** het tabblad **Adapter** openen.
-2. Vanaf de GitHub-URL installeren (zolang de adapter nog niet in de officiële repo staat): de
-   knop „Adapter vanaf eigen URL installeren" (kat/GitHub-icoon, expertmodus) gebruiken en
-   `ssbingo/ioBroker.futterautomat` invoeren.
+2. In de lijst met adapters **futterautomat** opzoeken en op **Installeren** klikken.
 3. Een **instantie** van de adapter aanmaken.
 4. De instantie-instellingen openen (tandwiel-symbool) – er zou de configuratiepagina met het
    tabblad **Basisinstellingen** moeten verschijnen. Blijft deze leeg, zie [Probleemoplossing](#9-probleemoplossing--faq).
@@ -325,12 +323,11 @@ op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
 ## 9. Probleemoplossing & FAQ
 
 **De instellingenpagina is leeg / wit.**
-De gecompileerde interface is niet geüpload. Adapter opnieuw vanaf GitHub installeren,
-`iobroker upload futterautomat` uitvoeren, instantie opnieuw starten en de browser met
-**Strg+Shift+R** opnieuw laden.
+De browser met **Strg+Shift+R** opnieuw laden. Blijft het probleem bestaan, de instantie
+opnieuw starten en de instellingen opnieuw openen.
 
 **Het nieuwe icoon / een wijziging verschijnt niet.**
-Browser-cache. `iobroker upload futterautomat` uitvoeren en hard opnieuw laden (Strg+Shift+R).
+Browser-cache. Hard opnieuw laden met **Strg+Shift+R**.
 
 **Er wordt helemaal niet gevoerd.**
 Op volgorde controleren: schakelaar **Actief**; een **schakelaar-object** geselecteerd; **schema**

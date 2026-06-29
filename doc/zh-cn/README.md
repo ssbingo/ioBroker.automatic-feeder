@@ -71,8 +71,7 @@
 ## 3. 安装
 
 1. 在 ioBroker **admin** 中打开**适配器（Adapter）**选项卡。
-2. 从 GitHub URL 安装（在该适配器尚未进入官方仓库期间）：使用“从自定义 URL 安装适配器”
-   按钮（猫/GitHub 图标，专家模式），并输入 `ssbingo/ioBroker.futterautomat`。
+2. 在适配器列表中找到 **futterautomat**，并点击**安装（Install）**。
 3. 创建该适配器的一个**实例**。
 4. 打开实例设置（齿轮图标）——应当会出现带有**基本设置（Grundeinstellungen）**
    选项卡的配置页面。如果页面保持空白，请参见[故障排除](#9-故障排除与常见问题)。
@@ -301,11 +300,10 @@
 ## 9. 故障排除与常见问题
 
 **设置页面是空白的 / 白屏。**
-编译后的界面没有被上传。请重新从 GitHub 安装适配器，执行 `iobroker upload futterautomat`，
-重启实例，并用 **Strg+Shift+R** 重新加载浏览器。
+请用 **Strg+Shift+R** 重新加载浏览器。如果仍然如此，请重启该实例并重新打开设置。
 
 **新图标 / 某项改动没有出现。**
-浏览器缓存。执行 `iobroker upload futterautomat` 并强制重新加载（Strg+Shift+R）。
+浏览器缓存。请用 **Strg+Shift+R** 强制重新加载。
 
 **完全没有喂食。**
 依次检查：开关已**激活**；已选择一个**开关对象**；**时间计划**有效（`nextFeeding` 显示一个时间）；
