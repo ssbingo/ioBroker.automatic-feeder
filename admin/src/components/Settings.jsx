@@ -81,7 +81,7 @@ function Settings(props) {
 	const activeSwitch = activeSwitchIndex >= 0 ? switches[activeSwitchIndex] : null;
 
 	return (
-		<Box sx={{ p: 2 }}>
+		<Box sx={{ p: 2, pb: 10 }}>
 			<Tabs
 				value={Math.min(tab, switches.length)}
 				onChange={(_e, v) => setTab(v)}

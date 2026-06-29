@@ -43,16 +43,18 @@ class App extends GenericApp {
 		}
 
 		return (
-			<div className="App" style={{ width: '100%', height: '100%' }}>
-				<Settings
-					native={this.state.native}
-					onChange={(attr, value) => this.updateNativeValue(attr, value)}
-					socket={this.socket}
-					theme={this.state.theme}
-					themeType={this.state.themeType}
-					themeName={this.state.themeName}
-					instanceId={`${this.adapterName}.${this.instance}`}
-				/>
+			<div className="App" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+				<div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+					<Settings
+						native={this.state.native}
+						onChange={(attr, value) => this.updateNativeValue(attr, value)}
+						socket={this.socket}
+						theme={this.state.theme}
+						themeType={this.state.themeType}
+						themeName={this.state.themeName}
+						instanceId={`${this.adapterName}.${this.instance}`}
+					/>
+				</div>
 				{this.renderError()}
 				{this.renderToast()}
 				{this.renderSaveCloseButtons()}
