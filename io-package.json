@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "futterautomat",
-		"version": "0.1.7",
+		"version": "0.1.8",
 		"news": {
-			"0.1.7": {
-				"en": "Remove the unsupported custom \"comment-overrides\" key from package.json (repository checker E0058).",
-				"de": "Nicht unterstützten eigenen Schlüssel \"comment-overrides\" aus package.json entfernt (Repository-Checker E0058).",
-				"ru": "Удалён неподдерживаемый пользовательский ключ \"comment-overrides\" из package.json (repository checker E0058).",
-				"pt": "Removida a chave personalizada não suportada \"comment-overrides\" do package.json (repository checker E0058).",
-				"nl": "Niet-ondersteunde eigen sleutel \"comment-overrides\" uit package.json verwijderd (repository checker E0058).",
-				"fr": "Suppression de la clé personnalisée non prise en charge « comment-overrides » de package.json (repository checker E0058).",
-				"it": "Rimossa la chiave personalizzata non supportata \"comment-overrides\" da package.json (repository checker E0058).",
-				"es": "Eliminada la clave personalizada no admitida \"comment-overrides\" de package.json (repository checker E0058).",
-				"pl": "Usunięto nieobsługiwany własny klucz \"comment-overrides\" z package.json (repository checker E0058).",
-				"uk": "Видалено непідтримуваний власний ключ \"comment-overrides\" з package.json (repository checker E0058).",
-				"zh-cn": "从 package.json 移除不受支持的自定义键 \"comment-overrides\"（仓库检查器 E0058）。"
+			"0.1.8": {
+				"en": "Create the intermediate \"info\" and \"switches\" objects so every object id path has a parent (repository checker E3009).",
+				"de": "Zwischenobjekte \"info\" und \"switches\" anlegen, damit jeder Objekt-ID-Pfad ein Elternobjekt hat (Repository-Checker E3009).",
+				"ru": "Создаются промежуточные объекты \"info\" и \"switches\", чтобы у каждого пути id был родитель (repository checker E3009).",
+				"pt": "Criar os objetos intermediários \"info\" e \"switches\" para que cada caminho de id tenha um pai (repository checker E3009).",
+				"nl": "De tussenliggende objecten \"info\" en \"switches\" aanmaken zodat elk object-id-pad een ouder heeft (repository checker E3009).",
+				"fr": "Créer les objets intermédiaires « info » et « switches » pour que chaque chemin d'id ait un parent (repository checker E3009).",
+				"it": "Creare gli oggetti intermedi \"info\" e \"switches\" affinché ogni percorso di id abbia un genitore (repository checker E3009).",
+				"es": "Crear los objetos intermedios \"info\" y \"switches\" para que cada ruta de id tenga un padre (repository checker E3009).",
+				"pl": "Tworzenie obiektów pośrednich \"info\" i \"switches\", aby każda ścieżka id miała rodzica (repository checker E3009).",
+				"uk": "Створення проміжних об'єктів \"info\" та \"switches\", щоб кожен шлях id мав батьківський об'єкт (repository checker E3009).",
+				"zh-cn": "创建中间对象 \"info\" 和 \"switches\"，使每个对象 id 路径都有父对象（仓库检查器 E3009）。"
 			}
 		},
 		"titleLang": {
@@ -98,6 +98,14 @@
 	},
 	"objects": [],
 	"instanceObjects": [
+		{
+			"_id": "info",
+			"type": "channel",
+			"common": {
+				"name": "Information"
+			},
+			"native": {}
+		},
 		{
 			"_id": "info.connection",
 			"type": "state",

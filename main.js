@@ -249,7 +249,13 @@ class Futterautomat extends utils.Adapter {
 	// ----------------------------------------------------------------------------
 
 	async createGlobalObjects() {
-		this.log.silly('Ensuring global objects: info.connection, airTemperature, waterTemperature, sunrise, sunset');
+		this.log.silly('Ensuring global objects: info, airTemperature, waterTemperature, sunrise, sunset');
+		// intermediate parent object for info.* (required so every id path segment has an object)
+		await this.setObjectNotExistsAsync('info', {
+			type: 'channel',
+			common: { name: 'Information' },
+			native: {},
+		});
 		await this.setObjectNotExistsAsync('info.connection', {
 			type: 'state',
 			common: {
@@ -314,6 +320,15 @@ class Futterautomat extends utils.Adapter {
 					this.log.info(`Removed obsolete switch objects for "${sid}".`);
 				}
 			}
+		}
+
+		// intermediate parent object for switches.* (so every id path segment has an object)
+		if (this.switches.length) {
+			await this.setObjectNotExistsAsync('switches', {
+				type: 'folder',
+				common: { name: 'Switches' },
+				native: {},
+			});
 		}
 
 		for (const sw of this.switches) {
