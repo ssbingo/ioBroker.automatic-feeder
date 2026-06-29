@@ -1,6 +1,6 @@
 {
   "name": "iobroker.futterautomat",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Steuerung für umgebaute Futterautomaten",
   "author": {
     "name": "ssbingo",

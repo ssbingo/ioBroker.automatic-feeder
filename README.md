@@ -379,6 +379,9 @@ log level (Instances → futterautomat.x → log level) to **debug** or **silly*
 	### **WORK IN PROGRESS**
 -->
 
+### 0.1.4 (2026-06-29)
+* (ssbingo) Fully translate the admin UI into all supported languages (repository checker E5606)
+
 ### 0.1.3 (2026-06-29)
 * (ssbingo) Use this.setTimeout/this.clearTimeout instead of global timers (repository checker E5005)
 * (ssbingo) CI: run check-and-lint and deploy on Node 24; adapter-tests now needs check-and-lint
