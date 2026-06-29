@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "futterautomat",
-		"version": "0.1.1",
+		"version": "0.1.2",
 		"news": {
-			"0.1.1": {
-				"en": "Minimum Node.js raised to >= 22 (Node 20 is no longer supported); npm release via trusted publishing (OIDC).",
-				"de": "Mindest-Node.js auf >= 22 angehoben (Node 20 wird nicht mehr unterstützt); npm-Release über Trusted Publishing (OIDC).",
-				"ru": "Минимальная версия Node.js повышена до >= 22 (Node 20 больше не поддерживается); публикация в npm через trusted publishing (OIDC).",
-				"pt": "Node.js mínimo elevado para >= 22 (Node 20 já não é suportado); publicação no npm via trusted publishing (OIDC).",
-				"nl": "Minimale Node.js verhoogd naar >= 22 (Node 20 wordt niet meer ondersteund); npm-release via trusted publishing (OIDC).",
-				"fr": "Node.js minimum porté à >= 22 (Node 20 n'est plus pris en charge) ; publication npm via trusted publishing (OIDC).",
-				"it": "Node.js minimo portato a >= 22 (Node 20 non è più supportato); pubblicazione npm tramite trusted publishing (OIDC).",
-				"es": "Node.js mínimo elevado a >= 22 (Node 20 ya no es compatible); publicación en npm mediante trusted publishing (OIDC).",
-				"pl": "Minimalna wersja Node.js podniesiona do >= 22 (Node 20 nie jest już obsługiwany); publikacja npm przez trusted publishing (OIDC).",
-				"uk": "Мінімальну версію Node.js підвищено до >= 22 (Node 20 більше не підтримується); публікація в npm через trusted publishing (OIDC).",
-				"zh-cn": "最低 Node.js 提升到 >= 22（不再支持 Node 20）；通过受信任发布（OIDC）发布到 npm。"
+			"0.1.2": {
+				"en": "Repository checker fixes: require admin >= 7.6.20, add the \"ioBroker\" keyword and update minor dependencies.",
+				"de": "Repository-Checker-Korrekturen: admin >= 7.6.20 vorausgesetzt, Schlüsselwort \"ioBroker\" ergänzt und kleinere Abhängigkeiten aktualisiert.",
+				"ru": "Исправления для repository checker: требуется admin >= 7.6.20, добавлено ключевое слово \"ioBroker\" и обновлены второстепенные зависимости.",
+				"pt": "Correções do repository checker: requer admin >= 7.6.20, palavra-chave \"ioBroker\" adicionada e dependências menores atualizadas.",
+				"nl": "Repository-checker-correcties: vereist admin >= 7.6.20, trefwoord \"ioBroker\" toegevoegd en kleine afhankelijkheden bijgewerkt.",
+				"fr": "Corrections du repository checker : admin >= 7.6.20 requis, mot-clé « ioBroker » ajouté et dépendances mineures mises à jour.",
+				"it": "Correzioni del repository checker: richiede admin >= 7.6.20, aggiunta la parola chiave \"ioBroker\" e aggiornate dipendenze minori.",
+				"es": "Correcciones del repository checker: requiere admin >= 7.6.20, añadida la palabra clave \"ioBroker\" y actualizadas dependencias menores.",
+				"pl": "Poprawki repository checkera: wymagany admin >= 7.6.20, dodano słowo kluczowe \"ioBroker\" i zaktualizowano drobne zależności.",
+				"uk": "Виправлення для repository checker: потрібен admin >= 7.6.20, додано ключове слово \"ioBroker\" та оновлено другорядні залежності.",
+				"zh-cn": "仓库检查器修复：要求 admin >= 7.6.20，添加 \"ioBroker\" 关键字并更新次要依赖。"
 			}
 		},
 		"titleLang": {
@@ -47,6 +47,7 @@
 			"ssbingo <s.sternitzke@online.de>"
 		],
 		"keywords": [
+			"ioBroker",
 			"Futterautomat",
 			"Koi",
 			"Fisch"
@@ -79,7 +80,7 @@
 		],
 		"globalDependencies": [
 			{
-				"admin": ">=7.0.23"
+				"admin": ">=7.6.20"
 			}
 		]
 	},
