@@ -69,5 +69,8 @@
 	"Notify on successful feeding": "Bei erfolgreicher Fütterung benachrichtigen",
 	"Notify if feeding could not be performed": "Benachrichtigen, wenn Fütterung nicht durchgeführt werden konnte",
 	"Notify on switch-off fault": "Bei Störung der Abschaltung benachrichtigen",
+	"Telegram instance": "Telegram-Instanz",
+	"None (disabled)": "Keine (deaktiviert)",
+	"No Telegram instance installed.": "Keine Telegram-Instanz installiert.",
 	"futterautomat adapter settings": "Adaptereinstellungen für Futterautomat"
 }

@@ -69,5 +69,8 @@
 	"Leave the instance empty to disable Telegram for this switch.": "Leave the instance empty to disable Telegram for this switch.",
 	"Notify on successful feeding": "Notify on successful feeding",
 	"Notify if feeding could not be performed": "Notify if feeding could not be performed",
-	"Notify on switch-off fault": "Notify on switch-off fault"
+	"Notify on switch-off fault": "Notify on switch-off fault",
+	"Telegram instance": "Telegram instance",
+	"None (disabled)": "None (disabled)",
+	"No Telegram instance installed.": "No Telegram instance installed."
 }

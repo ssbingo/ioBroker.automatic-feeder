@@ -15,6 +15,10 @@ import {
 	Divider,
 	CircularProgress,
 	Alert,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -47,10 +51,16 @@ function toNumberOrNull(value) {
 }
 
 function SwitchTab(props) {
-	const { sw, onChange, native, socket, instanceId } = props;
+	const { sw, onChange, native, socket, instanceId, telegramInstances } = props;
 
 	const mode = sw.mode || 'times';
 	const times = Array.isArray(sw.times) ? sw.times : [];
+
+	// dropdown options for the telegram instance (keep a configured-but-missing one visible)
+	const telegramOptions = Array.isArray(telegramInstances) ? [...telegramInstances] : [];
+	if (sw.telegramInstance && !telegramOptions.includes(sw.telegramInstance)) {
+		telegramOptions.push(sw.telegramInstance);
+	}
 
 	const [feedBusy, setFeedBusy] = useState(false);
 	const [feedMsg, setFeedMsg] = useState(null); // { severity, text }
@@ -331,13 +341,22 @@ function SwitchTab(props) {
 			{/* Telegram notifications */}
 			<Section title={I18n.t('Telegram notifications')}>
 				<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 1 }}>
-					<TextField
-						variant="standard"
-						label={I18n.t('Telegram instance (e.g. telegram.0)')}
-						value={sw.telegramInstance || ''}
-						onChange={(e) => onChange({ telegramInstance: e.target.value })}
-						sx={{ minWidth: 200 }}
-					/>
+					<FormControl variant="standard" sx={{ minWidth: 220 }}>
+						<InputLabel>{I18n.t('Telegram instance')}</InputLabel>
+						<Select
+							value={sw.telegramInstance || ''}
+							onChange={(e) => onChange({ telegramInstance: e.target.value })}
+						>
+							<MenuItem value="">
+								<em>{I18n.t('None (disabled)')}</em>
+							</MenuItem>
+							{telegramOptions.map((id) => (
+								<MenuItem key={id} value={id}>
+									{id}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
 					<TextField
 						variant="standard"
 						label={I18n.t('Telegram recipient (optional)')}
@@ -347,7 +366,9 @@ function SwitchTab(props) {
 					/>
 				</Box>
 				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-					{I18n.t('Leave the instance empty to disable Telegram for this switch.')}
+					{telegramOptions.length === 0
+						? I18n.t('No Telegram instance installed.')
+						: I18n.t('Leave the instance empty to disable Telegram for this switch.')}
 				</Typography>
 				<FormControlLabel
 					control={
@@ -392,6 +413,7 @@ SwitchTab.propTypes = {
 	native: PropTypes.object.isRequired,
 	socket: PropTypes.object.isRequired,
 	instanceId: PropTypes.string.isRequired,
+	telegramInstances: PropTypes.array,
 };
 
 export default SwitchTab;

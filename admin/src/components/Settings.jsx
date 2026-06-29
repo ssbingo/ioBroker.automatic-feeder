@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Tabs, Tab } from '@mui/material';
 import { I18n } from '@iobroker/adapter-react-v5';
@@ -53,6 +53,25 @@ function createSwitch(switches) {
 function Settings(props) {
 	const { native, onChange, socket, theme, themeName, themeType, instanceId } = props;
 	const [tab, setTab] = useState(0);
+	const [telegramInstances, setTelegramInstances] = useState([]);
+
+	// read the installed telegram instances once, so switches can pick one from a list
+	useEffect(() => {
+		let active = true;
+		socket
+			.getAdapterInstances('telegram')
+			.then((list) => {
+				if (active) {
+					setTelegramInstances((list || []).map((o) => o._id.replace('system.adapter.', '')));
+				}
+			})
+			.catch(() => {
+				/* telegram not installed -> empty list */
+			});
+		return () => {
+			active = false;
+		};
+	}, [socket]);
 
 	const switches = Array.isArray(native.switches) ? native.switches : [];
 
@@ -117,6 +136,7 @@ function Settings(props) {
 					onChange={(patch) => updateSwitch(activeSwitchIndex, patch)}
 					socket={socket}
 					instanceId={instanceId}
+					telegramInstances={telegramInstances}
 				/>
 			) : null}
 		</Box>
