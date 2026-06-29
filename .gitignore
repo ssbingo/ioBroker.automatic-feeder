@@ -8,8 +8,9 @@
 node_modules
 nbproject
 
-# compiled admin UI (built in CI / before release, see .releaseconfig.json)
-admin/build
+# compiled admin UI: the bundle must be committed so installs from GitHub work,
+# but the large source maps are not needed at runtime
+admin/build/*.map
 
 # npm package files
 iobroker.*.tgz
