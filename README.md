@@ -382,6 +382,10 @@ log level (Instances → futterautomat.x → log level) to **debug** or **silly*
 	### **WORK IN PROGRESS**
 -->
 
+### 0.1.1 (2026-06-29)
+* (ssbingo) Raised the minimum Node.js version to >= 22 (Node 20 is no longer used)
+* (ssbingo) Enabled npm releases via trusted publishing (OIDC) in the GitHub Actions workflow
+
 ### 0.1.0 (2026-06-29)
 * (ssbingo) Scheduled feeding for up to 5 freely selectable switches (fixed times or interval within a time window)
 * (ssbingo) Configurable feeding duration per switch; configurable on/off values

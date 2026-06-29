@@ -14,7 +14,7 @@
 	"dataSource": "push",
 	"connectionIndicator": "no",
 	"language": "JavaScript",
-	"nodeVersion": "20",
+	"nodeVersion": "22",
 	"adminUi": "react",
 	"tools": ["ESLint", "type checking", "Prettier", "devcontainer"],
 	"eslintConfig": "official",
