@@ -1,14 +1,14 @@
-![Logo](admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
-[![NPM version](https://img.shields.io/npm/v/iobroker.futterautomat.svg)](https://www.npmjs.com/package/iobroker.futterautomat)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.futterautomat.svg)](https://www.npmjs.com/package/iobroker.futterautomat)
-![Number of Installations](https://iobroker.live/badges/futterautomat-installed.svg)
-![Current version in stable repository](https://iobroker.live/badges/futterautomat-stable.svg)
+[![NPM version](https://img.shields.io/npm/v/iobroker.automatic-feeder.svg)](https://www.npmjs.com/package/iobroker.automatic-feeder)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.automatic-feeder.svg)](https://www.npmjs.com/package/iobroker.automatic-feeder)
+![Number of Installations](https://iobroker.live/badges/automatic-feeder-installed.svg)
+![Current version in stable repository](https://iobroker.live/badges/automatic-feeder-stable.svg)
 
-[![NPM](https://nodei.co/npm/iobroker.futterautomat.png?downloads=true)](https://nodei.co/npm/iobroker.futterautomat/)
+[![NPM](https://nodei.co/npm/iobroker.automatic-feeder.png?downloads=true)](https://nodei.co/npm/iobroker.automatic-feeder/)
 
-**Tests:** ![Test and Release](https://github.com/ssbingo/ioBroker.futterautomat/workflows/Test%20and%20Release/badge.svg)
+**Tests:** ![Test and Release](https://github.com/ssbingo/ioBroker.automatic-feeder/workflows/Test%20and%20Release/badge.svg)
 
 ---
 
@@ -18,7 +18,7 @@
 
 ---
 
-## futterautomat adapter for ioBroker
+## automatic-feeder adapter for ioBroker
 
 This adapter turns any existing ioBroker switch (a smart plug, a relay, a GPIO output …) into a
 scheduled **automatic feeder**. It switches the output on for a defined number of seconds at the
@@ -89,7 +89,7 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 ## 3. Installation
 
 1. In the ioBroker **admin**, open the **Adapters** tab.
-2. Find **futterautomat** in the list and click **Install**.
+2. Find **automatic-feeder** in the list and click **Install**.
 3. Create an **instance** of the adapter.
 4. Open the instance settings (the gear icon) – you should see the configuration page with the
    **General settings** tab. If it stays blank, see [Troubleshooting](#9-troubleshooting--faq).
@@ -100,7 +100,7 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 
 The goal: make one switch feed for 5 seconds, right now, to prove everything works.
 
-1. **Open the settings** of the futterautomat instance.
+1. **Open the settings** of the automatic-feeder instance.
 2. On the **General settings** tab:
    * Under **Location**, leave *Use system settings* selected if your ioBroker already has
      coordinates. Otherwise pick *Define specific location*, type your address, click
@@ -269,7 +269,7 @@ See [Telegram notifications](#8-telegram-notifications) for the full setup.
 ## 6. Objects / data points
 
 The adapter creates the following states under its namespace
-(`futterautomat.<instance>.`).
+(`automatic-feeder.<instance>.`).
 
 **Global**
 
@@ -310,7 +310,7 @@ dashboard, or react on `error = true` to send your own alarm.
 * Mode *Interval within a time window* → 07:00–19:00, interval `90` min; duration `3` s.
 
 **Manual extra portion from a VIS button**
-* Put a button in VIS that writes `true` to `futterautomat.0.switches.sw-0.feedNow`.
+* Put a button in VIS that writes `true` to `automatic-feeder.0.switches.sw-0.feedNow`.
 * Optionally set *Manual trigger ignores all blocks* so it always feeds.
 
 ---
@@ -319,7 +319,7 @@ dashboard, or react on `error = true` to send your own alarm.
 
 1. Install and configure the **telegram** adapter (create a bot with @BotFather, enter the
    token, start a chat with your bot). Make sure the telegram instance is **running**.
-2. In a futterautomat **switch tab**, open **Telegram notifications**:
+2. In a automatic-feeder **switch tab**, open **Telegram notifications**:
    * Select your **Telegram instance** from the dropdown (e.g. `telegram.0`).
    * Optionally enter a **recipient** (the user/chat name shown in the telegram adapter); leave
      empty to notify everyone.
@@ -353,7 +353,7 @@ Your switch object probably does not report its real state back (`ack=true`). Ei
 switch with status feedback, or disable *Switching supervision* for that switch.
 
 **The address search says the instance must be running.**
-Start the futterautomat instance – the geocoding runs in the backend.
+Start the automatic-feeder instance – the geocoding runs in the backend.
 
 **Telegram messages do not arrive.**
 Is a Telegram instance selected on the switch tab? Is the telegram adapter configured and
@@ -364,7 +364,7 @@ running? Is at least one message type ticked, and is *Switching supervision* ena
 ## 10. Logging & debugging
 
 The adapter logs on the standard ioBroker levels. To see detailed messages, raise the instance
-log level (Instances → futterautomat.x → log level) to **debug** or **silly**:
+log level (Instances → automatic-feeder.x → log level) to **debug** or **silly**:
 
 * **error** – failures that need attention (e.g. a write to the switch failed).
 * **warn** – misconfiguration (no coordinates, invalid schedule …).
@@ -378,6 +378,9 @@ log level (Instances → futterautomat.x → log level) to **debug** or **silly*
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 0.2.0 (2026-06-29)
+* (ssbingo) Renamed the adapter to **Automatic Feeder** (technical name `automatic-feeder`, npm `iobroker.automatic-feeder`, namespace `automatic-feeder.0`). This is a new adapter id — reinstall and reconfigure; there is no automatic migration from `futterautomat`.
 
 ### 0.1.8 (2026-06-29)
 * (ssbingo) Create the intermediate `info` and `switches` objects so every object id path has a parent (repository checker E3009)

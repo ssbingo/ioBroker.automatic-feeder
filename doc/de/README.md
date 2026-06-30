@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## futterautomat Adapter für ioBroker
+## automatic-feeder Adapter für ioBroker
 
 Dieser Adapter macht aus einem beliebigen, bereits vorhandenen ioBroker-Schalter (einer
 Steckdose, einem Relais, einem GPIO-Ausgang …) einen **zeitgesteuerten Futterautomaten**. Er
@@ -77,7 +77,7 @@ VIS-Ansicht).
 ## 3. Installation
 
 1. Im ioBroker-**admin** den Reiter **Adapter** öffnen.
-2. In der Adapter-Liste **futterautomat** suchen und auf **Installieren** klicken.
+2. In der Adapter-Liste **automatic-feeder** suchen und auf **Installieren** klicken.
 3. Eine **Instanz** des Adapters anlegen.
 4. Die Instanz-Einstellungen öffnen (Zahnrad-Symbol) – es sollte die Konfigurationsseite mit dem
    Tab **Grundeinstellungen** erscheinen. Bleibt sie leer, siehe [Fehlerbehebung](#9-fehlerbehebung--faq).
@@ -88,7 +88,7 @@ VIS-Ansicht).
 
 Ziel: Ein Schalter soll – sofort, zum Test – 5 Sekunden lang füttern.
 
-1. **Einstellungen öffnen** der futterautomat-Instanz.
+1. **Einstellungen öffnen** der automatic-feeder-Instanz.
 2. Auf dem Tab **Grundeinstellungen**:
    * Unter **Standort** *Systemeinstellungen übernehmen* lassen, wenn dein ioBroker bereits
      Koordinaten hat. Andernfalls *Standort spezifisch festlegen* wählen, Adresse eingeben,
@@ -258,7 +258,7 @@ Die vollständige Einrichtung steht unter [Telegram-Benachrichtigungen](#8-teleg
 ## 6. Objekte / Datenpunkte
 
 Der Adapter legt folgende Datenpunkte in seinem Namespace an
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Global**
 
@@ -299,7 +299,7 @@ auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslös
 * Modus *Intervall innerhalb eines Zeitraums* → 07:00–19:00, Intervall `90` min; Dauer `3` s.
 
 **Manuelle Extraportion per VIS-Button**
-* In VIS einen Button anlegen, der `true` auf `futterautomat.0.switches.sw-0.feedNow` schreibt.
+* In VIS einen Button anlegen, der `true` auf `automatic-feeder.0.switches.sw-0.feedNow` schreibt.
 * Optional *Manueller Auslöser ignoriert alle Sperren* aktivieren, damit immer gefüttert wird.
 
 ---
@@ -308,7 +308,7 @@ auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslös
 
 1. Den **telegram**-Adapter installieren und einrichten (Bot mit @BotFather erstellen, Token
    eintragen, Chat mit dem Bot starten). Die Telegram-Instanz muss **laufen**.
-2. In einem futterautomat-**Schalter-Tab** den Abschnitt **Telegram-Benachrichtigungen** öffnen:
+2. In einem automatic-feeder-**Schalter-Tab** den Abschnitt **Telegram-Benachrichtigungen** öffnen:
    * Die **Telegram-Instanz** im Dropdown auswählen (z. B. `telegram.0`).
    * Optional einen **Empfänger** eintragen (der im telegram-Adapter angezeigte Benutzer/Chat-Name);
      leer lassen, um alle zu benachrichtigen.
@@ -346,7 +346,7 @@ einen Schalter mit Statusrückmeldung verwenden oder die *Schaltüberwachung* f�
 deaktivieren.
 
 **Die Adresssuche sagt, die Instanz müsse laufen.**
-Die futterautomat-Instanz starten – das Geocoding läuft im Backend.
+Die automatic-feeder-Instanz starten – das Geocoding läuft im Backend.
 
 **Telegram-Nachrichten kommen nicht an.**
 Ist im Schalter-Tab eine Telegram-Instanz ausgewählt? Ist der telegram-Adapter eingerichtet und
@@ -357,7 +357,7 @@ gestartet? Ist mindestens eine Meldungsart angekreuzt und die *Schaltüberwachun
 ## 10. Logging & Fehlersuche
 
 Der Adapter loggt auf den üblichen ioBroker-Stufen. Für detaillierte Meldungen das Log-Level der
-Instanz (Instanzen → futterautomat.x → Log-Level) auf **debug** oder **silly** anheben:
+Instanz (Instanzen → automatic-feeder.x → Log-Level) auf **debug** oder **silly** anheben:
 
 * **error** – Fehler, die Aufmerksamkeit brauchen (z. B. Schreiben auf den Schalter
   fehlgeschlagen).

@@ -56,7 +56,7 @@ jobs:
   # Deploys the final package to npm using npm trusted publishing (OIDC).
   # No NPM_TOKEN is used; npm verifies the GitHub OIDC token via "id-token: write".
   # Prerequisite: configure a trusted publisher for this package on npmjs.com
-  # (repository ssbingo/ioBroker.futterautomat, workflow test-and-release.yml).
+  # (repository ssbingo/ioBroker.automatic-feeder, workflow test-and-release.yml).
   # See https://docs.npmjs.com/trusted-publishers
   deploy:
     needs: [check-and-lint, adapter-tests]

@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## futterautomat-adapter voor ioBroker
+## automatic-feeder-adapter voor ioBroker
 
 Deze adapter maakt van een willekeurige, reeds aanwezige ioBroker-schakelaar (een
 stopcontact, een relais, een GPIO-uitgang …) een **tijdgestuurde voederautomaat**. Hij
@@ -77,7 +77,7 @@ VIS-weergave).
 ## 3. Installatie
 
 1. In de ioBroker-**admin** het tabblad **Adapter** openen.
-2. In de lijst met adapters **futterautomat** opzoeken en op **Installeren** klikken.
+2. In de lijst met adapters **automatic-feeder** opzoeken en op **Installeren** klikken.
 3. Een **instantie** van de adapter aanmaken.
 4. De instantie-instellingen openen (tandwiel-symbool) – er zou de configuratiepagina met het
    tabblad **Basisinstellingen** moeten verschijnen. Blijft deze leeg, zie [Probleemoplossing](#9-probleemoplossing--faq).
@@ -88,7 +88,7 @@ VIS-weergave).
 
 Doel: Een schakelaar moet – meteen, ter test – 5 seconden lang voeren.
 
-1. **Instellingen openen** van de futterautomat-instantie.
+1. **Instellingen openen** van de automatic-feeder-instantie.
 2. Op het tabblad **Basisinstellingen**:
    * Onder **Locatie** *Systeeminstellingen overnemen* laten, als jouw ioBroker al
      coördinaten heeft. Anders *Locatie specifiek vastleggen* kiezen, adres invoeren,
@@ -258,7 +258,7 @@ De volledige inrichting staat onder [Telegram-meldingen](#8-telegram-meldingen).
 ## 6. Objecten / datapunten
 
 De adapter legt de volgende datapunten in zijn namespace aan
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Globaal**
 
@@ -299,7 +299,7 @@ op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
 * Modus *Interval binnen een periode* → 07:00–19:00, interval `90` min; duur `3` s.
 
 **Handmatige extra portie via VIS-knop**
-* In VIS een knop aanmaken die `true` op `futterautomat.0.switches.sw-0.feedNow` schrijft.
+* In VIS een knop aanmaken die `true` op `automatic-feeder.0.switches.sw-0.feedNow` schrijft.
 * Optioneel *Handmatige trigger negeert alle blokkeringen* activeren, zodat er altijd wordt gevoerd.
 
 ---
@@ -308,7 +308,7 @@ op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
 
 1. De **telegram**-adapter installeren en inrichten (bot met @BotFather aanmaken, token
    invoeren, chat met de bot starten). De Telegram-instantie moet **draaien**.
-2. In een futterautomat-**schakelaar-tabblad** de sectie **Telegram-meldingen** openen:
+2. In een automatic-feeder-**schakelaar-tabblad** de sectie **Telegram-meldingen** openen:
    * De **Telegram-instantie** in de dropdown selecteren (bijv. `telegram.0`).
    * Optioneel een **ontvanger** invoeren (de in de telegram-adapter weergegeven gebruikers-/chat-naam);
      leeg laten om iedereen te informeren.
@@ -346,7 +346,7 @@ een schakelaar met statusterugmelding gebruiken of de *schakelbewaking* voor dez
 deactiveren.
 
 **Het adres zoeken zegt dat de instantie moet draaien.**
-De futterautomat-instantie starten – de geocoding loopt in de backend.
+De automatic-feeder-instantie starten – de geocoding loopt in de backend.
 
 **Telegram-berichten komen niet aan.**
 Is er in het schakelaar-tabblad een Telegram-instantie geselecteerd? Is de telegram-adapter ingericht en
@@ -357,7 +357,7 @@ gestart? Is ten minste één meldingssoort aangekruist en de *schakelbewaking* g
 ## 10. Logging & foutopsporing
 
 De adapter logt op de gebruikelijke ioBroker-niveaus. Voor gedetailleerde meldingen het log-level van de
-instantie (Instanties → futterautomat.x → log-level) op **debug** of **silly** verhogen:
+instantie (Instanties → automatic-feeder.x → log-level) op **debug** of **silly** verhogen:
 
 * **error** – fouten die aandacht nodig hebben (bijv. schrijven naar de schakelaar
   mislukt).

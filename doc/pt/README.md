@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## Adaptador futterautomat para ioBroker
+## Adaptador automatic-feeder para ioBroker
 
 Este adaptador transforma qualquer interruptor já existente no ioBroker (uma
 tomada, um relé, uma saída GPIO …) num **alimentador automático controlado por tempo**. Ele
@@ -77,7 +77,7 @@ botão numa visualização VIS).
 ## 3. Instalação
 
 1. No **admin** do ioBroker, abrir a aba **Adaptadores** (Adapter).
-2. Localizar **futterautomat** na lista de adaptadores e clicar em **Instalar**.
+2. Localizar **automatic-feeder** na lista de adaptadores e clicar em **Instalar**.
 3. Criar uma **instância** do adaptador.
 4. Abrir as configurações da instância (ícone de engrenagem) – deve aparecer a página de
    configuração com a aba **Configurações básicas** (Grundeinstellungen). Se ela ficar vazia, ver [Solução de problemas](#9-solução-de-problemas--faq).
@@ -88,7 +88,7 @@ botão numa visualização VIS).
 
 Objetivo: Um interruptor deve – imediatamente, para teste – alimentar por 5 segundos.
 
-1. **Abrir as configurações** da instância futterautomat.
+1. **Abrir as configurações** da instância automatic-feeder.
 2. Na aba **Configurações básicas** (Grundeinstellungen):
    * Em **Localização**, deixar *Adotar configurações de sistema*, se o seu ioBroker já tiver
      coordenadas. Caso contrário, escolher *Definir localização específica*, inserir o endereço,
@@ -258,7 +258,7 @@ A configuração completa consta em [Notificações do Telegram](#8-notificaçõ
 ## 6. Objetos / Pontos de dados
 
 O adaptador cria os seguintes pontos de dados no seu namespace
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Global**
 
@@ -299,7 +299,7 @@ num dashboard ou acionar um alarme próprio quando `error = true`.
 * Modo *Intervalo dentro de um período* → 07:00–19:00, intervalo `90` min; duração `3` s.
 
 **Porção extra manual via botão VIS**
-* Criar no VIS um botão que grave `true` em `futterautomat.0.switches.sw-0.feedNow`.
+* Criar no VIS um botão que grave `true` em `automatic-feeder.0.switches.sw-0.feedNow`.
 * Opcionalmente ativar *O acionador manual ignora todos os bloqueios*, para que sempre se alimente.
 
 ---
@@ -308,7 +308,7 @@ num dashboard ou acionar um alarme próprio quando `error = true`.
 
 1. Instalar e configurar o adaptador **telegram** (criar bot com @BotFather, inserir o
    token, iniciar o chat com o bot). A instância do Telegram precisa estar **em execução**.
-2. Numa **aba de interruptor** do futterautomat, abrir a seção **Notificações do Telegram**:
+2. Numa **aba de interruptor** do automatic-feeder, abrir a seção **Notificações do Telegram**:
    * Selecionar a **Instância do Telegram** no dropdown (p. ex. `telegram.0`).
    * Opcionalmente, inserir um **Destinatário** (o nome de usuário/chat exibido no adaptador telegram);
      deixar vazio para notificar a todos.
@@ -346,7 +346,7 @@ usar um interruptor com retorno de status ou desativar o *Monitoramento de comut
 interruptor.
 
 **A busca de endereço diz que a instância precisa estar em execução.**
-Iniciar a instância futterautomat – o geocoding é executado no backend.
+Iniciar a instância automatic-feeder – o geocoding é executado no backend.
 
 **As mensagens do Telegram não chegam.**
 Há uma instância do Telegram selecionada na aba do interruptor? O adaptador telegram está configurado e
@@ -357,7 +357,7 @@ iniciado? Pelo menos um tipo de mensagem está marcado e o *Monitoramento de com
 ## 10. Logging & Diagnóstico
 
 O adaptador registra nos níveis usuais do ioBroker. Para mensagens detalhadas, elevar o nível de log da
-instância (Instâncias → futterautomat.x → Nível de log) para **debug** ou **silly**:
+instância (Instâncias → automatic-feeder.x → Nível de log) para **debug** ou **silly**:
 
 * **error** – erros que requerem atenção (p. ex. falha ao gravar no
   interruptor).

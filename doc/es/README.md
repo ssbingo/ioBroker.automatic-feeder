@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## Adaptador futterautomat para ioBroker
+## Adaptador automatic-feeder para ioBroker
 
 Este adaptador convierte cualquier interruptor de ioBroker ya existente (un enchufe, un relé, una
 salida GPIO …) en un **comedero automático controlado por tiempo**. Enciende la salida a las horas
@@ -76,7 +76,7 @@ vista de VIS).
 ## 3. Instalación
 
 1. En el **admin** de ioBroker, abre la pestaña **Adaptadores** (Adapter).
-2. Busca **futterautomat** en la lista de adaptadores y haz clic en **Instalar**.
+2. Busca **automatic-feeder** en la lista de adaptadores y haz clic en **Instalar**.
 3. Crea una **instancia** del adaptador.
 4. Abre los ajustes de la instancia (icono de engranaje): debería aparecer la página de
    configuración con la pestaña **Ajustes básicos** (Grundeinstellungen). Si permanece vacía,
@@ -88,7 +88,7 @@ vista de VIS).
 
 Objetivo: que un interruptor alimente, de inmediato y a modo de prueba, durante 5 segundos.
 
-1. **Abre los ajustes** de la instancia de futterautomat.
+1. **Abre los ajustes** de la instancia de automatic-feeder.
 2. En la pestaña **Ajustes básicos** (Grundeinstellungen):
    * En **Ubicación** (Standort), deja que se *adopten los ajustes del sistema* si tu ioBroker ya
      tiene coordenadas. De lo contrario, elige *Establecer ubicación específica*, introduce la
@@ -275,7 +275,7 @@ La configuración completa se encuentra en [Notificaciones de Telegram](#8-notif
 ## 6. Objetos / puntos de datos
 
 El adaptador crea los siguientes puntos de datos en su espacio de nombres
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Global**
 
@@ -317,7 +317,7 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
 * Modo *Intervalo dentro de un periodo* → 07:00–19:00, intervalo `90` min; duración `3` s.
 
 **Ración extra manual mediante un botón de VIS**
-* Crea en VIS un botón que escriba `true` en `futterautomat.0.switches.sw-0.feedNow`.
+* Crea en VIS un botón que escriba `true` en `automatic-feeder.0.switches.sw-0.feedNow`.
 * Opcionalmente activa *El activador manual ignora todos los bloqueos* para que siempre se alimente.
 
 ---
@@ -326,7 +326,7 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
 
 1. Instala y configura el adaptador **telegram** (crea un bot con @BotFather, introduce el token,
    inicia un chat con el bot). La instancia de Telegram debe estar **en ejecución**.
-2. En una **pestaña de interruptor** de futterautomat, abre la sección **Notificaciones de
+2. En una **pestaña de interruptor** de automatic-feeder, abre la sección **Notificaciones de
    Telegram**:
    * Selecciona la **instancia de Telegram** en el desplegable (p. ej. `telegram.0`).
    * Opcionalmente, introduce un **destinatario** (el nombre de usuario/chat que se muestra en el
@@ -364,7 +364,7 @@ interruptor con retroalimentación de estado, o bien desactiva la *supervisión 
 para ese interruptor.
 
 **La búsqueda de direcciones dice que la instancia debe estar en ejecución.**
-Inicia la instancia de futterautomat: la geocodificación se ejecuta en el backend.
+Inicia la instancia de automatic-feeder: la geocodificación se ejecuta en el backend.
 
 **Los mensajes de Telegram no llegan.**
 ¿Hay una instancia de Telegram seleccionada en la pestaña del interruptor? ¿Está el adaptador de
@@ -376,7 +376,7 @@ conmutación* activada?
 ## 10. Registro y diagnóstico
 
 El adaptador registra en los niveles habituales de ioBroker. Para mensajes detallados, sube el nivel
-de registro de la instancia (Instancias → futterautomat.x → nivel de registro) a **debug** o
+de registro de la instancia (Instancias → automatic-feeder.x → nivel de registro) a **debug** o
 **silly**:
 
 * **error**: errores que requieren atención (p. ej. fallo al escribir en el interruptor).

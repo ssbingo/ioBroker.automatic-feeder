@@ -13,7 +13,7 @@ function build() {
 		<StyledEngineProvider injectFirst>
 			<ThemeProvider theme={Theme(themeName)}>
 				<App
-					adapterName="futterautomat"
+					adapterName="automatic-feeder"
 					onThemeChange={(_theme) => {
 						themeName = _theme;
 						build();

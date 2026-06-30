@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## Adapter futterautomat dla ioBroker
+## Adapter automatic-feeder dla ioBroker
 
 Ten adapter zamienia dowolny, już istniejący przełącznik ioBroker (gniazdko,
 przekaźnik, wyjście GPIO …) w **sterowany czasowo automat do karmienia**. Włącza on
@@ -77,7 +77,7 @@ VIS).
 ## 3. Instalacja
 
 1. W **admin** ioBroker otwórz zakładkę **Adapter**.
-2. Znajdź **futterautomat** na liście adapterów i kliknij **Zainstaluj**.
+2. Znajdź **automatic-feeder** na liście adapterów i kliknij **Zainstaluj**.
 3. Utwórz **instancję** adaptera.
 4. Otwórz ustawienia instancji (ikona zębatki) – powinna pojawić się strona konfiguracji z
    zakładką **Ustawienia podstawowe** (Grundeinstellungen). Jeśli pozostaje pusta, zobacz [Rozwiązywanie problemów](#9-rozwiązywanie-problemów-i-faq).
@@ -88,7 +88,7 @@ VIS).
 
 Cel: Przełącznik ma – natychmiast, w ramach testu – karmić przez 5 sekund.
 
-1. **Otwórz ustawienia** instancji futterautomat.
+1. **Otwórz ustawienia** instancji automatic-feeder.
 2. W zakładce **Ustawienia podstawowe** (Grundeinstellungen):
    * W sekcji **Lokalizacja** (Standort) pozostaw *Przejmij ustawienia systemowe*, jeśli Twój
      ioBroker ma już współrzędne. W przeciwnym razie wybierz *Ustaw lokalizację indywidualnie*,
@@ -264,7 +264,7 @@ Pełna konfiguracja znajduje się w sekcji [Powiadomienia Telegram](#8-powiadomi
 ## 6. Obiekty / punkty danych
 
 Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Globalne**
 
@@ -305,7 +305,7 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
 * Tryb *Interwał w obrębie okresu* → 07:00–19:00, interwał `90` min; czas `3` s.
 
 **Ręczna dodatkowa porcja przez przycisk VIS**
-* W VIS utwórz przycisk, który zapisuje `true` do `futterautomat.0.switches.sw-0.feedNow`.
+* W VIS utwórz przycisk, który zapisuje `true` do `automatic-feeder.0.switches.sw-0.feedNow`.
 * Opcjonalnie aktywuj *Ręczny wyzwalacz ignoruje wszystkie blokady*, aby karmienie zawsze
   następowało.
 
@@ -315,7 +315,7 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
 
 1. Zainstaluj i skonfiguruj adapter **telegram** (utwórz bota za pomocą @BotFather, wpisz token,
    rozpocznij czat z botem). Instancja Telegram musi być **uruchomiona**.
-2. W **zakładce przełącznika** futterautomat otwórz sekcję **Powiadomienia Telegram**:
+2. W **zakładce przełącznika** automatic-feeder otwórz sekcję **Powiadomienia Telegram**:
    * Wybierz **instancję Telegram** z listy rozwijanej (np. `telegram.0`).
    * Opcjonalnie wpisz **odbiorcę** (użytkownik/nazwa czatu wyświetlana w adapterze telegram);
      pozostaw puste, aby powiadomić wszystkich.
@@ -353,7 +353,7 @@ Twój obiekt przełącznika prawdopodobnie nie zgłasza zwrotnie swojego rzeczyw
 przełączania* dla tego przełącznika.
 
 **Wyszukiwanie adresu mówi, że instancja musi być uruchomiona.**
-Uruchom instancję futterautomat – geokodowanie działa w zapleczu (backend).
+Uruchom instancję automatic-feeder – geokodowanie działa w zapleczu (backend).
 
 **Wiadomości Telegram nie docierają.**
 Czy w zakładce przełącznika wybrana jest instancja Telegram? Czy adapter telegram jest
@@ -365,7 +365,7 @@ skonfigurowany i uruchomiony? Czy zaznaczono co najmniej jeden rodzaj komunikatu
 ## 10. Logowanie i diagnostyka
 
 Adapter zapisuje logi na zwykłych poziomach ioBroker. Aby uzyskać szczegółowe komunikaty,
-podnieś poziom logowania instancji (Instancje → futterautomat.x → poziom logowania) do
+podnieś poziom logowania instancji (Instancje → automatic-feeder.x → poziom logowania) do
 **debug** lub **silly**:
 
 * **error** – błędy wymagające uwagi (np. nieudany zapis do przełącznika).

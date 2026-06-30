@@ -4,7 +4,7 @@
 
 declare global {
 	namespace ioBroker {
-		interface FutterautomatSwitchConfig {
+		interface AutomaticFeederSwitchConfig {
 			/** Stable internal id used for the datapoint path (e.g. "sw-0"). Never derived from the name. */
 			id: string;
 			/** User defined name, used as tab label and as common.name of the channel. */
@@ -73,7 +73,7 @@ declare global {
 			airTempObjectId: string;
 			waterTempEnabled: boolean;
 			waterTempObjectId: string;
-			switches: FutterautomatSwitchConfig[];
+			switches: AutomaticFeederSwitchConfig[];
 		}
 	}
 }

@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## Adaptateur futterautomat pour ioBroker
+## Adaptateur automatic-feeder pour ioBroker
 
 Cet adaptateur transforme n'importe quel interrupteur ioBroker déjà existant (une prise, un
 relais, une sortie GPIO …) en un **distributeur de nourriture commandé par minuterie**. Il active
@@ -81,7 +81,7 @@ dans une vue VIS).
 ## 3. Installation
 
 1. Dans l'**admin** ioBroker, ouvre l'onglet **Adaptateurs**.
-2. Recherche **futterautomat** dans la liste des adaptateurs et clique sur **Installer**.
+2. Recherche **automatic-feeder** dans la liste des adaptateurs et clique sur **Installer**.
 3. Crée une **instance** de l'adaptateur.
 4. Ouvre les paramètres de l'instance (icône en forme d'engrenage) — la page de configuration avec
    l'onglet **Réglages de base** (Grundeinstellungen) devrait apparaître. Si elle reste vide,
@@ -93,7 +93,7 @@ dans une vue VIS).
 
 Objectif : un interrupteur doit distribuer — immédiatement, pour le test — pendant 5 secondes.
 
-1. **Ouvre les paramètres** de l'instance futterautomat.
+1. **Ouvre les paramètres** de l'instance automatic-feeder.
 2. Dans l'onglet **Réglages de base** (Grundeinstellungen) :
    * Sous **Emplacement** (Standort), laisse l'option *Reprendre les paramètres système* si ton
      ioBroker possède déjà des coordonnées. Sinon, choisis *Définir un emplacement spécifique*,
@@ -280,7 +280,7 @@ La configuration complète est décrite sous [Notifications Telegram](#8-notific
 ## 6. Objets / Points de données
 
 L'adaptateur crée les points de données suivants dans son espace de noms
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Global**
 
@@ -323,7 +323,7 @@ true`.
 * Mode *Intervalle à l'intérieur d'une plage* → 07:00–19:00, intervalle `90` min ; durée `3` s.
 
 **Portion supplémentaire manuelle via un bouton VIS**
-* Crée dans VIS un bouton qui écrit `true` sur `futterautomat.0.switches.sw-0.feedNow`.
+* Crée dans VIS un bouton qui écrit `true` sur `automatic-feeder.0.switches.sw-0.feedNow`.
 * Active éventuellement *Le déclencheur manuel ignore tous les blocages*, afin que la distribution
   ait toujours lieu.
 
@@ -333,7 +333,7 @@ true`.
 
 1. Installe et configure l'adaptateur **telegram** (crée un bot avec @BotFather, saisis le token,
    démarre une conversation avec le bot). L'instance Telegram doit être **en cours d'exécution**.
-2. Dans un **onglet d'interrupteur** futterautomat, ouvre la section **Notifications Telegram** :
+2. Dans un **onglet d'interrupteur** automatic-feeder, ouvre la section **Notifications Telegram** :
    * Sélectionne l'**instance Telegram** dans la liste déroulante (p. ex. `telegram.0`).
    * Saisis éventuellement un **destinataire** (l'utilisateur/nom de chat affiché dans l'adaptateur
      telegram) ; laisse vide pour notifier tout le monde.
@@ -371,7 +371,7 @@ interrupteur avec retour d'état, soit désactive la *Surveillance de la commuta
 interrupteur.
 
 **La recherche d'adresse indique que l'instance doit être en cours d'exécution.**
-Démarre l'instance futterautomat — le géocodage s'effectue dans le backend.
+Démarre l'instance automatic-feeder — le géocodage s'effectue dans le backend.
 
 **Les messages Telegram n'arrivent pas.**
 Une instance Telegram est-elle sélectionnée dans l'onglet de l'interrupteur ? L'adaptateur telegram
@@ -383,7 +383,7 @@ commutation* activée ?
 ## 10. Journalisation & recherche d'erreurs
 
 L'adaptateur journalise aux niveaux ioBroker habituels. Pour des messages détaillés, élève le
-niveau de journal de l'instance (Instances → futterautomat.x → Niveau de journal) à **debug** ou
+niveau de journal de l'instance (Instances → automatic-feeder.x → Niveau de journal) à **debug** ou
 **silly** :
 
 * **error** — erreurs nécessitant une attention (p. ex. échec de l'écriture sur l'interrupteur).

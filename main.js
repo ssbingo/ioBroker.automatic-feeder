@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * ioBroker.futterautomat
+ * ioBroker.automatic-feeder
  * Controls up to 5 user selected switches (existing ioBroker states) on a time
  * schedule for a configurable duration ("feeding"). Optionally evaluates air/water
  * temperature and the sun position (so it never feeds at night).
@@ -19,14 +19,14 @@ const SunCalc = require('suncalc');
 
 const MAX_SWITCHES = 5;
 
-class Futterautomat extends utils.Adapter {
+class AutomaticFeeder extends utils.Adapter {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
 	 */
 	constructor(options) {
 		super({
 			...options,
-			name: 'futterautomat',
+			name: 'automatic-feeder',
 		});
 
 		/** next-feeding timer per switch id */
@@ -59,7 +59,7 @@ class Futterautomat extends utils.Adapter {
 	/**
 	 * Readable label for a switch, used in log messages.
 	 *
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @returns {string} formatted label like `"Koi-Teich" (sw-0)`
 	 */
 	swLabel(sw) {
@@ -504,7 +504,7 @@ class Futterautomat extends utils.Adapter {
 	}
 
 	/**
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {Date} now - reference time
 	 * @returns {Date | null} time of the next feeding or null if none can be planned
 	 */
@@ -590,7 +590,7 @@ class Futterautomat extends utils.Adapter {
 	// ----------------------------------------------------------------------------
 
 	/**
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {boolean} ignoreBlocks - if true, temperature/night blocks are skipped
 	 * @param {number | null} [durationOverrideSec] - overrides the configured duration (manual button)
 	 */
@@ -695,7 +695,7 @@ class Futterautomat extends utils.Adapter {
 	 * within the configured timeout. Requires the target to report its state with
 	 * ack=true, otherwise it cannot be distinguished from our own command.
 	 *
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {boolean} expectOn - true = wait for the on value, false = off value
 	 * @returns {Promise<boolean>} true if confirmed, false on timeout
 	 */
@@ -737,7 +737,7 @@ class Futterautomat extends utils.Adapter {
 	/**
 	 * Stores the outcome of a feeding attempt in the per-switch status datapoints.
 	 *
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {boolean} isError - true if the attempt had a switching fault
 	 * @param {string} message - human readable result text
 	 */
@@ -750,7 +750,7 @@ class Futterautomat extends utils.Adapter {
 	 * Sends a supervision message to the switch's configured Telegram instance,
 	 * if a recipient is configured and the message type is enabled for this switch.
 	 *
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {'success' | 'onFail' | 'offFail'} type - message category
 	 * @param {string} message - the text to send
 	 */
@@ -777,7 +777,7 @@ class Futterautomat extends utils.Adapter {
 	/**
 	 * Writes the on/off value to the target foreign state.
 	 *
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {boolean} on - true writes the on value, false the off value
 	 */
 	async writeSwitch(sw, on) {
@@ -793,7 +793,7 @@ class Futterautomat extends utils.Adapter {
 	/**
 	 * Returns a human readable block reason or null if feeding is allowed.
 	 *
-	 * @param {ioBroker.FutterautomatSwitchConfig} sw - switch configuration
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @returns {string | null} block reason or null if feeding is allowed
 	 */
 	getBlockReason(sw) {
@@ -949,7 +949,7 @@ class Futterautomat extends utils.Adapter {
 				const version = this.version || '0.0.1';
 				this.log.debug(`Geocoding "${query}" via Nominatim...`);
 				const res = await fetch(url, {
-					headers: { 'User-Agent': `ioBroker.futterautomat/${version}` },
+					headers: { 'User-Agent': `ioBroker.automatic-feeder/${version}` },
 				});
 				const data = await res.json();
 				if (Array.isArray(data) && data.length) {
@@ -1053,8 +1053,8 @@ if (require.main !== module) {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
 	 */
-	module.exports = options => new Futterautomat(options);
+	module.exports = options => new AutomaticFeeder(options);
 } else {
 	// otherwise start the instance directly
-	new Futterautomat();
+	new AutomaticFeeder();
 }

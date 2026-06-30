@@ -1,52 +1,54 @@
 {
 	"common": {
-		"name": "futterautomat",
-		"version": "0.1.8",
+		"name": "automatic-feeder",
+		"version": "0.2.0",
 		"news": {
-			"0.1.8": {
-				"en": "Create the intermediate \"info\" and \"switches\" objects so every object id path has a parent (repository checker E3009).",
-				"de": "Zwischenobjekte \"info\" und \"switches\" anlegen, damit jeder Objekt-ID-Pfad ein Elternobjekt hat (Repository-Checker E3009).",
-				"ru": "Создаются промежуточные объекты \"info\" и \"switches\", чтобы у каждого пути id был родитель (repository checker E3009).",
-				"pt": "Criar os objetos intermediários \"info\" e \"switches\" para que cada caminho de id tenha um pai (repository checker E3009).",
-				"nl": "De tussenliggende objecten \"info\" en \"switches\" aanmaken zodat elk object-id-pad een ouder heeft (repository checker E3009).",
-				"fr": "Créer les objets intermédiaires « info » et « switches » pour que chaque chemin d'id ait un parent (repository checker E3009).",
-				"it": "Creare gli oggetti intermedi \"info\" e \"switches\" affinché ogni percorso di id abbia un genitore (repository checker E3009).",
-				"es": "Crear los objetos intermedios \"info\" y \"switches\" para que cada ruta de id tenga un padre (repository checker E3009).",
-				"pl": "Tworzenie obiektów pośrednich \"info\" i \"switches\", aby każda ścieżka id miała rodzica (repository checker E3009).",
-				"uk": "Створення проміжних об'єктів \"info\" та \"switches\", щоб кожен шлях id мав батьківський об'єкт (repository checker E3009).",
-				"zh-cn": "创建中间对象 \"info\" 和 \"switches\"，使每个对象 id 路径都有父对象（仓库检查器 E3009）。"
+			"0.2.0": {
+				"en": "Renamed the adapter to \"Automatic Feeder\" (technical name automatic-feeder). This is a fresh adapter id; reinstall and reconfigure (no automatic migration from futterautomat).",
+				"de": "Adapter umbenannt in \"Automatic Feeder\" (technischer Name automatic-feeder). Neue Adapter-ID; bitte neu installieren und konfigurieren (keine automatische Migration von futterautomat).",
+				"ru": "Адаптер переименован в \"Automatic Feeder\" (техн_имя automatic-feeder). Это новый id адаптера; переустановите и настройте заново (без автоматической миграции из futterautomat).",
+				"pt": "Adaptador renomeado para \"Automatic Feeder\" (nome técnico automatic-feeder). É um novo id de adaptador; reinstale e reconfigure (sem migração automática de futterautomat).",
+				"nl": "Adapter hernoemd naar \"Automatic Feeder\" (technische naam automatic-feeder). Nieuwe adapter-id; opnieuw installeren en configureren (geen automatische migratie van futterautomat).",
+				"fr": "Adaptateur renommé en \"Automatic Feeder\" (nom technique automatic-feeder). Nouvel id d'adaptateur ; réinstallez et reconfigurez (pas de migration automatique depuis futterautomat).",
+				"it": "Adattatore rinominato in \"Automatic Feeder\" (nome tecnico automatic-feeder). Nuovo id adattatore; reinstalla e riconfigura (nessuna migrazione automatica da futterautomat).",
+				"es": "Adaptador renombrado a \"Automatic Feeder\" (nombre técnico automatic-feeder). Nuevo id de adaptador; reinstala y reconfigura (sin migración automática desde futterautomat).",
+				"pl": "Adapter przemianowany na \"Automatic Feeder\" (nazwa techniczna automatic-feeder). Nowy id adaptera; zainstaluj ponownie i skonfiguruj (bez automatycznej migracji z futterautomat).",
+				"uk": "Адаптер перейменовано на \"Automatic Feeder\" (технічна назва automatic-feeder). Новий id адаптера; перевстановіть і налаштуйте заново (без автоматичної міграції з futterautomat).",
+				"zh-cn": "适配器更名为 \"Automatic Feeder\"（技术名 automatic-feeder）。这是新的适配器 id；请重新安装并配置（不会从 futterautomat 自动迁移）。"
 			}
 		},
 		"titleLang": {
-			"en": "Futterautomat",
-			"de": "Futterautomat",
-			"ru": "Футтеравтомат",
-			"pt": "Futterautomático",
-			"nl": "Futterautomaat",
-			"fr": "Futterautomate",
-			"it": "Futterautomat",
-			"es": "Futterautomat",
-			"pl": "Futterautomat",
-			"uk": "Futterautomat",
-			"zh-cn": "富特自动机"
+			"en": "Automatic Feeder",
+			"de": "Automatic Feeder",
+			"ru": "Automatic Feeder",
+			"pt": "Automatic Feeder",
+			"nl": "Automatic Feeder",
+			"fr": "Automatic Feeder",
+			"it": "Automatic Feeder",
+			"es": "Automatic Feeder",
+			"pl": "Automatic Feeder",
+			"uk": "Automatic Feeder",
+			"zh-cn": "Automatic Feeder"
 		},
 		"desc": {
-			"en": "Steuerung für umgebaute Futterautomaten",
-			"de": "Steuerung für umgebaute Futterautomaten",
-			"ru": "Steuerung für umgebaute Futterautomaten",
-			"pt": "Steuerung para umgebaute Futterautomaten",
-			"nl": "Steuerung voor umgebaute Futterautomaten",
-			"fr": "Steuerung für umgebaute Futterautomaten",
-			"it": "Steuerung für umgebaute Futterautomaten",
-			"es": "Steuerung für umgebaute Futterautomaten",
-			"pl": "Steuerung für umgebaute Futterautomaten",
-			"uk": "Steuerung für umgebaute Futterautomaten",
-			"zh-cn": "自动化管理"
+			"en": "Scheduled automatic feeder: switches an existing ioBroker state for a set duration, with temperature and day/night limits.",
+			"de": "Zeitgesteuerter Futterautomat: schaltet ein vorhandenes ioBroker-Objekt für eine definierte Dauer, mit Temperatur- und Tag-/Nacht-Grenzen.",
+			"ru": "Автоматическая кормушка по расписанию: включает существующий объект ioBroker на заданное время, с ограничениями по температуре и дню/ночи.",
+			"pt": "Alimentador automático programado: liga um objeto ioBroker existente por um tempo definido, com limites de temperatura e dia/noite.",
+			"nl": "Geplande voederautomaat: schakelt een bestaand ioBroker-object voor een ingestelde duur, met temperatuur- en dag/nacht-grenzen.",
+			"fr": "Distributeur automatique programmé : active un objet ioBroker existant pendant une durée définie, avec limites de température et jour/nuit.",
+			"it": "Alimentatore automatico programmato: attiva un oggetto ioBroker esistente per una durata definita, con limiti di temperatura e giorno/notte.",
+			"es": "Comedero automático programado: activa un objeto ioBroker existente durante un tiempo definido, con límites de temperatura y día/noche.",
+			"pl": "Zaplanowany automat do karmienia: włącza istniejący obiekt ioBroker na określony czas, z ograniczeniami temperatury i dnia/nocy.",
+			"uk": "Автоматична годівниця за розкладом: вмикає наявний об'єкт ioBroker на задану тривалість, з обмеженнями за температурою та днем/ніччю.",
+			"zh-cn": "定时自动喂食器：将现有的 ioBroker 对象按设定时长打开，并带有温度与昼夜限制。"
 		},
 		"authors": [
 			"ssbingo <s.sternitzke@online.de>"
 		],
 		"keywords": [
+			"Automatic Feeder",
+			"feeder",
 			"Futterautomat",
 			"Koi",
 			"Fisch"
@@ -56,10 +58,10 @@
 			"license": "MIT"
 		},
 		"platform": "Javascript/Node.js",
-		"icon": "futterautomat.png",
+		"icon": "automatic-feeder.png",
 		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/ssbingo/ioBroker.futterautomat/main/admin/futterautomat.png",
-		"readme": "https://github.com/ssbingo/ioBroker.futterautomat/blob/main/README.md",
+		"extIcon": "https://raw.githubusercontent.com/ssbingo/ioBroker.automatic-feeder/main/admin/automatic-feeder.png",
+		"readme": "https://github.com/ssbingo/ioBroker.automatic-feeder/blob/main/README.md",
 		"loglevel": "info",
 		"tier": 3,
 		"mode": "daemon",

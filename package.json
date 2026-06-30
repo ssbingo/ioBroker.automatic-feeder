@@ -1,23 +1,25 @@
 {
-  "name": "iobroker.futterautomat",
-  "version": "0.1.8",
-  "description": "Steuerung für umgebaute Futterautomaten",
+  "name": "iobroker.automatic-feeder",
+  "version": "0.2.0",
+  "description": "Scheduled automatic feeder for ioBroker: switches an existing state for a set duration, with temperature and day/night limits.",
   "author": {
     "name": "ssbingo",
     "email": "s.sternitzke@online.de"
   },
   "contributors": [],
-  "homepage": "https://github.com/ssbingo/ioBroker.futterautomat",
+  "homepage": "https://github.com/ssbingo/ioBroker.automatic-feeder",
   "license": "MIT",
   "keywords": [
     "ioBroker",
+    "Automatic Feeder",
+    "feeder",
     "Futterautomat",
     "Koi",
     "Fisch"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ssbingo/ioBroker.futterautomat.git"
+    "url": "https://github.com/ssbingo/ioBroker.automatic-feeder.git"
   },
   "engines": {
     "node": ">= 22"
@@ -79,7 +81,7 @@
     "dev-server": "dev-server"
   },
   "bugs": {
-    "url": "https://github.com/ssbingo/ioBroker.futterautomat/issues"
+    "url": "https://github.com/ssbingo/ioBroker.automatic-feeder/issues"
   },
   "readmeFilename": "README.md"
 }

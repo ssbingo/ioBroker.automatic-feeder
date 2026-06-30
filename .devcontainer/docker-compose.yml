@@ -1,8 +1,8 @@
 services:
     iobroker:
         build: ./iobroker
-        container_name: iobroker-futterautomat
-        hostname: iobroker-futterautomat
+        container_name: iobroker-automatic-feeder
+        hostname: iobroker-automatic-feeder
         # This port is only internal, so we can work on this while another instance of ioBroker is running on the host
         expose:
             - 8081
@@ -23,7 +23,7 @@ services:
             - SETGID=1000
 
     parcel:
-        container_name: parcel-futterautomat
+        container_name: parcel-automatic-feeder
         build: ./parcel
         expose:
             - 1234
@@ -43,7 +43,7 @@ services:
         links:
             - iobroker
             - parcel
-        container_name: nginx-futterautomat
+        container_name: nginx-automatic-feeder
         volumes:
             - ./nginx/nginx.conf:/etc/nginx/nginx.conf
             - ..:/workspace:cached

@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## Adattatore futterautomat per ioBroker
+## Adattatore automatic-feeder per ioBroker
 
 Questo adattatore trasforma un qualsiasi interruttore ioBroker già esistente (una presa
 elettrica, un relè, un'uscita GPIO …) in un **distributore di mangime a comando temporizzato**.
@@ -78,7 +78,7 @@ delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramit
 ## 3. Installazione
 
 1. Nell'**admin** di ioBroker apri la scheda **Adattatori** (Adapter).
-2. Cerca futterautomat nell'elenco degli adattatori e fai clic su **Installa**.
+2. Cerca automatic-feeder nell'elenco degli adattatori e fai clic su **Installa**.
 3. Crea un'**istanza** dell'adattatore.
 4. Apri le impostazioni dell'istanza (icona ingranaggio): dovrebbe comparire la pagina di
    configurazione con la scheda **Impostazioni di base** (Grundeinstellungen). Se rimane vuota,
@@ -90,7 +90,7 @@ delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramit
 
 Obiettivo: un interruttore deve – subito, come test – distribuire mangime per 5 secondi.
 
-1. **Apri le impostazioni** dell'istanza futterautomat.
+1. **Apri le impostazioni** dell'istanza automatic-feeder.
 2. Nella scheda **Impostazioni di base** (Grundeinstellungen):
    * In **Posizione** (Standort) lascia *Acquisisci impostazioni di sistema* se il tuo ioBroker
      ha già le coordinate. Altrimenti scegli *Imposta posizione specifica*, inserisci l'indirizzo,
@@ -276,7 +276,7 @@ La configurazione completa è descritta in [Notifiche Telegram](#8-notifiche-tel
 ## 6. Oggetti / Punti dati
 
 L'adattatore crea i seguenti punti dati nel suo namespace
-(`futterautomat.<instanz>.`).
+(`automatic-feeder.<instanz>.`).
 
 **Globali**
 
@@ -319,7 +319,7 @@ mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzat
 * Modalità *Intervallo all'interno di un periodo* → 07:00–19:00, intervallo `90` min; durata `3` s.
 
 **Porzione extra manuale tramite pulsante VIS**
-* In VIS crea un pulsante che scrive `true` su `futterautomat.0.switches.sw-0.feedNow`.
+* In VIS crea un pulsante che scrive `true` su `automatic-feeder.0.switches.sw-0.feedNow`.
 * Facoltativamente attiva *L'attivatore manuale ignora tutti i blocchi*, affinché venga sempre
   distribuito il mangime.
 
@@ -329,7 +329,7 @@ mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzat
 
 1. Installa e configura l'adattatore **telegram** (crea un bot con @BotFather, inserisci il token,
    avvia una chat con il bot). L'istanza Telegram deve essere **in esecuzione**.
-2. In una **scheda dell'interruttore** di futterautomat apri la sezione **Notifiche Telegram**:
+2. In una **scheda dell'interruttore** di automatic-feeder apri la sezione **Notifiche Telegram**:
    * Seleziona l'**istanza Telegram** nel menu a tendina (ad es. `telegram.0`).
    * Facoltativamente inserisci un **destinatario** (il nome utente/chat mostrato nell'adattatore
      telegram); lascia vuoto per notificare tutti.
@@ -366,7 +366,7 @@ Usa un interruttore con conferma di stato oppure disattiva il *Monitoraggio dell
 per questo interruttore.
 
 **La ricerca dell'indirizzo dice che l'istanza deve essere in esecuzione.**
-Avvia l'istanza futterautomat – il geocoding viene eseguito nel backend.
+Avvia l'istanza automatic-feeder – il geocoding viene eseguito nel backend.
 
 **I messaggi Telegram non arrivano.**
 Nella scheda dell'interruttore è selezionata un'istanza Telegram? L'adattatore telegram è
@@ -378,7 +378,7 @@ della commutazione*?
 ## 10. Logging & Ricerca degli errori
 
 L'adattatore registra ai consueti livelli di ioBroker. Per messaggi dettagliati alza il livello
-di log dell'istanza (Istanze → futterautomat.x → Livello di log) a **debug** o **silly**:
+di log dell'istanza (Istanze → automatic-feeder.x → Livello di log) a **debug** o **silly**:
 
 * **error** – errori che richiedono attenzione (ad es. scrittura sull'interruttore fallita).
 * **warn** – errori di configurazione (nessuna coordinata, programma non valido …).

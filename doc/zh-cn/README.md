@@ -1,11 +1,11 @@
-![Logo](../../admin/futterautomat.png)
-# ioBroker.futterautomat
+![Logo](../../admin/automatic-feeder.png)
+# ioBroker.automatic-feeder
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
-## 用于 ioBroker 的 futterautomat 适配器
+## 用于 ioBroker 的 automatic-feeder 适配器
 
 本适配器可将任意一个 ioBroker 中已有的开关（一个插座、一个继电器、一个 GPIO 输出……）
 变成一个**定时控制的喂食器**。它会在你设定的时间将输出端打开持续指定的秒数，
@@ -71,7 +71,7 @@
 ## 3. 安装
 
 1. 在 ioBroker **admin** 中打开**适配器（Adapter）**选项卡。
-2. 在适配器列表中找到 **futterautomat**，并点击**安装（Install）**。
+2. 在适配器列表中找到 **automatic-feeder**，并点击**安装（Install）**。
 3. 创建该适配器的一个**实例**。
 4. 打开实例设置（齿轮图标）——应当会出现带有**基本设置（Grundeinstellungen）**
    选项卡的配置页面。如果页面保持空白，请参见[故障排除](#9-故障排除与常见问题)。
@@ -82,7 +82,7 @@
 
 目标：让一个开关——立即进行测试——喂食 5 秒。
 
-1. **打开** futterautomat 实例的**设置**。
+1. **打开** automatic-feeder 实例的**设置**。
 2. 在**基本设置（Grundeinstellungen）**选项卡中：
    * 在**位置（Standort）**下，如果你的 ioBroker 已有坐标，请选择*采用系统设置*。
      否则选择*指定具体位置*，输入地址，点击**搜索**，并在地图上确认标记。
@@ -238,7 +238,7 @@
 
 ## 6. 对象 / 数据点
 
-适配器会在其命名空间下创建以下数据点（`futterautomat.<instanz>.`）。
+适配器会在其命名空间下创建以下数据点（`automatic-feeder.<instanz>.`）。
 
 **全局**
 
@@ -279,7 +279,7 @@
 * 模式*某时间段内的间隔* → 07:00–19:00，间隔 `90` 分钟；时长 `3` 秒。
 
 **通过 VIS 按钮手动加餐**
-* 在 VIS 中创建一个按钮，将 `true` 写入 `futterautomat.0.switches.sw-0.feedNow`。
+* 在 VIS 中创建一个按钮，将 `true` 写入 `automatic-feeder.0.switches.sw-0.feedNow`。
 * 可选地激活*手动触发器忽略所有阻止*，以便始终喂食。
 
 ---
@@ -288,7 +288,7 @@
 
 1. 安装并设置 **telegram** 适配器（用 @BotFather 创建机器人，填入 Token，与机器人开始聊天）。
    Telegram 实例必须**正在运行**。
-2. 在某个 futterautomat **开关选项卡**中打开 **Telegram 通知**部分：
+2. 在某个 automatic-feeder **开关选项卡**中打开 **Telegram 通知**部分：
    * 在下拉菜单中选择 **Telegram 实例**（例如 `telegram.0`）。
    * 可选地填写一个**接收人**（telegram 适配器中显示的用户/聊天名称）；留空则通知所有人。
    * 勾选想要的通知：*成功喂食*、*无法执行*、*关闭故障*。
@@ -319,7 +319,7 @@
 要么为该开关停用*开关监控*。
 
 **地址搜索提示实例必须正在运行。**
-启动 futterautomat 实例——地理编码在后端运行。
+启动 automatic-feeder 实例——地理编码在后端运行。
 
 **Telegram 消息没有送达。**
 开关选项卡中是否选择了 Telegram 实例？telegram 适配器是否已设置并启动？
@@ -330,7 +330,7 @@
 ## 10. 日志记录与排错
 
 适配器在常见的 ioBroker 级别上记录日志。要获得详细的消息，请将实例的日志级别
-（实例 → futterautomat.x → 日志级别）提升到 **debug** 或 **silly**：
+（实例 → automatic-feeder.x → 日志级别）提升到 **debug** 或 **silly**：
 
 * **error**——需要关注的错误（例如写入开关失败）。
 * **warn**——配置错误（无坐标、时间计划无效……）。
