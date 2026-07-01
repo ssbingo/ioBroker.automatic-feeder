@@ -231,10 +231,12 @@ Optional: passt **Intervall und Dauer der Fütterung an die Temperatur** an (Q10
 
 * **Aktivieren / Quelle** – einschalten und Wasser- oder Lufttemperatur wählen.
 * **Referenz / Q10** – Basis-Intervall und -Dauer gelten bei der Referenztemperatur (z. B. 20 °C); Q10 typischerweise 2–2,5.
-* **Intervall / Dauer (Basis, Min, Max)** – Grenzen für das berechnete Intervall (Minuten) und die Dauer (Sekunden).
+* **Intervall / Dauer (Basis, Min, Max)** – Grenzen für das berechnete Intervall (Minuten) und die Dauer (Sekunden). Das **Basis-Intervall und das Max-Intervall müssen größer als 0 sein**, sonst kann keine Fütterung geplant werden.
 * **Mittelungsfenster / Hysterese** – ein gleitender Mittelwert (z. B. 24 h) glättet Ausreißer; die Hysterese vermeidet Neuplanung bei winzigen Änderungen.
 
 Die aktuellen Werte stehen in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` und `status.dynamicDurationSec`. Eine optionale **Sauerstoff-Quelle (O₂)** kann die Fütterung sperren, wenn der Sauerstoffgehalt unter einen Schwellwert fällt. Die Winterpause hat Vorrang vor dem dynamischen Füttern.
+
+> Ist das dynamische Füttern aktiviert, kann aber kein gültiges Intervall berechnet werden (Basis- oder Max-Intervall ist 0 oder ein ungültiges Zeitfenster), wird nichts geplant: `status.nextFeeding` bleibt leer und `status.blockReason` zeigt einen Hinweis. Setze ein Basis-Intervall und ein Max-Intervall größer als 0.
 
 #### Winterpause
 
@@ -418,6 +420,9 @@ Stelle sicher, dass die gewählte Temperaturquelle (Wasser oder Luft) im Schalte
 (*Temperatur- & Sauerstoffquellen*) aktiviert ist und Werte liefert. Direkt nach einem Neustart füllt sich der gleitende Mittelwert
 erst, daher startet es mit den Basiswerten. Beobachte `status.dynamicAvgTemperature` und
 `status.dynamicIntervalMin`.
+
+**Das dynamische Füttern ist aktiviert, aber es wird nie gefüttert (`status.nextFeeding` ist leer).**
+Das **Basis-Intervall oder das Max-Intervall ist 0** (oder das Zeitfenster ist ungültig), sodass kein Intervall berechnet werden kann – `status.blockReason` zeigt dann einen Hinweis. Setze ein Basis-Intervall und ein Max-Intervall größer als 0 (und ein gültiges Fenster). Hinweis: Bleiben *sowohl* Min- als auch Max-Intervall auf 0, wird das Ergebnis ebenfalls auf 0 gezwungen.
 
 **Es wird nicht gefüttert, obwohl kein Winter ist (oder es füttert, obwohl es pausieren sollte).**
 Prüfe die *Winterpause*-Daten (`Winterbeginn` / `Winterende`, Format tt.mm) und den Modus. Der

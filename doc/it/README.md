@@ -248,10 +248,12 @@ Opzionale: adatta **intervallo e durata dell'alimentazione alla temperatura** co
 
 * **Attiva / fonte** – attivalo e scegli la temperatura dell'acqua o dell'aria.
 * **Riferimento / Q10** – l'intervallo e la durata base valgono alla temperatura di riferimento (es. 20 °C); Q10 tipicamente 2–2,5.
-* **Intervallo / durata (base, min, max)** – limiti per l'intervallo calcolato (minuti) e la durata (secondi).
+* **Intervallo / durata (base, min, max)** – limiti per l'intervallo calcolato (minuti) e la durata (secondi). L'**intervallo base e l'intervallo massimo devono essere maggiori di 0**, altrimenti non è possibile pianificare alcuna distribuzione.
 * **Finestra di media / isteresi** – una media mobile (es. 24 h) attenua i picchi; l'isteresi evita la ripianificazione per variazioni minime.
 
 I valori correnti sono in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` e `status.dynamicDurationSec`. Una fonte opzionale di **ossigeno (O₂)** può bloccare l'alimentazione quando l'ossigeno disciolto scende sotto una soglia. La pausa invernale ha la precedenza sull'alimentazione dinamica.
+
+> Se l'alimentazione dinamica è attiva ma non è possibile calcolare un intervallo valido (l'intervallo base o massimo è 0, oppure una finestra temporale non valida), non viene programmato nulla: `status.nextFeeding` resta vuoto e `status.blockReason` mostra un'indicazione. Imposta un intervallo base e un intervallo massimo maggiori di 0.
 
 #### Pausa invernale
 
@@ -441,6 +443,9 @@ per questo interruttore.
 Assicurati che la fonte di temperatura selezionata (acqua o aria) sia attivata nella scheda
 dell'interruttore (*Sorgenti di temperatura e ossigeno*) e fornisca valori. Subito dopo un riavvio la media mobile si sta ancora riempiendo, quindi
 parte dai valori base. Osserva `status.dynamicAvgTemperature` e `status.dynamicIntervalMin`.
+
+**L'alimentazione dinamica è attiva ma non viene mai distribuito nulla (`status.nextFeeding` è vuoto).**
+L'**intervallo base o l'intervallo massimo è 0** (oppure la finestra temporale non è valida), quindi non è possibile calcolare alcun intervallo – `status.blockReason` mostra allora un'indicazione. Imposta un intervallo base e un intervallo massimo maggiori di 0 (e una finestra valida). Nota: lasciare *sia* l'intervallo minimo *sia* quello massimo a 0 forza anch'esso il risultato a 0.
 
 **Non viene distribuito nulla anche se non è inverno (oppure distribuisce quando dovrebbe essere in pausa).**
 Controlla le date della *Pausa invernale* (`Inizio inverno` / `Fine inverno`, formato gg.mm) e la

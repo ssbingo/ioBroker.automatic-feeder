@@ -235,10 +235,12 @@ Opcjonalnie: dostosowuje **interwał i czas karmienia do temperatury** według m
 
 * **Włączenie / źródło** – włącz i wybierz temperaturę wody lub powietrza.
 * **Odniesienie / Q10** – bazowy interwał i czas obowiązują przy temperaturze odniesienia (np. 20 °C); Q10 zwykle 2–2,5.
-* **Interwał / czas (baza, min, maks)** – granice obliczanego interwału (minuty) i czasu (sekundy).
+* **Interwał / czas (baza, min, maks)** – granice obliczanego interwału (minuty) i czasu (sekundy). **Interwał bazowy i interwał maksymalny muszą być większe od 0**, w przeciwnym razie nie można zaplanować żadnego karmienia.
 * **Okno uśredniania / histereza** – średnia krocząca (np. 24 h) wygładza skoki; histereza zapobiega przeplanowaniu przy drobnych zmianach.
 
 Bieżące wartości znajdują się w `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` i `status.dynamicDurationSec`. Opcjonalne źródło **tlenu (O₂)** może zablokować karmienie, gdy zawartość tlenu spadnie poniżej progu. Przerwa zimowa ma priorytet nad karmieniem dynamicznym.
+
+> Jeśli karmienie dynamiczne jest włączone, ale nie można obliczyć prawidłowego interwału (interwał bazowy lub maksymalny wynosi 0 albo okno czasowe jest nieprawidłowe), nic nie zostaje zaplanowane: `status.nextFeeding` pozostaje pusty, a `status.blockReason` pokazuje wskazówkę. Ustaw interwał bazowy i interwał maksymalny większe od 0.
 
 #### Przerwa zimowa
 
@@ -424,6 +426,9 @@ przełączania* dla tego przełącznika.
 Upewnij się, że wybrane źródło temperatury (woda lub powietrze) jest aktywowane w zakładce
 przełącznika (*Źródła temperatury i tlenu*) i dostarcza wartości. Zaraz po restarcie średnia krocząca dopiero się zapełnia, więc
 karmienie startuje od wartości bazowych. Obserwuj `status.dynamicAvgTemperature` i `status.dynamicIntervalMin`.
+
+**Karmienie dynamiczne jest włączone, ale nic nigdy nie jest karmione (`status.nextFeeding` jest pusty).**
+**Interwał bazowy lub interwał maksymalny wynosi 0** (albo okno czasowe jest nieprawidłowe), więc nie można obliczyć żadnego interwału – `status.blockReason` pokazuje wtedy wskazówkę. Ustaw interwał bazowy i interwał maksymalny większe od 0 (oraz prawidłowe okno). Uwaga: pozostawienie *zarówno* minimalnego, jak i maksymalnego interwału na 0 również wymusza wynik 0.
 
 **Nic nie jest karmione, choć nie jest zima (albo karmi, choć powinna być przerwa).**
 Sprawdź daty *Przerwy zimowej* (`Początek zimy` / `Koniec zimy`, format dd.mm) oraz tryb. Punkt

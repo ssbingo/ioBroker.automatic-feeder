@@ -243,10 +243,12 @@ Optional: adapt the feeding **interval and duration to temperature** using the Q
 
 * **Enable / source** – turn it on and pick water or air temperature.
 * **Reference / Q10** – the base interval and duration apply at the reference temperature (e.g. 20 °C); Q10 is typically 2–2.5.
-* **Interval / duration (base, min, max)** – bounds for the computed interval (minutes) and duration (seconds).
+* **Interval / duration (base, min, max)** – bounds for the computed interval (minutes) and duration (seconds). The **base interval and the max interval must be greater than 0**, otherwise no feeding can be planned.
 * **Averaging window / hysteresis** – a moving average (e.g. 24 h) smooths spikes; hysteresis avoids re-planning on tiny changes.
 
 The current values are exposed in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` and `status.dynamicDurationSec`. An optional **oxygen (O₂)** source can block feeding when the dissolved oxygen drops below a threshold. The winter pause takes precedence over dynamic feeding.
+
+> If dynamic feeding is enabled but no valid interval can be computed (base or max interval is 0, or an invalid time window), nothing is scheduled: `status.nextFeeding` stays empty and `status.blockReason` shows a hint. Set a base interval and a max interval greater than 0.
 
 #### Winter pause
 
@@ -424,6 +426,9 @@ Make sure the selected temperature source (water or air) is enabled on the switc
 (*Temperature & oxygen sources*) and delivers values. Right after a restart the moving average is still filling up, so it starts from
 the base values. Watch `status.dynamicAvgTemperature` and `status.dynamicIntervalMin`.
 
+**Dynamic feeding is enabled but nothing is ever fed (`status.nextFeeding` is empty).**
+The **base interval or the max interval is 0** (or the time window is invalid), so no interval can be computed – `status.blockReason` then shows a hint. Set a base interval and a max interval greater than 0 (and a valid window). Note: leaving *both* the min and max interval at 0 also forces the result to 0.
+
 **Nothing is fed although it is not winter (or it feeds although it should pause).**
 Check the *Winter pause* dates (`Winter start` / `Winter end`, format dd.mm) and the mode. The
 `status.winterActive` data point shows whether the pause is currently active.
@@ -454,6 +459,10 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 1.0.1 (2026-07-01)
+* (ssbingo) Fix: switches created by an older version were missing the dynamic-feeding defaults (Q10, base/min/max interval and duration, averaging window, hysteresis), so dynamic feeding computed a 0 interval and never fed. The missing per-switch defaults are now filled in automatically on start
+* (ssbingo) When dynamic feeding is enabled but no valid interval can be computed (base/max interval 0 or an invalid time window), the adapter now logs a warning and shows a hint in `status.blockReason` instead of silently doing nothing
 
 ### 1.0.0 (2026-07-01)
 * (ssbingo) First stable release
@@ -492,11 +501,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 ### 0.4.0 (2026-06-30)
 * (ssbingo) More reliable switch supervision for devices with delayed status feedback (e.g. Homematic radio): each verification now actively reads the current acknowledged state back and performs several staggered re-checks before reporting a fault, instead of failing after a single timeout
 * (ssbingo) New per-switch option "Verification attempts" (default 3) to configure the number of staggered re-checks
-
-### 0.3.0 (2026-06-30)
-* (ssbingo) Localize the feeding result messages (Telegram and the `lastResult` data point) and the block reasons (`blockReason`) into all 11 ioBroker languages; the text now follows the configured system language and defaults to English
-* (ssbingo) Translate the adapter title (`titleLang`) into all 11 languages
-* (ssbingo) Clean up the package keywords (removed "Futterautomat"; "Fisch" → "Fish")
 
 ---
 

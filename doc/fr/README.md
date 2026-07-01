@@ -254,10 +254,12 @@ Optionnel : adapte l'**intervalle et la durée de l'alimentation à la températ
 
 * **Activer / source** – activez et choisissez la température de l'eau ou de l'air.
 * **Référence / Q10** – l'intervalle et la durée de base s'appliquent à la température de référence (par ex. 20 °C) ; Q10 généralement 2–2,5.
-* **Intervalle / durée (base, min, max)** – limites de l'intervalle calculé (minutes) et de la durée (secondes).
+* **Intervalle / durée (base, min, max)** – limites de l'intervalle calculé (minutes) et de la durée (secondes). L'**intervalle de base et l'intervalle maximal doivent être supérieurs à 0**, sinon aucune distribution ne peut être planifiée.
 * **Fenêtre de moyenne / hystérésis** – une moyenne glissante (par ex. 24 h) lisse les pics ; l'hystérésis évite une replanification pour des variations infimes.
 
 Les valeurs actuelles figurent dans `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` et `status.dynamicDurationSec`. Une source d'**oxygène (O₂)** facultative peut bloquer l'alimentation lorsque l'oxygène dissous passe sous un seuil. La pause hivernale est prioritaire sur l'alimentation dynamique.
+
+> Si l'alimentation dynamique est activée mais qu'aucun intervalle valide ne peut être calculé (intervalle de base ou maximal à 0, ou une fenêtre horaire invalide), rien n'est planifié : `status.nextFeeding` reste vide et `status.blockReason` affiche une indication. Définissez un intervalle de base et un intervalle maximal supérieurs à 0.
 
 #### Pause hivernale
 
@@ -446,6 +448,9 @@ Assure-toi que la source de température sélectionnée (eau ou air) est activé
 l'interrupteur (*Sources de température et d'oxygène*) et fournit des valeurs. Juste après un
 redémarrage, la moyenne glissante se remplit encore, elle part donc des valeurs de base. Surveille
 `status.dynamicAvgTemperature` et `status.dynamicIntervalMin`.
+
+**L'alimentation dynamique est activée mais rien n'est jamais distribué (`status.nextFeeding` est vide).**
+L'**intervalle de base ou l'intervalle maximal est à 0** (ou la fenêtre horaire est invalide), aucun intervalle ne peut donc être calculé — `status.blockReason` affiche alors une indication. Définis un intervalle de base et un intervalle maximal supérieurs à 0 (et une fenêtre valide). Remarque : laisser à la fois l'intervalle minimal et maximal à 0 force également le résultat à 0.
 
 **Rien n'est distribué alors que ce n'est pas l'hiver (ou la distribution a lieu alors qu'elle devrait être en pause).**
 Vérifie les dates de la *Pause hivernale* (`Début de l'hiver` / `Fin de l'hiver`, format jj.mm) et

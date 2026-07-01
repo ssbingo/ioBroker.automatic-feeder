@@ -249,10 +249,12 @@ Opcional: adapta el **intervalo y la duración de la alimentación a la temperat
 
 * **Activar / fuente** – actívalo y elige la temperatura del agua o del aire.
 * **Referencia / Q10** – el intervalo y la duración base se aplican a la temperatura de referencia (p. ej. 20 °C); Q10 normalmente 2–2,5.
-* **Intervalo / duración (base, mín, máx)** – límites para el intervalo calculado (minutos) y la duración (segundos).
+* **Intervalo / duración (base, mín, máx)** – límites para el intervalo calculado (minutos) y la duración (segundos). El **intervalo base y el intervalo máximo deben ser mayores que 0**, de lo contrario no se puede planificar ninguna alimentación.
 * **Ventana de promedio / histéresis** – una media móvil (p. ej. 24 h) suaviza los picos; la histéresis evita replanificar por cambios mínimos.
 
 Los valores actuales están en `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` y `status.dynamicDurationSec`. Una fuente opcional de **oxígeno (O₂)** puede bloquear la alimentación cuando el oxígeno disuelto cae por debajo de un umbral. La pausa de invierno tiene prioridad sobre la alimentación dinámica.
+
+> Si la alimentación dinámica está activada pero no se puede calcular ningún intervalo válido (el intervalo base o máximo es 0, o una ventana de tiempo no válida), no se planifica nada: `status.nextFeeding` permanece vacío y `status.blockReason` muestra una indicación. Establece un intervalo base y un intervalo máximo mayores que 0.
 
 #### Pausa de invierno
 
@@ -440,6 +442,9 @@ Asegúrate de que la fuente de temperatura seleccionada (agua o aire) esté acti
 interruptor (*Fuentes de temperatura y oxígeno*) y proporcione valores. Justo después de un reinicio,
 la media móvil aún se está llenando, por lo que empieza desde los valores base. Observa
 `status.dynamicAvgTemperature` y `status.dynamicIntervalMin`.
+
+**La alimentación dinámica está activada pero nunca se alimenta (`status.nextFeeding` está vacío).**
+El **intervalo base o el intervalo máximo es 0** (o la ventana de tiempo no es válida), por lo que no se puede calcular ningún intervalo: entonces `status.blockReason` muestra una indicación. Establece un intervalo base y un intervalo máximo mayores que 0 (y una ventana válida). Nota: dejar *tanto* el intervalo mínimo como el máximo en 0 también fuerza el resultado a 0.
 
 **No se alimenta aunque no sea invierno (o se alimenta aunque debería pausar).**
 Comprueba las fechas de la *Pausa de invierno* (`Inicio del invierno` / `Fin del invierno`, formato

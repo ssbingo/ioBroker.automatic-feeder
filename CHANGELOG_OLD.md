@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.3.0 (2026-06-30)
+* (ssbingo) Localize the feeding result messages (Telegram and the `lastResult` data point) and the block reasons (`blockReason`) into all 11 ioBroker languages; the text now follows the configured system language and defaults to English
+* (ssbingo) Translate the adapter title (`titleLang`) into all 11 languages
+* (ssbingo) Clean up the package keywords (removed "Futterautomat"; "Fisch" → "Fish")
+
 ### 0.2.0 (2026-06-29)
 * (ssbingo) Renamed the adapter to **Automatic Feeder** (technical name `automatic-feeder`, npm `iobroker.automatic-feeder`, namespace `automatic-feeder.0`). This is a new adapter id — reinstall and reconfigure; there is no automatic migration from `futterautomat`.
 

@@ -57,6 +57,76 @@ const SETTINGS_READONLY = new Set(['winterWindow']);
 const NULLABLE_SETTINGS = new Set(['waterMin', 'waterMax', 'airMin', 'airMax', 'o2Min']);
 
 /**
+ * Per-switch default values (mirrors the admin `createSwitch`, without the id).
+ * Switches created by older adapter versions are missing the fields that were
+ * added later (e.g. the dynamic-feeding parameters). Those missing fields are
+ * backfilled from here on start (see {@link AutomaticFeeder.migrateSwitchDefaults})
+ * so an old switch behaves exactly like a freshly created one instead of reading
+ * the missing numbers as 0 (which would make dynamic feeding compute a 0 interval).
+ */
+const SWITCH_DEFAULTS = {
+	enabled: true,
+	objectId: '',
+	onValue: true,
+	offValue: false,
+	durationSec: 5,
+	mode: 'times',
+	times: ['08:00'],
+	windowStart: '08:00',
+	windowEnd: '18:00',
+	intervalMin: 60,
+	blockWaterEnabled: false,
+	waterMin: null,
+	waterMax: null,
+	blockAirEnabled: false,
+	airMin: null,
+	airMax: null,
+	respectNight: true,
+	manualIgnoresBlocks: false,
+	verifyEnabled: true,
+	verifyTimeoutSec: 5,
+	verifyRetries: 3,
+	telegramInstance: '',
+	telegramUser: '',
+	notifySuccess: false,
+	notifyOnFail: true,
+	notifyOffFail: true,
+	manualDurationSec: 5,
+	winterEnabled: false,
+	winterStart: '11-01',
+	winterEnd: '03-15',
+	winterMode: 'suspend',
+	winterIntervalMin: 240,
+	winterTime: '12:00',
+	winterDurationSec: 5,
+	winterStartReminderEnabled: false,
+	winterStartReminderDays: 7,
+	winterEndReminderEnabled: false,
+	winterEndReminderDays: 7,
+	winterReminderHour: 9,
+	dynamicEnabled: false,
+	dynamicSource: 'water',
+	dynamicTRef: 20,
+	dynamicQ10: 2.2,
+	dynamicBaseIntervalMin: 60,
+	dynamicMinIntervalMin: 30,
+	dynamicMaxIntervalMin: 480,
+	dynamicBaseDurationSec: 5,
+	dynamicMinDurationSec: 2,
+	dynamicMaxDurationSec: 15,
+	dynamicBufferHours: 24,
+	dynamicHysteresisPct: 15,
+	blockO2Enabled: false,
+	o2Min: null,
+	airTempEnabled: false,
+	airTempObjectId: '',
+	waterTempEnabled: false,
+	waterTempObjectId: '',
+	o2Enabled: false,
+	o2ObjectId: '',
+};
+
+/**
  * Formats a recurring "MM-DD" as "DD.MM" for display.
  *
  * @param {string} md - recurring date "MM-DD"
@@ -88,9 +158,11 @@ function asCommonType(t) {
 }
 
 /**
- * Read-only mirror of the per-switch configuration, exposed under
+ * Editable mirror of the per-switch configuration, exposed under
  * `switches.<id>.settings.*` so the settings are visible in the object tree / VIS.
- * (Writing them back from VIS is a possible future step; for now they are read-only.)
+ * Writing a value there applies it to the instance config (see the settings-write
+ * handling in {@link AutomaticFeeder.onStateChange}); composite/derived entries in
+ * {@link SETTINGS_READONLY} stay read-only.
  */
 const SWITCH_SETTINGS = [
 	{ id: 'name', name: 'Name', type: 'string', role: 'text', get: sw => sw.name || '' },
@@ -550,6 +622,11 @@ class AutomaticFeeder extends utils.Adapter {
 
 			// --- one-time migration of the legacy global sources into the switches ---
 			if (await this.migrateGlobalSourcesToSwitches()) {
+				return; // configuration was rewritten -> the adapter restarts
+			}
+
+			// --- backfill defaults for switches created by older versions ---
+			if (await this.migrateSwitchDefaults()) {
 				return; // configuration was rewritten -> the adapter restarts
 			}
 
@@ -1112,6 +1189,56 @@ class AutomaticFeeder extends utils.Adapter {
 		return true;
 	}
 
+	/**
+	 * Backfills per-switch config fields that were added in later adapter versions
+	 * and are therefore missing on switches created by an older version. Only fields
+	 * that are absent are added (from {@link SWITCH_DEFAULTS}); values the user set
+	 * explicitly — including 0/false/null — are kept. Writing the instance config
+	 * restarts the adapter; the operation is idempotent (once every field exists,
+	 * nothing changes on the next start).
+	 *
+	 * @returns {Promise<boolean>} true if the configuration was rewritten (restart imminent)
+	 */
+	async migrateSwitchDefaults() {
+		const objId = `system.adapter.${this.namespace}`;
+		let obj;
+		try {
+			obj = await this.getForeignObjectAsync(objId);
+		} catch (e) {
+			this.log.warn(`Default backfill skipped (could not read ${objId}): ${e.message}`);
+			return false;
+		}
+		if (!obj || !obj.native || !Array.isArray(obj.native.switches)) {
+			return false;
+		}
+		let added = 0;
+		let touched = 0;
+		for (const sw of obj.native.switches) {
+			if (!sw || typeof sw !== 'object') {
+				continue;
+			}
+			let swTouched = false;
+			for (const [key, def] of Object.entries(SWITCH_DEFAULTS)) {
+				if (!(key in sw)) {
+					sw[key] = Array.isArray(def) ? [...def] : def;
+					added++;
+					swTouched = true;
+				}
+			}
+			if (swTouched) {
+				touched++;
+			}
+		}
+		if (!added) {
+			return false;
+		}
+		await this.setForeignObjectAsync(objId, obj);
+		this.log.info(
+			`Filled in ${added} missing default value(s) on ${touched} switch(es) created by an older version; the adapter restarts to apply them.`,
+		);
+		return true;
+	}
+
 	async setupSources() {
 		// keep enough history for the largest configured moving-average window
 		const maxHours = Math.max(24, ...this.switches.map(s => Number(s.dynamicBufferHours) || 0));
@@ -1221,9 +1348,29 @@ class AutomaticFeeder extends utils.Adapter {
 		const next = this.computeNextFeeding(sw, new Date());
 		if (!next) {
 			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
-			this.log.warn(`Switch ${this.swLabel(sw)}: no valid schedule (mode=${sw.mode}), not planned.`);
+			const winterActive = !!sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, new Date());
+			if (sw.dynamicEnabled && !winterActive) {
+				this.log.warn(
+					`Switch ${this.swLabel(sw)}: dynamic feeding is enabled but no valid interval could be computed - set a base interval and a max interval > 0 and a valid time window (${sw.windowStart}-${sw.windowEnd}). Nothing planned.`,
+				);
+				this.setStateAsync(`switches.${sw.id}.status.blockReason`, {
+					val: this.t('dynamicNoInterval'),
+					ack: true,
+				});
+			} else {
+				this.log.warn(`Switch ${this.swLabel(sw)}: no valid schedule (mode=${sw.mode}), not planned.`);
+			}
 			return;
 		}
+
+		// clear a stale "no valid interval" hint once a schedule exists again
+		this.getStateAsync(`switches.${sw.id}.status.blockReason`)
+			.then(st => {
+				if (st && st.val === this.t('dynamicNoInterval')) {
+					this.setStateAsync(`switches.${sw.id}.status.blockReason`, { val: '', ack: true });
+				}
+			})
+			.catch(() => {});
 
 		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: next.toISOString(), ack: true });
 		const delay = Math.max(0, next.getTime() - Date.now());

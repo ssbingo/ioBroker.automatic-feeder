@@ -229,10 +229,12 @@ Optioneel: past het **voederinterval en de duur aan de temperatuur** aan via het
 
 * **Inschakelen / bron** – schakel in en kies water- of luchttemperatuur.
 * **Referentie / Q10** – het basisinterval en de duur gelden bij de referentietemperatuur (bijv. 20 °C); Q10 meestal 2–2,5.
-* **Interval / duur (basis, min, max)** – grenzen voor het berekende interval (minuten) en de duur (seconden).
+* **Interval / duur (basis, min, max)** – grenzen voor het berekende interval (minuten) en de duur (seconden). Het **basisinterval en het max-interval moeten groter dan 0 zijn**, anders kan er geen voedering worden gepland.
 * **Middelingsvenster / hysterese** – een voortschrijdend gemiddelde (bijv. 24 u) vlakt pieken af; hysterese voorkomt herplannen bij kleine wijzigingen.
 
 De huidige waarden staan in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` en `status.dynamicDurationSec`. Een optionele **zuurstofbron (O₂)** kan het voeren blokkeren wanneer het opgeloste zuurstof onder een drempel zakt. De winterpauze heeft voorrang op dynamisch voeren.
+
+> Als dynamisch voeren is ingeschakeld maar er geen geldig interval kan worden berekend (basis- of max-interval is 0, of een ongeldig tijdvenster), wordt er niets ingepland: `status.nextFeeding` blijft leeg en `status.blockReason` toont een aanwijzing. Stel een basisinterval en een max-interval groter dan 0 in.
 
 #### Winterpauze
 
@@ -413,6 +415,9 @@ deactiveren.
 Zorg ervoor dat de gekozen temperatuurbron (water of lucht) in het schakelaar-tabblad
 (*Temperatuur- & zuurstofbronnen*) geactiveerd is en waarden levert. Direct na een herstart wordt het voortschrijdend gemiddelde nog opgebouwd,
 dus start het vanaf de basiswaarden. Bekijk `status.dynamicAvgTemperature` en `status.dynamicIntervalMin`.
+
+**Dynamisch voeren is ingeschakeld maar er wordt nooit gevoerd (`status.nextFeeding` is leeg).**
+Het **basisinterval of het max-interval is 0** (of het tijdvenster is ongeldig), zodat er geen interval kan worden berekend – `status.blockReason` toont dan een aanwijzing. Stel een basisinterval en een max-interval groter dan 0 in (en een geldig venster). Let op: als je *zowel* het min- als het max-interval op 0 laat staan, wordt het resultaat ook naar 0 gedwongen.
 
 **Er wordt niet gevoerd hoewel het geen winter is (of er wordt gevoerd hoewel het zou moeten pauzeren).**
 Controleer de *Winterpauze*-data (`Winterbegin` / `Wintereinde`, formaat dd.mm) en de modus. Het
