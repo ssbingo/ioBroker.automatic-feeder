@@ -50,7 +50,12 @@ configuratie-tabblad dat naar de schakelaar is genoemd. Per schakelaar leg je va
 * **of er 's nachts niet** wordt gevoerd (gebaseerd op de werkelijke zonsop-/-ondergang voor jouw
   locatie);
 * **of het schakelproces wordt bewaakt** (controle of er werkelijk is in- en uitgeschakeld)
-  en optioneel een **Telegram**-bericht over het resultaat wordt verzonden.
+  en optioneel een **Telegram**-bericht over het resultaat wordt verzonden;
+* **of het voeren wordt verminderd of gepauzeerd** tijdens een terugkerend **winter**seizoen –
+  optioneel met Telegram-herinneringen voordat het begint en eindigt;
+* **of het interval en de portie automatisch aan de water-/luchttemperatuur worden aangepast**
+  (**dynamisch voeren**, Q10-model);
+* **of het voeren wordt geblokkeerd** wanneer het opgeloste **zuurstof** (O₂) te laag is.
 
 Je kunt een voedering op elk moment **handmatig** activeren – rechtstreeks op de instellingenpagina
 (knop met vrij te kiezen duur) of via een datapunt (bijv. een knop in een
@@ -68,7 +73,8 @@ VIS-weergave).
 | **ioBroker** met actuele **admin** (≥ 7) | De configuratiepagina is met React gerealiseerd. |
 | **Een schakelaar-object** | Een beschrijfbaar ioBroker-datapunt dat de voederautomaat in-/uitschakelt – bijv. een stopcontact (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), een relais of een scriptvariabele. |
 | **Geocoördinaten** | Voor de berekening van zonsop-/-ondergang. Ofwel uit de ioBroker-systeeminstellingen of via adres/kaart. **Verplicht.** |
-| *(optioneel)* Temperatuur-objecten | Aanwezige datapunten met lucht- en/of watertemperatuur, als je temperatuurafhankelijk wilt blokkeren. |
+| *(optioneel)* Temperatuur-objecten | Aanwezige datapunten met lucht- en/of watertemperatuur, als je temperatuurafhankelijk wilt blokkeren of dynamisch wilt voeren. |
+| *(optioneel)* Een **zuurstof (O₂)**-object | Een aanwezig datapunt met het opgeloste zuurstof, als je het voeren wilt blokkeren wanneer dit te laag zakt. |
 | *(optioneel)* Een **Telegram**-instantie | De officiële `telegram`-adapter, ingericht en gestart, als je push-meldingen wilt. |
 | Internettoegang op de ioBroker-host | Alleen voor adres zoeken/kaart in de configuratie. Het normale gebruik werkt offline. |
 
@@ -151,10 +157,12 @@ Voor temperatuurafhankelijk blokkeren hier de bronnen activeren en de objecten k
 
 * **Luchttemperatuur** – vinkje zetten en het datapunt met de luchttemperatuur selecteren.
 * **Watertemperatuur** – vinkje zetten en het datapunt met de watertemperatuur selecteren.
+* **Zuurstof (O₂)** – vinkje zetten en het datapunt met het opgeloste zuurstof selecteren. Het
+  wordt gebruikt door de optie *Blokkeren op zuurstof* per schakelaar.
 
 Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten
 `airTemperature` / `waterTemperature` gespiegeld. De eigenlijke drempels worden **per
-schakelaar** ingesteld (zie *Temperatuurblokkering*).
+schakelaar** ingesteld (zie *Temperatuurblokkering* en *Dynamisch voeren*).
 
 #### Schakelaars
 
@@ -218,6 +226,17 @@ bron niet.)
 * **Handmatige trigger negeert alle blokkeringen** – wanneer actief, voeren de knop en het
   datapunt `feedNow` ook bij actieve temperatuur-/nachtblokkering.
 
+#### Dynamisch voeren
+
+Optioneel: past het **voederinterval en de duur aan de temperatuur** aan via het Q10-model (het metabolisme verdubbelt ongeveer per +10 °C). Vereist een actieve temperatuurbron; vaste tijden worden dan vervangen door een interval binnen het venster.
+
+* **Inschakelen / bron** – schakel in en kies water- of luchttemperatuur.
+* **Referentie / Q10** – het basisinterval en de duur gelden bij de referentietemperatuur (bijv. 20 °C); Q10 meestal 2–2,5.
+* **Interval / duur (basis, min, max)** – grenzen voor het berekende interval (minuten) en de duur (seconden).
+* **Middelingsvenster / hysterese** – een voortschrijdend gemiddelde (bijv. 24 u) vlakt pieken af; hysterese voorkomt herplannen bij kleine wijzigingen.
+
+De huidige waarden staan in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` en `dynamicDurationSec`. Een optionele **zuurstofbron (O₂)** kan het voeren blokkeren wanneer het opgeloste zuurstof onder een drempel zakt. De winterpauze heeft voorrang op dynamisch voeren.
+
 #### Winterpauze
 
 Per schakelaar kun je een terugkerende **winterpauze** instellen (seizoensgebonden, als `MM-DD`-data die zich jaarlijks herhalen en over de jaarwisseling kunnen lopen).
@@ -266,6 +285,9 @@ Verzendt de meldingen van de schakelbewaking naar Telegram – **per schakelaar*
 * **Selectievakjes** – kiezen welke meldingen worden verzonden: succesvolle voedering, niet
   uitvoerbaar en/of storing van het uitschakelen.
 
+De **winterpauze-herinneringen** (indien ingeschakeld, zie *Winterpauze*) worden naar dezelfde
+Telegram-instantie verzonden, onafhankelijk van deze bewakings-selectievakjes.
+
 De volledige inrichting staat onder [Telegram-meldingen](#8-telegram-meldingen).
 
 ---
@@ -294,10 +316,17 @@ Daarnaast weerspiegelt een alleen-lezen subkanaal **`settings`** (`switches.<id>
 | `lastFeeding` | string (ro) | Tijdstip van de laatste voedering. |
 | `nextFeeding` | string (ro) | Tijdstip van de volgende geplande voedering. |
 | `blocked` | boolean (ro) | De laatste poging was geblokkeerd. |
-| `blockReason` | string (ro) | Reden van de blokkering (nacht/temperatuur). |
+| `blockReason` | string (ro) | Reden van de blokkering (nacht / temperatuur / zuurstof). |
 | `lastResult` | string (ro) | Resultaattekst van de laatste voederpoging. |
 | `error` | boolean (ro) | De laatste poging had een schakelstoring. |
 | `feedNow` | boolean (rw) | `true` schrijven om handmatig te voeren. |
+| `winterActive` | boolean (ro) | De winterpauze is momenteel actief. |
+| `winterLastStartReminder` | string (ro) | Datum van de laatst verzonden „winter begint"-herinnering. |
+| `winterLastEndReminder` | string (ro) | Datum van de laatst verzonden „winter eindigt"-herinnering. |
+| `dynamicAvgTemperature` | number (ro) | Gemiddelde temperatuur die door dynamisch voeren wordt gebruikt. |
+| `dynamicRate` | number (ro) | Q10-factor die momenteel door dynamisch voeren wordt toegepast. |
+| `dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
+| `dynamicDurationSec` | number (ro) | Momenteel berekende dynamische duur (seconden). |
 
 Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `nextFeeding`
 op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
@@ -314,6 +343,17 @@ op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
 
 **Volière, frequente kleine porties overdag**
 * Modus *Interval binnen een periode* → 07:00–19:00, interval `90` min; duur `3` s.
+
+**Koi-vijver, temperatuurafhankelijk (dynamisch voeren)**
+* *Watertemperatuur* in de basisinstellingen activeren.
+* In het schakelaar-tabblad *Dynamisch voeren* openen, inschakelen, bron *Watertemperatuur*.
+* Referentie `20` °C, Q10 `2,2`, basisinterval `60` min (min `30`, max `480`), basisduur `5` s
+  (min `2`, max `15`). Er wordt dan bij warmte vaker en iets meer gevoerd, en bij kou minder.
+
+**Winterpauze voor de vijver**
+* In het schakelaar-tabblad *Winterpauze* openen, inschakelen, *Winterbegin* `01.11` en *Wintereinde*
+  `15.03` instellen, modus *Voeding onderbreken*.
+* Optioneel de herinneringen aankruisen, zodat je een paar dagen vóór begin/einde een Telegram-bericht krijgt.
 
 **Handmatige extra portie via VIS-knop**
 * In VIS een knop aanmaken die `true` op `automatic-feeder.0.switches.sw-0.feedNow` schrijft.
@@ -334,6 +374,9 @@ op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
 3. Opslaan. Vanaf nu worden de gekozen bewakings-resultaten naar Telegram verzonden (met de
    schakelaarnaam ervoor). Voorwaarde is dat de *schakelbewaking* voor deze schakelaar
    geactiveerd is.
+4. De **winterpauze-herinneringen** gebruiken dezelfde Telegram-instantie en ontvanger. Ze worden
+   in de sectie *Winterpauze* ingesteld (dagen vóór begin/einde en het herinneringsuur) en
+   vereisen **niet** dat de bewaking is ingeschakeld.
 
 ---
 
@@ -361,6 +404,15 @@ gelogd).
 Jouw schakelaar-object meldt vermoedelijk zijn werkelijke toestand niet terug (`ack=true`). Ofwel
 een schakelaar met statusterugmelding gebruiken of de *schakelbewaking* voor deze schakelaar
 deactiveren.
+
+**Dynamisch voeren verandert niets.**
+Zorg ervoor dat de gekozen temperatuurbron (water of lucht) in de basisinstellingen geactiveerd is
+en waarden levert. Direct na een herstart wordt het voortschrijdend gemiddelde nog opgebouwd,
+dus start het vanaf de basiswaarden. Bekijk `dynamicAvgTemperature` en `dynamicIntervalMin`.
+
+**Er wordt niet gevoerd hoewel het geen winter is (of er wordt gevoerd hoewel het zou moeten pauzeren).**
+Controleer de *Winterpauze*-data (`Winterbegin` / `Wintereinde`, formaat dd.mm) en de modus. Het
+datapunt `winterActive` geeft aan of de pauze momenteel actief is.
 
 **Het adres zoeken zegt dat de instantie moet draaien.**
 De automatic-feeder-instantie starten – de geocoding loopt in de backend.

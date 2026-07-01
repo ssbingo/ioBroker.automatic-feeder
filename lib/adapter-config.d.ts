@@ -82,6 +82,34 @@ declare global {
 			winterEndReminderDays: number;
 			/** Hour of day (0-23, local) at which winter reminders are sent. */
 			winterReminderHour: number;
+			/** Dynamic feeding: adapt interval and duration to temperature (Q10 model). */
+			dynamicEnabled: boolean;
+			/** Which temperature drives the dynamic model. */
+			dynamicSource: 'water' | 'air';
+			/** Reference temperature (°C) at which the base interval/duration apply. */
+			dynamicTRef: number;
+			/** Q10 coefficient (metabolic rate factor per 10 °C, typically 2..2.5). */
+			dynamicQ10: number;
+			/** Interval in minutes at the reference temperature. */
+			dynamicBaseIntervalMin: number;
+			/** Lower clamp for the dynamic interval (minutes). */
+			dynamicMinIntervalMin: number;
+			/** Upper clamp for the dynamic interval (minutes). */
+			dynamicMaxIntervalMin: number;
+			/** Feeding duration in seconds at the reference temperature. */
+			dynamicBaseDurationSec: number;
+			/** Lower clamp for the dynamic duration (seconds). */
+			dynamicMinDurationSec: number;
+			/** Upper clamp for the dynamic duration (seconds). */
+			dynamicMaxDurationSec: number;
+			/** Moving-average window in hours used to smooth the temperature (inertia). */
+			dynamicBufferHours: number;
+			/** Hysteresis in percent to avoid re-planning on tiny interval changes. */
+			dynamicHysteresisPct: number;
+			/** Block feeding when the dissolved oxygen drops below o2Min. */
+			blockO2Enabled: boolean;
+			/** Minimum oxygen (in the source object's unit) required to feed. */
+			o2Min: number | null;
 		}
 
 		interface AdapterConfig {
@@ -99,6 +127,9 @@ declare global {
 			airTempObjectId: string;
 			waterTempEnabled: boolean;
 			waterTempObjectId: string;
+			/** Optional global dissolved-oxygen source (used by per-switch O2 blocking). */
+			o2Enabled: boolean;
+			o2ObjectId: string;
 			switches: AutomaticFeederSwitchConfig[];
 		}
 	}

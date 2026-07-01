@@ -50,7 +50,12 @@ Konfigurations-Tab, der nach dem Schalter benannt ist. Pro Schalter legst du fes
 * **ob nachts** nicht gefüttert wird (basierend auf dem echten Sonnenauf-/-untergang für deinen
   Standort);
 * **ob der Schaltvorgang überwacht** wird (Prüfung, ob wirklich ein- und ausgeschaltet wurde)
-  und optional eine **Telegram**-Nachricht zum Ergebnis gesendet wird.
+  und optional eine **Telegram**-Nachricht zum Ergebnis gesendet wird;
+* **ob während einer wiederkehrenden Wintersaison reduziert oder pausiert** wird – optional mit
+  Telegram-Erinnerungen vor Beginn und Ende;
+* **ob Intervall und Portion automatisch an die Wasser-/Lufttemperatur angepasst** werden
+  (**dynamisches Füttern**, Q10-Modell);
+* **ob blockiert** wird, wenn der gelöste **Sauerstoff** (O₂) zu niedrig ist.
 
 Du kannst eine Fütterung jederzeit **manuell** auslösen – direkt auf der Einstellungsseite
 (Button mit frei wählbarer Dauer) oder über einen Datenpunkt (z. B. ein Button in einer
@@ -68,7 +73,8 @@ VIS-Ansicht).
 | **ioBroker** mit aktuellem **admin** (≥ 7) | Die Konfigurationsseite ist mit React umgesetzt. |
 | **Ein Schalter-Objekt** | Ein beschreibbarer ioBroker-Datenpunkt, der den Futterautomaten ein-/ausschaltet – z. B. eine Steckdose (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), ein Relais oder eine Skriptvariable. |
 | **Geokoordinaten** | Für die Berechnung von Sonnenauf-/-untergang. Entweder aus den ioBroker-Systemeinstellungen oder per Adresse/Karte. **Verpflichtend.** |
-| *(optional)* Temperatur-Objekte | Vorhandene Datenpunkte mit Luft- und/oder Wassertemperatur, falls du temperaturabhängig sperren willst. |
+| *(optional)* Temperatur-Objekte | Vorhandene Datenpunkte mit Luft- und/oder Wassertemperatur, falls du temperaturabhängig sperren oder dynamisch füttern willst. |
+| *(optional)* Ein **Sauerstoff-Objekt (O₂)** | Ein vorhandener Datenpunkt mit dem gelösten Sauerstoff, falls du die Fütterung sperren willst, wenn er zu niedrig wird. |
 | *(optional)* Eine **Telegram**-Instanz | Der offizielle `telegram`-Adapter, eingerichtet und gestartet, falls du Push-Benachrichtigungen möchtest. |
 | Internetzugang auf dem ioBroker-Host | Nur für Adresssuche/Karte in der Konfiguration. Der normale Betrieb läuft offline. |
 
@@ -151,10 +157,12 @@ Für temperaturabhängiges Sperren hier die Quellen aktivieren und die Objekte w
 
 * **Lufttemperatur** – Häkchen setzen und den Datenpunkt mit der Lufttemperatur auswählen.
 * **Wassertemperatur** – Häkchen setzen und den Datenpunkt mit der Wassertemperatur auswählen.
+* **Sauerstoff (O₂)** – Häkchen setzen und den Datenpunkt mit dem gelösten Sauerstoff auswählen.
+  Er wird von der Option *Nach Sauerstoff sperren* pro Schalter genutzt.
 
 Sinnvoll sind nur Zahl-Datenpunkte. Die aktuellen Werte werden in die Datenpunkte
 `airTemperature` / `waterTemperature` gespiegelt. Die eigentlichen Schwellen werden **pro
-Schalter** eingestellt (siehe *Temperatursperre*).
+Schalter** eingestellt (siehe *Temperatursperre* und *Dynamisches Füttern*).
 
 #### Schalter
 
@@ -218,6 +226,17 @@ Quelle nicht.)
 * **Manueller Auslöser ignoriert alle Sperren** – wenn aktiv, füttern der Button und der
   Datenpunkt `feedNow` auch bei aktiver Temperatur-/Nachtsperre.
 
+#### Dynamisches Füttern
+
+Optional: passt **Intervall und Dauer der Fütterung an die Temperatur** an (Q10-Modell – der Stoffwechsel verdoppelt sich grob pro +10 °C). Benötigt eine aktive Temperaturquelle; feste Zeiten werden dann durch ein Intervall innerhalb des Fensters ersetzt.
+
+* **Aktivieren / Quelle** – einschalten und Wasser- oder Lufttemperatur wählen.
+* **Referenz / Q10** – Basis-Intervall und -Dauer gelten bei der Referenztemperatur (z. B. 20 °C); Q10 typischerweise 2–2,5.
+* **Intervall / Dauer (Basis, Min, Max)** – Grenzen für das berechnete Intervall (Minuten) und die Dauer (Sekunden).
+* **Mittelungsfenster / Hysterese** – ein gleitender Mittelwert (z. B. 24 h) glättet Ausreißer; die Hysterese vermeidet Neuplanung bei winzigen Änderungen.
+
+Die aktuellen Werte stehen in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` und `dynamicDurationSec`. Eine optionale **Sauerstoff-Quelle (O₂)** kann die Fütterung sperren, wenn der Sauerstoffgehalt unter einen Schwellwert fällt. Die Winterpause hat Vorrang vor dem dynamischen Füttern.
+
 #### Winterpause
 
 Pro Schalter lässt sich eine wiederkehrende **Winterpause** definieren (saisonal, als `MM-TT`-Daten, die sich jährlich wiederholen und über den Jahreswechsel reichen können).
@@ -266,6 +285,9 @@ Sendet die Meldungen der Schaltüberwachung an Telegram – **pro Schalter** kon
 * **Checkboxen** – auswählen, welche Meldungen gesendet werden: erfolgreiche Fütterung, nicht
   durchführbar und/oder Störung der Abschaltung.
 
+Die **Winterpause-Erinnerungen** (falls aktiviert, siehe *Winterpause*) werden an dieselbe
+Telegram-Instanz gesendet, unabhängig von diesen Überwachungs-Checkboxen.
+
 Die vollständige Einrichtung steht unter [Telegram-Benachrichtigungen](#8-telegram-benachrichtigungen).
 
 ---
@@ -294,10 +316,17 @@ Zusätzlich spiegelt eine schreibgeschützte Unterrubrik **`settings`** (`switch
 | `lastFeeding` | string (ro) | Zeitpunkt der letzten Fütterung. |
 | `nextFeeding` | string (ro) | Zeitpunkt der nächsten geplanten Fütterung. |
 | `blocked` | boolean (ro) | Der letzte Versuch war blockiert. |
-| `blockReason` | string (ro) | Grund der Blockierung (Nacht/Temperatur). |
+| `blockReason` | string (ro) | Grund der Blockierung (Nacht / Temperatur / Sauerstoff). |
 | `lastResult` | string (ro) | Ergebnistext des letzten Fütterungsversuchs. |
 | `error` | boolean (ro) | Der letzte Versuch hatte eine Schaltstörung. |
 | `feedNow` | boolean (rw) | `true` schreiben, um manuell zu füttern. |
+| `winterActive` | boolean (ro) | Die Winterpause ist gerade aktiv. |
+| `winterLastStartReminder` | string (ro) | Datum der zuletzt gesendeten „Winter beginnt"-Erinnerung. |
+| `winterLastEndReminder` | string (ro) | Datum der zuletzt gesendeten „Winter endet"-Erinnerung. |
+| `dynamicAvgTemperature` | number (ro) | Vom dynamischen Füttern verwendete gemittelte Temperatur. |
+| `dynamicRate` | number (ro) | Aktuell vom dynamischen Füttern angewendeter Q10-Ratenfaktor. |
+| `dynamicIntervalMin` | number (ro) | Aktuell berechnetes dynamisches Intervall (Minuten). |
+| `dynamicDurationSec` | number (ro) | Aktuell berechnete dynamische Dauer (Sekunden). |
 
 Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `nextFeeding`
 auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslösen.
@@ -314,6 +343,18 @@ auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslös
 
 **Voliere, häufige kleine Portionen tagsüber**
 * Modus *Intervall innerhalb eines Zeitraums* → 07:00–19:00, Intervall `90` min; Dauer `3` s.
+
+**Koi-Teich, temperaturangepasst (dynamisches Füttern)**
+* *Wassertemperatur* in den Grundeinstellungen aktivieren.
+* Im Schalter-Tab *Dynamisches Füttern* öffnen, aktivieren, Quelle *Wassertemperatur*.
+* Referenz `20` °C, Q10 `2,2`, Basis-Intervall `60` min (Min `30`, Max `480`), Basis-Dauer `5` s
+  (Min `2`, Max `15`). Es füttert dann bei Wärme häufiger und etwas mehr und bei Kälte weniger.
+
+**Winterpause für den Teich**
+* Im Schalter-Tab *Winterpause* öffnen, aktivieren, *Winterbeginn* `01.11` und *Winterende*
+  `15.03` setzen, Modus *Fütterung aussetzen*.
+* Optional die Erinnerungen ankreuzen, damit du ein paar Tage vor Beginn/Ende eine
+  Telegram-Nachricht bekommst.
 
 **Manuelle Extraportion per VIS-Button**
 * In VIS einen Button anlegen, der `true` auf `automatic-feeder.0.switches.sw-0.feedNow` schreibt.
@@ -334,6 +375,9 @@ auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslös
 3. Speichern. Ab jetzt werden die gewählten Überwachungs-Ergebnisse an Telegram gesendet (mit dem
    Schalternamen davor). Voraussetzung ist, dass die *Schaltüberwachung* für diesen Schalter
    aktiviert ist.
+4. Die **Winterpause-Erinnerungen** nutzen dieselbe Telegram-Instanz und denselben Empfänger. Sie
+   werden im Abschnitt *Winterpause* gesteuert (Tage vor Beginn/Ende und die Erinnerungs-Uhrzeit)
+   und benötigen **keine** aktivierte Überwachung.
 
 ---
 
@@ -361,6 +405,16 @@ geloggt).
 Dein Schalter-Objekt meldet vermutlich seinen Ist-Zustand nicht zurück (`ack=true`). Entweder
 einen Schalter mit Statusrückmeldung verwenden oder die *Schaltüberwachung* für diesen Schalter
 deaktivieren.
+
+**Das dynamische Füttern ändert nichts.**
+Stelle sicher, dass die gewählte Temperaturquelle (Wasser oder Luft) in den Grundeinstellungen
+aktiviert ist und Werte liefert. Direkt nach einem Neustart füllt sich der gleitende Mittelwert
+erst, daher startet es mit den Basiswerten. Beobachte `dynamicAvgTemperature` und
+`dynamicIntervalMin`.
+
+**Es wird nicht gefüttert, obwohl kein Winter ist (oder es füttert, obwohl es pausieren sollte).**
+Prüfe die *Winterpause*-Daten (`Winterbeginn` / `Winterende`, Format tt.mm) und den Modus. Der
+Datenpunkt `winterActive` zeigt, ob die Pause gerade aktiv ist.
 
 **Die Adresssuche sagt, die Instanz müsse laufen.**
 Die automatic-feeder-Instanz starten – das Geocoding läuft im Backend.

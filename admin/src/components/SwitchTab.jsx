@@ -178,6 +178,18 @@ function SwitchTab(props) {
 
 			{/* Mode */}
 			<Section title={I18n.t('Feeding schedule')}>
+				{sw.dynamicEnabled ? (
+					<Box>
+						<Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+							{I18n.t('Controlled by dynamic feeding: the interval is computed from temperature within the window below.')}
+						</Typography>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+							<TimePicker label={I18n.t('Window start')} ampm={false} format="HH:mm" value={hhmmToDayjs(sw.windowStart)} onChange={(v) => onChange({ windowStart: dayjsToHHmm(v) })} slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }} />
+							<TimePicker label={I18n.t('Window end')} ampm={false} format="HH:mm" value={hhmmToDayjs(sw.windowEnd)} onChange={(v) => onChange({ windowEnd: dayjsToHHmm(v) })} slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }} />
+						</Box>
+					</Box>
+				) : (
+				<>
 				<RadioGroup row value={mode} onChange={(e) => onChange({ mode: e.target.value })}>
 					<FormControlLabel value="times" control={<Radio />} label={I18n.t('Fixed times')} />
 					<FormControlLabel
@@ -241,6 +253,8 @@ function SwitchTab(props) {
 							onChange={(e) => onChange({ intervalMin: Number(e.target.value) || 0 })}
 						/>
 					</Box>
+				)}
+				</>
 				)}
 			</Section>
 
@@ -341,6 +355,135 @@ function SwitchTab(props) {
 						</Box>
 					</Box>
 				) : null}
+				{native.o2Enabled ? (
+					<Box>
+						<Divider sx={{ my: 1 }} />
+						<FormControlLabel
+							control={<Checkbox checked={!!sw.blockO2Enabled} onChange={(e) => onChange({ blockO2Enabled: e.target.checked })} />}
+							label={I18n.t('Block by oxygen (O₂)')}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Block if oxygen below')}
+							disabled={!sw.blockO2Enabled}
+							value={sw.o2Min ?? ''}
+							onChange={(e) => onChange({ o2Min: toNumberOrNull(e.target.value) })}
+						/>
+					</Box>
+				) : null}
+			</Section>
+
+			{/* Dynamic feeding */}
+			<Section title={I18n.t('Dynamic feeding')}>
+				{!native.airTempEnabled && !native.waterTempEnabled ? (
+					<Typography variant="body2" color="textSecondary">
+						{I18n.t('Enable a temperature source in the general settings to use this.')}
+					</Typography>
+				) : (
+					<Box>
+						<FormControlLabel
+							control={<Checkbox checked={!!sw.dynamicEnabled} onChange={(e) => onChange({ dynamicEnabled: e.target.checked })} />}
+							label={I18n.t('Enable dynamic feeding (Q10)')}
+						/>
+						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+							{I18n.t('Adapts interval and duration to temperature; fixed times are replaced by an interval within the window.')}
+						</Typography>
+						<RadioGroup row value={sw.dynamicSource || 'water'} onChange={(e) => onChange({ dynamicSource: e.target.value })}>
+							<FormControlLabel value="water" disabled={!sw.dynamicEnabled || !native.waterTempEnabled} control={<Radio />} label={I18n.t('Water temperature')} />
+							<FormControlLabel value="air" disabled={!sw.dynamicEnabled || !native.airTempEnabled} control={<Radio />} label={I18n.t('Air temperature')} />
+						</RadioGroup>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Reference temperature (°C)')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicTRef ?? 20}
+							onChange={(e) => onChange({ dynamicTRef: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							inputProps={{ step: 0.1 }}
+							label={I18n.t('Q10 coefficient')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicQ10 ?? 2.2}
+							onChange={(e) => onChange({ dynamicQ10: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Averaging window (hours)')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicBufferHours ?? 24}
+							onChange={(e) => onChange({ dynamicBufferHours: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Hysteresis (%)')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicHysteresisPct ?? 15}
+							onChange={(e) => onChange({ dynamicHysteresisPct: Number(e.target.value) || 0 })}
+						/>
+						</Box>
+						<Typography variant="subtitle2" sx={{ mt: 1 }}>{I18n.t('Interval (minutes)')}</Typography>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Base (at reference)')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicBaseIntervalMin ?? 60}
+							onChange={(e) => onChange({ dynamicBaseIntervalMin: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Minimum')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicMinIntervalMin ?? 30}
+							onChange={(e) => onChange({ dynamicMinIntervalMin: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Maximum')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicMaxIntervalMin ?? 480}
+							onChange={(e) => onChange({ dynamicMaxIntervalMin: Number(e.target.value) || 0 })}
+						/>
+						</Box>
+						<Typography variant="subtitle2" sx={{ mt: 1 }}>{I18n.t('Duration (seconds)')}</Typography>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Base (at reference)')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicBaseDurationSec ?? 5}
+							onChange={(e) => onChange({ dynamicBaseDurationSec: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Minimum')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicMinDurationSec ?? 2}
+							onChange={(e) => onChange({ dynamicMinDurationSec: Number(e.target.value) || 0 })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Maximum')}
+							disabled={!sw.dynamicEnabled}
+							value={sw.dynamicMaxDurationSec ?? 15}
+							onChange={(e) => onChange({ dynamicMaxDurationSec: Number(e.target.value) || 0 })}
+						/>
+						</Box>
+					</Box>
+				)}
 			</Section>
 
 			{/* Night & manual */}

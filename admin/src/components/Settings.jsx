@@ -60,6 +60,20 @@ function createSwitch(switches) {
 		winterEndReminderEnabled: false,
 		winterEndReminderDays: 7,
 		winterReminderHour: 9,
+		dynamicEnabled: false,
+		dynamicSource: 'water',
+		dynamicTRef: 20,
+		dynamicQ10: 2.2,
+		dynamicBaseIntervalMin: 60,
+		dynamicMinIntervalMin: 30,
+		dynamicMaxIntervalMin: 480,
+		dynamicBaseDurationSec: 5,
+		dynamicMinDurationSec: 2,
+		dynamicMaxDurationSec: 15,
+		dynamicBufferHours: 24,
+		dynamicHysteresisPct: 15,
+		blockO2Enabled: false,
+		o2Min: null,
 	};
 }
 

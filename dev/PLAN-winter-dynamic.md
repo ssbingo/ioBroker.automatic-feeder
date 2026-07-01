@@ -93,5 +93,6 @@ Jahreswechsel-Fenster; 29.02.; Adapter tagsüber offline → dieser Tag entfäll
 - Phase 1 → **v0.5.0**, Phase 2 → **v0.6.0** (jeweils bump + changelog + news 11 + build/lint/check/test + commit/tag/push).
 
 ## Status
-- [ ] Phase 1 in Umsetzung.
-- [ ] Phase 2 offen.
+- [x] Phase 1 (Winterpause) released: v0.5.0–0.5.3.
+- [x] Phase 2 (dynamisches Füttern + O₂) implementiert (grün); Release als v0.6.0.
+- [ ] Phase 3 (Settings aus VIS änderbar) — später, mit Nutzer abzustimmen.

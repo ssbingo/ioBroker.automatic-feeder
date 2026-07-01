@@ -51,7 +51,12 @@ stabilisci:
 * **se di notte** non venga distribuito mangime (in base all'alba/tramonto reali per la tua
   posizione);
 * **se monitorare la commutazione** (verifica che l'accensione e lo spegnimento siano realmente
-  avvenuti) e, facoltativamente, l'invio di un messaggio **Telegram** sull'esito.
+  avvenuti) e, facoltativamente, l'invio di un messaggio **Telegram** sull'esito;
+* **se ridurre o sospendere** la distribuzione durante una stagione **invernale** ricorrente –
+  facoltativamente con promemoria Telegram prima che inizi e finisca;
+* **se adattare** l'intervallo e la porzione alla temperatura dell'acqua/dell'aria
+  automaticamente (**alimentazione dinamica**, modello Q10);
+* **se bloccare** la distribuzione quando l'**ossigeno** disciolto (O₂) è troppo basso.
 
 Puoi attivare una distribuzione **manualmente** in qualsiasi momento, direttamente dalla pagina
 delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramite un punto dati
@@ -69,7 +74,8 @@ delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramit
 | **ioBroker** con **admin** aggiornato (≥ 7) | La pagina di configurazione è realizzata con React. |
 | **Un oggetto interruttore** | Un punto dati ioBroker scrivibile che accende/spegne il distributore di mangime – ad es. una presa elettrica (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relè o una variabile di script. |
 | **Coordinate geografiche** | Per il calcolo di alba/tramonto. O dalle impostazioni di sistema di ioBroker oppure tramite indirizzo/mappa. **Obbligatorio.** |
-| *(facoltativo)* Oggetti di temperatura | Punti dati esistenti con temperatura dell'aria e/o dell'acqua, se vuoi bloccare in base alla temperatura. |
+| *(facoltativo)* Oggetti di temperatura | Punti dati esistenti con temperatura dell'aria e/o dell'acqua, se vuoi bloccare in base alla temperatura o l'alimentazione dinamica. |
+| *(facoltativo)* Un oggetto **ossigeno (O₂)** | Un punto dati esistente con l'ossigeno disciolto, se vuoi bloccare la distribuzione quando scende troppo. |
 | *(facoltativo)* Un'istanza **Telegram** | L'adattatore ufficiale `telegram`, configurato e avviato, se desideri notifiche push. |
 | Accesso a Internet sull'host ioBroker | Solo per la ricerca dell'indirizzo/mappa nella configurazione. Il normale funzionamento avviene offline. |
 
@@ -159,10 +165,12 @@ Per il blocco in base alla temperatura attiva qui le sorgenti e seleziona gli og
   temperatura dell'aria.
 * **Temperatura dell'acqua** – metti il segno di spunta e seleziona il punto dati con la
   temperatura dell'acqua.
+* **Ossigeno (O₂)** – metti il segno di spunta e seleziona il punto dati con l'ossigeno
+  disciolto. Viene usato dall'opzione per interruttore *Blocca in base all'ossigeno*.
 
 Sono utili solo i punti dati numerici. I valori attuali vengono rispecchiati nei punti dati
 `airTemperature` / `waterTemperature`. Le soglie vere e proprie si impostano **per ciascun
-interruttore** (vedi *Blocco per temperatura*).
+interruttore** (vedi *Blocco per temperatura* e *Alimentazione dinamica*).
 
 #### Interruttori
 
@@ -233,6 +241,17 @@ sorgente non blocca.)
 * **L'attivatore manuale ignora tutti i blocchi** – se attivo, il pulsante e il punto dati
   `feedNow` distribuiscono mangime anche con blocco per temperatura/notturno attivo.
 
+#### Alimentazione dinamica
+
+Opzionale: adatta **intervallo e durata dell'alimentazione alla temperatura** con il modello Q10 (il metabolismo raddoppia circa ogni +10 °C). Richiede una fonte di temperatura attiva; gli orari fissi vengono quindi sostituiti da un intervallo all'interno della finestra.
+
+* **Attiva / fonte** – attivalo e scegli la temperatura dell'acqua o dell'aria.
+* **Riferimento / Q10** – l'intervallo e la durata base valgono alla temperatura di riferimento (es. 20 °C); Q10 tipicamente 2–2,5.
+* **Intervallo / durata (base, min, max)** – limiti per l'intervallo calcolato (minuti) e la durata (secondi).
+* **Finestra di media / isteresi** – una media mobile (es. 24 h) attenua i picchi; l'isteresi evita la ripianificazione per variazioni minime.
+
+I valori correnti sono in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` e `dynamicDurationSec`. Una fonte opzionale di **ossigeno (O₂)** può bloccare l'alimentazione quando l'ossigeno disciolto scende sotto una soglia. La pausa invernale ha la precedenza sull'alimentazione dinamica.
+
 #### Pausa invernale
 
 Per ogni interruttore è possibile definire una **pausa invernale** ricorrente (stagionale, come date `MM-GG` che si ripetono ogni anno e possono attraversare il Capodanno).
@@ -284,6 +303,9 @@ interruttore**:
 * **Caselle di controllo** – seleziona quali messaggi vengono inviati: distribuzione riuscita, non
   effettuabile e/o guasto dello spegnimento.
 
+I **promemoria della pausa invernale** (se attivi, vedi *Pausa invernale*) vengono inviati alla
+stessa istanza Telegram, indipendentemente da queste caselle di controllo del monitoraggio.
+
 La configurazione completa è descritta in [Notifiche Telegram](#8-notifiche-telegram).
 
 ---
@@ -312,10 +334,17 @@ Inoltre, un sotto-canale di sola lettura **`settings`** (`switches.<id>.settings
 | `lastFeeding` | string (ro) | Momento dell'ultima distribuzione. |
 | `nextFeeding` | string (ro) | Momento della prossima distribuzione programmata. |
 | `blocked` | boolean (ro) | L'ultimo tentativo è stato bloccato. |
-| `blockReason` | string (ro) | Motivo del blocco (notte/temperatura). |
+| `blockReason` | string (ro) | Motivo del blocco (notte/temperatura/ossigeno). |
 | `lastResult` | string (ro) | Testo dell'esito dell'ultimo tentativo di distribuzione. |
 | `error` | boolean (ro) | L'ultimo tentativo ha avuto un guasto di commutazione. |
 | `feedNow` | boolean (rw) | Scrivi `true` per distribuire manualmente. |
+| `winterActive` | boolean (ro) | La pausa invernale è attualmente attiva. |
+| `winterLastStartReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno inizia" inviato. |
+| `winterLastEndReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno finisce" inviato. |
+| `dynamicAvgTemperature` | number (ro) | Temperatura media usata dall'alimentazione dinamica. |
+| `dynamicRate` | number (ro) | Fattore di velocità Q10 attualmente applicato dall'alimentazione dinamica. |
+| `dynamicIntervalMin` | number (ro) | Intervallo dinamico attualmente calcolato (minuti). |
+| `dynamicDurationSec` | number (ro) | Durata dinamica attualmente calcolata (secondi). |
 
 Questi punti dati possono essere usati in VIS, negli script o in altri adattatori – ad es.
 mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando
@@ -334,6 +363,20 @@ mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzat
 
 **Voliera, piccole porzioni frequenti durante il giorno**
 * Modalità *Intervallo all'interno di un periodo* → 07:00–19:00, intervallo `90` min; durata `3` s.
+
+**Laghetto Koi, adattivo alla temperatura (alimentazione dinamica)**
+* Attiva *Temperatura dell'acqua* nelle impostazioni di base.
+* Nella scheda dell'interruttore apri *Alimentazione dinamica*, attivala, fonte *Temperatura
+  dell'acqua*.
+* Riferimento `20` °C, Q10 `2,2`, intervallo base `60` min (min `30`, max `480`), durata base `5` s
+  (min `2`, max `15`). Distribuisce quindi più spesso e un po' di più con il caldo, e meno con il
+  freddo.
+
+**Pausa invernale per il laghetto**
+* Nella scheda dell'interruttore apri *Pausa invernale*, attivala, imposta *Inizio inverno* `01.11`
+  e *Fine inverno* `15.03`, modalità *Sospendi l'alimentazione*.
+* Facoltativamente spunta i promemoria così ricevi una nota Telegram alcuni giorni prima
+  dell'inizio/della fine.
 
 **Porzione extra manuale tramite pulsante VIS**
 * In VIS crea un pulsante che scrive `true` su `automatic-feeder.0.switches.sw-0.feedNow`.
@@ -355,6 +398,10 @@ mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzat
 3. Salva. Da ora i risultati di monitoraggio selezionati vengono inviati a Telegram (preceduti dal
    nome dell'interruttore). Il presupposto è che il *Monitoraggio della commutazione* sia attivato
    per questo interruttore.
+4. I **promemoria della pausa invernale** usano la stessa istanza Telegram e lo stesso
+   destinatario. Vengono controllati nella sezione *Pausa invernale* (giorni prima
+   dell'inizio/della fine e l'ora del promemoria) e **non** richiedono che il monitoraggio sia
+   attivato.
 
 ---
 
@@ -381,6 +428,15 @@ Senza coordinate valide il blocco notturno è disattivato (e viene registrato un
 Il tuo oggetto interruttore probabilmente non restituisce il proprio stato reale (`ack=true`).
 Usa un interruttore con conferma di stato oppure disattiva il *Monitoraggio della commutazione*
 per questo interruttore.
+
+**L'alimentazione dinamica non cambia nulla.**
+Assicurati che la fonte di temperatura selezionata (acqua o aria) sia attivata nelle impostazioni
+di base e fornisca valori. Subito dopo un riavvio la media mobile si sta ancora riempiendo, quindi
+parte dai valori base. Osserva `dynamicAvgTemperature` e `dynamicIntervalMin`.
+
+**Non viene distribuito nulla anche se non è inverno (oppure distribuisce quando dovrebbe essere in pausa).**
+Controlla le date della *Pausa invernale* (`Inizio inverno` / `Fine inverno`, formato gg.mm) e la
+modalità. Il punto dati `winterActive` indica se la pausa è attualmente attiva.
 
 **La ricerca dell'indirizzo dice che l'istanza deve essere in esecuzione.**
 Avvia l'istanza automatic-feeder – il geocoding viene eseguito nel backend.

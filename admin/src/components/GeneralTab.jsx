@@ -188,6 +188,28 @@ function GeneralTab(props) {
 						filterFunc={TEMPERATURE_FILTER}
 					/>
 				</Box>
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={!!native.o2Enabled}
+									onChange={(e) => onChange('o2Enabled', e.target.checked)}
+								/>
+							}
+							label={I18n.t('Oxygen (O₂)')}
+						/>
+						<ObjectSelect
+							label={I18n.t('Oxygen object')}
+							value={native.o2ObjectId}
+							disabled={!native.o2Enabled}
+							onChange={(v) => onChange('o2ObjectId', v)}
+							socket={socket}
+							theme={theme}
+							themeName={themeName}
+							themeType={themeType}
+							filterFunc={TEMPERATURE_FILTER}
+						/>
+					</Box>
 			</Section>
 
 			{/* Switches roster */}

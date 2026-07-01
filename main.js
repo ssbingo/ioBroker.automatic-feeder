@@ -17,7 +17,15 @@
 const utils = require('@iobroker/adapter-core');
 const SunCalc = require('suncalc');
 const { translate, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
-const { isInWinterPause, daysUntilMD, nextMDDate } = require('./lib/schedule');
+const {
+	isInWinterPause,
+	daysUntilMD,
+	nextMDDate,
+	q10Rate,
+	q10IntervalMin,
+	q10DurationSec,
+	averageOver,
+} = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
 
@@ -278,6 +286,107 @@ const SWITCH_SETTINGS = [
 		unit: 'h',
 		get: sw => Number(sw.winterReminderHour) || 0,
 	},
+	{
+		id: 'dynamicEnabled',
+		name: 'Dynamic feeding enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.dynamicEnabled,
+	},
+	{
+		id: 'dynamicSource',
+		name: 'Dynamic temperature source',
+		type: 'string',
+		role: 'text',
+		get: sw => sw.dynamicSource || 'water',
+	},
+	{
+		id: 'dynamicTRef',
+		name: 'Dynamic reference temperature',
+		type: 'number',
+		role: 'value.temperature',
+		unit: '°C',
+		get: sw => Number(sw.dynamicTRef) || 0,
+	},
+	{
+		id: 'dynamicQ10',
+		name: 'Dynamic Q10 coefficient',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.dynamicQ10) || 0,
+	},
+	{
+		id: 'dynamicBaseIntervalMin',
+		name: 'Dynamic base interval',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.dynamicBaseIntervalMin) || 0,
+	},
+	{
+		id: 'dynamicMinIntervalMin',
+		name: 'Dynamic min interval',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.dynamicMinIntervalMin) || 0,
+	},
+	{
+		id: 'dynamicMaxIntervalMin',
+		name: 'Dynamic max interval',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.dynamicMaxIntervalMin) || 0,
+	},
+	{
+		id: 'dynamicBaseDurationSec',
+		name: 'Dynamic base duration',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.dynamicBaseDurationSec) || 0,
+	},
+	{
+		id: 'dynamicMinDurationSec',
+		name: 'Dynamic min duration',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.dynamicMinDurationSec) || 0,
+	},
+	{
+		id: 'dynamicMaxDurationSec',
+		name: 'Dynamic max duration',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.dynamicMaxDurationSec) || 0,
+	},
+	{
+		id: 'dynamicBufferHours',
+		name: 'Dynamic averaging window',
+		type: 'number',
+		role: 'value',
+		unit: 'h',
+		get: sw => Number(sw.dynamicBufferHours) || 0,
+	},
+	{
+		id: 'dynamicHysteresisPct',
+		name: 'Dynamic hysteresis',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.dynamicHysteresisPct) || 0,
+	},
+	{
+		id: 'blockO2Enabled',
+		name: 'Block by oxygen',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.blockO2Enabled,
+	},
+	{ id: 'o2Min', name: 'Oxygen minimum', type: 'number', role: 'value', get: sw => sw.o2Min ?? null },
 ];
 
 class AutomaticFeeder extends utils.Adapter {
@@ -310,6 +419,14 @@ class AutomaticFeeder extends utils.Adapter {
 		// type checker infers a flexible type and feeds it back as number | null
 		this.airTemp = null;
 		this.waterTemp = null;
+		// dissolved oxygen (null = unknown)
+		this.o2 = null;
+		// rolling temperature samples for the dynamic (Q10) moving average: { air:[], water:[] }
+		this.tempBuffers = { air: [], water: [] };
+		// longest sample window we need to keep (ms); set in setupTemperatureSources
+		this.maxBufferMs = 24 * 3600000;
+		// last dynamic interval (minutes) applied per switch id (hysteresis reference)
+		this.dynamicAppliedInterval = new Map();
 
 		this.switches = [];
 
@@ -756,6 +873,55 @@ class AutomaticFeeder extends utils.Adapter {
 				native: {},
 			});
 
+			// --- dynamic feeding status (computed from temperature) ---
+			await this.setObjectNotExistsAsync(`${base}.dynamicAvgTemperature`, {
+				type: 'state',
+				common: {
+					name: 'Dynamic feeding: averaged temperature',
+					type: 'number',
+					role: 'value.temperature',
+					unit: '°C',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.dynamicRate`, {
+				type: 'state',
+				common: {
+					name: 'Dynamic feeding: Q10 rate factor',
+					type: 'number',
+					role: 'value',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.dynamicIntervalMin`, {
+				type: 'state',
+				common: {
+					name: 'Dynamic feeding: current interval',
+					type: 'number',
+					role: 'value',
+					unit: 'min',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.dynamicDurationSec`, {
+				type: 'state',
+				common: {
+					name: 'Dynamic feeding: current duration',
+					type: 'number',
+					role: 'value',
+					unit: 's',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+
 			// --- read-only mirror of the configuration (visible in the object tree / VIS) ---
 			await this.setObjectNotExistsAsync(`${base}.settings`, {
 				type: 'folder',
@@ -799,11 +965,16 @@ class AutomaticFeeder extends utils.Adapter {
 	// ----------------------------------------------------------------------------
 
 	async setupTemperatureSources() {
+		// keep enough history for the largest configured moving-average window
+		const maxHours = Math.max(24, ...this.switches.map(s => Number(s.dynamicBufferHours) || 0));
+		this.maxBufferMs = maxHours * 3600000;
+
 		if (this.config.airTempEnabled && this.config.airTempObjectId) {
 			this.subscribeForeignStates(this.config.airTempObjectId);
 			const st = await this.getForeignStateAsync(this.config.airTempObjectId);
 			if (st && st.val !== null && st.val !== undefined) {
 				this.airTemp = Number(st.val);
+				this.pushTempSample('air', this.airTemp);
 				await this.setStateAsync('airTemperature', { val: this.airTemp, ack: true });
 			}
 			this.log.debug(
@@ -817,6 +988,7 @@ class AutomaticFeeder extends utils.Adapter {
 			const st = await this.getForeignStateAsync(this.config.waterTempObjectId);
 			if (st && st.val !== null && st.val !== undefined) {
 				this.waterTemp = Number(st.val);
+				this.pushTempSample('water', this.waterTemp);
 				await this.setStateAsync('waterTemperature', { val: this.waterTemp, ack: true });
 			}
 			this.log.debug(
@@ -824,6 +996,37 @@ class AutomaticFeeder extends utils.Adapter {
 			);
 		} else {
 			this.log.debug('Water temperature source disabled.');
+		}
+		if (this.config.o2Enabled && this.config.o2ObjectId) {
+			this.subscribeForeignStates(this.config.o2ObjectId);
+			const st = await this.getForeignStateAsync(this.config.o2ObjectId);
+			if (st && st.val !== null && st.val !== undefined) {
+				this.o2 = Number(st.val);
+			}
+			this.log.debug(
+				`Oxygen source subscribed: ${this.config.o2ObjectId} (initial value: ${this.o2 ?? 'unknown'}).`,
+			);
+		} else {
+			this.log.debug('Oxygen source disabled.');
+		}
+	}
+
+	/**
+	 * Appends a temperature sample to the rolling buffer and prunes old samples.
+	 *
+	 * @param {'air' | 'water'} which - which temperature source
+	 * @param {number} value - the temperature value in °C
+	 */
+	pushTempSample(which, value) {
+		if (!Number.isFinite(value)) {
+			return;
+		}
+		const now = Date.now();
+		const buf = this.tempBuffers[which];
+		buf.push({ t: now, v: value });
+		const from = now - this.maxBufferMs;
+		while (buf.length && buf[0].t < from) {
+			buf.shift();
 		}
 	}
 
@@ -890,6 +1093,11 @@ class AutomaticFeeder extends utils.Adapter {
 			// reduced: use the winter interval within the normal window
 			this.log.debug(`Switch ${this.swLabel(sw)}: winter pause active (reduced, ${sw.winterIntervalMin} min).`);
 			return this.nextFromInterval(sw, now, Number(sw.winterIntervalMin) || 0);
+		}
+
+		// --- dynamic feeding: temperature-adapted interval within the window ---
+		if (sw.dynamicEnabled) {
+			return this.planDynamic(sw, now);
 		}
 
 		if (sw.mode === 'interval') {
@@ -1245,7 +1453,117 @@ class AutomaticFeeder extends utils.Adapter {
 		) {
 			return Number(sw.winterDurationSec) || 0;
 		}
+		if (sw.dynamicEnabled) {
+			const t = this.dynamicTemp(sw);
+			return q10DurationSec(
+				Number(sw.dynamicBaseDurationSec) || 0,
+				t,
+				Number(sw.dynamicTRef),
+				Number(sw.dynamicQ10),
+				Number(sw.dynamicMinDurationSec) || 0,
+				Number(sw.dynamicMaxDurationSec) || 0,
+			);
+		}
 		return Number(sw.durationSec) || 0;
+	}
+
+	// ----------------------------------------------------------------------------
+	// Dynamic feeding (Q10)
+	// ----------------------------------------------------------------------------
+
+	/**
+	 * Moving-average temperature for the switch's dynamic source, or the reference
+	 * temperature (rate 1) when no samples are available yet.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {number} the temperature to feed into the Q10 model
+	 */
+	dynamicTemp(sw) {
+		const buf = this.tempBuffers[sw.dynamicSource === 'air' ? 'air' : 'water'];
+		const avg = averageOver(buf, Date.now(), Number(sw.dynamicBufferHours) || 24);
+		if (avg !== null) {
+			return avg;
+		}
+		const tRef = Number(sw.dynamicTRef);
+		return Number.isFinite(tRef) ? tRef : 20;
+	}
+
+	/**
+	 * Computes the temperature-adapted interval, writes the dynamic status data
+	 * points and returns the next feeding time within the configured window.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {Date} now - reference time
+	 * @returns {Date | null} the next feeding time or null
+	 */
+	planDynamic(sw, now) {
+		const buf = this.tempBuffers[sw.dynamicSource === 'air' ? 'air' : 'water'];
+		const avg = averageOver(buf, Date.now(), Number(sw.dynamicBufferHours) || 24);
+		const tRef = Number(sw.dynamicTRef);
+		const q10 = Number(sw.dynamicQ10);
+		const t = avg !== null ? avg : Number.isFinite(tRef) ? tRef : 20;
+		const interval = q10IntervalMin(
+			Number(sw.dynamicBaseIntervalMin) || 0,
+			t,
+			tRef,
+			q10,
+			Number(sw.dynamicMinIntervalMin) || 0,
+			Number(sw.dynamicMaxIntervalMin) || 0,
+		);
+		const duration = q10DurationSec(
+			Number(sw.dynamicBaseDurationSec) || 0,
+			t,
+			tRef,
+			q10,
+			Number(sw.dynamicMinDurationSec) || 0,
+			Number(sw.dynamicMaxDurationSec) || 0,
+		);
+		const rate = q10Rate(t, tRef, q10);
+		this.dynamicAppliedInterval.set(sw.id, interval);
+		this.setStateAsync(`switches.${sw.id}.dynamicAvgTemperature`, { val: avg, ack: true });
+		this.setStateAsync(`switches.${sw.id}.dynamicRate`, { val: Math.round(rate * 1000) / 1000, ack: true });
+		this.setStateAsync(`switches.${sw.id}.dynamicIntervalMin`, { val: interval, ack: true });
+		this.setStateAsync(`switches.${sw.id}.dynamicDurationSec`, { val: duration, ack: true });
+		this.log.debug(
+			`Dynamic ${this.swLabel(sw)}: avg=${avg === null ? 'n/a' : `${avg.toFixed(1)}°C`} rate=${rate.toFixed(2)} -> interval ${interval} min, duration ${duration}s.`,
+		);
+		return this.nextFromInterval(sw, now, interval);
+	}
+
+	/**
+	 * Hourly refresh: re-plans dynamic switches when the newly computed interval
+	 * differs from the applied one by more than the hysteresis, so a mid-cycle
+	 * temperature change is honored without flapping.
+	 */
+	refreshDynamicSchedules() {
+		for (const sw of this.switches) {
+			if (!sw.enabled || !sw.objectId || !sw.dynamicEnabled) {
+				continue;
+			}
+			// winter pause controls the schedule while it is active
+			if (sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, new Date())) {
+				continue;
+			}
+			if (this.feedingBusy.has(sw.id)) {
+				continue;
+			}
+			const applied = Number(this.dynamicAppliedInterval.get(sw.id)) || 0;
+			const next = q10IntervalMin(
+				Number(sw.dynamicBaseIntervalMin) || 0,
+				this.dynamicTemp(sw),
+				Number(sw.dynamicTRef),
+				Number(sw.dynamicQ10),
+				Number(sw.dynamicMinIntervalMin) || 0,
+				Number(sw.dynamicMaxIntervalMin) || 0,
+			);
+			const hyst = Number(sw.dynamicHysteresisPct) || 0;
+			if (!applied || (Math.abs(next - applied) / Math.max(1, applied)) * 100 > hyst) {
+				this.log.debug(
+					`Dynamic ${this.swLabel(sw)}: interval ${applied || 'n/a'} -> ${next} min (beyond ${hyst}% hysteresis), re-planning.`,
+				);
+				this.scheduleSwitch(sw);
+			}
+		}
 	}
 
 	/**
@@ -1313,9 +1631,14 @@ class AutomaticFeeder extends utils.Adapter {
 			} catch (e) {
 				this.log.warn(`Winter reminder check failed: ${e.message}`);
 			}
+			try {
+				this.refreshDynamicSchedules();
+			} catch (e) {
+				this.log.warn(`Dynamic schedule refresh failed: ${e.message}`);
+			}
 			this.scheduleReminderTick();
 		}, delay);
-		this.log.silly(`Winter reminder tick armed (in ${Math.round(delay / 1000)}s).`);
+		this.log.silly(`Hourly tick armed (in ${Math.round(delay / 1000)}s).`);
 	}
 
 	/**
@@ -1432,6 +1755,13 @@ class AutomaticFeeder extends utils.Adapter {
 				}
 			}
 		}
+		// dissolved oxygen too low (water quality safety)
+		if (sw.blockO2Enabled && this.config.o2Enabled) {
+			this.log.silly(`Block check ${this.swLabel(sw)}: o2=${this.o2 ?? 'unknown'}, min=${sw.o2Min}`);
+			if (this.o2 !== null && sw.o2Min !== null && sw.o2Min !== undefined && this.o2 < sw.o2Min) {
+				return { key: 'blockOxygenLow', params: { value: this.o2, limit: sw.o2Min } };
+			}
+		}
 		this.log.silly(`Block check ${this.swLabel(sw)}: no block, feeding allowed.`);
 		return null;
 	}
@@ -1454,14 +1784,25 @@ class AutomaticFeeder extends utils.Adapter {
 		// temperature sources (foreign states)
 		if (this.config.airTempEnabled && id === this.config.airTempObjectId) {
 			this.airTemp = state.val === null ? null : Number(state.val);
+			if (this.airTemp !== null) {
+				this.pushTempSample('air', this.airTemp);
+			}
 			await this.setStateAsync('airTemperature', { val: this.airTemp, ack: true });
 			this.log.debug(`Air temperature updated: ${this.airTemp ?? 'unknown'}°C (from ${id}).`);
 			return;
 		}
 		if (this.config.waterTempEnabled && id === this.config.waterTempObjectId) {
 			this.waterTemp = state.val === null ? null : Number(state.val);
+			if (this.waterTemp !== null) {
+				this.pushTempSample('water', this.waterTemp);
+			}
 			await this.setStateAsync('waterTemperature', { val: this.waterTemp, ack: true });
 			this.log.debug(`Water temperature updated: ${this.waterTemp ?? 'unknown'}°C (from ${id}).`);
+			return;
+		}
+		if (this.config.o2Enabled && id === this.config.o2ObjectId) {
+			this.o2 = state.val === null ? null : Number(state.val);
+			this.log.debug(`Oxygen updated: ${this.o2 ?? 'unknown'} (from ${id}).`);
 			return;
 		}
 

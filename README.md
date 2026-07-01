@@ -63,7 +63,12 @@ configuration tab named after the switch. Per switch you decide:
 * **whether to block** feeding when the water or air temperature is too low/high;
 * **whether to skip** feeding at night (based on the real sunrise/sunset for your location);
 * **whether to supervise** the switch (check that it really turned on and off) and optionally
-  send a **Telegram** message about the result.
+  send a **Telegram** message about the result;
+* **whether to reduce or pause** feeding during a recurring **winter** season – optionally with
+  Telegram reminders before it starts and ends;
+* **whether to adapt** the interval and the portion to the water/air temperature automatically
+  (**dynamic feeding**, Q10 model);
+* **whether to block** feeding when the dissolved **oxygen** (O₂) is too low.
 
 You can also trigger a feeding **manually** at any time – from the adapter's settings page
 (button with a freely selectable duration) or from a data point (e.g. a button in a VIS view).
@@ -80,7 +85,8 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 | **ioBroker** with a recent **admin** (≥ 7) | The configuration page is built with React. |
 | **A switch object** | Any writable ioBroker state that turns your feeder on/off – e.g. a smart plug (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), a relay, a script variable. |
 | **Geo-coordinates** | Used to calculate sunrise/sunset. Either taken from the ioBroker system settings or entered per address/map. **Mandatory.** |
-| *(optional)* Temperature objects | Existing states that hold air and/or water temperature, if you want temperature-based blocking. |
+| *(optional)* Temperature objects | Existing states that hold air and/or water temperature, if you want temperature-based blocking or dynamic feeding. |
+| *(optional)* An **oxygen (O₂)** object | An existing state with the dissolved oxygen, if you want to block feeding when it drops too low. |
 | *(optional)* A **Telegram** instance | The official `telegram` adapter, configured and running, if you want push notifications. |
 | Internet access on the ioBroker host | Only for the address search / map in the configuration. Normal operation works offline. |
 
@@ -162,10 +168,12 @@ If you want temperature-dependent blocking, enable the sources here and pick the
 
 * **Air temperature** – tick the box and select the state that holds the air temperature.
 * **Water temperature** – tick the box and select the state that holds the water temperature.
+* **Oxygen (O₂)** – tick the box and select the state that holds the dissolved oxygen. It is
+  used by the per-switch *Block by oxygen* option.
 
-Only number states make sense here. The current values are mirrored to the `airTemperature` /
+Only number states make sense here. The current temperatures are mirrored to the `airTemperature` /
 `waterTemperature` data points. The actual thresholds are configured **per switch** (see
-*Temperature blocking*).
+*Temperature blocking* and *Dynamic feeding*).
 
 #### Switches
 
@@ -229,6 +237,17 @@ is written to `blockReason`. (If a temperature value is unknown, that source doe
 * **Manual trigger ignores all blocks** – when on, the manual button and the `feedNow` data
   point feed even if a temperature/night block is active.
 
+#### Dynamic feeding
+
+Optional: adapt the feeding **interval and duration to temperature** using the Q10 model (metabolism roughly doubles per +10 °C). Requires an active temperature source; fixed times are then replaced by an interval within the window.
+
+* **Enable / source** – turn it on and pick water or air temperature.
+* **Reference / Q10** – the base interval and duration apply at the reference temperature (e.g. 20 °C); Q10 is typically 2–2.5.
+* **Interval / duration (base, min, max)** – bounds for the computed interval (minutes) and duration (seconds).
+* **Averaging window / hysteresis** – a moving average (e.g. 24 h) smooths spikes; hysteresis avoids re-planning on tiny changes.
+
+The current values are exposed in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` and `dynamicDurationSec`. An optional **oxygen (O₂)** source can block feeding when the dissolved oxygen drops below a threshold. The winter pause takes precedence over dynamic feeding.
+
 #### Winter pause
 
 Per switch you can define a recurring **winter pause** (seasonal, given as `MM-DD` dates that repeat every year and may wrap around New Year).
@@ -277,6 +296,9 @@ Send the supervision messages to Telegram – configured **per switch**:
 * **Checkboxes** – choose which messages to send: successful feeding, could-not-feed, and/or
   switch-off fault.
 
+The **winter-pause reminders** (if enabled, see *Winter pause*) are sent to the same Telegram
+instance, independently of these supervision checkboxes.
+
 See [Telegram notifications](#8-telegram-notifications) for the full setup.
 
 ---
@@ -305,10 +327,17 @@ In addition, a read-only **`settings`** sub-channel (`switches.<id>.settings.*`)
 | `lastFeeding` | string (ro) | Timestamp of the last feeding. |
 | `nextFeeding` | string (ro) | Timestamp of the next planned feeding. |
 | `blocked` | boolean (ro) | The last attempt was blocked. |
-| `blockReason` | string (ro) | Why it was blocked (night/temperature). |
+| `blockReason` | string (ro) | Why it was blocked (night / temperature / oxygen). |
 | `lastResult` | string (ro) | Result text of the last feeding attempt. |
 | `error` | boolean (ro) | The last attempt had a switching fault. |
 | `feedNow` | boolean (rw) | Write `true` to trigger a manual feeding. |
+| `winterActive` | boolean (ro) | The winter pause is currently active. |
+| `winterLastStartReminder` | string (ro) | Date of the last sent "winter starts" reminder. |
+| `winterLastEndReminder` | string (ro) | Date of the last sent "winter ends" reminder. |
+| `dynamicAvgTemperature` | number (ro) | Averaged temperature used by dynamic feeding. |
+| `dynamicRate` | number (ro) | Q10 rate factor currently applied by dynamic feeding. |
+| `dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
+| `dynamicDurationSec` | number (ro) | Currently computed dynamic duration (seconds). |
 
 You can use these in VIS, scripts or other adapters – for example show `nextFeeding` on a
 dashboard, or react on `error = true` to send your own alarm.
@@ -325,6 +354,17 @@ dashboard, or react on `error = true` to send your own alarm.
 
 **Aviary, frequent small portions during the day**
 * Mode *Interval within a time window* → 07:00–19:00, interval `90` min; duration `3` s.
+
+**Koi pond, temperature-adaptive (dynamic feeding)**
+* Enable *Water temperature* in General settings.
+* On the switch tab open *Dynamic feeding*, enable it, source *Water temperature*.
+* Reference `20` °C, Q10 `2.2`, base interval `60` min (min `30`, max `480`), base duration `5` s
+  (min `2`, max `15`). It then feeds more often and a little more when warm, and less when cold.
+
+**Winter break for the pond**
+* On the switch tab open *Winter pause*, enable it, set *Winter start* `01.11` and *Winter end*
+  `15.03`, mode *Suspend feeding*.
+* Optionally tick the reminders so you get a Telegram note a few days before start/end.
 
 **Manual extra portion from a VIS button**
 * Put a button in VIS that writes `true` to `automatic-feeder.0.switches.sw-0.feedNow`.
@@ -343,6 +383,9 @@ dashboard, or react on `error = true` to send your own alarm.
    * Tick the messages you want: *successful feeding*, *could-not-feed*, *switch-off fault*.
 3. Save. From now on the chosen supervision results are pushed to Telegram (prefixed with the
    switch name). This requires *Switching supervision* to be enabled for that switch.
+4. The **winter-pause reminders** use the same Telegram instance and recipient. They are
+   controlled in the *Winter pause* section (days before start/end and the reminder hour) and do
+   **not** require supervision to be enabled.
 
 ---
 
@@ -368,6 +411,15 @@ coordinates the night protection is disabled (and a warning is logged).
 **Supervision always reports a fault.**
 Your switch object probably does not report its real state back (`ack=true`). Either use a
 switch with status feedback, or disable *Switching supervision* for that switch.
+
+**Dynamic feeding does not change anything.**
+Make sure the selected temperature source (water or air) is enabled in the General settings and
+delivers values. Right after a restart the moving average is still filling up, so it starts from
+the base values. Watch `dynamicAvgTemperature` and `dynamicIntervalMin`.
+
+**Nothing is fed although it is not winter (or it feeds although it should pause).**
+Check the *Winter pause* dates (`Winter start` / `Winter end`, format dd.mm) and the mode. The
+`winterActive` data point shows whether the pause is currently active.
 
 **The address search says the instance must be running.**
 Start the automatic-feeder instance – the geocoding runs in the backend.
@@ -395,6 +447,12 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 0.6.0 (2026-07-01)
+* (ssbingo) New per-switch **dynamic feeding** (Q10 model): the feeding interval and the portion (duration) adapt to the water/air temperature, using a real moving average with configurable hysteresis; replaces fixed times with an interval inside the window
+* (ssbingo) Optional global **oxygen (O₂)** source with a per-switch "block feeding when O₂ is too low" option
+* (ssbingo) New status data points per switch: `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin`, `dynamicDurationSec`
+* (ssbingo) Documentation overhauled and completed in all 11 languages (feature overview, requirements, oxygen source, all data points, Telegram winter reminders, examples and FAQ)
 
 ### 0.5.3 (2026-07-01)
 * (ssbingo) Each switch now exposes a read-only `settings` sub-channel (`switches.<id>.settings.*`) that mirrors its configuration, so the settings can be shown in VIS or used in scripts
@@ -427,9 +485,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 
 ### 0.1.8 (2026-06-29)
 * (ssbingo) Create the intermediate `info` and `switches` objects so every object id path has a parent (repository checker E3009)
-
-### 0.1.7 (2026-06-29)
-* (ssbingo) Remove the unsupported custom "comment-overrides" key from package.json (repository checker E0058)
 
 ---
 
