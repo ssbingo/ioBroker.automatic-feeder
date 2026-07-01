@@ -23,7 +23,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/de';
@@ -56,6 +56,21 @@ function mdToDayjs(md) {
 /** Formats a dayjs date back to the stored "MM-DD" (empty string when null/invalid). */
 function dayjsToMD(d) {
 	return d && d.isValid() ? d.format('MM-DD') : '';
+}
+
+/** Parses a stored "HH:mm" into a dayjs time (today's date), or null. */
+function hhmmToDayjs(hhmm) {
+	const m = typeof hhmm === 'string' && hhmm.match(/^(\d{1,2}):(\d{2})$/);
+	if (!m) {
+		return null;
+	}
+	const d = dayjs().hour(Number(m[1])).minute(Number(m[2])).second(0).millisecond(0);
+	return d.isValid() ? d : null;
+}
+
+/** Formats a dayjs time back to the stored "HH:mm" (empty string when null/invalid). */
+function dayjsToHHmm(d) {
+	return d && d.isValid() ? d.format('HH:mm') : '';
 }
 
 function Section({ title, children }) {
@@ -126,6 +141,7 @@ function SwitchTab(props) {
 	};
 
 	return (
+		<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={I18n.getLanguage()}>
 		<Box>
 			{/* Manual feeding */}
 			<Section title={I18n.t('Manual feeding')}>
@@ -180,12 +196,13 @@ function SwitchTab(props) {
 						) : null}
 						{times.map((t, index) => (
 							<Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-								<TextField
-									variant="standard"
-									type="time"
+								<TimePicker
 									label={`${I18n.t('Time')} ${index + 1}`}
-									value={t || ''}
-									onChange={(e) => updateTime(index, e.target.value)}
+									ampm={false}
+									format="HH:mm"
+									value={hhmmToDayjs(t)}
+									onChange={(v) => updateTime(index, dayjsToHHmm(v))}
+									slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
 								/>
 								<Tooltip title={I18n.t('Remove')}>
 									<IconButton size="small" color="error" onClick={() => removeTime(index)}>
@@ -200,19 +217,21 @@ function SwitchTab(props) {
 					</Box>
 				) : (
 					<Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
-						<TextField
-							variant="standard"
-							type="time"
+						<TimePicker
 							label={I18n.t('Window start')}
-							value={sw.windowStart || ''}
-							onChange={(e) => onChange({ windowStart: e.target.value })}
+							ampm={false}
+							format="HH:mm"
+							value={hhmmToDayjs(sw.windowStart)}
+							onChange={(v) => onChange({ windowStart: dayjsToHHmm(v) })}
+							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
 						/>
-						<TextField
-							variant="standard"
-							type="time"
+						<TimePicker
 							label={I18n.t('Window end')}
-							value={sw.windowEnd || ''}
-							onChange={(e) => onChange({ windowEnd: e.target.value })}
+							ampm={false}
+							format="HH:mm"
+							value={hhmmToDayjs(sw.windowEnd)}
+							onChange={(v) => onChange({ windowEnd: dayjsToHHmm(v) })}
+							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
 						/>
 						<TextField
 							variant="standard"
@@ -358,28 +377,26 @@ function SwitchTab(props) {
 					}
 					label={I18n.t('Enable winter pause')}
 				/>
-				<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={I18n.getLanguage()}>
-					<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
-						<DatePicker
-							label={I18n.t('Winter start')}
-							views={['month', 'day']}
-							format="DD.MM"
-							disabled={!sw.winterEnabled}
-							value={mdToDayjs(sw.winterStart)}
-							onChange={(v) => onChange({ winterStart: dayjsToMD(v) })}
-							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 160 } } }}
-						/>
-						<DatePicker
-							label={I18n.t('Winter end')}
-							views={['month', 'day']}
-							format="DD.MM"
-							disabled={!sw.winterEnabled}
-							value={mdToDayjs(sw.winterEnd)}
-							onChange={(v) => onChange({ winterEnd: dayjsToMD(v) })}
-							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 160 } } }}
-						/>
-					</Box>
-				</LocalizationProvider>
+				<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+					<DatePicker
+						label={I18n.t('Winter start')}
+						views={['month', 'day']}
+						format="DD.MM"
+						disabled={!sw.winterEnabled}
+						value={mdToDayjs(sw.winterStart)}
+						onChange={(v) => onChange({ winterStart: dayjsToMD(v) })}
+						slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 160 } } }}
+					/>
+					<DatePicker
+						label={I18n.t('Winter end')}
+						views={['month', 'day']}
+						format="DD.MM"
+						disabled={!sw.winterEnabled}
+						value={mdToDayjs(sw.winterEnd)}
+						onChange={(v) => onChange({ winterEnd: dayjsToMD(v) })}
+						slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 160 } } }}
+					/>
+				</Box>
 
 				<RadioGroup
 					row
@@ -419,12 +436,13 @@ function SwitchTab(props) {
 							/>
 						) : null}
 						{sw.winterMode === 'onceDaily' ? (
-							<TextField
-								variant="standard"
-								type="time"
+							<TimePicker
 								label={I18n.t('Winter feeding time')}
-								value={sw.winterTime || ''}
-								onChange={(e) => onChange({ winterTime: e.target.value })}
+								ampm={false}
+								format="HH:mm"
+								value={hhmmToDayjs(sw.winterTime)}
+								onChange={(v) => onChange({ winterTime: dayjsToHHmm(v) })}
+								slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 160 } } }}
 							/>
 						) : null}
 						<TextField
@@ -604,6 +622,7 @@ function SwitchTab(props) {
 				/>
 			</Section>
 		</Box>
+		</LocalizationProvider>
 	);
 }
 

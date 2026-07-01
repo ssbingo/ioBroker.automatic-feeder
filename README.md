@@ -394,6 +394,9 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	### **WORK IN PROGRESS**
 -->
 
+### 0.5.2 (2026-07-01)
+* (ssbingo) Admin UI: all time fields (fixed feeding times, interval window start/end, winter once-daily time) now use a proper time picker instead of the native time input, fixing the hard-to-read floating label
+
 ### 0.5.1 (2026-07-01)
 * (ssbingo) Admin UI: the winter pause start/end are now picked from a **calendar** (day + month, shown as dd.mm) instead of a raw MM-DD text field (adds @mui/x-date-pickers + dayjs)
 
@@ -428,10 +431,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 * (ssbingo) Replace react-leaflet with plain Leaflet in the location picker (removes the react-leaflet dependency)
 * (ssbingo) Upgrade TypeScript to 6.x; exclude test files from the type-check
 * (ssbingo) Use cron schedules for Dependabot (S8906)
-
-### 0.1.5 (2026-06-29)
-* (ssbingo) Keep the admin UI stack on React 18 / MUI 6 / react-leaflet 4 (required by adapter-react-v5); revert incompatible major dependency updates and block them in dependabot
-* (ssbingo) Keep TypeScript on 5.x; adopt ioBroker/testing-action-check@v2 in CI
 
 ---
 

@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "0.5.1",
+		"version": "0.5.2",
 		"news": {
-			"0.5.1": {
-				"en": "Admin UI: winter pause start/end are now chosen from a calendar (day + month, shown as dd.mm) instead of a text field.",
-				"de": "Admin-UI: Beginn/Ende der Winterpause werden jetzt über einen Kalender gewählt (Tag + Monat, Anzeige als tt.mm) statt über ein Textfeld.",
-				"ru": "Интерфейс администратора: начало/конец зимней паузы теперь выбираются в календаре (день + месяц, отображается как дд.мм) вместо текстового поля.",
-				"pt": "IU do administrador: o início/fim da pausa de inverno agora são escolhidos num calendário (dia + mês, mostrado como dd.mm) em vez de um campo de texto.",
-				"nl": "Admin-UI: begin/einde van de winterpauze worden nu via een kalender gekozen (dag + maand, weergegeven als dd.mm) in plaats van een tekstveld.",
-				"fr": "Interface d'administration : le début/la fin de la pause hivernale se choisissent désormais dans un calendrier (jour + mois, affiché en jj.mm) au lieu d'un champ texte.",
-				"it": "Interfaccia di amministrazione: l'inizio/la fine della pausa invernale ora si scelgono da un calendario (giorno + mese, mostrato come gg.mm) invece che da un campo di testo.",
-				"es": "Interfaz de administración: el inicio/fin de la pausa de invierno ahora se eligen en un calendario (día + mes, mostrado como dd.mm) en lugar de un campo de texto.",
-				"pl": "Interfejs administratora: początek/koniec przerwy zimowej wybiera się teraz z kalendarza (dzień + miesiąc, wyświetlane jako dd.mm) zamiast z pola tekstowego.",
-				"uk": "Інтерфейс адміністратора: початок/кінець зимової паузи тепер обираються в календарі (день + місяць, відображається як дд.мм) замість текстового поля.",
-				"zh-cn": "管理界面：冬季暂停的开始/结束现在通过日历选择（日 + 月，显示为 dd.mm），不再使用文本框。"
+			"0.5.2": {
+				"en": "Admin UI: all time fields now use a proper time picker (popup, HH:mm) instead of the native time input, fixing the hard-to-read floating label.",
+				"de": "Admin-UI: alle Zeitfelder nutzen jetzt einen echten Zeit-Picker (Popup, HH:mm) statt des nativen Zeitfelds; das schlecht lesbare Label ist behoben.",
+				"ru": "Интерфейс администратора: все поля времени теперь используют полноценный выбор времени (всплывающее окно, ЧЧ:мм) вместо нативного поля; плохо читаемая подпись исправлена.",
+				"pt": "IU do administrador: todos os campos de hora agora usam um seletor de hora adequado (pop-up, HH:mm) em vez do campo de hora nativo; o rótulo difícil de ler foi corrigido.",
+				"nl": "Admin-UI: alle tijdvelden gebruiken nu een echte tijdkiezer (pop-up, uu:mm) in plaats van het native tijdveld; het slecht leesbare label is opgelost.",
+				"fr": "Interface d'administration : tous les champs d'heure utilisent désormais un vrai sélecteur d'heure (fenêtre, HH:mm) au lieu du champ natif ; l'étiquette peu lisible est corrigée.",
+				"it": "Interfaccia di amministrazione: tutti i campi orari ora usano un vero selettore dell'ora (popup, HH:mm) invece del campo nativo; l'etichetta poco leggibile è stata corretta.",
+				"es": "Interfaz de administración: todos los campos de hora ahora usan un selector de hora adecuado (ventana, HH:mm) en lugar del campo nativo; la etiqueta poco legible se ha corregido.",
+				"pl": "Interfejs administratora: wszystkie pola czasu używają teraz właściwego selektora czasu (okno, GG:mm) zamiast natywnego pola; słabo czytelna etykieta została naprawiona.",
+				"uk": "Інтерфейс адміністратора: усі поля часу тепер використовують повноцінний вибір часу (спливаюче вікно, ГГ:хх) замість нативного поля; погано читабельну підпис виправлено.",
+				"zh-cn": "管理界面：所有时间字段现在使用真正的时间选择器（弹窗，HH:mm），不再使用原生时间输入框；修复了难以辨认的标签。"
 			}
 		},
 		"titleLang": {
