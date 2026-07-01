@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Notifica in caso di errore di spegnimento",
 	"Telegram instance": "Istanza Telegram",
 	"None (disabled)": "Nessuna (disabilitata)",
-	"No Telegram instance installed.": "Nessuna istanza Telegram installata."
+	"No Telegram instance installed.": "Nessuna istanza Telegram installata.",
+	"Location (for the astronomical window)": "Posizione (per la finestra astronomica)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "La posizione serve a calcolare alba/tramonto per la finestra di alimentazione astronomica di ogni interruttore. Gli scostamenti di alba/tramonto si impostano per interruttore.",
+	"Use system settings (system.config) for all switches": "Usa le impostazioni di sistema (system.config) per tutti gli interruttori",
+	"One shared location for all switches": "Una posizione condivisa per tutti gli interruttori",
+	"Configure the location individually per switch": "Configura la posizione singolarmente per interruttore",
+	"Each switch defines its own location on its tab.": "Ogni interruttore definisce la propria posizione nella sua scheda.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "La finestra segue alba/tramonto (finestra astronomica attivata in Restrizioni).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Limita l'alimentazione alla finestra diurna astronomica (alba/tramonto + scostamenti)",
+	"Location for this switch": "Posizione per questo interruttore"
 }

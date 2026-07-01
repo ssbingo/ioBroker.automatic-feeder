@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Notificar em caso de falha ao desligar",
 	"Telegram instance": "Instância do Telegram",
 	"None (disabled)": "Nenhuma (desativado)",
-	"No Telegram instance installed.": "Nenhuma instância do Telegram instalada."
+	"No Telegram instance installed.": "Nenhuma instância do Telegram instalada.",
+	"Location (for the astronomical window)": "Localização (para a janela astronómica)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "A localização é usada para calcular o nascer/pôr do sol para a janela de alimentação astronómica de cada interruptor. Os desvios do nascer/pôr do sol são configurados por interruptor.",
+	"Use system settings (system.config) for all switches": "Usar as definições do sistema (system.config) para todos os interruptores",
+	"One shared location for all switches": "Uma localização partilhada para todos os interruptores",
+	"Configure the location individually per switch": "Configurar a localização individualmente por interruptor",
+	"Each switch defines its own location on its tab.": "Cada interruptor define a sua própria localização no seu separador.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "A janela segue o nascer/pôr do sol (janela astronómica ativada em Restrições).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Limitar a alimentação à janela diurna astronómica (nascer/pôr do sol + desvios)",
+	"Location for this switch": "Localização para este interruptor"
 }

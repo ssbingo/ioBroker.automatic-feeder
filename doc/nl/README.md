@@ -47,8 +47,8 @@ configuratie-tabblad dat naar de schakelaar is genoemd. Per schakelaar leg je va
   **interval** binnen een tijdvenster (bijv. elke 60 minuten tussen 08:00 en 18:00);
 * **hoe lang** de uitgang ingeschakeld blijft (voederduur in seconden);
 * **of er wordt geblokkeerd** wanneer de water- of luchttemperatuur te laag/hoog is;
-* **of er 's nachts niet** wordt gevoerd (gebaseerd op de werkelijke zonsop-/-ondergang voor jouw
-  locatie);
+* **of het voeren wordt beperkt** tot het astronomische dagvenster (zonsop-/-ondergang met
+  offsets per schakelaar, uit een systeem-, gedeelde of per-schakelaar-locatie);
 * **of het schakelproces wordt bewaakt** (controle of er werkelijk is in- en uitgeschakeld)
   en optioneel een **Telegram**-bericht over het resultaat wordt verzonden;
 * **of het voeren wordt verminderd of gepauzeerd** tijdens een terugkerend **winter**seizoen –
@@ -72,7 +72,7 @@ VIS-weergave).
 |-------------|---------|
 | **ioBroker** met actuele **admin** (≥ 7) | De configuratiepagina is met React gerealiseerd. |
 | **Een schakelaar-object** | Een beschrijfbaar ioBroker-datapunt dat de voederautomaat in-/uitschakelt – bijv. een stopcontact (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), een relais of een scriptvariabele. |
-| **Geocoördinaten** | Voor de berekening van zonsop-/-ondergang. Ofwel uit de ioBroker-systeeminstellingen of via adres/kaart. **Verplicht.** |
+| *(optioneel)* **Geocoördinaten** | Gebruikt om zonsop-/-ondergang te berekenen voor het **astronomische venster** per schakelaar. Alleen nodig als een schakelaar dat venster gebruikt; overgenomen uit de ioBroker-systeeminstellingen, één gedeelde positie of per schakelaar geconfigureerd. |
 | *(optioneel)* Temperatuur-objecten | Aanwezige datapunten met lucht- en/of watertemperatuur, voor temperatuurblokkering of dynamisch voeren. **Per schakelaar** toegewezen op het schakelaar-tabblad. |
 | *(optioneel)* **Zuurstof (O₂)**-objecten | Aanwezige datapunten met het opgeloste zuurstof, om het voeren te blokkeren wanneer dit te laag zakt. **Per schakelaar** toegewezen. |
 | *(optioneel)* Een **Telegram**-instantie | De officiële `telegram`-adapter, ingericht en gestart, als je push-meldingen wilt. |
@@ -96,9 +96,9 @@ Doel: Een schakelaar moet – meteen, ter test – 5 seconden lang voeren.
 
 1. **Instellingen openen** van de automatic-feeder-instantie.
 2. Op het tabblad **Basisinstellingen**:
-   * Onder **Locatie** *Systeeminstellingen overnemen* laten, als jouw ioBroker al
-     coördinaten heeft. Anders *Locatie specifiek vastleggen* kiezen, adres invoeren,
-     **Zoeken** klikken en de marker op de kaart bevestigen.
+   * Onder **Locatie** *Systeeminstellingen voor alle schakelaars gebruiken* geselecteerd laten
+     (alleen relevant als je later het astronomische venster inschakelt). Je kunt ook een gedeelde
+     locatie kiezen of deze per schakelaar configureren.
    * Naar beneden scrollen naar **Schakelaars** en **Schakelaar toevoegen** klikken.
    * Een **naam** toekennen (bijv. `Koi-vijver`). Deze naam wordt de titel van een eigen tabblad.
    * Naast **Schakelaar-object** het lijst-symbool aanklikken en het datapunt kiezen dat jouw
@@ -123,33 +123,30 @@ venster vergroten of de scrollbalk rechts gebruiken – alle secties zijn bereik
 
 ### 5.1 Tabblad „Basisinstellingen"
 
-#### Locatie (verplicht)
+#### Locatie (voor het astronomische venster)
 
-De adapter heeft jouw geografische positie nodig om zonsop- en -ondergang te berekenen (voor
-de nachtblokkering). Twee mogelijkheden:
+De locatie wordt gebruikt om zonsop-/-ondergang te berekenen voor het **astronomische voedervenster**
+dat per schakelaar kan worden ingeschakeld (zie *Beperkingen* in het schakelaar-tabblad). Ze is alleen
+nodig als ten minste één schakelaar dat venster gebruikt. Drie mogelijkheden:
 
-* **Systeeminstellingen overnemen** – neemt breedte-/lengtegraad uit de ioBroker-systeemconfiguratie
-  (aanbevolen wanneer daar al ingesteld). De huidige waarden worden weergegeven.
-* **Locatie specifiek vastleggen** – positie zelf bepalen:
+* **Systeeminstellingen voor alle schakelaars gebruiken** – neemt breedte-/lengtegraad uit de
+  ioBroker-systeemconfiguratie (aanbevolen wanneer daar al ingesteld). De huidige waarden worden
+  weergegeven.
+* **Één gedeelde locatie voor alle schakelaars** – één enkele positie instellen die alle schakelaars
+  gebruiken:
   * Een **adres** invoeren en **Zoeken** drukken. De adapter lost het op (via
     OpenStreetMap / Nominatim) en plaatst een marker.
   * Of **op de kaart klikken** / de **marker slepen** om de exacte plek te kiezen.
   * Breedte-/lengtegraad kunnen ook direct worden ingevoerd; de kaart volgt.
+* **De locatie individueel per schakelaar configureren** – elke schakelaar bepaalt zijn eigen locatie
+  op zijn eigen tabblad (handig wanneer voederstations, bijv. vijvers, op verschillende plekken staan).
 
 > Het adres zoeken loopt in de adapter-backend, daarom moet de **instantie draaien**. Kaart en zoeken
 > hebben internettoegang nodig.
 
-#### Zonvenster (geen voedering 's nachts)
-
-Legt het tijdvenster vast waarin gevoerd mag worden:
-
-* **Minuten na zonsopgang** – pas zoveel minuten *na* zonsopgang voeren.
-* **Minuten voor zonsondergang** – zoveel minuten *voor* zonsondergang stoppen.
-
-Voorbeeld: Bij zonsopgang 06:30, zonsondergang 21:00 en offsets 30 / 30 is voedering alleen
-tussen **07:00 en 20:30** toegestaan. Elke schakelaar kan dit venster afzonderlijk in acht nemen of
-negeren (zie *Beperkingen* in het schakelaar-tabblad). De berekende tijden staan bovendien in
-de datapunten `sunrise` / `sunset` en worden elke nacht automatisch opnieuw berekend.
+De **offsets voor zonsop-/-ondergang worden per schakelaar geconfigureerd** (onder *Beperkingen*),
+en de berekende tijden worden per schakelaar gepubliceerd als `status.sunrise` / `status.sunset`,
+elke nacht automatisch opnieuw berekend.
 
 #### Schakelaars
 
@@ -186,7 +183,10 @@ secties.
   * **Begin periode** / **Einde periode** – bijv. 08:00 tot 18:00.
   * **Interval (minuten)** – bijv. 60 → voert dagelijks om 08:00, 09:00, … tot het einde van het venster.
 
-De volgende geplande tijd staat op elk moment in het datapunt `status.nextFeeding`.
+Als het **astronomische venster** is ingeschakeld (zie *Beperkingen*), worden het vaste begin/einde
+van het venster vervangen door het venster zonsopgang/zonsondergang en verborgen; het interval loopt
+dan tussen zonsopgang en zonsondergang. De volgende geplande tijd staat op elk moment in het datapunt
+`status.nextFeeding`.
 
 #### Voederproces
 
@@ -218,10 +218,19 @@ bron niet.)
 
 #### Beperkingen
 
-* **'s Nachts niet voeren** – houdt rekening met het zonvenster (incl. de offsets). Uitschakelen wanneer
-  deze schakelaar rond de klok mag voeren.
+* **Voeren beperken tot het astronomische dagvenster (zonsop-/-ondergang + offsets)** – indien aan
+  wordt het voeren beperkt tot het dagvenster dat wordt berekend uit de locatie van deze schakelaar.
+  Voor *Interval* en *Dynamisch voeren* vervangt dit venster het vaste begin/einde van het venster;
+  voor *Vaste tijden* werkt het als een dag-/nachtbewaking (tijden buiten het venster worden
+  overgeslagen). Indien ingeschakeld kun je instellen:
+  * **Minuten na zonsopgang** – begin zoveel minuten *na* zonsopgang (standaard 0).
+  * **Minuten voor zonsondergang** – stop zoveel minuten *voor* zonsondergang (standaard 0).
+  * **Locatie voor deze schakelaar** – alleen weergegeven wanneer de algemene *Locatie* op
+    *individueel* staat: kies *Systeeminstellingen gebruiken* of *Specifieke locatie vastleggen*
+    (adres zoeken + kaart) voor deze schakelaar. De berekende tijden verschijnen in
+    `status.sunrise` / `status.sunset`.
 * **Handmatige trigger negeert alle blokkeringen** – wanneer actief, voeren de knop en het
-  datapunt `feedNow` ook bij actieve temperatuur-/nachtblokkering.
+  datapunt `feedNow` ook bij actieve temperatuur-/vensterblokkering.
 
 #### Dynamisch voeren
 
@@ -301,7 +310,6 @@ De adapter legt de volgende datapunten in zijn namespace aan
 | Datapunt | Type | Betekenis |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter draait en de configuratie is geldig. |
-| `sunrise` / `sunset` | string (ro) | Berekende zonsop-/-ondergang voor vandaag. |
 
 **Per schakelaar onder `switches.<id>.`** (`<id>` is een interne ID zoals `sw-0`)
 
@@ -333,6 +341,7 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.airTemperature` | number (ro) | Eigen luchttemperatuur-bronwaarde van deze schakelaar. |
 | `status.waterTemperature` | number (ro) | Eigen watertemperatuur-bronwaarde van deze schakelaar. |
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
+| `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 
 Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `status.nextFeeding`
 op een dashboard weergeven of bij `status.error = true` een eigen alarm activeren.
@@ -345,10 +354,13 @@ op een dashboard weergeven of bij `status.error = true` een eigen alarm activere
 * Modus *Vaste tijden* → `08:00`, `18:00`; duur `6` s.
 * In het schakelaar-tabblad, onder *Temperatuur- & zuurstofbronnen*, *Watertemperatuur* activeren
   en de sensor kiezen; dan *Blokkeren op watertemperatuur* → *Blokkeren wanneer onder* `8` °C (geen voedering bij te koud water).
-* *'s Nachts niet voeren* aan.
+* Onder *Beperkingen* *Voeren beperken tot het astronomische dagvenster* inschakelen, zodat er na
+  donker niets wordt gevoerd.
 
-**Volière, frequente kleine porties overdag**
-* Modus *Interval binnen een periode* → 07:00–19:00, interval `90` min; duur `3` s.
+**Volière, alleen overdag (astronomisch venster)**
+* Modus *Interval binnen een periode* → interval `90` min; duur `3` s.
+* Onder *Beperkingen* het astronomische venster inschakelen met offsets `30` / `30` min → er wordt
+  gevoerd van 30 min na zonsopgang tot 30 min voor zonsondergang, automatisch de seizoenen volgend.
 
 **Koi-vijver, temperatuurafhankelijk (dynamisch voeren)**
 * In het schakelaar-tabblad, onder *Temperatuur- & zuurstofbronnen*, *Watertemperatuur* activeren en de sensor kiezen.
@@ -398,13 +410,14 @@ Browser-cache. Hard opnieuw laden met **Strg+Shift+R**.
 **Er wordt helemaal niet gevoerd.**
 Op volgorde controleren: schakelaar **Actief**; een **schakelaar-object** geselecteerd; **schema**
 geldig (`status.nextFeeding` toont een tijd); niet **geblokkeerd** (`status.blocked` / `status.blockReason` bekijken);
-het **zonvenster** sluit de tijd niet uit; het **log-level** van de instantie op `debug`
+het **astronomische venster** sluit de tijd niet uit; het **log-level** van de instantie op `debug`
 zetten en het log volgen.
 
 **Er wordt nooit 's nachts gevoerd, hoewel ik dat wil.**
-Ofwel *'s Nachts niet voeren* voor deze schakelaar deactiveren of de zon-offsets
-aanpassen. Zonder geldige coördinaten is de nachtblokkering gedeactiveerd (en wordt een waarschuwing
-gelogd).
+*Voeren beperken tot het astronomische dagvenster* voor deze schakelaar deactiveren of de
+offsets voor zonsop-/-ondergang aanpassen. Is het astronomische venster ingeschakeld maar heeft de
+schakelaar geen geldige coördinaten, dan blijft de vensterbewaking inactief en wordt een waarschuwing
+gelogd.
 
 **De bewaking meldt altijd een storing.**
 Jouw schakelaar-object meldt vermoedelijk zijn werkelijke toestand niet terug (`ack=true`). Ofwel

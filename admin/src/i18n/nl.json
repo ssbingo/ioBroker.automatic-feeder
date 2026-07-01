@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Melden bij uitschakelfout",
 	"Telegram instance": "Telegram-instantie",
 	"None (disabled)": "Geen (uitgeschakeld)",
-	"No Telegram instance installed.": "Geen Telegram-instantie geïnstalleerd."
+	"No Telegram instance installed.": "Geen Telegram-instantie geïnstalleerd.",
+	"Location (for the astronomical window)": "Locatie (voor het astronomische venster)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "De locatie wordt gebruikt om zonsopkomst/zonsondergang te berekenen voor het astronomische voedervenster per schakelaar. De verschuivingen voor zonsopkomst/zonsondergang worden per schakelaar ingesteld.",
+	"Use system settings (system.config) for all switches": "Systeeminstellingen (system.config) voor alle schakelaars gebruiken",
+	"One shared location for all switches": "Eén gedeelde locatie voor alle schakelaars",
+	"Configure the location individually per switch": "De locatie individueel per schakelaar configureren",
+	"Each switch defines its own location on its tab.": "Elke schakelaar bepaalt zijn eigen locatie op zijn tabblad.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Het venster volgt zonsopkomst/zonsondergang (astronomisch venster ingeschakeld onder Beperkingen).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Voeren beperken tot het astronomische dagvenster (zonsopkomst/zonsondergang + verschuivingen)",
+	"Location for this switch": "Locatie voor deze schakelaar"
 }

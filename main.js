@@ -25,6 +25,7 @@ const {
 	q10IntervalMin,
 	q10DurationSec,
 	averageOver,
+	nextSlotInWindow,
 } = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
@@ -48,6 +49,8 @@ const STATUS_STATE_IDS = [
 	'airTemperature',
 	'waterTemperature',
 	'oxygen',
+	'sunrise',
+	'sunset',
 ];
 
 /** Settings mirror entries that are composite/derived and stay read-only (not editable from VIS). */
@@ -81,7 +84,13 @@ const SWITCH_DEFAULTS = {
 	blockAirEnabled: false,
 	airMin: null,
 	airMax: null,
-	respectNight: true,
+	astroWindowEnabled: false,
+	sunOffsetMorning: 0,
+	sunOffsetEvening: 0,
+	coordinateSource: 'system',
+	latitude: '',
+	longitude: '',
+	address: '',
 	manualIgnoresBlocks: false,
 	verifyEnabled: true,
 	verifyTimeoutSec: 5,
@@ -266,12 +275,37 @@ const SWITCH_SETTINGS = [
 		get: sw => sw.airMax ?? null,
 	},
 	{
-		id: 'respectNight',
-		name: 'Do not feed at night',
+		id: 'astroWindowEnabled',
+		name: 'Astronomical window (sunrise/sunset)',
 		type: 'boolean',
 		role: 'indicator',
-		get: sw => sw.respectNight !== false,
+		get: sw => !!sw.astroWindowEnabled,
 	},
+	{
+		id: 'sunOffsetMorning',
+		name: 'Minutes after sunrise',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.sunOffsetMorning) || 0,
+	},
+	{
+		id: 'sunOffsetEvening',
+		name: 'Minutes before sunset',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.sunOffsetEvening) || 0,
+	},
+	{
+		id: 'coordinateSource',
+		name: 'Location source',
+		type: 'string',
+		role: 'text',
+		get: sw => sw.coordinateSource || 'system',
+	},
+	{ id: 'latitude', name: 'Latitude', type: 'string', role: 'text', get: sw => sw.latitude || '' },
+	{ id: 'longitude', name: 'Longitude', type: 'string', role: 'text', get: sw => sw.longitude || '' },
 	{
 		id: 'manualIgnoresBlocks',
 		name: 'Manual trigger ignores all blocks',
@@ -558,9 +592,10 @@ class AutomaticFeeder extends utils.Adapter {
 		/** set during onUnload so in-flight feeding cycles abort cleanly */
 		this.terminating = false;
 
-		this.coords = null;
-		/** effective feeding window (sun +/- offsets) */
-		this.window = null;
+		/** resolved coordinates per switch id -> { lat, lon } (astronomical window). */
+		this.switchCoords = new Map();
+		/** effective astronomical feeding window per switch id -> { start, end }. */
+		this.switchWindows = new Map();
 		// sources are per switch; we subscribe to the union of referenced foreign
 		// objects and keep the current value (and, for temperatures, a rolling buffer)
 		// keyed by object id. null = unknown.
@@ -648,6 +683,11 @@ class AutomaticFeeder extends utils.Adapter {
 				return; // configuration was rewritten -> the adapter restarts
 			}
 
+			// --- Phase 4: move location + sun offsets to a per-switch model ---
+			if (await this.migratePhase4()) {
+				return; // configuration was rewritten -> the adapter restarts
+			}
+
 			// --- backfill defaults for switches created by older versions ---
 			if (await this.migrateSwitchDefaults()) {
 				return; // configuration was rewritten -> the adapter restarts
@@ -655,15 +695,9 @@ class AutomaticFeeder extends utils.Adapter {
 
 			this.log.debug(
 				`Configuration: ${JSON.stringify({
-					coordinateSource: this.config.coordinateSource,
+					locationMode: this.config.locationMode,
 					latitude: this.config.latitude,
 					longitude: this.config.longitude,
-					sunOffsetMorning: this.config.sunOffsetMorning,
-					sunOffsetEvening: this.config.sunOffsetEvening,
-					airTempEnabled: this.config.airTempEnabled,
-					airTempObjectId: this.config.airTempObjectId,
-					waterTempEnabled: this.config.waterTempEnabled,
-					waterTempObjectId: this.config.waterTempObjectId,
 					switchCount: this.switches.length,
 				})}`,
 			);
@@ -671,14 +705,9 @@ class AutomaticFeeder extends utils.Adapter {
 				this.log.silly(`Switch config ${this.swLabel(sw)}: ${JSON.stringify(sw)}`);
 			}
 
-			// --- resolve coordinates (mandatory) ---
-			this.log.debug('Resolving geolocation...');
+			// --- resolve per-switch coordinates for the astronomical window ---
+			this.log.debug('Resolving geolocation (per switch)...');
 			await this.resolveCoordinates();
-			if (!this.coords) {
-				this.log.warn(
-					'No geolocation configured. Night protection (sun window) is disabled until coordinates are set.',
-				);
-			}
 
 			// --- create / update / clean up objects ---
 			this.log.debug('Ensuring adapter objects (global + per switch)...');
@@ -688,7 +717,7 @@ class AutomaticFeeder extends utils.Adapter {
 			// --- recover from an unclean shutdown: turn off switches still marked active ---
 			await this.recoverActiveFeeds();
 
-			// --- sun window + daily recalculation ---
+			// --- per-switch sun windows + daily recalculation ---
 			this.recomputeSunWindow();
 			this.scheduleMidnightRecalc();
 
@@ -740,62 +769,121 @@ class AutomaticFeeder extends utils.Adapter {
 	// Coordinates & sun
 	// ----------------------------------------------------------------------------
 
+	/**
+	 * Resolves the coordinates for every switch based on the global locationMode
+	 * ("system" = ioBroker system.config, "shared" = the global latitude/longitude,
+	 * "individual" = each switch decides on its own tab). Fills {@link switchCoords}.
+	 */
 	async resolveCoordinates() {
-		this.coords = null;
-		if (this.config.coordinateSource === 'specific') {
-			const lat = parseFloat(this.config.latitude);
-			const lon = parseFloat(this.config.longitude);
-			this.log.silly(`Specific coordinates parsed: lat=${lat}, lon=${lon}`);
+		this.switchCoords.clear();
+		let sysCoords = null;
+		try {
+			const sys = await this.getForeignObjectAsync('system.config');
+			const lat = parseFloat(String(sys?.common?.latitude));
+			const lon = parseFloat(String(sys?.common?.longitude));
 			if (Number.isFinite(lat) && Number.isFinite(lon)) {
-				this.coords = { lat, lon };
-				this.log.debug(`Using specific coordinates: lat=${lat}, lon=${lon}`);
-			} else {
-				this.log.warn('Coordinate source is "specific" but latitude/longitude are invalid or empty.');
+				sysCoords = { lat, lon };
 			}
-		} else {
-			try {
-				const sys = await this.getForeignObjectAsync('system.config');
-				const lat = parseFloat(String(sys?.common?.latitude));
-				const lon = parseFloat(String(sys?.common?.longitude));
-				this.log.silly(`system.config coordinates parsed: lat=${lat}, lon=${lon}`);
-				if (Number.isFinite(lat) && Number.isFinite(lon)) {
-					this.coords = { lat, lon };
-					this.log.debug(`Using system coordinates: lat=${lat}, lon=${lon}`);
-				} else {
-					this.log.warn('No valid coordinates found in the ioBroker system settings.');
-				}
-			} catch (e) {
-				this.log.warn(`Could not read system coordinates: ${e.message}`);
+		} catch (e) {
+			this.log.warn(`Could not read system coordinates: ${e.message}`);
+		}
+		const mode = this.config.locationMode || 'system';
+		const sharedLat = parseFloat(this.config.latitude);
+		const sharedLon = parseFloat(this.config.longitude);
+		const sharedCoords =
+			Number.isFinite(sharedLat) && Number.isFinite(sharedLon) ? { lat: sharedLat, lon: sharedLon } : null;
+
+		for (const sw of this.switches) {
+			let coords = null;
+			if (mode === 'shared') {
+				coords = sharedCoords;
+			} else if (mode === 'individual' && sw.coordinateSource === 'specific') {
+				const lat = parseFloat(sw.latitude);
+				const lon = parseFloat(sw.longitude);
+				coords = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
+			} else {
+				coords = sysCoords; // "system" mode, or individual switch set to "system"
+			}
+			if (coords) {
+				this.switchCoords.set(sw.id, coords);
+				this.log.debug(
+					`Coordinates for ${this.swLabel(sw)}: lat=${coords.lat}, lon=${coords.lon} (mode=${mode}).`,
+				);
+			} else if (sw.astroWindowEnabled) {
+				this.log.warn(
+					`Switch ${this.swLabel(sw)}: the astronomical window is enabled but no valid coordinates are ` +
+						`available (locationMode=${mode}). Its window guard stays inactive until coordinates are set.`,
+				);
 			}
 		}
 	}
 
-	/** Computes today's feeding window from sunrise/sunset and the configured offsets. */
-	recomputeSunWindow() {
-		if (!this.coords) {
-			this.window = null;
-			this.log.debug('No coordinates -> sun window cleared (night protection inactive).');
-			return;
+	/**
+	 * Astronomical window {start, end} for a switch on the given day, or null if the
+	 * switch has no coordinates or sunrise/sunset cannot be computed.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {Date} refDate - the day to compute for
+	 * @returns {{ start: Date, end: Date } | null} the window or null
+	 */
+	sunWindowFor(sw, refDate) {
+		const coords = this.switchCoords.get(sw.id);
+		if (!coords) {
+			return null;
 		}
-		const now = new Date();
-		const times = SunCalc.getTimes(now, this.coords.lat, this.coords.lon);
-		if (!times || !times.sunrise || !times.sunset) {
-			this.window = null;
-			this.log.warn('Could not compute sunrise/sunset for the configured coordinates.');
-			return;
+		const times = SunCalc.getTimes(refDate, coords.lat, coords.lon);
+		if (
+			!times ||
+			!times.sunrise ||
+			!times.sunset ||
+			isNaN(times.sunrise.getTime()) ||
+			isNaN(times.sunset.getTime())
+		) {
+			return null;
 		}
-		const morning = Number(this.config.sunOffsetMorning) || 0;
-		const evening = Number(this.config.sunOffsetEvening) || 0;
-		const start = new Date(times.sunrise.getTime() + morning * 60000);
-		const end = new Date(times.sunset.getTime() - evening * 60000);
-		this.window = { start, end };
+		const morning = Number(sw.sunOffsetMorning) || 0;
+		const evening = Number(sw.sunOffsetEvening) || 0;
+		return {
+			start: new Date(times.sunrise.getTime() + morning * 60000),
+			end: new Date(times.sunset.getTime() - evening * 60000),
+		};
+	}
 
-		this.setStateAsync('sunrise', { val: times.sunrise.toISOString(), ack: true });
-		this.setStateAsync('sunset', { val: times.sunset.toISOString(), ack: true });
-		this.log.debug(
-			`Sun times: sunrise=${times.sunrise.toISOString()}, sunset=${times.sunset.toISOString()}; ` +
-				`offsets +${morning}/-${evening} min -> feeding window ${start.toISOString()} ... ${end.toISOString()}`,
-		);
+	/** Computes today's astronomical window per switch, writes the per-switch sun states. */
+	recomputeSunWindow() {
+		this.switchWindows.clear();
+		const now = new Date();
+		for (const sw of this.switches) {
+			if (!sw.astroWindowEnabled) {
+				continue;
+			}
+			const coords = this.switchCoords.get(sw.id);
+			if (!coords) {
+				continue; // already warned in resolveCoordinates
+			}
+			const times = SunCalc.getTimes(now, coords.lat, coords.lon);
+			if (
+				!times ||
+				!times.sunrise ||
+				!times.sunset ||
+				isNaN(times.sunrise.getTime()) ||
+				isNaN(times.sunset.getTime())
+			) {
+				this.log.warn(`Switch ${this.swLabel(sw)}: could not compute sunrise/sunset for its coordinates.`);
+				continue;
+			}
+			const morning = Number(sw.sunOffsetMorning) || 0;
+			const evening = Number(sw.sunOffsetEvening) || 0;
+			const start = new Date(times.sunrise.getTime() + morning * 60000);
+			const end = new Date(times.sunset.getTime() - evening * 60000);
+			this.switchWindows.set(sw.id, { start, end });
+			this.setStateAsync(`switches.${sw.id}.status.sunrise`, { val: times.sunrise.toISOString(), ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.sunset`, { val: times.sunset.toISOString(), ack: true });
+			this.log.debug(
+				`Sun times ${this.swLabel(sw)}: sunrise=${times.sunrise.toISOString()}, sunset=${times.sunset.toISOString()}; ` +
+					`offsets +${morning}/-${evening} min -> window ${start.toISOString()} ... ${end.toISOString()}`,
+			);
+		}
 	}
 
 	scheduleMidnightRecalc() {
@@ -807,7 +895,7 @@ class AutomaticFeeder extends utils.Adapter {
 			`Midnight recalculation scheduled for ${midnight.toISOString()} (in ${Math.round(delay / 1000)}s).`,
 		);
 		this.midnightTimer = this.setTimeout(() => {
-			this.log.debug('Midnight reached: recomputing sun window and rescheduling all switches.');
+			this.log.debug('Midnight reached: recomputing per-switch sun windows and rescheduling all switches.');
 			this.recomputeSunWindow();
 			this.scheduleMidnightRecalc();
 			// reschedule all switches so the new window is honored
@@ -843,23 +931,13 @@ class AutomaticFeeder extends utils.Adapter {
 			},
 			native: {},
 		});
-		// legacy global temperature mirrors: sources are per switch now, remove them
-		for (const legacy of ['airTemperature', 'waterTemperature']) {
+		// legacy global states that moved per switch (temperature mirrors + sun times): remove them
+		for (const legacy of ['airTemperature', 'waterTemperature', 'sunrise', 'sunset']) {
 			if (await this.getObjectAsync(legacy)) {
 				await this.delObjectAsync(legacy);
-				this.log.debug(`Removed obsolete global state "${legacy}" (sources are per switch now).`);
+				this.log.debug(`Removed obsolete global state "${legacy}" (now per switch).`);
 			}
 		}
-		await this.setObjectNotExistsAsync('sunrise', {
-			type: 'state',
-			common: { name: 'Sunrise', type: 'string', role: 'date.sunrise', read: true, write: false },
-			native: {},
-		});
-		await this.setObjectNotExistsAsync('sunset', {
-			type: 'state',
-			common: { name: 'Sunset', type: 'string', role: 'date.sunset', read: true, write: false },
-			native: {},
-		});
 	}
 
 	/** Creates a channel + states for every configured switch and removes obsolete ones. */
@@ -1110,6 +1188,22 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.sunrise`, {
+				type: 'state',
+				common: {
+					name: 'Sunrise (this switch)',
+					type: 'string',
+					role: 'date.sunrise',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.sunset`, {
+				type: 'state',
+				common: { name: 'Sunset (this switch)', type: 'string', role: 'date.sunset', read: true, write: false },
+				native: {},
+			});
 
 			// --- read-only mirror of the configuration (visible in the object tree / VIS) ---
 			await this.setObjectNotExistsAsync(`${base}.settings`, {
@@ -1210,6 +1304,82 @@ class AutomaticFeeder extends utils.Adapter {
 		await this.setForeignObjectAsync(objId, obj);
 		this.log.info(
 			`Migrated the global temperature/oxygen source(s) into ${switches.length} switch(es); the adapter restarts to apply the new per-switch configuration.`,
+		);
+		return true;
+	}
+
+	/**
+	 * One-time Phase-4 migration: turns the former global location + sun offsets into
+	 * a per-switch model.
+	 *  - each switch gets its own sunOffsetMorning/Evening (copied from the old globals),
+	 *  - the old per-switch "respectNight" becomes "astroWindowEnabled" and is removed,
+	 *  - each switch gets a default per-switch location source ("system"),
+	 *  - the global locationMode is derived from the old coordinateSource
+	 *    ("specific" -> "shared", otherwise "system").
+	 * Writing the instance config restarts the adapter; idempotent afterwards.
+	 *
+	 * @returns {Promise<boolean>} true if the configuration was rewritten (restart imminent)
+	 */
+	async migratePhase4() {
+		if (this.config.phase4Migrated) {
+			return false;
+		}
+		const objId = `system.adapter.${this.namespace}`;
+		let obj;
+		try {
+			obj = await this.getForeignObjectAsync(objId);
+		} catch (e) {
+			this.log.warn(`Phase-4 migration skipped (could not read ${objId}): ${e.message}`);
+			return false;
+		}
+		if (!obj || !obj.native) {
+			return false;
+		}
+		const g = obj.native;
+		const switches = Array.isArray(g.switches) ? g.switches : [];
+		const hasLegacySwitch = switches.some(sw => sw && typeof sw === 'object' && 'respectNight' in sw);
+		const hasLegacyGlobal =
+			g.coordinateSource === 'specific' || !!(Number(g.sunOffsetMorning) || Number(g.sunOffsetEvening));
+		if (!hasLegacySwitch && !hasLegacyGlobal && g.locationMode) {
+			return false; // nothing to migrate (fresh / already per-switch config)
+		}
+		const gMorning = Number(g.sunOffsetMorning) || 0;
+		const gEvening = Number(g.sunOffsetEvening) || 0;
+		for (const sw of switches) {
+			if (!sw || typeof sw !== 'object') {
+				continue;
+			}
+			if (!('astroWindowEnabled' in sw)) {
+				sw.astroWindowEnabled = sw.respectNight !== false; // preserve the old night-protection intent
+			}
+			if (!('sunOffsetMorning' in sw)) {
+				sw.sunOffsetMorning = gMorning;
+			}
+			if (!('sunOffsetEvening' in sw)) {
+				sw.sunOffsetEvening = gEvening;
+			}
+			if (!('coordinateSource' in sw)) {
+				sw.coordinateSource = 'system';
+			}
+			if (!('latitude' in sw)) {
+				sw.latitude = '';
+			}
+			if (!('longitude' in sw)) {
+				sw.longitude = '';
+			}
+			if (!('address' in sw)) {
+				sw.address = '';
+			}
+			delete sw.respectNight;
+		}
+		if (!g.locationMode) {
+			g.locationMode = g.coordinateSource === 'specific' ? 'shared' : 'system';
+		}
+		g.phase4Migrated = true;
+		await this.setForeignObjectAsync(objId, obj);
+		this.log.info(
+			`Phase-4 migration: moved the sun offsets and the location choice into a per-switch model ` +
+				`(${switches.length} switch(es), locationMode=${g.locationMode}); the adapter restarts to apply it.`,
 		);
 		return true;
 	}
@@ -1471,36 +1641,50 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	nextFromInterval(sw, now, intervalMinOverride) {
-		const start = this.timeToDate(sw.windowStart, now);
-		const end = this.timeToDate(sw.windowEnd, now);
 		const intervalMin = intervalMinOverride !== undefined ? intervalMinOverride : Number(sw.intervalMin) || 0;
 		const interval = (Number(intervalMin) || 0) * 60000;
+
+		// the feeding window is either fixed (windowStart/windowEnd) or astronomical
+		// (sunrise/sunset +/- the per-switch offsets, computed for the given day)
+		let start;
+		let end;
+		if (sw.astroWindowEnabled) {
+			const win = this.sunWindowFor(sw, now);
+			start = win && win.start;
+			end = win && win.end;
+		} else {
+			start = this.timeToDate(sw.windowStart, now);
+			end = this.timeToDate(sw.windowEnd, now);
+		}
 		if (!start || !end || interval <= 0 || end.getTime() <= start.getTime()) {
 			this.log.silly(
-				`Switch ${this.swLabel(sw)}: invalid interval config (start=${sw.windowStart}, end=${sw.windowEnd}, intervalMin=${intervalMin}).`,
+				`Switch ${this.swLabel(sw)}: invalid interval config (astro=${!!sw.astroWindowEnabled}, ` +
+					`start=${start ? start.toISOString() : 'n/a'}, end=${end ? end.toISOString() : 'n/a'}, intervalMin=${intervalMin}).`,
 			);
 			return null;
 		}
-		if (now.getTime() < start.getTime()) {
-			this.log.silly(`Switch ${this.swLabel(sw)}: before window -> next is window start ${start.toISOString()}.`);
-			return start;
+		const slot = nextSlotInWindow(start.getTime(), end.getTime(), interval, now.getTime());
+		if (slot !== null) {
+			const d = new Date(slot);
+			this.log.silly(`Switch ${this.swLabel(sw)}: next slot within today's window -> ${d.toISOString()}.`);
+			return d;
 		}
-		if (now.getTime() <= end.getTime()) {
-			const elapsed = now.getTime() - start.getTime();
-			const steps = Math.floor(elapsed / interval) + 1;
-			const candidate = new Date(start.getTime() + steps * interval);
-			if (candidate.getTime() <= end.getTime()) {
-				this.log.silly(
-					`Switch ${this.swLabel(sw)}: inside window -> next slot ${candidate.toISOString()} (step ${steps}).`,
-				);
-				return candidate;
-			}
+		// past the window -> first slot of tomorrow's window
+		const tomorrowRef = new Date(now);
+		tomorrowRef.setDate(tomorrowRef.getDate() + 1);
+		let tomorrowStart;
+		if (sw.astroWindowEnabled) {
+			const win2 = this.sunWindowFor(sw, tomorrowRef);
+			tomorrowStart = win2 && win2.start;
+		} else {
+			tomorrowStart = new Date(start);
+			tomorrowStart.setDate(tomorrowStart.getDate() + 1);
 		}
-		// past the window -> first slot tomorrow
-		const tomorrow = new Date(start);
-		tomorrow.setDate(tomorrow.getDate() + 1);
-		this.log.silly(`Switch ${this.swLabel(sw)}: after window -> next is tomorrow ${tomorrow.toISOString()}.`);
-		return tomorrow;
+		if (!tomorrowStart) {
+			return null;
+		}
+		this.log.silly(`Switch ${this.swLabel(sw)}: after window -> next is tomorrow ${tomorrowStart.toISOString()}.`);
+		return tomorrowStart;
 	}
 
 	/**
@@ -2106,17 +2290,25 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @returns {{ key: string, params?: Record<string, string | number> } | null} block reason or null
 	 */
 	getBlockReason(sw) {
-		// night / sun window
-		if (sw.respectNight !== false && this.window) {
-			const now = Date.now();
-			this.log.silly(
-				`Block check ${this.swLabel(sw)}: now=${new Date(now).toISOString()} window=${this.window.start.toISOString()}..${this.window.end.toISOString()}`,
-			);
-			if (now < this.window.start.getTime() || now > this.window.end.getTime()) {
-				return { key: 'blockNight' };
+		// astronomical day window (sunrise/sunset +/- per-switch offsets).
+		// For interval/dynamic modes the window is already enforced by the scheduler
+		// (nextFromInterval only plans slots inside it), so guarding here would only risk a
+		// false block on the very last slot due to timer latency. The guard therefore applies
+		// to fixed-times mode, where it is what keeps feeding within the daytime window.
+		const fixedTimesMode = !sw.dynamicEnabled && (sw.mode || 'times') === 'times';
+		if (sw.astroWindowEnabled && fixedTimesMode) {
+			const win = this.switchWindows.get(sw.id);
+			if (win) {
+				const now = Date.now();
+				this.log.silly(
+					`Block check ${this.swLabel(sw)}: now=${new Date(now).toISOString()} window=${win.start.toISOString()}..${win.end.toISOString()}`,
+				);
+				if (now < win.start.getTime() || now > win.end.getTime()) {
+					return { key: 'blockNight' };
+				}
+			} else {
+				this.log.silly(`Block check ${this.swLabel(sw)}: astro window requested but not available.`);
 			}
-		} else if (sw.respectNight !== false) {
-			this.log.silly(`Block check ${this.swLabel(sw)}: night protection requested but no sun window available.`);
 		}
 		// water temperature (this switch's own source)
 		if (sw.blockWaterEnabled) {

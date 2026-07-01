@@ -36,8 +36,25 @@ declare global {
 			blockAirEnabled: boolean;
 			airMin: number | null;
 			airMax: number | null;
-			/** Do not feed outside the sun window (night). */
-			respectNight: boolean;
+			/**
+			 * Restrict feeding to the astronomical day window (sunrise + morning offset ..
+			 * sunset − evening offset). For interval/dynamic modes this becomes the feeding
+			 * window; for fixed times it acts as a day/night guard. Replaces the former
+			 * global sun window + per-switch "respectNight".
+			 */
+			astroWindowEnabled: boolean;
+			/** Minutes after sunrise before feeding may start (only used when astroWindowEnabled). */
+			sunOffsetMorning: number;
+			/** Minutes before sunset after which feeding stops (only used when astroWindowEnabled). */
+			sunOffsetEvening: number;
+			/** Per-switch location source, only used when the global locationMode is "individual". */
+			coordinateSource: 'system' | 'specific';
+			/** Per-switch latitude (string), used when coordinateSource is "specific". */
+			latitude: string;
+			/** Per-switch longitude (string), used when coordinateSource is "specific". */
+			longitude: string;
+			/** Per-switch last resolved address (display only). */
+			address: string;
 			/** Manual trigger ignores temperature/night blocks. */
 			manualIgnoresBlocks: boolean;
 			/** Verify (read back) that this switch actually turned on and off. */
@@ -122,15 +139,23 @@ declare global {
 		}
 
 		interface AdapterConfig {
-			/** "system" = use coordinates from system.config, "specific" = use latitude/longitude below. */
-			coordinateSource: 'system' | 'specific';
+			/**
+			 * Where the switches take their coordinates from (for the astronomical window):
+			 * "system" = ioBroker system.config for all, "shared" = the latitude/longitude
+			 * below for all, "individual" = each switch decides on its own tab.
+			 */
+			locationMode: 'system' | 'shared' | 'individual';
+			/** Shared latitude (used when locationMode is "shared"). */
 			latitude: string;
+			/** Shared longitude (used when locationMode is "shared"). */
 			longitude: string;
-			/** Last resolved address (display only). */
+			/** Last resolved address (display only, for the shared location). */
 			address: string;
-			/** Start feeding only N minutes after sunrise. */
+			/** @deprecated Legacy global coordinate source; kept only for the one-time Phase-4 migration. */
+			coordinateSource: 'system' | 'specific';
+			/** @deprecated Legacy global sun offsets; migrated into the per-switch offsets. */
 			sunOffsetMorning: number;
-			/** Stop feeding N minutes before sunset. */
+			/** @deprecated Legacy global sun offsets; migrated into the per-switch offsets. */
 			sunOffsetEvening: number;
 			/** @deprecated Legacy global sources; kept only for the one-time migration to per-switch sources. */
 			airTempEnabled: boolean;
@@ -141,6 +166,8 @@ declare global {
 			o2ObjectId: string;
 			/** Set to true once the legacy global sources have been migrated into the switches. */
 			sourcesMigratedToSwitches: boolean;
+			/** Set to true once the Phase-4 location/astro-window migration has run. */
+			phase4Migrated: boolean;
 			switches: AutomaticFeederSwitchConfig[];
 		}
 	}

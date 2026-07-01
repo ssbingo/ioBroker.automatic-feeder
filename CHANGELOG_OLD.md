@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.4.1 (2026-06-30)
+* (ssbingo) Admin UI: adding a switch no longer jumps to its (still empty) tab — the focus stays on the General settings tab so the switch object can be selected first; the new row is scrolled into view
+
 ### 0.4.0 (2026-06-30)
 * (ssbingo) More reliable switch supervision for devices with delayed status feedback (e.g. Homematic radio): each verification now actively reads the current acknowledged state back and performs several staggered re-checks before reporting a fault, instead of failing after a single timeout
 * (ssbingo) New per-switch option "Verification attempts" (default 3) to configure the number of staggered re-checks

@@ -47,8 +47,8 @@ Konfigurations-Tab, der nach dem Schalter benannt ist. Pro Schalter legst du fes
   **Intervall** innerhalb eines Zeitfensters (z. B. alle 60 Minuten zwischen 08:00 und 18:00);
 * **wie lange** der Ausgang eingeschaltet bleibt (Fütterungsdauer in Sekunden);
 * **ob blockiert** wird, wenn Wasser- oder Lufttemperatur zu niedrig/hoch ist;
-* **ob nachts** nicht gefüttert wird (basierend auf dem echten Sonnenauf-/-untergang für deinen
-  Standort);
+* **ob die Fütterung** auf das astronomische Tagesfenster beschränkt wird (Sonnenauf-/-untergang
+  mit Offsets pro Schalter, aus einem System-, gemeinsamen oder schalterspezifischen Standort);
 * **ob der Schaltvorgang überwacht** wird (Prüfung, ob wirklich ein- und ausgeschaltet wurde)
   und optional eine **Telegram**-Nachricht zum Ergebnis gesendet wird;
 * **ob während einer wiederkehrenden Wintersaison reduziert oder pausiert** wird – optional mit
@@ -72,7 +72,7 @@ VIS-Ansicht).
 |-------------|---------|
 | **ioBroker** mit aktuellem **admin** (≥ 7) | Die Konfigurationsseite ist mit React umgesetzt. |
 | **Ein Schalter-Objekt** | Ein beschreibbarer ioBroker-Datenpunkt, der den Futterautomaten ein-/ausschaltet – z. B. eine Steckdose (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), ein Relais oder eine Skriptvariable. |
-| **Geokoordinaten** | Für die Berechnung von Sonnenauf-/-untergang. Entweder aus den ioBroker-Systemeinstellungen oder per Adresse/Karte. **Verpflichtend.** |
+| *(optional)* **Geokoordinaten** | Zur Berechnung von Sonnenauf-/-untergang für das **astronomische Fenster** pro Schalter. Nur nötig, wenn ein Schalter dieses Fenster nutzt; entnommen aus den ioBroker-Systemeinstellungen, einer gemeinsamen Position oder pro Schalter konfiguriert. |
 | *(optional)* Temperatur-Objekte | Vorhandene Datenpunkte mit Luft- und/oder Wassertemperatur, für temperaturabhängiges Sperren oder dynamisches Füttern. **Pro Schalter** im Schalter-Tab zugewiesen. |
 | *(optional)* **Sauerstoff-Objekte (O₂)** | Vorhandene Datenpunkte mit dem gelösten Sauerstoff, um die Fütterung zu sperren, wenn er zu niedrig wird. **Pro Schalter** zugewiesen. |
 | *(optional)* Eine **Telegram**-Instanz | Der offizielle `telegram`-Adapter, eingerichtet und gestartet, falls du Push-Benachrichtigungen möchtest. |
@@ -96,9 +96,9 @@ Ziel: Ein Schalter soll – sofort, zum Test – 5 Sekunden lang füttern.
 
 1. **Einstellungen öffnen** der automatic-feeder-Instanz.
 2. Auf dem Tab **Grundeinstellungen**:
-   * Unter **Standort** *Systemeinstellungen übernehmen* lassen, wenn dein ioBroker bereits
-     Koordinaten hat. Andernfalls *Standort spezifisch festlegen* wählen, Adresse eingeben,
-     **Suchen** klicken und den Marker auf der Karte bestätigen.
+   * Unter **Standort** *Systemeinstellungen für alle Schalter übernehmen* ausgewählt lassen (nur
+     relevant, wenn du später das astronomische Fenster aktivierst). Du kannst auch einen
+     gemeinsamen Standort wählen oder ihn pro Schalter konfigurieren.
    * Nach unten zu **Schalter** scrollen und **Schalter hinzufügen** klicken.
    * Einen **Namen** vergeben (z. B. `Koi-Teich`). Dieser Name wird zum Titel eines eigenen Tabs.
    * Neben **Schalter-Objekt** das Listen-Symbol anklicken und den Datenpunkt wählen, der deinen
@@ -123,33 +123,32 @@ Fenster vergrößern oder die Scrollleiste rechts nutzen – alle Abschnitte sin
 
 ### 5.1 Tab „Grundeinstellungen"
 
-#### Standort (verpflichtend)
+#### Standort (für das astronomische Fenster)
 
-Der Adapter benötigt deine geografische Position, um Sonnenauf- und -untergang zu berechnen (für
-die Nachtsperre). Zwei Möglichkeiten:
+Der Standort dient der Berechnung von Sonnenauf-/-untergang für das **astronomische
+Fütterungsfenster**, das pro Schalter aktiviert werden kann (siehe *Einschränkungen* im
+Schalter-Tab). Er wird nur benötigt, wenn mindestens ein Schalter dieses Fenster nutzt. Drei
+Möglichkeiten:
 
-* **Systemeinstellungen übernehmen** – nimmt Breiten-/Längengrad aus der ioBroker-Systemkonfiguration
-  (empfohlen, wenn dort bereits gesetzt). Die aktuellen Werte werden angezeigt.
-* **Standort spezifisch festlegen** – Position selbst bestimmen:
+* **Systemeinstellungen für alle Schalter übernehmen** – nimmt Breiten-/Längengrad aus der
+  ioBroker-Systemkonfiguration (empfohlen, wenn dort bereits gesetzt). Die aktuellen Werte werden
+  angezeigt.
+* **Ein gemeinsamer Standort für alle Schalter** – eine einzige Position festlegen, die alle
+  Schalter verwenden:
   * Eine **Adresse** eingeben und **Suchen** drücken. Der Adapter löst sie auf (über
     OpenStreetMap / Nominatim) und setzt einen Marker.
   * Oder **auf die Karte klicken** / den **Marker ziehen**, um die genaue Stelle zu wählen.
   * Breiten-/Längengrad können auch direkt eingetragen werden; die Karte folgt.
+* **Standort individuell pro Schalter konfigurieren** – jeder Schalter legt seinen eigenen
+  Standort auf seinem eigenen Tab fest (praktisch, wenn Futterstationen, z. B. Teiche, an
+  verschiedenen Orten liegen).
 
 > Die Adresssuche läuft im Adapter-Backend, daher muss die **Instanz laufen**. Karte und Suche
 > benötigen Internetzugang.
 
-#### Sonnenfenster (keine Fütterung nachts)
-
-Legt das Zeitfenster fest, in dem gefüttert werden darf:
-
-* **Minuten nach Sonnenaufgang** – erst so viele Minuten *nach* Sonnenaufgang füttern.
-* **Minuten vor Sonnenuntergang** – so viele Minuten *vor* Sonnenuntergang aufhören.
-
-Beispiel: Bei Sonnenaufgang 06:30, Sonnenuntergang 21:00 und Offsets 30 / 30 ist Fütterung nur
-zwischen **07:00 und 20:30** erlaubt. Jeder Schalter kann dieses Fenster einzeln beachten oder
-ignorieren (siehe *Einschränkungen* im Schalter-Tab). Die berechneten Zeiten stehen außerdem in
-den Datenpunkten `sunrise` / `sunset` und werden jede Nacht automatisch neu berechnet.
+Die **Offsets für Sonnenauf-/-untergang werden pro Schalter konfiguriert** (unter
+*Einschränkungen*), und die berechneten Zeiten werden pro Schalter als `status.sunrise` /
+`status.sunset` veröffentlicht und jede Nacht automatisch neu berechnet.
 
 #### Schalter
 
@@ -186,7 +185,10 @@ Abschnitte.
   * **Beginn Zeitraum** / **Ende Zeitraum** – z. B. 08:00 bis 18:00.
   * **Intervall (Minuten)** – z. B. 60 → füttert täglich um 08:00, 09:00, … bis zum Fensterende.
 
-Die nächste geplante Zeit steht jederzeit im Datenpunkt `status.nextFeeding`.
+Ist das **astronomische Fenster** aktiviert (siehe *Einschränkungen*), werden Beginn/Ende des
+festen Fensters durch das Sonnenauf-/-untergangsfenster ersetzt und ausgeblendet; das Intervall
+läuft dann zwischen Sonnenauf- und -untergang. Die nächste geplante Zeit steht jederzeit im
+Datenpunkt `status.nextFeeding`.
 
 #### Fütterungsvorgang
 
@@ -220,10 +222,21 @@ Quelle nicht.)
 
 #### Einschränkungen
 
-* **Nachts nicht füttern** – beachtet das Sonnenfenster (inkl. der Offsets). Ausschalten, wenn
-  dieser Schalter rund um die Uhr füttern darf.
+* **Fütterung auf das astronomische Tagesfenster beschränken (Sonnenauf-/-untergang + Offsets)** –
+  wenn aktiv, ist die Fütterung auf das Tagfenster beschränkt, das aus dem Standort dieses
+  Schalters berechnet wird. Bei *Intervall* und *Dynamischem Füttern* ersetzt dieses Fenster
+  Beginn/Ende des festen Fensters; bei *Feste Zeiten* wirkt es als Tag-/Nacht-Sperre (Zeiten
+  außerhalb des Fensters werden übersprungen). Bei Aktivierung kannst du festlegen:
+  * **Minuten nach Sonnenaufgang** – erst so viele Minuten *nach* Sonnenaufgang beginnen
+    (Standard 0).
+  * **Minuten vor Sonnenuntergang** – so viele Minuten *vor* Sonnenuntergang aufhören
+    (Standard 0).
+  * **Standort für diesen Schalter** – nur sichtbar, wenn der allgemeine *Standort* auf
+    *individuell* gesetzt ist: *Systemeinstellungen übernehmen* oder *Standort spezifisch
+    festlegen* (Adresssuche + Karte) für diesen Schalter wählen. Die berechneten Zeiten
+    erscheinen in `status.sunrise` / `status.sunset`.
 * **Manueller Auslöser ignoriert alle Sperren** – wenn aktiv, füttern der Button und der
-  Datenpunkt `feedNow` auch bei aktiver Temperatur-/Nachtsperre.
+  Datenpunkt `feedNow` auch bei aktiver Temperatur-/Fenstersperre.
 
 #### Dynamisches Füttern
 
@@ -303,7 +316,6 @@ Der Adapter legt folgende Datenpunkte in seinem Namespace an
 | Datenpunkt | Typ | Bedeutung |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter läuft und die Konfiguration ist gültig. |
-| `sunrise` / `sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für heute. |
 
 **Pro Schalter unter `switches.<id>.`** (`<id>` ist eine interne ID wie `sw-0`)
 
@@ -335,6 +347,7 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.airTemperature` | number (ro) | Wert der eigenen Lufttemperatur-Quelle dieses Schalters. |
 | `status.waterTemperature` | number (ro) | Wert der eigenen Wassertemperatur-Quelle dieses Schalters. |
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
+| `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 
 Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `status.nextFeeding`
 auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm auslösen.
@@ -348,10 +361,14 @@ auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm 
 * Im Schalter-Tab unter *Temperatur- & Sauerstoffquellen* *Wassertemperatur* aktivieren und den
   Sensor wählen; dann *Nach Wassertemperatur sperren* → *Sperren wenn unter* `8` °C (keine
   Fütterung bei zu kaltem Wasser).
-* *Nachts nicht füttern* ein.
+* Unter *Einschränkungen* *Fütterung auf das astronomische Tagesfenster beschränken* aktivieren,
+  damit nach Einbruch der Dunkelheit nichts gefüttert wird.
 
-**Voliere, häufige kleine Portionen tagsüber**
-* Modus *Intervall innerhalb eines Zeitraums* → 07:00–19:00, Intervall `90` min; Dauer `3` s.
+**Voliere, nur bei Tageslicht (astronomisches Fenster)**
+* Modus *Intervall innerhalb eines Zeitraums* → Intervall `90` min; Dauer `3` s.
+* Unter *Einschränkungen* das astronomische Fenster mit Offsets `30` / `30` min aktivieren →
+  Fütterung läuft von 30 min nach Sonnenaufgang bis 30 min vor Sonnenuntergang und folgt
+  automatisch den Jahreszeiten.
 
 **Koi-Teich, temperaturangepasst (dynamisches Füttern)**
 * Im Schalter-Tab unter *Temperatur- & Sauerstoffquellen* *Wassertemperatur* aktivieren und den Sensor wählen.
@@ -402,13 +419,14 @@ Browser-Cache. Mit **Strg+Shift+R** hart neu laden.
 **Es wird gar nicht gefüttert.**
 Der Reihe nach prüfen: Schalter **Aktiv**; ein **Schalter-Objekt** ausgewählt; **Zeitplan**
 gültig (`status.nextFeeding` zeigt eine Zeit); nicht **blockiert** (`status.blocked` / `status.blockReason` ansehen);
-das **Sonnenfenster** schließt die Zeit nicht aus; das **Log-Level** der Instanz auf `debug`
+das **astronomische Fenster** schließt die Zeit nicht aus; das **Log-Level** der Instanz auf `debug`
 setzen und das Log beobachten.
 
 **Es wird nie nachts gefüttert, obwohl ich das möchte.**
-Entweder *Nachts nicht füttern* für diesen Schalter deaktivieren oder die Sonnen-Offsets
-anpassen. Ohne gültige Koordinaten ist die Nachtsperre deaktiviert (und es wird eine Warnung
-geloggt).
+*Fütterung auf das astronomische Tagesfenster beschränken* für diesen Schalter deaktivieren oder
+die Sonnenauf-/-untergangs-Offsets anpassen. Ist das astronomische Fenster aktiviert, hat der
+Schalter aber keine gültigen Koordinaten, bleibt seine Fenstersperre inaktiv (und es wird eine
+Warnung geloggt).
 
 **Die Überwachung meldet immer eine Störung.**
 Dein Schalter-Objekt meldet vermutlich seinen Ist-Zustand nicht zurück (`ack=true`). Entweder

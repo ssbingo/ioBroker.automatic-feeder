@@ -50,8 +50,9 @@ définis :
 * **combien de temps** la sortie reste activée (durée de distribution en secondes) ;
 * **si la distribution est bloquée** lorsque la température de l'eau ou de l'air est trop
   basse/haute ;
-* **si la distribution est interdite la nuit** (selon le lever et le coucher du soleil réels pour
-  ton emplacement) ;
+* **s'il faut restreindre** la distribution à la fenêtre diurne astronomique (lever/coucher du
+  soleil avec des décalages propres à chaque interrupteur, à partir d'un emplacement système,
+  partagé ou propre à l'interrupteur) ;
 * **si le processus de commutation est surveillé** (vérification que l'activation et la
   désactivation ont réellement eu lieu) et, en option, l'envoi d'un message **Telegram** sur le
   résultat ;
@@ -76,7 +77,7 @@ dans une vue VIS).
 |-------------|---------|
 | **ioBroker** avec un **admin** récent (≥ 7) | La page de configuration est réalisée avec React. |
 | **Un objet interrupteur** | Un point de données ioBroker accessible en écriture qui active/désactive le distributeur — p. ex. une prise (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relais ou une variable de script. |
-| **Coordonnées géographiques** | Pour le calcul du lever/coucher du soleil. Soit depuis les paramètres système d'ioBroker, soit via une adresse/carte. **Obligatoire.** |
+| *(optionnel)* **Coordonnées géographiques** | Utilisées pour calculer le lever/coucher du soleil pour la **fenêtre astronomique** propre à chaque interrupteur. Nécessaires uniquement si un interrupteur utilise cette fenêtre ; reprises depuis les paramètres système d'ioBroker, une position partagée unique ou configurées par interrupteur. |
 | *(optionnel)* Objets de température | Des points de données existants avec la température de l'air et/ou de l'eau, pour le blocage par température ou l'alimentation dynamique. Attribués **par interrupteur** dans l'onglet de l'interrupteur. |
 | *(optionnel)* Objets **oxygène (O₂)** | Des points de données existants contenant l'oxygène dissous, pour bloquer la distribution lorsqu'il descend trop bas. Attribués **par interrupteur**. |
 | *(optionnel)* Une instance **Telegram** | L'adaptateur officiel `telegram`, installé et démarré, si tu souhaites des notifications push. |
@@ -101,9 +102,9 @@ Objectif : un interrupteur doit distribuer — immédiatement, pour le test — 
 
 1. **Ouvre les paramètres** de l'instance automatic-feeder.
 2. Dans l'onglet **Réglages de base** (Grundeinstellungen) :
-   * Sous **Emplacement** (Standort), laisse l'option *Reprendre les paramètres système* si ton
-     ioBroker possède déjà des coordonnées. Sinon, choisis *Définir un emplacement spécifique*,
-     saisis l'adresse, clique sur **Rechercher** et confirme le marqueur sur la carte.
+   * Sous **Emplacement** (Standort), laisse l'option *Utiliser les paramètres système pour tous
+     les interrupteurs* sélectionnée (pertinent uniquement si tu actives plus tard la fenêtre
+     astronomique). Tu peux aussi choisir un emplacement partagé ou le configurer par interrupteur.
    * Fais défiler vers le bas jusqu'à **Interrupteurs** (Schalter) et clique sur **Ajouter un
      interrupteur**.
    * Attribue un **Nom** (p. ex. `Koi-Teich`). Ce nom deviendra le titre d'un onglet dédié.
@@ -133,36 +134,32 @@ accessibles.
 
 ### 5.1 Onglet « Réglages de base » (Grundeinstellungen)
 
-#### Emplacement (obligatoire)
+#### Emplacement (pour la fenêtre astronomique)
 
-L'adaptateur a besoin de ta position géographique pour calculer le lever et le coucher du soleil
-(pour le blocage nocturne). Deux possibilités :
+L'emplacement sert à calculer le lever/coucher du soleil pour la **fenêtre de distribution
+astronomique** qui peut être activée par interrupteur (voir *Restrictions* dans l'onglet de
+l'interrupteur). Il n'est nécessaire que si au moins un interrupteur utilise cette fenêtre. Trois
+possibilités :
 
-* **Reprendre les paramètres système** — utilise la latitude/longitude de la configuration système
-  d'ioBroker (recommandé si elles y sont déjà définies). Les valeurs actuelles sont affichées.
-* **Définir un emplacement spécifique** — détermine la position toi-même :
+* **Utiliser les paramètres système pour tous les interrupteurs** — reprend la
+  latitude/longitude de la configuration système d'ioBroker (recommandé si elles y sont déjà
+  définies). Les valeurs actuelles sont affichées.
+* **Un emplacement partagé pour tous les interrupteurs** — définit une position unique que tous
+  les interrupteurs utilisent :
   * Saisis une **adresse** et appuie sur **Rechercher**. L'adaptateur la résout (via
     OpenStreetMap / Nominatim) et place un marqueur.
   * Ou **clique sur la carte** / **fais glisser le marqueur** pour choisir l'endroit exact.
   * La latitude/longitude peut aussi être saisie directement ; la carte suit.
+* **Configurer l'emplacement individuellement par interrupteur** — chaque interrupteur définit
+  son propre emplacement dans son propre onglet (utile lorsque les stations de distribution,
+  p. ex. des bassins, se trouvent à des endroits différents).
 
 > La recherche d'adresse s'effectue dans le backend de l'adaptateur, l'**instance doit donc être
 > en cours d'exécution**. La carte et la recherche nécessitent un accès Internet.
 
-#### Fenêtre solaire (pas de distribution la nuit)
-
-Définit la plage horaire pendant laquelle la distribution est autorisée :
-
-* **Minutes après le lever du soleil** — ne distribuer qu'à partir de ce nombre de minutes *après*
-  le lever du soleil.
-* **Minutes avant le coucher du soleil** — arrêter ce nombre de minutes *avant* le coucher du
-  soleil.
-
-Exemple : avec un lever du soleil à 06:30, un coucher à 21:00 et des décalages de 30 / 30, la
-distribution n'est autorisée qu'entre **07:00 et 20:30**. Chaque interrupteur peut tenir compte de
-cette fenêtre individuellement ou l'ignorer (voir *Restrictions* dans l'onglet de l'interrupteur).
-Les heures calculées figurent en outre dans les points de données `sunrise` / `sunset` et sont
-recalculées automatiquement chaque nuit.
+Les **décalages du lever/coucher du soleil se configurent par interrupteur** (sous
+*Restrictions*), et les heures calculées sont publiées par interrupteur dans `status.sunrise` /
+`status.sunset`, recalculées automatiquement chaque nuit.
 
 #### Interrupteurs
 
@@ -202,7 +199,10 @@ Choisis **un** mode :
   * **Intervalle (minutes)** — p. ex. 60 → distribue chaque jour à 08:00, 09:00, … jusqu'à la fin
     de la fenêtre.
 
-La prochaine heure planifiée figure à tout moment dans le point de données `status.nextFeeding`.
+Si la **fenêtre astronomique** est activée (voir *Restrictions*), le début/la fin de la fenêtre
+fixe sont remplacés par la fenêtre lever/coucher du soleil et sont masqués ; l'intervalle se
+déroule alors entre le lever et le coucher du soleil. La prochaine heure planifiée figure à tout
+moment dans le point de données `status.nextFeeding`.
 
 #### Processus de distribution
 
@@ -243,10 +243,22 @@ source ne bloque pas.)
 
 #### Restrictions
 
-* **Ne pas distribuer la nuit** — tient compte de la fenêtre solaire (décalages inclus).
-  Désactive-le si cet interrupteur peut distribuer 24 h/24.
+* **Restreindre la distribution à la fenêtre diurne astronomique (lever/coucher du soleil +
+  décalages)** — lorsqu'elle est activée, la distribution est limitée à la fenêtre diurne calculée
+  à partir de l'emplacement de cet interrupteur. Pour l'*Intervalle* et l'*Alimentation dynamique*,
+  cette fenêtre remplace le début/la fin de la fenêtre fixe ; pour les *Heures fixes*, elle agit
+  comme garde jour/nuit (les heures hors de la fenêtre sont ignorées). Une fois activée, tu peux
+  régler :
+  * **Minutes après le lever du soleil** — commencer ce nombre de minutes *après* le lever du
+    soleil (par défaut 0).
+  * **Minutes avant le coucher du soleil** — arrêter ce nombre de minutes *avant* le coucher du
+    soleil (par défaut 0).
+  * **Emplacement pour cet interrupteur** — affiché uniquement lorsque l'*Emplacement* général est
+    réglé sur *individuel* : choisis *Utiliser les paramètres système* ou *Définir un emplacement
+    spécifique* (recherche d'adresse + carte) pour cet interrupteur. Les heures calculées
+    apparaissent dans `status.sunrise` / `status.sunset`.
 * **Le déclencheur manuel ignore tous les blocages** — si activé, le bouton et le point de données
-  `feedNow` distribuent même en cas de blocage par température/nocturne actif.
+  `feedNow` distribuent même en cas de blocage par température/fenêtre actif.
 
 #### Alimentation dynamique
 
@@ -327,7 +339,6 @@ L'adaptateur crée les points de données suivants dans son espace de noms
 | Point de données | Type | Signification |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | L'adaptateur fonctionne et la configuration est valide. |
-| `sunrise` / `sunset` | string (ro) | Lever/coucher du soleil calculé pour aujourd'hui. |
 
 **Par interrupteur sous `switches.<id>.`** (`<id>` est un ID interne comme `sw-0`)
 
@@ -359,6 +370,7 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.airTemperature` | number (ro) | Valeur de la source de température de l'air propre à cet interrupteur. |
 | `status.waterTemperature` | number (ro) | Valeur de la source de température de l'eau propre à cet interrupteur. |
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
+| `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 
 Ces points de données peuvent être utilisés dans VIS, des scripts ou d'autres adaptateurs — p. ex.
 afficher `status.nextFeeding` sur un tableau de bord ou déclencher ta propre alarme lorsque `status.error =
@@ -373,10 +385,14 @@ true`.
 * Dans l'onglet de l'interrupteur, sous *Sources de température et d'oxygène*, active *Température de
   l'eau* et choisis le capteur ; puis *Bloquer selon la température de l'eau* → *Bloquer si en
   dessous de* `8` °C (pas de distribution si l'eau est trop froide).
-* *Ne pas distribuer la nuit* activé.
+* Sous *Restrictions*, active *Restreindre la distribution à la fenêtre diurne astronomique* afin
+  que rien ne soit distribué après la tombée de la nuit.
 
-**Volière, petites portions fréquentes pendant la journée**
-* Mode *Intervalle à l'intérieur d'une plage* → 07:00–19:00, intervalle `90` min ; durée `3` s.
+**Volière, uniquement en journée (fenêtre astronomique)**
+* Mode *Intervalle à l'intérieur d'une plage* → intervalle `90` min ; durée `3` s.
+* Sous *Restrictions*, active la fenêtre astronomique avec des décalages de `30` / `30` min → la
+  distribution se déroule de 30 min après le lever du soleil à 30 min avant le coucher du soleil,
+  en suivant automatiquement les saisons.
 
 **Bassin à koïs, adaptatif à la température (alimentation dynamique)**
 * Dans l'onglet de l'interrupteur, sous *Sources de température et d'oxygène*, active *Température de
@@ -430,13 +446,14 @@ Cache du navigateur. Effectue un rechargement forcé (Strg+Shift+R).
 **Rien n'est distribué du tout.**
 Vérifie dans l'ordre : l'interrupteur est **Actif** ; un **objet interrupteur** est sélectionné ;
 le **planning** est valide (`status.nextFeeding` affiche une heure) ; il n'est pas **bloqué** (consulte
-`status.blocked` / `status.blockReason`) ; la **fenêtre solaire** n'exclut pas cette heure ; règle le
+`status.blocked` / `status.blockReason`) ; la **fenêtre astronomique** n'exclut pas cette heure ; règle le
 **niveau de journal** de l'instance sur `debug` et observe le journal.
 
 **La distribution n'a jamais lieu la nuit, alors que je le souhaite.**
-Soit désactive *Ne pas distribuer la nuit* pour cet interrupteur, soit ajuste les décalages
-solaires. Sans coordonnées valides, le blocage nocturne est désactivé (et un avertissement est
-journalisé).
+Désactive *Restreindre la distribution à la fenêtre diurne astronomique* pour cet interrupteur, ou
+ajuste ses décalages de lever/coucher du soleil. Si la fenêtre astronomique est activée mais que
+l'interrupteur ne dispose pas de coordonnées valides, sa garde de fenêtre reste inactive et un
+avertissement est journalisé.
 
 **La surveillance signale toujours une anomalie.**
 Ton objet interrupteur ne renvoie probablement pas son état réel (`ack=true`). Soit utilise un

@@ -77,21 +77,35 @@ function GeneralTab(props) {
 
 	return (
 		<Box>
-			{/* Geolocation */}
-			<Section title={I18n.t('Geolocation (mandatory)')}>
+			{/* Location */}
+			<Section title={I18n.t('Location (for the astronomical window)')}>
+				<Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+					{I18n.t(
+						'The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.',
+					)}
+				</Typography>
 				<RadioGroup
-					value={native.coordinateSource || 'system'}
-					onChange={(e) => onChange('coordinateSource', e.target.value)}
+					value={native.locationMode || 'system'}
+					onChange={(e) => onChange('locationMode', e.target.value)}
 				>
 					<FormControlLabel
 						value="system"
 						control={<Radio />}
-						label={I18n.t('Use system settings (system.config)')}
+						label={I18n.t('Use system settings (system.config) for all switches')}
 					/>
-					<FormControlLabel value="specific" control={<Radio />} label={I18n.t('Define specific location')} />
+					<FormControlLabel
+						value="shared"
+						control={<Radio />}
+						label={I18n.t('One shared location for all switches')}
+					/>
+					<FormControlLabel
+						value="individual"
+						control={<Radio />}
+						label={I18n.t('Configure the location individually per switch')}
+					/>
 				</RadioGroup>
 
-				{native.coordinateSource === 'specific' ? (
+				{native.locationMode === 'shared' ? (
 					<Box sx={{ mt: 1 }}>
 						<LocationPicker
 							latitude={native.latitude}
@@ -112,6 +126,10 @@ function GeneralTab(props) {
 							}}
 						/>
 					</Box>
+				) : native.locationMode === 'individual' ? (
+					<Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+						{I18n.t('Each switch defines its own location on its tab.')}
+					</Typography>
 				) : (
 					<Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
 						{sysCoords && sysCoords.lat !== undefined && sysCoords.lat !== ''
@@ -120,27 +138,6 @@ function GeneralTab(props) {
 					</Typography>
 				)}
 			</Section>
-
-			{/* Sun offsets */}
-			<Section title={I18n.t('Sun window (no feeding at night)')}>
-				<Box sx={{ display: 'flex', gap: 2 }}>
-					<TextField
-						variant="standard"
-						type="number"
-						label={I18n.t('Minutes after sunrise')}
-						value={native.sunOffsetMorning ?? 0}
-						onChange={(e) => onChange('sunOffsetMorning', Number(e.target.value) || 0)}
-					/>
-					<TextField
-						variant="standard"
-						type="number"
-						label={I18n.t('Minutes before sunset')}
-						value={native.sunOffsetEvening ?? 0}
-						onChange={(e) => onChange('sunOffsetEvening', Number(e.target.value) || 0)}
-					/>
-				</Box>
-			</Section>
-
 
 			{/* Switches roster */}
 			<Section title={`${I18n.t('Switches')} (${switches.length}/${MAX_SWITCHES})`}>

@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Сповіщати про збій вимкнення",
 	"Telegram instance": "Екземпляр Telegram",
 	"None (disabled)": "Немає (вимкнено)",
-	"No Telegram instance installed.": "Жодного екземпляра Telegram не встановлено."
+	"No Telegram instance installed.": "Жодного екземпляра Telegram не встановлено.",
+	"Location (for the astronomical window)": "Розташування (для астрономічного вікна)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "Розташування використовується для обчислення сходу/заходу сонця для астрономічного вікна годування кожного перемикача. Зміщення сходу/заходу налаштовуються для кожного перемикача.",
+	"Use system settings (system.config) for all switches": "Використовувати системні налаштування (system.config) для всіх перемикачів",
+	"One shared location for all switches": "Одне спільне розташування для всіх перемикачів",
+	"Configure the location individually per switch": "Налаштувати розташування окремо для кожного перемикача",
+	"Each switch defines its own location on its tab.": "Кожен перемикач визначає власне розташування на своїй вкладці.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Вікно слідує за сходом/заходом сонця (астрономічне вікно ввімкнено в розділі «Обмеження»).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Обмежити годування астрономічним денним вікном (схід/захід + зміщення)",
+	"Location for this switch": "Розташування для цього перемикача"
 }

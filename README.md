@@ -61,7 +61,8 @@ configuration tab named after the switch. Per switch you decide:
   inside a time window (e.g. every 60 minutes between 08:00 and 18:00);
 * **how long** the output stays on (feeding duration in seconds);
 * **whether to block** feeding when the water or air temperature is too low/high;
-* **whether to skip** feeding at night (based on the real sunrise/sunset for your location);
+* **whether to restrict** feeding to the astronomical day window (sunrise/sunset with per-switch
+  offsets, from a system, shared or per-switch location);
 * **whether to supervise** the switch (check that it really turned on and off) and optionally
   send a **Telegram** message about the result;
 * **whether to reduce or pause** feeding during a recurring **winter** season – optionally with
@@ -84,7 +85,7 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 |----------|---------|
 | **ioBroker** with a recent **admin** (≥ 7) | The configuration page is built with React. |
 | **A switch object** | Any writable ioBroker state that turns your feeder on/off – e.g. a smart plug (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), a relay, a script variable. |
-| **Geo-coordinates** | Used to calculate sunrise/sunset. Either taken from the ioBroker system settings or entered per address/map. **Mandatory.** |
+| *(optional)* **Geo-coordinates** | Used to calculate sunrise/sunset for the per-switch **astronomical window**. Only needed if a switch uses that window; taken from the ioBroker system settings, one shared position, or configured per switch. |
 | *(optional)* Temperature objects | Existing states with air and/or water temperature, for temperature blocking or dynamic feeding. Assigned **per switch** on the switch tab. |
 | *(optional)* **Oxygen (O₂)** objects | Existing states with the dissolved oxygen, to block feeding when it drops too low. Assigned **per switch**. |
 | *(optional)* A **Telegram** instance | The official `telegram` adapter, configured and running, if you want push notifications. |
@@ -108,9 +109,9 @@ The goal: make one switch feed for 5 seconds, right now, to prove everything wor
 
 1. **Open the settings** of the automatic-feeder instance.
 2. On the **General settings** tab:
-   * Under **Location**, leave *Use system settings* selected if your ioBroker already has
-     coordinates. Otherwise pick *Define specific location*, type your address, click
-     **Search**, and confirm the marker on the map.
+   * Under **Location**, leave *Use system settings for all switches* selected (only relevant if
+     you later enable the astronomical window). You can also pick a shared location or configure
+     it per switch.
    * Scroll down to **Switches** and click **Add switch**.
    * Give it a **Name** (e.g. `Koi pond`). This name becomes the title of its own tab.
    * Click the list icon next to **Switch object** and choose the state that switches your
@@ -134,33 +135,28 @@ use the scrollbar on the right – all sections are reachable.
 
 ### 5.1 General settings tab
 
-#### Location (mandatory)
+#### Location (for the astronomical window)
 
-The adapter needs your geographic position to calculate sunrise and sunset (for the night
-protection). Two options:
+The location is used to calculate sunrise/sunset for the **astronomical feeding window** that can
+be enabled per switch (see *Restrictions* on the switch tab). It is only needed if at least one
+switch uses that window. Three options:
 
-* **Use system settings** – takes latitude/longitude from the ioBroker system configuration
-  (the recommended option if those are already set). The current values are shown.
-* **Define specific location** – set the position yourself:
+* **Use system settings for all switches** – takes latitude/longitude from the ioBroker system
+  configuration (recommended if those are already set). The current values are shown.
+* **One shared location for all switches** – set a single position that all switches use:
   * Type an **address** and press **Search**. The adapter resolves it (via OpenStreetMap /
     Nominatim) and places a marker.
   * Or **click on the map** / **drag the marker** to the exact spot.
   * Latitude/longitude can also be typed directly; the map follows.
+* **Configure the location individually per switch** – each switch defines its own location on
+  its own tab (useful when feeding stations, e.g. ponds, are at different places).
 
 > The address search runs in the adapter backend, so the **instance must be running** for it.
 > The map tiles and the search need internet access.
 
-#### Sun window (no feeding at night)
-
-This defines the time window in which feeding is allowed:
-
-* **Minutes after sunrise** – start feeding only this many minutes *after* sunrise.
-* **Minutes before sunset** – stop feeding this many minutes *before* sunset.
-
-Example: with sunrise 06:30, sunset 21:00 and offsets 30 / 30, feeding is only allowed between
-**07:00 and 20:30**. Each switch can individually obey or ignore this window (see *Restrictions*
-on the switch tab). The calculated times are also published as the `sunrise` / `sunset` data
-points and recalculated automatically every night.
+The **sunrise/sunset offsets are configured per switch** (under *Restrictions*), and the
+calculated times are published per switch as `status.sunrise` / `status.sunset`, recalculated
+automatically every night.
 
 #### Switches
 
@@ -198,7 +194,9 @@ Choose **one** mode:
   * **Interval (minutes)** – e.g. 60 → feed at 08:00, 09:00, …, up to the end of the window,
     every day.
 
-The next planned time is always visible in the `status.nextFeeding` data point.
+If the **astronomical window** is enabled (see *Restrictions*), the fixed window start/end are
+replaced by the sunrise/sunset window and are hidden; the interval then runs between sunrise and
+sunset. The next planned time is always visible in the `status.nextFeeding` data point.
 
 #### Feeding action
 
@@ -232,10 +230,17 @@ is written to `status.blockReason`. (If a temperature value is unknown, that sou
 
 #### Restrictions
 
-* **Do not feed at night** – obey the sun window (incl. the offsets). Turn off if this switch
-  may feed around the clock.
+* **Restrict feeding to the astronomical day window (sunrise/sunset + offsets)** – when on,
+  feeding is limited to the daytime window computed from this switch's location. For *Interval*
+  and *Dynamic feeding* this window replaces the fixed window start/end; for *Fixed times* it
+  acts as a day/night guard (times outside the window are skipped). When enabled you can set:
+  * **Minutes after sunrise** – start this many minutes *after* sunrise (default 0).
+  * **Minutes before sunset** – stop this many minutes *before* sunset (default 0).
+  * **Location for this switch** – only shown when the general *Location* is set to *individual*:
+    pick *Use system settings* or *Define specific location* (address search + map) for this
+    switch. The computed times appear in `status.sunrise` / `status.sunset`.
 * **Manual trigger ignores all blocks** – when on, the manual button and the `feedNow` data
-  point feed even if a temperature/night block is active.
+  point feed even if a temperature/window block is active.
 
 #### Dynamic feeding
 
@@ -315,7 +320,6 @@ The adapter creates the following states under its namespace
 | Data point | Type | Meaning |
 |------------|------|---------|
 | `info.connection` | boolean (ro) | Adapter is running and the configuration is valid. |
-| `sunrise` / `sunset` | string (ro) | Calculated sunrise/sunset for today. |
 
 **Per switch, under `switches.<id>.`** (`<id>` is an internal id like `sw-0`)
 
@@ -347,6 +351,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.airTemperature` | number (ro) | This switch's own air-temperature source value. |
 | `status.waterTemperature` | number (ro) | This switch's own water-temperature source value. |
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
+| `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 
 You can use these in VIS, scripts or other adapters – for example show `status.nextFeeding` on a
 dashboard, or react on `status.error = true` to send your own alarm.
@@ -359,10 +364,13 @@ dashboard, or react on `status.error = true` to send your own alarm.
 * Mode *Fixed times* → `08:00`, `18:00`; duration `6` s.
 * On the switch tab, under *Temperature & oxygen sources*, enable *Water temperature* and pick
   the sensor; then *Block by water temperature* → *Block if below* `8` °C (no feeding when cold).
-* *Do not feed at night* on.
+* Under *Restrictions*, enable *Restrict feeding to the astronomical day window* so nothing is
+  fed after dark.
 
-**Aviary, frequent small portions during the day**
-* Mode *Interval within a time window* → 07:00–19:00, interval `90` min; duration `3` s.
+**Aviary, only during daylight (astronomical window)**
+* Mode *Interval within a time window* → interval `90` min; duration `3` s.
+* Under *Restrictions*, enable the astronomical window with offsets `30` / `30` min → feeding
+  runs from 30 min after sunrise to 30 min before sunset, following the seasons automatically.
 
 **Koi pond, temperature-adaptive (dynamic feeding)**
 * On the switch tab, under *Temperature & oxygen sources*, enable *Water temperature* and pick the sensor.
@@ -410,12 +418,13 @@ Browser cache – hard-reload with **Ctrl+Shift+R**.
 **Nothing gets fed.**
 Check, in order: the switch is **Active**; a **switch object** is selected; the **schedule** is
 valid (`status.nextFeeding` shows a time); it is not **blocked** (look at `status.blocked` / `status.blockReason`);
-the **sun window** is not excluding the time; set the instance **log level** to `debug` and
-watch the log.
+the **astronomical window** is not excluding the time; set the instance **log level** to `debug`
+and watch the log.
 
 **It never feeds at night although I want it to.**
-Either disable *Do not feed at night* for that switch, or adjust the sun offsets. Without valid
-coordinates the night protection is disabled (and a warning is logged).
+Disable *Restrict feeding to the astronomical day window* for that switch, or adjust its sunrise/
+sunset offsets. If the astronomical window is enabled but the switch has no valid coordinates,
+its window guard stays inactive and a warning is logged.
 
 **Supervision always reports a fault.**
 Your switch object probably does not report its real state back (`ack=true`). Either use a
@@ -460,6 +469,13 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	### **WORK IN PROGRESS**
 -->
 
+### 1.1.0 (2026-07-01)
+* (ssbingo) New per-switch **astronomical feeding window**: restrict feeding to the daytime window (sunrise/sunset with per-switch offsets). For *Interval* and *Dynamic feeding* it becomes the feeding window; for *Fixed times* it acts as a day/night guard. Replaces the former per-switch "do not feed at night"
+* (ssbingo) The **location** can now be taken from the system settings, set once as a shared location, or configured **individually per switch** (feeding stations at different places); the sunrise/sunset offsets moved from the general page to each switch
+* (ssbingo) New per-switch data points `status.sunrise` / `status.sunset`; the global `sunrise` / `sunset` states were removed
+* (ssbingo) Existing configuration is migrated automatically (the former night protection becomes the astronomical window; the global offsets and location move to the switches)
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.0.2 (2026-07-01)
 * (ssbingo) Fix (repository checker E1011): the editable `settings.*` mirror combined read-only state roles (`value` / `value.temperature` / `indicator`) with `write = true`. Writable settings now use the writable roles `level` / `level.temperature` / `switch`; existing objects are corrected automatically on start
 
@@ -497,9 +513,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 * (ssbingo) New per-switch **Winter pause**: during a recurring season (given as MM-DD dates that repeat every year and may wrap around New Year) feeding can be suspended, run on a reduced own interval, or once daily, each with its own winter feeding duration
 * (ssbingo) Optional **Telegram reminders** a configurable number of days before the winter pause starts and ends (sent once daily up to and including the day itself, at a configurable hour), with mode-dependent texts in all 11 languages
 * (ssbingo) New status data point `winterActive` per switch
-
-### 0.4.1 (2026-06-30)
-* (ssbingo) Admin UI: adding a switch no longer jumps to its (still empty) tab — the focus stays on the General settings tab so the switch object can be selected first; the new row is scrolled into view
 
 ---
 

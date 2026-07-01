@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Notify on switch-off fault",
 	"Telegram instance": "Telegram instance",
 	"None (disabled)": "None (disabled)",
-	"No Telegram instance installed.": "No Telegram instance installed."
+	"No Telegram instance installed.": "No Telegram instance installed.",
+	"Location (for the astronomical window)": "Location (for the astronomical window)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.",
+	"Use system settings (system.config) for all switches": "Use system settings (system.config) for all switches",
+	"One shared location for all switches": "One shared location for all switches",
+	"Configure the location individually per switch": "Configure the location individually per switch",
+	"Each switch defines its own location on its tab.": "Each switch defines its own location on its tab.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "The window follows sunrise/sunset (astronomical window enabled under Restrictions).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Restrict feeding to the astronomical day window (sunrise/sunset + offsets)",
+	"Location for this switch": "Location for this switch"
 }

@@ -46,8 +46,8 @@ pestaña de configuración, denominada según el interruptor. Para cada interrup
   dentro de una ventana de tiempo (p. ej. cada 60 minutos entre las 08:00 y las 18:00);
 * **cuánto tiempo** permanece encendida la salida (duración de la alimentación en segundos);
 * **si se bloquea** cuando la temperatura del agua o del aire es demasiado baja/alta;
-* **si por la noche** no se alimenta (basándose en el orto y el ocaso reales para tu
-  ubicación);
+* **si se restringe** la alimentación a la ventana astronómica del día (orto/ocaso con desfases
+  por interruptor, desde una ubicación del sistema, compartida o por interruptor);
 * **si se supervisa el proceso de conmutación** (comprobación de si realmente se encendió y
   apagó) y, opcionalmente, se envía un mensaje de **Telegram** con el resultado;
 * **si se reduce o pausa** la alimentación durante una temporada de **invierno** recurrente,
@@ -71,7 +71,7 @@ vista de VIS).
 |-------------|---------|
 | **ioBroker** con **admin** actual (≥ 7) | La página de configuración está implementada con React. |
 | **Un objeto interruptor** | Un punto de datos de ioBroker escribible que encienda/apague el comedero automático, p. ej. un enchufe (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relé o una variable de script. |
-| **Coordenadas geográficas** | Para el cálculo del orto y el ocaso. Ya sea desde los ajustes del sistema de ioBroker o mediante dirección/mapa. **Obligatorio.** |
+| *(opcional)* **Coordenadas geográficas** | Se usan para calcular el orto y el ocaso de la **ventana astronómica** por interruptor. Solo se necesitan si algún interruptor usa esa ventana; se toman de los ajustes del sistema de ioBroker, de una posición compartida o se configuran por interruptor. |
 | *(opcional)* Objetos de temperatura | Puntos de datos existentes con la temperatura del aire o del agua, para el bloqueo por temperatura o la alimentación dinámica. Se asignan **por interruptor** en la pestaña del interruptor. |
 | *(opcional)* Objetos de **oxígeno (O₂)** | Puntos de datos existentes con el oxígeno disuelto, para bloquear la alimentación cuando cae demasiado bajo. Se asignan **por interruptor**. |
 | *(opcional)* Una instancia de **Telegram** | El adaptador oficial `telegram`, configurado e iniciado, si quieres notificaciones push. |
@@ -96,9 +96,9 @@ Objetivo: que un interruptor alimente, de inmediato y a modo de prueba, durante 
 
 1. **Abre los ajustes** de la instancia de automatic-feeder.
 2. En la pestaña **Ajustes básicos** (Grundeinstellungen):
-   * En **Ubicación** (Standort), deja que se *adopten los ajustes del sistema* si tu ioBroker ya
-     tiene coordenadas. De lo contrario, elige *Establecer ubicación específica*, introduce la
-     dirección, haz clic en **Buscar** y confirma el marcador en el mapa.
+   * En **Ubicación** (Standort), deja seleccionada *Usar los ajustes del sistema para todos los
+     interruptores* (solo relevante si más adelante activas la ventana astronómica). También puedes
+     elegir una ubicación compartida o configurarla por interruptor.
    * Desplázate hacia abajo hasta **Interruptores** (Schalter) y haz clic en **Añadir interruptor**.
    * Asigna un **nombre** (p. ej. `Koi-Teich`). Este nombre pasa a ser el título de una pestaña
      propia.
@@ -128,37 +128,30 @@ secciones son accesibles.
 
 ### 5.1 Pestaña «Ajustes básicos» (Grundeinstellungen)
 
-#### Ubicación (obligatorio)
+#### Ubicación (para la ventana astronómica)
 
-El adaptador necesita tu posición geográfica para calcular el orto y el ocaso (para el bloqueo
-nocturno). Dos posibilidades:
+La ubicación se usa para calcular el orto y el ocaso de la **ventana astronómica de alimentación**
+que se puede activar por interruptor (consulta *Restricciones* en la pestaña del interruptor). Solo
+se necesita si al menos un interruptor usa esa ventana. Tres opciones:
 
-* **Adoptar los ajustes del sistema** (Systemeinstellungen übernehmen): toma la latitud/longitud de
-  la configuración del sistema de ioBroker (recomendado si ya está establecida allí). Se muestran
-  los valores actuales.
-* **Establecer ubicación específica** (Standort spezifisch festlegen): determinar la posición uno
-  mismo:
+* **Usar los ajustes del sistema para todos los interruptores**: toma la latitud/longitud de la
+  configuración del sistema de ioBroker (recomendado si ya está establecida allí). Se muestran los
+  valores actuales.
+* **Una ubicación compartida para todos los interruptores**: establece una única posición que usan
+  todos los interruptores:
   * Introduce una **dirección** y pulsa **Buscar**. El adaptador la resuelve (mediante
     OpenStreetMap / Nominatim) y coloca un marcador.
   * O bien **haz clic en el mapa** / **arrastra el marcador** para elegir el punto exacto.
   * La latitud/longitud también se pueden introducir directamente; el mapa las sigue.
+* **Configurar la ubicación individualmente por interruptor**: cada interruptor define su propia
+  ubicación en su propia pestaña (útil cuando las estaciones de alimentación, p. ej. estanques,
+  están en lugares diferentes).
 
 > La búsqueda de direcciones se ejecuta en el backend del adaptador, por lo que la **instancia debe
 > estar en ejecución**. El mapa y la búsqueda requieren acceso a Internet.
 
-#### Ventana solar (sin alimentación por la noche)
-
-Establece la ventana de tiempo en la que se permite alimentar:
-
-* **Minutos después del orto** (Sonnenaufgang): empezar a alimentar solo tantos minutos *después*
-  del orto.
-* **Minutos antes del ocaso** (Sonnenuntergang): dejar de alimentar tantos minutos *antes* del
-  ocaso.
-
-Ejemplo: con un orto a las 06:30, un ocaso a las 21:00 y desfases de 30 / 30, la alimentación solo
-se permite **entre las 07:00 y las 20:30**. Cada interruptor puede tener en cuenta esta ventana de
-forma individual o ignorarla (consulta *Restricciones* en la pestaña del interruptor). Las horas
-calculadas figuran además en los puntos de datos `sunrise` / `sunset` y se recalculan
+Los **desfases de orto/ocaso se configuran por interruptor** (en *Restricciones*), y las horas
+calculadas se publican por interruptor como `status.sunrise` / `status.sunset`, recalculadas
 automáticamente cada noche.
 
 #### Interruptores
@@ -198,7 +191,10 @@ Elige **un** modo:
   * **Intervalo (minutos)**: p. ej. 60 → alimenta a diario a las 08:00, 09:00, … hasta el final de
     la ventana.
 
-La siguiente hora planificada figura en todo momento en el punto de datos `status.nextFeeding`.
+Si la **ventana astronómica** está activada (consulta *Restricciones*), el inicio/fin fijos de la
+ventana se sustituyen por la ventana de orto/ocaso y se ocultan; el intervalo se ejecuta entonces
+entre el orto y el ocaso. La siguiente hora planificada figura en todo momento en el punto de datos
+`status.nextFeeding`.
 
 #### Proceso de alimentación
 
@@ -238,10 +234,19 @@ escribe en `status.blockReason`. (Si un valor de temperatura es desconocido, esa
 
 #### Restricciones
 
-* **No alimentar por la noche**: tiene en cuenta la ventana solar (incluidos los desfases).
-  Desactívalo si este interruptor puede alimentar las 24 horas.
+* **Restringir la alimentación a la ventana astronómica del día (orto/ocaso + desfases)**: cuando
+  está activo, la alimentación se limita a la ventana diurna calculada a partir de la ubicación de
+  este interruptor. Para *Intervalo* y *Alimentación dinámica* esta ventana sustituye el inicio/fin
+  fijos de la ventana; para *Horas fijas* actúa como guardián día/noche (se omiten las horas fuera
+  de la ventana). Cuando está activado puedes ajustar:
+  * **Minutos después del orto**: empezar tantos minutos *después* del orto (0 por defecto).
+  * **Minutos antes del ocaso**: parar tantos minutos *antes* del ocaso (0 por defecto).
+  * **Ubicación para este interruptor**: solo se muestra cuando la *Ubicación* general está en
+    *individual*: elige *Usar los ajustes del sistema* o *Establecer ubicación específica* (búsqueda
+    de direcciones + mapa) para este interruptor. Las horas calculadas aparecen en `status.sunrise`
+    / `status.sunset`.
 * **El activador manual ignora todos los bloqueos**: si está activo, el botón y el punto de datos
-  `feedNow` alimentan incluso con un bloqueo por temperatura/nocturno activo.
+  `feedNow` alimentan incluso con un bloqueo por temperatura/ventana activo.
 
 #### Alimentación dinámica
 
@@ -322,7 +327,6 @@ El adaptador crea los siguientes puntos de datos en su espacio de nombres
 | Punto de datos | Tipo | Significado |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | El adaptador está en ejecución y la configuración es válida. |
-| `sunrise` / `sunset` | string (ro) | Orto/ocaso calculados para hoy. |
 
 **Por interruptor bajo `switches.<id>.`** (`<id>` es un ID interno como `sw-0`)
 
@@ -355,6 +359,7 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.airTemperature` | number (ro) | Valor de la fuente de temperatura del aire propia de este interruptor. |
 | `status.waterTemperature` | number (ro) | Valor de la fuente de temperatura del agua propia de este interruptor. |
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
+| `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 
 Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. ej. mostrar
 `status.nextFeeding` en un panel o activar una alarma propia cuando `status.error = true`.
@@ -368,10 +373,14 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
 * En la pestaña del interruptor, en *Fuentes de temperatura y oxígeno*, activa *Temperatura del
   agua* y elige el sensor; luego *Bloquear según la temperatura del agua* → *Bloquear si está por
   debajo de* `8` °C (sin alimentación con el agua demasiado fría).
-* *No alimentar por la noche* activado.
+* En *Restricciones*, activa *Restringir la alimentación a la ventana astronómica del día* para que
+  no se alimente después del anochecer.
 
-**Aviario, raciones pequeñas frecuentes durante el día**
-* Modo *Intervalo dentro de un periodo* → 07:00–19:00, intervalo `90` min; duración `3` s.
+**Aviario, solo durante el día (ventana astronómica)**
+* Modo *Intervalo dentro de un periodo* → intervalo `90` min; duración `3` s.
+* En *Restricciones*, activa la ventana astronómica con desfases de `30` / `30` min → la
+  alimentación se ejecuta desde 30 min después del orto hasta 30 min antes del ocaso, siguiendo las
+  estaciones automáticamente.
 
 **Estanque de koi, adaptado a la temperatura (alimentación dinámica)**
 * En la pestaña del interruptor, en *Fuentes de temperatura y oxígeno*, activa *Temperatura del
@@ -424,13 +433,13 @@ Caché del navegador. Recarga de forma forzada con **Ctrl+Shift+R**.
 **No se alimenta en absoluto.**
 Comprueba en orden: el interruptor está **Activo**; hay un **objeto interruptor** seleccionado; el
 **horario** es válido (`status.nextFeeding` muestra una hora); no está **bloqueado** (revisa `status.blocked` /
-`status.blockReason`); la **ventana solar** no excluye la hora; pon el **nivel de registro** de la
+`status.blockReason`); la **ventana astronómica** no excluye la hora; pon el **nivel de registro** de la
 instancia en `debug` y observa el registro.
 
 **Nunca se alimenta de noche, aunque yo quiero.**
-O bien desactiva *No alimentar por la noche* para ese interruptor, o bien ajusta los desfases
-solares. Sin coordenadas válidas, el bloqueo nocturno está desactivado (y se registra una
-advertencia).
+Desactiva *Restringir la alimentación a la ventana astronómica del día* para ese interruptor, o
+ajusta sus desfases de orto/ocaso. Si la ventana astronómica está activada pero el interruptor no
+tiene coordenadas válidas, su guardián de ventana permanece inactivo y se registra una advertencia.
 
 **La supervisión notifica siempre una avería.**
 Tu objeto interruptor probablemente no informe de su estado real (`ack=true`). O bien usa un

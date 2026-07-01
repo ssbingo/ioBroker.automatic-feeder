@@ -39,6 +39,7 @@ import 'dayjs/locale/zh-cn';
 import { I18n } from '@iobroker/adapter-react-v5';
 
 import ObjectSelect from './ObjectSelect';
+import LocationPicker from './LocationPicker';
 
 const TEMPERATURE_FILTER = (obj) => !!obj.common && obj.common.type === 'number';
 
@@ -107,6 +108,7 @@ function SwitchTab(props) {
 
 	const mode = sw.mode || 'times';
 	const times = Array.isArray(sw.times) ? sw.times : [];
+	const astro = !!sw.astroWindowEnabled;
 
 	// dropdown options for the telegram instance (keep a configured-but-missing one visible)
 	const telegramOptions = Array.isArray(telegramInstances) ? [...telegramInstances] : [];
@@ -187,10 +189,16 @@ function SwitchTab(props) {
 						<Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
 							{I18n.t('Controlled by dynamic feeding: the interval is computed from temperature within the window below.')}
 						</Typography>
-						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-							<TimePicker label={I18n.t('Window start')} ampm={false} format="HH:mm" value={hhmmToDayjs(sw.windowStart)} onChange={(v) => onChange({ windowStart: dayjsToHHmm(v) })} slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }} />
-							<TimePicker label={I18n.t('Window end')} ampm={false} format="HH:mm" value={hhmmToDayjs(sw.windowEnd)} onChange={(v) => onChange({ windowEnd: dayjsToHHmm(v) })} slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }} />
-						</Box>
+						{astro ? (
+							<Typography variant="body2" color="textSecondary">
+								{I18n.t('The window follows sunrise/sunset (astronomical window enabled under Restrictions).')}
+							</Typography>
+						) : (
+							<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+								<TimePicker label={I18n.t('Window start')} ampm={false} format="HH:mm" value={hhmmToDayjs(sw.windowStart)} onChange={(v) => onChange({ windowStart: dayjsToHHmm(v) })} slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }} />
+								<TimePicker label={I18n.t('Window end')} ampm={false} format="HH:mm" value={hhmmToDayjs(sw.windowEnd)} onChange={(v) => onChange({ windowEnd: dayjsToHHmm(v) })} slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }} />
+							</Box>
+						)}
 					</Box>
 				) : (
 				<>
@@ -232,30 +240,41 @@ function SwitchTab(props) {
 						</Button>
 					</Box>
 				) : (
-					<Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
-						<TimePicker
-							label={I18n.t('Window start')}
-							ampm={false}
-							format="HH:mm"
-							value={hhmmToDayjs(sw.windowStart)}
-							onChange={(v) => onChange({ windowStart: dayjsToHHmm(v) })}
-							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
-						/>
-						<TimePicker
-							label={I18n.t('Window end')}
-							ampm={false}
-							format="HH:mm"
-							value={hhmmToDayjs(sw.windowEnd)}
-							onChange={(v) => onChange({ windowEnd: dayjsToHHmm(v) })}
-							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
-						/>
-						<TextField
-							variant="standard"
-							type="number"
-							label={I18n.t('Interval (minutes)')}
-							value={sw.intervalMin ?? 60}
-							onChange={(e) => onChange({ intervalMin: Number(e.target.value) || 0 })}
-						/>
+					<Box>
+						{astro ? (
+							<Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+								{I18n.t('The window follows sunrise/sunset (astronomical window enabled under Restrictions).')}
+							</Typography>
+						) : null}
+						<Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
+							{astro ? null : (
+								<TimePicker
+									label={I18n.t('Window start')}
+									ampm={false}
+									format="HH:mm"
+									value={hhmmToDayjs(sw.windowStart)}
+									onChange={(v) => onChange({ windowStart: dayjsToHHmm(v) })}
+									slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
+								/>
+							)}
+							{astro ? null : (
+								<TimePicker
+									label={I18n.t('Window end')}
+									ampm={false}
+									format="HH:mm"
+									value={hhmmToDayjs(sw.windowEnd)}
+									onChange={(v) => onChange({ windowEnd: dayjsToHHmm(v) })}
+									slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 140 } } }}
+								/>
+							)}
+							<TextField
+								variant="standard"
+								type="number"
+								label={I18n.t('Interval (minutes)')}
+								value={sw.intervalMin ?? 60}
+								onChange={(e) => onChange({ intervalMin: Number(e.target.value) || 0 })}
+							/>
+						</Box>
 					</Box>
 				)}
 				</>
@@ -515,17 +534,69 @@ function SwitchTab(props) {
 				)}
 			</Section>
 
-			{/* Night & manual */}
+			{/* Astronomical window & manual */}
 			<Section title={I18n.t('Restrictions')}>
 				<FormControlLabel
 					control={
 						<Checkbox
-							checked={sw.respectNight !== false}
-							onChange={(e) => onChange({ respectNight: e.target.checked })}
+							checked={astro}
+							onChange={(e) => onChange({ astroWindowEnabled: e.target.checked })}
 						/>
 					}
-					label={I18n.t('Do not feed at night (between sunset and sunrise, incl. offsets)')}
+					label={I18n.t('Restrict feeding to the astronomical day window (sunrise/sunset + offsets)')}
 				/>
+				{astro ? (
+					<Box sx={{ mt: 1 }}>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+							<TextField
+								variant="standard"
+								type="number"
+								label={I18n.t('Minutes after sunrise')}
+								value={sw.sunOffsetMorning ?? 0}
+								onChange={(e) => onChange({ sunOffsetMorning: Number(e.target.value) || 0 })}
+							/>
+							<TextField
+								variant="standard"
+								type="number"
+								label={I18n.t('Minutes before sunset')}
+								value={sw.sunOffsetEvening ?? 0}
+								onChange={(e) => onChange({ sunOffsetEvening: Number(e.target.value) || 0 })}
+							/>
+						</Box>
+						{native.locationMode === 'individual' ? (
+							<Box sx={{ mt: 2 }}>
+								<Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+									{I18n.t('Location for this switch')}
+								</Typography>
+								<RadioGroup
+									value={sw.coordinateSource || 'system'}
+									onChange={(e) => onChange({ coordinateSource: e.target.value })}
+								>
+									<FormControlLabel
+										value="system"
+										control={<Radio />}
+										label={I18n.t('Use system settings (system.config)')}
+									/>
+									<FormControlLabel
+										value="specific"
+										control={<Radio />}
+										label={I18n.t('Define specific location')}
+									/>
+								</RadioGroup>
+								{sw.coordinateSource === 'specific' ? (
+									<LocationPicker
+										latitude={sw.latitude}
+										longitude={sw.longitude}
+										address={sw.address}
+										socket={socket}
+										instanceId={instanceId}
+										onChange={onChange}
+									/>
+								) : null}
+							</Box>
+						) : null}
+					</Box>
+				) : null}
 				<br />
 				<FormControlLabel
 					control={

@@ -48,8 +48,8 @@ stabilisci:
   **intervalli** all'interno di una finestra temporale (ad es. ogni 60 minuti tra le 08:00 e le 18:00);
 * **per quanto tempo** l'uscita rimane accesa (durata della distribuzione in secondi);
 * **se bloccare** quando la temperatura dell'acqua o dell'aria è troppo bassa/alta;
-* **se di notte** non venga distribuito mangime (in base all'alba/tramonto reali per la tua
-  posizione);
+* **se limitare** la distribuzione alla finestra diurna astronomica (alba/tramonto con scarti per
+  ciascun interruttore, da una posizione di sistema, condivisa o per ciascun interruttore);
 * **se monitorare la commutazione** (verifica che l'accensione e lo spegnimento siano realmente
   avvenuti) e, facoltativamente, l'invio di un messaggio **Telegram** sull'esito;
 * **se ridurre o sospendere** la distribuzione durante una stagione **invernale** ricorrente –
@@ -73,7 +73,7 @@ delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramit
 |-------------|---------|
 | **ioBroker** con **admin** aggiornato (≥ 7) | La pagina di configurazione è realizzata con React. |
 | **Un oggetto interruttore** | Un punto dati ioBroker scrivibile che accende/spegne il distributore di mangime – ad es. una presa elettrica (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relè o una variabile di script. |
-| **Coordinate geografiche** | Per il calcolo di alba/tramonto. O dalle impostazioni di sistema di ioBroker oppure tramite indirizzo/mappa. **Obbligatorio.** |
+| *(facoltativo)* **Coordinate geografiche** | Servono per calcolare alba/tramonto per la **finestra astronomica** di ciascun interruttore. Necessarie solo se un interruttore usa quella finestra; acquisite dalle impostazioni di sistema di ioBroker, da una posizione condivisa, oppure configurate per ciascun interruttore. |
 | *(facoltativo)* Oggetti di temperatura | Punti dati esistenti con temperatura dell'aria e/o dell'acqua, per il blocco in base alla temperatura o l'alimentazione dinamica. Assegnati **per ciascun interruttore** nella scheda dell'interruttore. |
 | *(facoltativo)* Oggetti **ossigeno (O₂)** | Punti dati esistenti con l'ossigeno disciolto, per bloccare la distribuzione quando scende troppo. Assegnati **per ciascun interruttore**. |
 | *(facoltativo)* Un'istanza **Telegram** | L'adattatore ufficiale `telegram`, configurato e avviato, se desideri notifiche push. |
@@ -98,9 +98,9 @@ Obiettivo: un interruttore deve – subito, come test – distribuire mangime pe
 
 1. **Apri le impostazioni** dell'istanza automatic-feeder.
 2. Nella scheda **Impostazioni di base** (Grundeinstellungen):
-   * In **Posizione** (Standort) lascia *Acquisisci impostazioni di sistema* se il tuo ioBroker
-     ha già le coordinate. Altrimenti scegli *Imposta posizione specifica*, inserisci l'indirizzo,
-     fai clic su **Cerca** e conferma il marcatore sulla mappa.
+   * In **Posizione** (Standort) lascia selezionato *Usa le impostazioni di sistema per tutti gli
+     interruttori* (rilevante solo se in seguito attivi la finestra astronomica). Puoi anche
+     scegliere una posizione condivisa o configurarla per ciascun interruttore.
    * Scorri in basso fino a **Interruttori** (Schalter) e fai clic su **Aggiungi interruttore**.
    * Assegna un **nome** (ad es. `Koi-Teich`). Questo nome diventa il titolo di una scheda dedicata.
    * Accanto a **Oggetto interruttore** (Schalter-Objekt) fai clic sull'icona elenco e seleziona
@@ -129,33 +129,31 @@ raggiungibili.
 
 ### 5.1 Scheda „Impostazioni di base"
 
-#### Posizione (obbligatoria)
+#### Posizione (per la finestra astronomica)
 
-L'adattatore necessita della tua posizione geografica per calcolare alba e tramonto (per il
-blocco notturno). Due possibilità:
+La posizione serve a calcolare alba/tramonto per la **finestra di distribuzione astronomica** che
+può essere attivata per ciascun interruttore (vedi *Limitazioni* nella scheda dell'interruttore).
+È necessaria solo se almeno un interruttore usa quella finestra. Tre possibilità:
 
-* **Acquisisci impostazioni di sistema** – prende latitudine/longitudine dalla configurazione di
-  sistema di ioBroker (consigliato se già impostate lì). Vengono mostrati i valori attuali.
-* **Imposta posizione specifica** – determina tu stesso la posizione:
+* **Usa le impostazioni di sistema per tutti gli interruttori** – prende latitudine/longitudine
+  dalla configurazione di sistema di ioBroker (consigliato se già impostate lì). Vengono mostrati i
+  valori attuali.
+* **Una posizione condivisa per tutti gli interruttori** – imposta un'unica posizione usata da
+  tutti gli interruttori:
   * Inserisci un **indirizzo** e premi **Cerca**. L'adattatore lo risolve (tramite
     OpenStreetMap / Nominatim) e posiziona un marcatore.
   * Oppure **fai clic sulla mappa** / **trascina il marcatore** per scegliere il punto esatto.
   * Latitudine/longitudine possono anche essere inserite direttamente; la mappa segue.
+* **Configura la posizione individualmente per ciascun interruttore** – ogni interruttore
+  definisce la propria posizione nella sua scheda (utile quando le stazioni di alimentazione, ad
+  es. i laghetti, si trovano in luoghi diversi).
 
 > La ricerca dell'indirizzo viene eseguita nel backend dell'adattatore, perciò l'**istanza deve
 > essere in esecuzione**. La mappa e la ricerca richiedono l'accesso a Internet.
 
-#### Finestra solare (nessuna distribuzione di notte)
-
-Stabilisce la finestra temporale in cui è consentita la distribuzione:
-
-* **Minuti dopo l'alba** – distribuisci solo dopo questo numero di minuti *dopo* l'alba.
-* **Minuti prima del tramonto** – smetti questo numero di minuti *prima* del tramonto.
-
-Esempio: con alba alle 06:30, tramonto alle 21:00 e scarti 30 / 30, la distribuzione è consentita
-solo tra le **07:00 e le 20:30**. Ogni interruttore può rispettare o ignorare questa finestra
-singolarmente (vedi *Limitazioni* nella scheda dell'interruttore). Gli orari calcolati si trovano
-inoltre nei punti dati `sunrise` / `sunset` e vengono ricalcolati automaticamente ogni notte.
+Gli **scarti di alba/tramonto sono configurati per ciascun interruttore** (sotto *Limitazioni*) e
+gli orari calcolati vengono pubblicati per ciascun interruttore come `status.sunrise` /
+`status.sunset`, ricalcolati automaticamente ogni notte.
 
 #### Interruttori
 
@@ -195,7 +193,10 @@ Scegli **una** modalità:
   * **Intervallo (minuti)** – ad es. 60 → distribuisce ogni giorno alle 08:00, 09:00, … fino alla
     fine della finestra.
 
-Il prossimo orario programmato è sempre presente nel punto dati `status.nextFeeding`.
+Se la **finestra astronomica** è attiva (vedi *Limitazioni*), l'inizio/fine fissi del periodo
+vengono sostituiti dalla finestra alba/tramonto e vengono nascosti; l'intervallo scorre quindi tra
+alba e tramonto. Il prossimo orario programmato è sempre presente nel punto dati
+`status.nextFeeding`.
 
 #### Processo di distribuzione
 
@@ -237,10 +238,20 @@ sorgente non blocca.)
 
 #### Limitazioni
 
-* **Non distribuire di notte** – rispetta la finestra solare (compresi gli scarti). Disattivalo se
-  questo interruttore può distribuire mangime tutto il giorno.
+* **Limita la distribuzione alla finestra diurna astronomica (alba/tramonto + scarti)** – se
+  attivo, la distribuzione è limitata alla finestra diurna calcolata dalla posizione di questo
+  interruttore. Per *Intervallo* e *Alimentazione dinamica* questa finestra sostituisce l'inizio/
+  fine fissi del periodo; per *Orari fissi* funge da guardia giorno/notte (gli orari fuori dalla
+  finestra vengono saltati). Quando è attivo puoi impostare:
+  * **Minuti dopo l'alba** – inizia questo numero di minuti *dopo* l'alba (predefinito 0).
+  * **Minuti prima del tramonto** – smetti questo numero di minuti *prima* del tramonto
+    (predefinito 0).
+  * **Posizione per questo interruttore** – mostrata solo quando la *Posizione* generale è
+    impostata su *individuale*: scegli *Usa le impostazioni di sistema* oppure *Imposta posizione
+    specifica* (ricerca indirizzo + mappa) per questo interruttore. Gli orari calcolati compaiono
+    in `status.sunrise` / `status.sunset`.
 * **L'attivatore manuale ignora tutti i blocchi** – se attivo, il pulsante e il punto dati
-  `feedNow` distribuiscono mangime anche con blocco per temperatura/notturno attivo.
+  `feedNow` distribuiscono mangime anche con blocco per temperatura/finestra attivo.
 
 #### Alimentazione dinamica
 
@@ -323,7 +334,6 @@ L'adattatore crea i seguenti punti dati nel suo namespace
 | Punto dati | Tipo | Significato |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | L'adattatore è in esecuzione e la configurazione è valida. |
-| `sunrise` / `sunset` | string (ro) | Alba/tramonto calcolati per oggi. |
 
 **Per ogni interruttore sotto `switches.<id>.`** (`<id>` è un ID interno come `sw-0`)
 
@@ -355,6 +365,7 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.airTemperature` | number (ro) | Valore della sorgente di temperatura dell'aria propria di questo interruttore. |
 | `status.waterTemperature` | number (ro) | Valore della sorgente di temperatura dell'acqua propria di questo interruttore. |
 | `status.oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
+| `status.sunrise` / `status.sunset` | string (ro) | Alba/tramonto calcolati per la posizione di questo interruttore (finestra astronomica). |
 
 Questi punti dati possono essere usati in VIS, negli script o in altri adattatori – ad es.
 mostrare `status.nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando
@@ -369,10 +380,13 @@ mostrare `status.nextFeeding` su una dashboard oppure attivare un allarme person
 * Nella scheda dell'interruttore, sotto *Sorgenti di temperatura e ossigeno*, attiva *Temperatura
   dell'acqua* e seleziona il sensore; poi *Blocca in base alla temperatura dell'acqua* → *Blocca se
   inferiore a* `8` °C (nessuna distribuzione con acqua troppo fredda).
-* Attiva *Non distribuire di notte*.
+* Sotto *Limitazioni*, attiva *Limita la distribuzione alla finestra diurna astronomica* affinché
+  non venga distribuito nulla dopo il buio.
 
-**Voliera, piccole porzioni frequenti durante il giorno**
-* Modalità *Intervallo all'interno di un periodo* → 07:00–19:00, intervallo `90` min; durata `3` s.
+**Voliera, solo durante le ore diurne (finestra astronomica)**
+* Modalità *Intervallo all'interno di un periodo* → intervallo `90` min; durata `3` s.
+* Sotto *Limitazioni*, attiva la finestra astronomica con scarti `30` / `30` min → la distribuzione
+  scorre da 30 min dopo l'alba a 30 min prima del tramonto, seguendo automaticamente le stagioni.
 
 **Laghetto Koi, adattivo alla temperatura (alimentazione dinamica)**
 * Nella scheda dell'interruttore, sotto *Sorgenti di temperatura e ossigeno*, attiva *Temperatura
@@ -427,12 +441,14 @@ Cache del browser. Ricarica forzatamente con **Strg+Shift+R**.
 **Non viene distribuito alcun mangime.**
 Controlla nell'ordine: l'interruttore è **Attivo**; è selezionato un **Oggetto interruttore**; il
 **programma** è valido (`status.nextFeeding` mostra un orario); non è **bloccato** (controlla `status.blocked` /
-`status.blockReason`); la **finestra solare** non esclude l'orario; imposta il **livello di log**
-dell'istanza su `debug` e osserva il log.
+`status.blockReason`); la **finestra astronomica** non esclude l'orario; imposta il **livello di
+log** dell'istanza su `debug` e osserva il log.
 
 **Non viene mai distribuito mangime di notte, anche se lo desidero.**
-Disattiva *Non distribuire di notte* per questo interruttore oppure modifica gli scarti solari.
-Senza coordinate valide il blocco notturno è disattivato (e viene registrato un avviso nel log).
+Disattiva *Limita la distribuzione alla finestra diurna astronomica* per questo interruttore
+oppure modifica i suoi scarti di alba/tramonto. Se la finestra astronomica è attiva ma
+l'interruttore non ha coordinate valide, la sua guardia della finestra resta inattiva e viene
+registrato un avviso nel log.
 
 **Il monitoraggio segnala sempre un guasto.**
 Il tuo oggetto interruttore probabilmente non restituisce il proprio stato reale (`ack=true`).

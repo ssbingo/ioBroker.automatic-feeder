@@ -47,8 +47,9 @@ zakładką konfiguracji nazwaną według przełącznika. Dla każdego przełącz
   **interwale** w obrębie okna czasowego (np. co 60 minut między 08:00 a 18:00);
 * **jak długo** wyjście pozostaje włączone (czas karmienia w sekundach);
 * **czy blokować** karmienie, gdy temperatura wody lub powietrza jest zbyt niska/wysoka;
-* **czy w nocy** nie karmić (na podstawie rzeczywistego wschodu/zachodu słońca dla Twojej
-  lokalizacji);
+* **czy ograniczyć** karmienie do astronomicznego okna dnia (wschód/zachód słońca z
+  przesunięciami dla każdego przełącznika, z lokalizacji systemowej, wspólnej lub dla każdego
+  przełącznika);
 * **czy proces przełączania jest monitorowany** (sprawdzenie, czy rzeczywiście doszło do
   włączenia i wyłączenia) oraz opcjonalnie czy wysyłana jest wiadomość **Telegram** z wynikiem.
 * **czy ograniczyć lub wstrzymać** karmienie podczas cyklicznego sezonu **zimowego** –
@@ -72,7 +73,7 @@ VIS).
 |-------------|---------|
 | **ioBroker** z aktualnym **admin** (≥ 7) | Strona konfiguracji jest zrealizowana w React. |
 | **Obiekt przełącznika** | Zapisywalny punkt danych ioBroker, który włącza/wyłącza automat do karmienia – np. gniazdko (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), przekaźnik lub zmienna skryptowa. |
-| **Współrzędne geograficzne** | Do obliczania wschodu/zachodu słońca. Albo z ustawień systemowych ioBroker, albo poprzez adres/mapę. **Obowiązkowe.** |
+| *(opcjonalnie)* **Współrzędne geograficzne** | Używane do obliczania wschodu/zachodu słońca dla **astronomicznego okna** danego przełącznika. Potrzebne tylko wtedy, gdy przełącznik korzysta z tego okna; pobierane z ustawień systemowych ioBroker, z jednej wspólnej pozycji lub konfigurowane dla każdego przełącznika. |
 | *(opcjonalnie)* Obiekty temperatury | Istniejące punkty danych z temperaturą powietrza i/lub wody, do blokowania temperaturowego lub karmienia dynamicznego. Przypisywane **dla każdego przełącznika** w zakładce przełącznika. |
 | *(opcjonalnie)* Obiekty **tlenu (O₂)** | Istniejące punkty danych z rozpuszczonym tlenem, aby blokować karmienie, gdy spadnie zbyt nisko. Przypisywane **dla każdego przełącznika**. |
 | *(opcjonalnie)* Instancja **Telegram** | Oficjalny adapter `telegram`, skonfigurowany i uruchomiony, jeśli chcesz otrzymywać powiadomienia push. |
@@ -96,9 +97,9 @@ Cel: Przełącznik ma – natychmiast, w ramach testu – karmić przez 5 sekund
 
 1. **Otwórz ustawienia** instancji automatic-feeder.
 2. W zakładce **Ustawienia podstawowe** (Grundeinstellungen):
-   * W sekcji **Lokalizacja** (Standort) pozostaw *Przejmij ustawienia systemowe*, jeśli Twój
-     ioBroker ma już współrzędne. W przeciwnym razie wybierz *Ustaw lokalizację indywidualnie*,
-     wpisz adres, kliknij **Szukaj** i potwierdź znacznik na mapie.
+   * W sekcji **Lokalizacja** (Standort) pozostaw wybrane *Użyj ustawień systemowych dla
+     wszystkich przełączników* (istotne tylko wtedy, gdy później włączysz astronomiczne okno).
+     Możesz też wybrać wspólną lokalizację lub skonfigurować ją dla każdego przełącznika.
    * Przewiń w dół do sekcji **Przełączniki** (Schalter) i kliknij **Dodaj przełącznik**.
    * Nadaj **nazwę** (np. `Koi-Teich`). Ta nazwa stanie się tytułem osobnej zakładki.
    * Obok **Obiekt przełącznika** kliknij ikonę listy i wybierz punkt danych, który steruje
@@ -124,33 +125,32 @@ dostępne.
 
 ### 5.1 Zakładka „Ustawienia podstawowe"
 
-#### Lokalizacja (obowiązkowo)
+#### Lokalizacja (dla astronomicznego okna)
 
-Adapter potrzebuje Twojego położenia geograficznego, aby obliczyć wschód i zachód słońca (dla
-blokady nocnej). Dwie możliwości:
+Lokalizacja jest używana do obliczania wschodu/zachodu słońca dla **astronomicznego okna
+karmienia**, które można włączyć dla każdego przełącznika (zobacz *Ograniczenia* w zakładce
+przełącznika). Jest potrzebna tylko wtedy, gdy co najmniej jeden przełącznik korzysta z tego
+okna. Trzy możliwości:
 
-* **Przejmij ustawienia systemowe** – pobiera szerokość/długość geograficzną z konfiguracji
-  systemowej ioBroker (zalecane, jeśli są tam już ustawione). Wyświetlane są aktualne wartości.
-* **Ustaw lokalizację indywidualnie** – określ położenie samodzielnie:
+* **Użyj ustawień systemowych dla wszystkich przełączników** – pobiera szerokość/długość
+  geograficzną z konfiguracji systemowej ioBroker (zalecane, jeśli są tam już ustawione).
+  Wyświetlane są aktualne wartości.
+* **Jedna wspólna lokalizacja dla wszystkich przełączników** – ustaw jedną pozycję, której
+  używają wszystkie przełączniki:
   * Wpisz **adres** i naciśnij **Szukaj**. Adapter go rozpozna (poprzez
     OpenStreetMap / Nominatim) i ustawi znacznik.
   * Albo **kliknij na mapę** / **przeciągnij znacznik**, aby wybrać dokładne miejsce.
   * Szerokość/długość geograficzną można też wpisać bezpośrednio; mapa podąży za wartościami.
+* **Skonfiguruj lokalizację indywidualnie dla każdego przełącznika** – każdy przełącznik
+  definiuje własną lokalizację we własnej zakładce (przydatne, gdy stacje karmienia, np. stawy,
+  znajdują się w różnych miejscach).
 
 > Wyszukiwanie adresu działa w zapleczu (backend) adaptera, dlatego **instancja musi być
 > uruchomiona**. Mapa i wyszukiwanie wymagają dostępu do internetu.
 
-#### Okno słoneczne (brak karmienia w nocy)
-
-Określa okno czasowe, w którym wolno karmić:
-
-* **Minuty po wschodzie słońca** – karm dopiero tyle minut *po* wschodzie słońca.
-* **Minuty przed zachodem słońca** – zakończ tyle minut *przed* zachodem słońca.
-
-Przykład: Przy wschodzie słońca o 06:30, zachodzie o 21:00 i przesunięciach 30 / 30 karmienie jest
-dozwolone tylko między **07:00 a 20:30**. Każdy przełącznik może to okno uwzględniać lub
-ignorować indywidualnie (zobacz *Ograniczenia* w zakładce przełącznika). Obliczone czasy znajdują
-się ponadto w punktach danych `sunrise` / `sunset` i są co noc automatycznie obliczane na nowo.
+**Przesunięcia wschodu/zachodu słońca są konfigurowane dla każdego przełącznika** (w sekcji
+*Ograniczenia*), a obliczone czasy są publikowane dla każdego przełącznika jako
+`status.sunrise` / `status.sunset` i co noc automatycznie obliczane na nowo.
 
 #### Przełączniki
 
@@ -188,7 +188,10 @@ Wybierz **jeden** tryb:
   * **Początek okresu** / **Koniec okresu** – np. od 08:00 do 18:00.
   * **Interwał (minuty)** – np. 60 → karmi codziennie o 08:00, 09:00, … aż do końca okna.
 
-Następna zaplanowana pora znajduje się zawsze w punkcie danych `status.nextFeeding`.
+Jeśli włączone jest **astronomiczne okno** (zobacz *Ograniczenia*), stały początek/koniec okna
+zostają zastąpione oknem wschodu/zachodu słońca i są ukrywane; interwał działa wtedy między
+wschodem a zachodem słońca. Następna zaplanowana pora znajduje się zawsze w punkcie danych
+`status.nextFeeding`.
 
 #### Proces karmienia
 
@@ -224,10 +227,19 @@ blokuje.)
 
 #### Ograniczenia
 
-* **Nie karm w nocy** – uwzględnia okno słoneczne (wraz z przesunięciami). Wyłącz, jeśli ten
-  przełącznik może karmić przez całą dobę.
+* **Ogranicz karmienie do astronomicznego okna dnia (wschód/zachód słońca + przesunięcia)** –
+  gdy włączone, karmienie jest ograniczone do okna dziennego obliczonego z lokalizacji tego
+  przełącznika. Dla *Interwału* i *Karmienia dynamicznego* to okno zastępuje stały
+  początek/koniec okna; dla *Stałych pór* działa jako straż dnia/nocy (pory poza oknem są
+  pomijane). Gdy włączone, możesz ustawić:
+  * **Minuty po wschodzie słońca** – rozpocznij tyle minut *po* wschodzie słońca (domyślnie 0).
+  * **Minuty przed zachodem słońca** – zakończ tyle minut *przed* zachodem słońca (domyślnie 0).
+  * **Lokalizacja dla tego przełącznika** – wyświetlana tylko wtedy, gdy ogólna *Lokalizacja*
+    jest ustawiona na *indywidualnie*: wybierz *Użyj ustawień systemowych* lub *Zdefiniuj
+    konkretną lokalizację* (wyszukiwanie adresu + mapa) dla tego przełącznika. Obliczone czasy
+    pojawiają się w `status.sunrise` / `status.sunset`.
 * **Ręczny wyzwalacz ignoruje wszystkie blokady** – gdy aktywne, przycisk oraz punkt danych
-  `feedNow` karmią również przy aktywnej blokadzie temperaturowej/nocnej.
+  `feedNow` karmią również przy aktywnej blokadzie temperaturowej/okna.
 
 #### Karmienie dynamiczne
 
@@ -310,7 +322,6 @@ Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 | Punkt danych | Typ | Znaczenie |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter działa, a konfiguracja jest prawidłowa. |
-| `sunrise` / `sunset` | string (ro) | Obliczony wschód/zachód słońca na dziś. |
 
 **Dla każdego przełącznika pod `switches.<id>.`** (`<id>` to wewnętrzny identyfikator, np. `sw-0`)
 
@@ -342,6 +353,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.airTemperature` | number (ro) | Wartość własnego źródła temperatury powietrza tego przełącznika. |
 | `status.waterTemperature` | number (ro) | Wartość własnego źródła temperatury wody tego przełącznika. |
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
+| `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 
 Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – np. wyświetlić
 `status.nextFeeding` na pulpicie albo wyzwolić własny alarm przy `status.error = true`.
@@ -354,10 +366,14 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
 * Tryb *Stałe pory* → `08:00`, `18:00`; czas `6` s.
 * W zakładce przełącznika, w sekcji *Źródła temperatury i tlenu*, aktywuj *Temperatura wody* i wybierz
   czujnik; następnie *Blokuj według temperatury wody* → *Blokuj jeśli poniżej* `8` °C (brak karmienia przy zbyt zimnej wodzie).
-* Włącz *Nie karm w nocy*.
+* W sekcji *Ograniczenia* włącz *Ogranicz karmienie do astronomicznego okna dnia*, aby po
+  zmroku nic nie było karmione.
 
-**Woliera, częste małe porcje w ciągu dnia**
-* Tryb *Interwał w obrębie okresu* → 07:00–19:00, interwał `90` min; czas `3` s.
+**Woliera, tylko w ciągu dnia (astronomiczne okno)**
+* Tryb *Interwał w obrębie okresu* → interwał `90` min; czas `3` s.
+* W sekcji *Ograniczenia* włącz astronomiczne okno z przesunięciami `30` / `30` min → karmienie
+  działa od 30 min po wschodzie słońca do 30 min przed zachodem słońca, podążając automatycznie
+  za porami roku.
 
 **Staw koi, dostosowany do temperatury (karmienie dynamiczne)**
 * W zakładce przełącznika, w sekcji *Źródła temperatury i tlenu*, aktywuj *Temperatura wody* i wybierz czujnik.
@@ -409,13 +425,14 @@ Pamięć podręczna przeglądarki. Przeładuj na twardo za pomocą **Strg+Shift+
 **Karmienie w ogóle się nie odbywa.**
 Sprawdź po kolei: przełącznik **Aktywny**; wybrany **obiekt przełącznika**; prawidłowy
 **harmonogram** (`status.nextFeeding` pokazuje czas); brak **blokady** (sprawdź `status.blocked` / `status.blockReason`);
-**okno słoneczne** nie wyklucza danego czasu; ustaw **poziom logowania** instancji na `debug`
+**astronomiczne okno** nie wyklucza danego czasu; ustaw **poziom logowania** instancji na `debug`
 i obserwuj log.
 
 **W nocy nigdy nie ma karmienia, choć tego chcę.**
-Albo dezaktywuj *Nie karm w nocy* dla tego przełącznika, albo dostosuj przesunięcia słoneczne.
-Bez prawidłowych współrzędnych blokada nocna jest dezaktywowana (i zapisywane jest ostrzeżenie
-w logu).
+Dezaktywuj *Ogranicz karmienie do astronomicznego okna dnia* dla tego przełącznika lub dostosuj
+jego przesunięcia wschodu/zachodu słońca. Jeśli astronomiczne okno jest włączone, ale przełącznik
+nie ma prawidłowych współrzędnych, jego straż okna pozostaje nieaktywna i zapisywane jest
+ostrzeżenie w logu.
 
 **Monitorowanie zawsze zgłasza usterkę.**
 Twój obiekt przełącznika prawdopodobnie nie zgłasza zwrotnie swojego rzeczywistego stanu

@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "关闭故障时通知",
 	"Telegram instance": "Telegram 实例",
 	"None (disabled)": "无（已禁用）",
-	"No Telegram instance installed.": "未安装 Telegram 实例。"
+	"No Telegram instance installed.": "未安装 Telegram 实例。",
+	"Location (for the astronomical window)": "位置（用于天文时间窗口）",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "该位置用于计算每个开关的天文投喂时间窗口的日出/日落。日出/日落偏移量按开关分别设置。",
+	"Use system settings (system.config) for all switches": "所有开关使用系统设置（system.config）",
+	"One shared location for all switches": "所有开关共用一个位置",
+	"Configure the location individually per switch": "按开关分别配置位置",
+	"Each switch defines its own location on its tab.": "每个开关在其选项卡上定义自己的位置。",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "时间窗口跟随日出/日落（在“限制”中启用天文窗口）。",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "将投喂限制在天文白昼窗口内（日出/日落 + 偏移）",
+	"Location for this switch": "此开关的位置"
 }

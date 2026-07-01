@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Bei Störung der Abschaltung benachrichtigen",
 	"Telegram instance": "Telegram-Instanz",
 	"None (disabled)": "Keine (deaktiviert)",
-	"No Telegram instance installed.": "Keine Telegram-Instanz installiert."
+	"No Telegram instance installed.": "Keine Telegram-Instanz installiert.",
+	"Location (for the astronomical window)": "Standort (für das astronomische Zeitfenster)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "Der Standort dient zur Berechnung von Sonnenauf-/-untergang für das astronomische Fütter-Zeitfenster je Schalter. Die Sonnenauf-/-untergangs-Offsets werden pro Schalter eingestellt.",
+	"Use system settings (system.config) for all switches": "Systemeinstellung (system.config) für alle Schalter übernehmen",
+	"One shared location for all switches": "Ein gemeinsamer Standort für alle Schalter",
+	"Configure the location individually per switch": "Standort individuell je Schalter konfigurieren",
+	"Each switch defines its own location on its tab.": "Jeder Schalter legt seinen Standort auf seinem Tab fest.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Das Fenster folgt Sonnenauf-/-untergang (astronomisches Fenster unter Einschränkungen aktiviert).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Fütterung auf das astronomische Tagesfenster begrenzen (Sonnenauf-/-untergang + Offsets)",
+	"Location for this switch": "Standort für diesen Schalter"
 }

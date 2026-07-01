@@ -47,8 +47,8 @@ aba de configuração, nomeada conforme o interruptor. Para cada interruptor voc
   **intervalo** dentro de uma janela de tempo (p. ex. a cada 60 minutos entre 08:00 e 18:00);
 * **por quanto tempo** a saída permanece ligada (duração da alimentação em segundos);
 * **se há bloqueio** quando a temperatura da água ou do ar estiver muito baixa/alta;
-* **se à noite** não se alimenta (com base no nascer/pôr do sol real para a sua
-  localização);
+* **se restringir** a alimentação à janela astronómica do dia (nascer/pôr do sol com offsets
+  por interruptor, a partir de uma localização de sistema, partilhada ou por interruptor);
 * **se o processo de comutação é monitorado** (verificação de que realmente houve liga e
   desliga) e, opcionalmente, é enviada uma mensagem do **Telegram** com o resultado;
 * **se reduzir ou pausar** a alimentação durante uma temporada de **inverno** recorrente –
@@ -72,7 +72,7 @@ botão numa visualização VIS).
 |-------------|---------|
 | **ioBroker** com **admin** atual (≥ 7) | A página de configuração é implementada com React. |
 | **Um objeto de interruptor** | Um ponto de dados gravável do ioBroker que liga/desliga o alimentador automático – p. ex. uma tomada (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), um relé ou uma variável de script. |
-| **Coordenadas geográficas** | Para o cálculo do nascer/pôr do sol. Seja a partir das configurações de sistema do ioBroker ou por endereço/mapa. **Obrigatório.** |
+| *(opcional)* **Coordenadas geográficas** | Usadas para calcular o nascer/pôr do sol da **janela astronómica** por interruptor. Só são necessárias se um interruptor usar essa janela; obtidas das configurações de sistema do ioBroker, de uma posição partilhada, ou configuradas por interruptor. |
 | *(opcional)* Objetos de temperatura | Pontos de dados existentes com temperatura do ar e/ou da água, para o bloqueio por temperatura ou a alimentação dinâmica. Atribuídos **por interruptor** na aba do interruptor. |
 | *(opcional)* Objetos de **oxigénio (O₂)** | Pontos de dados existentes com o oxigénio dissolvido, para bloquear a alimentação quando ele cair demais. Atribuídos **por interruptor**. |
 | *(opcional)* Uma instância do **Telegram** | O adaptador oficial `telegram`, configurado e iniciado, caso você queira notificações push. |
@@ -96,9 +96,9 @@ Objetivo: Um interruptor deve – imediatamente, para teste – alimentar por 5 
 
 1. **Abrir as configurações** da instância automatic-feeder.
 2. Na aba **Configurações básicas** (Grundeinstellungen):
-   * Em **Localização**, deixar *Adotar configurações de sistema*, se o seu ioBroker já tiver
-     coordenadas. Caso contrário, escolher *Definir localização específica*, inserir o endereço,
-     clicar em **Buscar** e confirmar o marcador no mapa.
+   * Em **Localização**, deixar *Usar configurações de sistema para todos os interruptores*
+     selecionado (só relevante se você ativar mais tarde a janela astronómica). Você também pode
+     escolher uma localização partilhada ou configurá-la por interruptor.
    * Rolar para baixo até **Interruptores** e clicar em **Adicionar interruptor**.
    * Atribuir um **Nome** (p. ex. `Koi-Teich`). Esse nome se torna o título de uma aba própria.
    * Ao lado de **Objeto de interruptor**, clicar no ícone de lista e escolher o ponto de dados que aciona
@@ -123,33 +123,31 @@ janela ou usar a barra de rolagem à direita – todas as seções são acessív
 
 ### 5.1 Aba „Configurações básicas" (Grundeinstellungen)
 
-#### Localização (obrigatório)
+#### Localização (para a janela astronómica)
 
-O adaptador precisa da sua posição geográfica para calcular o nascer e o pôr do sol (para
-o bloqueio noturno). Duas possibilidades:
+A localização é usada para calcular o nascer/pôr do sol da **janela astronómica de alimentação**
+que pode ser ativada por interruptor (ver *Restrições* na aba do interruptor). Só é necessária se
+pelo menos um interruptor usar essa janela. Três possibilidades:
 
-* **Adotar configurações de sistema** – usa latitude/longitude da configuração de sistema do ioBroker
-  (recomendado, se já estiver definida lá). Os valores atuais são exibidos.
-* **Definir localização específica** – determinar a posição você mesmo:
+* **Usar configurações de sistema para todos os interruptores** – usa latitude/longitude da
+  configuração de sistema do ioBroker (recomendado, se já estiverem definidas lá). Os valores
+  atuais são exibidos.
+* **Uma localização partilhada para todos os interruptores** – define uma única posição que todos
+  os interruptores usam:
   * Inserir um **endereço** e pressionar **Buscar**. O adaptador o resolve (via
     OpenStreetMap / Nominatim) e define um marcador.
   * Ou **clicar no mapa** / **arrastar o marcador** para escolher o local exato.
   * Latitude/longitude também podem ser inseridas diretamente; o mapa acompanha.
+* **Configurar a localização individualmente por interruptor** – cada interruptor define a sua
+  própria localização na sua própria aba (útil quando as estações de alimentação, p. ex. lagos,
+  estão em locais diferentes).
 
 > A busca de endereço é executada no backend do adaptador, portanto a **instância precisa estar em
 > execução**. Mapa e busca exigem acesso à internet.
 
-#### Janela solar (sem alimentação à noite)
-
-Define a janela de tempo na qual é permitido alimentar:
-
-* **Minutos após o nascer do sol** – só alimentar tantos minutos *após* o nascer do sol.
-* **Minutos antes do pôr do sol** – parar tantos minutos *antes* do pôr do sol.
-
-Exemplo: Com nascer do sol às 06:30, pôr do sol às 21:00 e offsets de 30 / 30, a alimentação só é
-permitida entre **07:00 e 20:30**. Cada interruptor pode considerar ou ignorar essa janela
-individualmente (ver *Restrições* na aba do interruptor). Os horários calculados também constam nos
-pontos de dados `sunrise` / `sunset` e são recalculados automaticamente todas as noites.
+Os **offsets do nascer/pôr do sol são configurados por interruptor** (em *Restrições*), e os
+horários calculados são publicados por interruptor como `status.sunrise` / `status.sunset`,
+recalculados automaticamente todas as noites.
 
 #### Interruptores
 
@@ -186,7 +184,10 @@ Escolher **um** modo:
   * **Início do período** / **Fim do período** – p. ex. 08:00 até 18:00.
   * **Intervalo (minutos)** – p. ex. 60 → alimenta diariamente às 08:00, 09:00, … até o fim da janela.
 
-O próximo horário planejado consta a qualquer momento no ponto de dados `status.nextFeeding`.
+Se a **janela astronómica** estiver ativada (ver *Restrições*), o início/fim fixos do período são
+substituídos pela janela do nascer/pôr do sol e ficam ocultos; o intervalo então corre entre o
+nascer e o pôr do sol. O próximo horário planejado consta a qualquer momento no ponto de dados
+`status.nextFeeding`.
 
 #### Processo de alimentação
 
@@ -218,10 +219,19 @@ fonte não bloqueia.)
 
 #### Restrições
 
-* **Não alimentar à noite** – considera a janela solar (incluindo os offsets). Desativar, se
-  este interruptor puder alimentar 24 horas por dia.
+* **Restringir a alimentação à janela astronómica do dia (nascer/pôr do sol + offsets)** – quando
+  ativo, a alimentação fica limitada à janela diurna calculada a partir da localização deste
+  interruptor. Para *Intervalo* e *Alimentação dinâmica*, essa janela substitui o início/fim fixos
+  do período; para *Horários fixos* atua como proteção dia/noite (os horários fora da janela são
+  ignorados). Quando ativado você pode definir:
+  * **Minutos após o nascer do sol** – começar tantos minutos *após* o nascer do sol (padrão 0).
+  * **Minutos antes do pôr do sol** – parar tantos minutos *antes* do pôr do sol (padrão 0).
+  * **Localização para este interruptor** – só é exibida quando a *Localização* geral está definida
+    como *individual*: escolher *Usar configurações de sistema* ou *Definir localização específica*
+    (busca de endereço + mapa) para este interruptor. Os horários calculados aparecem em
+    `status.sunrise` / `status.sunset`.
 * **O acionador manual ignora todos os bloqueios** – quando ativo, o botão e o
-  ponto de dados `feedNow` alimentam mesmo com bloqueio de temperatura/noturno ativo.
+  ponto de dados `feedNow` alimentam mesmo com bloqueio de temperatura/janela ativo.
 
 #### Alimentação dinâmica
 
@@ -301,7 +311,6 @@ O adaptador cria os seguintes pontos de dados no seu namespace
 | Ponto de dados | Tipo | Significado |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | O adaptador está em execução e a configuração é válida. |
-| `sunrise` / `sunset` | string (ro) | Nascer/pôr do sol calculado para hoje. |
 
 **Por interruptor em `switches.<id>.`** (`<id>` é um ID interno como `sw-0`)
 
@@ -333,6 +342,7 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `status.airTemperature` | number (ro) | Valor da fonte de temperatura do ar própria deste interruptor. |
 | `status.waterTemperature` | number (ro) | Valor da fonte de temperatura da água própria deste interruptor. |
 | `status.oxygen` | number (ro) | Valor da fonte de oxigénio dissolvido própria deste interruptor. |
+| `status.sunrise` / `status.sunset` | string (ro) | Nascer/pôr do sol calculado para a localização deste interruptor (janela astronómica). |
 
 Esses pontos de dados podem ser usados em VIS, scripts ou outros adaptadores – p. ex. exibir `status.nextFeeding`
 num dashboard ou acionar um alarme próprio quando `status.error = true`.
@@ -345,10 +355,14 @@ num dashboard ou acionar um alarme próprio quando `status.error = true`.
 * Modo *Horários fixos* → `08:00`, `18:00`; duração `6` s.
 * Na aba do interruptor, em *Fontes de temperatura & oxigénio*, ativar *Temperatura da água* e
   selecionar o sensor; depois *Bloquear por temperatura da água* → *Bloquear se abaixo de* `8` °C (sem alimentação com a água muito fria).
-* Ativar *Não alimentar à noite*.
+* Em *Restrições*, ativar *Restringir a alimentação à janela astronómica do dia* para que nada
+  seja alimentado depois de escurecer.
 
-**Viveiro de aves, porções pequenas e frequentes durante o dia**
-* Modo *Intervalo dentro de um período* → 07:00–19:00, intervalo `90` min; duração `3` s.
+**Viveiro de aves, apenas durante o dia (janela astronómica)**
+* Modo *Intervalo dentro de um período* → intervalo `90` min; duração `3` s.
+* Em *Restrições*, ativar a janela astronómica com offsets `30` / `30` min → a alimentação corre
+  de 30 min após o nascer do sol até 30 min antes do pôr do sol, acompanhando as estações
+  automaticamente.
 
 **Lago de carpas Koi, adaptativo à temperatura (alimentação dinâmica)**
 * Na aba do interruptor, em *Fontes de temperatura & oxigénio*, ativar *Temperatura da água* e selecionar o sensor.
@@ -399,13 +413,14 @@ Cache do navegador. Recarregar de forma forçada com **Strg+Shift+R**.
 **Não se alimenta de modo algum.**
 Verificar em ordem: interruptor **Ativo**; um **Objeto de interruptor** selecionado; **Cronograma**
 válido (`status.nextFeeding` mostra um horário); não **bloqueado** (observar `status.blocked` / `status.blockReason`);
-a **janela solar** não exclui o horário; definir o **nível de log** da instância para `debug`
+a **janela astronómica** não exclui o horário; definir o **nível de log** da instância para `debug`
 e observar o log.
 
 **Nunca se alimenta à noite, embora eu queira.**
-Ou desativar *Não alimentar à noite* para esse interruptor ou ajustar os offsets solares.
-Sem coordenadas válidas, o bloqueio noturno fica desativado (e é registrada uma advertência
-no log).
+Desativar *Restringir a alimentação à janela astronómica do dia* para esse interruptor, ou ajustar
+os seus offsets de nascer/pôr do sol. Se a janela astronómica estiver ativada mas o interruptor não
+tiver coordenadas válidas, a sua proteção de janela fica inativa e é registrada uma advertência no
+log.
 
 **O monitoramento sempre reporta uma falha.**
 Provavelmente o seu objeto de interruptor não reporta o seu estado real (`ack=true`). Ou

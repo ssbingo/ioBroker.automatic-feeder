@@ -108,5 +108,14 @@
 	"Notify on switch-off fault": "Уведомлять о сбое выключения",
 	"Telegram instance": "Экземпляр Telegram",
 	"None (disabled)": "Нет (отключено)",
-	"No Telegram instance installed.": "Экземпляр Telegram не установлен."
+	"No Telegram instance installed.": "Экземпляр Telegram не установлен.",
+	"Location (for the astronomical window)": "Местоположение (для астрономического окна)",
+	"The location is used to compute sunrise/sunset for the per-switch astronomical feeding window. The sunrise/sunset offsets are configured per switch.": "Местоположение используется для расчёта восхода/захода солнца для астрономического окна кормления каждого переключателя. Смещения восхода/захода настраиваются для каждого переключателя.",
+	"Use system settings (system.config) for all switches": "Использовать системные настройки (system.config) для всех переключателей",
+	"One shared location for all switches": "Одно общее местоположение для всех переключателей",
+	"Configure the location individually per switch": "Настроить местоположение индивидуально для каждого переключателя",
+	"Each switch defines its own location on its tab.": "Каждый переключатель задаёт своё местоположение на своей вкладке.",
+	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Окно следует за восходом/заходом солнца (астрономическое окно включено в разделе «Ограничения»).",
+	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Ограничить кормление астрономическим дневным окном (восход/заход + смещения)",
+	"Location for this switch": "Местоположение для этого переключателя"
 }
