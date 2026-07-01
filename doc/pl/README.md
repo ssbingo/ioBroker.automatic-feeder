@@ -188,7 +188,7 @@ Wybierz **jeden** tryb:
   * **Początek okresu** / **Koniec okresu** – np. od 08:00 do 18:00.
   * **Interwał (minuty)** – np. 60 → karmi codziennie o 08:00, 09:00, … aż do końca okna.
 
-Następna zaplanowana pora znajduje się zawsze w punkcie danych `nextFeeding`.
+Następna zaplanowana pora znajduje się zawsze w punkcie danych `status.nextFeeding`.
 
 #### Proces karmienia
 
@@ -207,7 +207,7 @@ różnych obiektów:
 * **Tlen (O₂)** – zaznacz haczyk i wybierz punkt danych z rozpuszczonym tlenem.
 
 Sensowne są tylko liczbowe punkty danych. Aktualne wartości są odzwierciedlane w punktach danych
-`airTemperature`, `waterTemperature` i `oxygen` tego przełącznika. Progi ustawia się poniżej
+`status.airTemperature`, `status.waterTemperature` i `status.oxygen` tego przełącznika. Progi ustawia się poniżej
 (*Blokada temperaturowa*), a temperatury napędzają również *Karmienie dynamiczne*.
 
 #### Blokada temperaturowa
@@ -219,7 +219,7 @@ przełącznika:
 * **Blokuj według temperatury powietrza** – to samo dla powietrza.
 
 Jeśli aktualna temperatura leży poza dozwolonym zakresem, karmienie zostaje pominięte,
-a powód zapisany w `blockReason`. (Jeśli wartość temperatury jest nieznana, to źródło nie
+a powód zapisany w `status.blockReason`. (Jeśli wartość temperatury jest nieznana, to źródło nie
 blokuje.)
 
 #### Ograniczenia
@@ -238,7 +238,7 @@ Opcjonalnie: dostosowuje **interwał i czas karmienia do temperatury** według m
 * **Interwał / czas (baza, min, maks)** – granice obliczanego interwału (minuty) i czasu (sekundy).
 * **Okno uśredniania / histereza** – średnia krocząca (np. 24 h) wygładza skoki; histereza zapobiega przeplanowaniu przy drobnych zmianach.
 
-Bieżące wartości znajdują się w `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` i `dynamicDurationSec`. Opcjonalne źródło **tlenu (O₂)** może zablokować karmienie, gdy zawartość tlenu spadnie poniżej progu. Przerwa zimowa ma priorytet nad karmieniem dynamicznym.
+Bieżące wartości znajdują się w `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` i `status.dynamicDurationSec`. Opcjonalne źródło **tlenu (O₂)** może zablokować karmienie, gdy zawartość tlenu spadnie poniżej progu. Przerwa zimowa ma priorytet nad karmieniem dynamicznym.
 
 #### Przerwa zimowa
 
@@ -249,7 +249,7 @@ Dla każdego przełącznika można zdefiniować cykliczną **przerwę zimową** 
 * **Tryb** – podczas przerwy **wstrzymaj karmienie**, karm z własnym **ograniczonym** interwałem lub **raz dziennie** o ustalonej godzinie; obowiązuje własny **czas karmienia zimą**.
 * **Przypomnienia (Telegram)** – w dniach przed rozpoczęciem i przed zakończeniem codziennie (ostatni raz w danym dniu) o ustawionej godzinie wysyłane jest przypomnienie. Wymaga instancji Telegram (patrz poniżej).
 
-Bieżący stan jest pokazany w punkcie danych `winterActive`. Po zakończeniu przerwy karmienie wznawia się automatycznie.
+Bieżący stan jest pokazany w punkcie danych `status.winterActive`. Po zakończeniu przerwy karmienie wznawia się automatycznie.
 
 #### Monitorowanie przełączania
 
@@ -275,7 +275,7 @@ włączenia i wyłączenia, i zgłasza dla każdego karmienia jeden z trzech wyn
 > nikt nie potwierdza, zawsze zgłaszałaby usterkę – wtedy wyłącz monitorowanie dla tego
 > przełącznika.
 
-Wynik znajduje się ponadto w punktach danych `lastResult` (tekst) i `error` (boolean),
+Wynik znajduje się ponadto w punktach danych `status.lastResult` (tekst) i `status.error` (boolean),
 dzięki czemu możesz na niego reagować (np. wyzwolić własne powiadomienie).
 
 #### Powiadomienia Telegram
@@ -312,31 +312,37 @@ Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 
 **Dla każdego przełącznika pod `switches.<id>.`** (`<id>` to wewnętrzny identyfikator, np. `sw-0`)
 
-Ponadto podkanał tylko do odczytu **`settings`** (`switches.<id>.settings.*`) odzwierciedla konfigurację tego przełącznika, aby można ją było pokazać w VIS lub użyć w skryptach.
+Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa podkanały:
+
+* **`status`** (`switches.<id>.status.*`) – wymienione poniżej punkty danych stanu tylko do odczytu.
+* **`settings`** (`switches.<id>.settings.*`) – **edytowalne** odzwierciedlenie konfiguracji tego
+  przełącznika. Zapisanie tam nowej wartości (z VIS lub ze skryptu) zmienia konfigurację i
+  restartuje instancję, aby zmiana zaczęła obowiązywać. Kilka pól pochodnych jest tylko do odczytu
+  (np. `winterWindow`).
 
 | Punkt danych | Typ | Znaczenie |
 |------------|-----|-----------|
-| `feedingActive` | boolean (ro) | Właśnie trwa karmienie. |
-| `lastFeeding` | string (ro) | Moment ostatniego karmienia. |
-| `nextFeeding` | string (ro) | Moment następnego zaplanowanego karmienia. |
-| `blocked` | boolean (ro) | Ostatnia próba była zablokowana. |
-| `blockReason` | string (ro) | Powód zablokowania (noc / temperatura / tlen). |
-| `lastResult` | string (ro) | Tekst wyniku ostatniej próby karmienia. |
-| `error` | boolean (ro) | Ostatnia próba miała usterkę przełączania. |
 | `feedNow` | boolean (rw) | Zapisz `true`, aby nakarmić ręcznie. |
-| `winterActive` | boolean (ro) | Przerwa zimowa jest aktualnie aktywna. |
-| `winterLastStartReminder` | string (ro) | Data ostatnio wysłanego przypomnienia „zima się rozpoczyna". |
-| `winterLastEndReminder` | string (ro) | Data ostatnio wysłanego przypomnienia „zima się kończy". |
-| `dynamicAvgTemperature` | number (ro) | Uśredniona temperatura używana przez karmienie dynamiczne. |
-| `dynamicRate` | number (ro) | Współczynnik Q10 aktualnie stosowany przez karmienie dynamiczne. |
-| `dynamicIntervalMin` | number (ro) | Aktualnie obliczony dynamiczny interwał (minuty). |
-| `dynamicDurationSec` | number (ro) | Aktualnie obliczony dynamiczny czas (sekundy). |
-| `airTemperature` | number (ro) | Wartość własnego źródła temperatury powietrza tego przełącznika. |
-| `waterTemperature` | number (ro) | Wartość własnego źródła temperatury wody tego przełącznika. |
-| `oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
+| `status.feedingActive` | boolean (ro) | Właśnie trwa karmienie. |
+| `status.lastFeeding` | string (ro) | Moment ostatniego karmienia. |
+| `status.nextFeeding` | string (ro) | Moment następnego zaplanowanego karmienia. |
+| `status.blocked` | boolean (ro) | Ostatnia próba była zablokowana. |
+| `status.blockReason` | string (ro) | Powód zablokowania (noc / temperatura / tlen). |
+| `status.lastResult` | string (ro) | Tekst wyniku ostatniej próby karmienia. |
+| `status.error` | boolean (ro) | Ostatnia próba miała usterkę przełączania. |
+| `status.winterActive` | boolean (ro) | Przerwa zimowa jest aktualnie aktywna. |
+| `status.winterLastStartReminder` | string (ro) | Data ostatnio wysłanego przypomnienia „zima się rozpoczyna". |
+| `status.winterLastEndReminder` | string (ro) | Data ostatnio wysłanego przypomnienia „zima się kończy". |
+| `status.dynamicAvgTemperature` | number (ro) | Uśredniona temperatura używana przez karmienie dynamiczne. |
+| `status.dynamicRate` | number (ro) | Współczynnik Q10 aktualnie stosowany przez karmienie dynamiczne. |
+| `status.dynamicIntervalMin` | number (ro) | Aktualnie obliczony dynamiczny interwał (minuty). |
+| `status.dynamicDurationSec` | number (ro) | Aktualnie obliczony dynamiczny czas (sekundy). |
+| `status.airTemperature` | number (ro) | Wartość własnego źródła temperatury powietrza tego przełącznika. |
+| `status.waterTemperature` | number (ro) | Wartość własnego źródła temperatury wody tego przełącznika. |
+| `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
 
 Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – np. wyświetlić
-`nextFeeding` na pulpicie albo wyzwolić własny alarm przy `error = true`.
+`status.nextFeeding` na pulpicie albo wyzwolić własny alarm przy `status.error = true`.
 
 ---
 
@@ -400,7 +406,7 @@ Pamięć podręczna przeglądarki. Przeładuj na twardo za pomocą **Strg+Shift+
 
 **Karmienie w ogóle się nie odbywa.**
 Sprawdź po kolei: przełącznik **Aktywny**; wybrany **obiekt przełącznika**; prawidłowy
-**harmonogram** (`nextFeeding` pokazuje czas); brak **blokady** (sprawdź `blocked` / `blockReason`);
+**harmonogram** (`status.nextFeeding` pokazuje czas); brak **blokady** (sprawdź `status.blocked` / `status.blockReason`);
 **okno słoneczne** nie wyklucza danego czasu; ustaw **poziom logowania** instancji na `debug`
 i obserwuj log.
 
@@ -417,11 +423,11 @@ przełączania* dla tego przełącznika.
 **Karmienie dynamiczne niczego nie zmienia.**
 Upewnij się, że wybrane źródło temperatury (woda lub powietrze) jest aktywowane w zakładce
 przełącznika (*Źródła temperatury i tlenu*) i dostarcza wartości. Zaraz po restarcie średnia krocząca dopiero się zapełnia, więc
-karmienie startuje od wartości bazowych. Obserwuj `dynamicAvgTemperature` i `dynamicIntervalMin`.
+karmienie startuje od wartości bazowych. Obserwuj `status.dynamicAvgTemperature` i `status.dynamicIntervalMin`.
 
 **Nic nie jest karmione, choć nie jest zima (albo karmi, choć powinna być przerwa).**
 Sprawdź daty *Przerwy zimowej* (`Początek zimy` / `Koniec zimy`, format dd.mm) oraz tryb. Punkt
-danych `winterActive` pokazuje, czy przerwa jest aktualnie aktywna.
+danych `status.winterActive` pokazuje, czy przerwa jest aktualnie aktywna.
 
 **Wyszukiwanie adresu mówi, że instancja musi być uruchomiona.**
 Uruchom instancję automatic-feeder – geokodowanie działa w zapleczu (backend).

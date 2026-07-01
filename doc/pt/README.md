@@ -186,7 +186,7 @@ Escolher **um** modo:
   * **Início do período** / **Fim do período** – p. ex. 08:00 até 18:00.
   * **Intervalo (minutos)** – p. ex. 60 → alimenta diariamente às 08:00, 09:00, … até o fim da janela.
 
-O próximo horário planejado consta a qualquer momento no ponto de dados `nextFeeding`.
+O próximo horário planejado consta a qualquer momento no ponto de dados `status.nextFeeding`.
 
 #### Processo de alimentação
 
@@ -203,7 +203,7 @@ Cada interruptor (estação de alimentação) tem os **seus próprios** sensores
 * **Temperatura da água** – marcar a caixa e selecionar o ponto de dados que contém a temperatura da água desta estação.
 * **Oxigénio (O₂)** – marcar a caixa e selecionar o ponto de dados que contém o oxigénio dissolvido.
 
-Só fazem sentido pontos de dados numéricos. Os valores atuais são espelhados nos pontos de dados `airTemperature`, `waterTemperature` e `oxygen` deste interruptor. Os limites são definidos abaixo (*Bloqueio por temperatura*), e as temperaturas também alimentam a *Alimentação dinâmica*.
+Só fazem sentido pontos de dados numéricos. Os valores atuais são espelhados nos pontos de dados `status.airTemperature`, `status.waterTemperature` e `status.oxygen` deste interruptor. Os limites são definidos abaixo (*Bloqueio por temperatura*), e as temperaturas também alimentam a *Alimentação dinâmica*.
 
 #### Bloqueio por temperatura
 
@@ -213,7 +213,7 @@ Só fazem sentido pontos de dados numéricos. Os valores atuais são espelhados 
 * **Bloquear por temperatura do ar** – o mesmo para o ar.
 
 Se a temperatura atual estiver fora da faixa permitida, a alimentação é ignorada
-e o motivo é gravado em `blockReason`. (Se um valor de temperatura for desconhecido, essa
+e o motivo é gravado em `status.blockReason`. (Se um valor de temperatura for desconhecido, essa
 fonte não bloqueia.)
 
 #### Restrições
@@ -232,7 +232,7 @@ Opcional: adapta o **intervalo e a duração da alimentação à temperatura** c
 * **Intervalo / duração (base, mín, máx)** – limites para o intervalo calculado (minutos) e a duração (segundos).
 * **Janela de média / histerese** – uma média móvel (p. ex. 24 h) suaviza picos; a histerese evita replaneamento por mudanças mínimas.
 
-Os valores atuais estão em `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` e `dynamicDurationSec`. Uma fonte opcional de **oxigénio (O₂)** pode bloquear a alimentação quando o oxigénio dissolvido cai abaixo de um limite. A pausa de inverno tem prioridade sobre a alimentação dinâmica.
+Os valores atuais estão em `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` e `status.dynamicDurationSec`. Uma fonte opcional de **oxigénio (O₂)** pode bloquear a alimentação quando o oxigénio dissolvido cai abaixo de um limite. A pausa de inverno tem prioridade sobre a alimentação dinâmica.
 
 #### Pausa de inverno
 
@@ -243,7 +243,7 @@ Para cada interruptor pode definir uma **pausa de inverno** recorrente (sazonal,
 * **Modo** – durante a pausa, **suspender a alimentação**, alimentar com um intervalo próprio **reduzido** ou **uma vez por dia** a uma hora definida; aplica-se uma **duração de alimentação de inverno** própria.
 * **Lembretes (Telegram)** – nos dias antes do início e antes do fim é enviado diariamente (a última vez no próprio dia) um lembrete à hora configurada. Precisa de uma instância do Telegram (veja abaixo).
 
-O estado atual é mostrado no ponto de dados `winterActive`. A alimentação recomeça automaticamente quando a pausa termina.
+O estado atual é mostrado no ponto de dados `status.winterActive`. A alimentação recomeça automaticamente quando a pausa termina.
 
 #### Monitoramento de comutação
 
@@ -268,7 +268,7 @@ de ligado e desligado, e reporta por alimentação um de três resultados:
 > tomadas/relés com retorno de status). Um simples booleano auxiliar, que ninguém confirma,
 > sempre reportaria uma falha – nesse caso, desativar o monitoramento para esse interruptor.
 
-O resultado também consta nos pontos de dados `lastResult` (texto) e `error` (boolean),
+O resultado também consta nos pontos de dados `status.lastResult` (texto) e `status.error` (boolean),
 de modo que você possa reagir a ele (p. ex. acionar uma notificação própria).
 
 #### Notificações do Telegram
@@ -303,31 +303,37 @@ O adaptador cria os seguintes pontos de dados no seu namespace
 
 **Por interruptor em `switches.<id>.`** (`<id>` é um ID interno como `sw-0`)
 
-Além disso, um subcanal somente leitura **`settings`** (`switches.<id>.settings.*`) espelha a configuração deste interruptor para que possa ser exibida no VIS ou usada em scripts.
+Diretamente sob o interruptor há o acionador manual e dois subcanais:
+
+* **`status`** (`switches.<id>.status.*`) – os pontos de dados de status somente leitura listados abaixo.
+* **`settings`** (`switches.<id>.settings.*`) – um espelho **editável** da configuração deste
+  interruptor. Gravar um novo valor ali (a partir do VIS ou de um script) altera a configuração e
+  reinicia a instância para que a mudança tenha efeito. Alguns campos derivados são somente leitura
+  (p. ex. `winterWindow`).
 
 | Ponto de dados | Tipo | Significado |
 |------------|-----|-----------|
-| `feedingActive` | boolean (ro) | Uma alimentação está em andamento no momento. |
-| `lastFeeding` | string (ro) | Momento da última alimentação. |
-| `nextFeeding` | string (ro) | Momento da próxima alimentação planejada. |
-| `blocked` | boolean (ro) | A última tentativa foi bloqueada. |
-| `blockReason` | string (ro) | Motivo do bloqueio (noite / temperatura / oxigénio). |
-| `lastResult` | string (ro) | Texto de resultado da última tentativa de alimentação. |
-| `error` | boolean (ro) | A última tentativa teve uma falha de comutação. |
 | `feedNow` | boolean (rw) | Gravar `true` para alimentar manualmente. |
-| `winterActive` | boolean (ro) | A pausa de inverno está ativa no momento. |
-| `winterLastStartReminder` | string (ro) | Data do último lembrete de „início do inverno" enviado. |
-| `winterLastEndReminder` | string (ro) | Data do último lembrete de „fim do inverno" enviado. |
-| `dynamicAvgTemperature` | number (ro) | Temperatura média usada pela alimentação dinâmica. |
-| `dynamicRate` | number (ro) | Fator de taxa Q10 atualmente aplicado pela alimentação dinâmica. |
-| `dynamicIntervalMin` | number (ro) | Intervalo dinâmico atualmente calculado (minutos). |
-| `dynamicDurationSec` | number (ro) | Duração dinâmica atualmente calculada (segundos). |
-| `airTemperature` | number (ro) | Valor da fonte de temperatura do ar própria deste interruptor. |
-| `waterTemperature` | number (ro) | Valor da fonte de temperatura da água própria deste interruptor. |
-| `oxygen` | number (ro) | Valor da fonte de oxigénio dissolvido própria deste interruptor. |
+| `status.feedingActive` | boolean (ro) | Uma alimentação está em andamento no momento. |
+| `status.lastFeeding` | string (ro) | Momento da última alimentação. |
+| `status.nextFeeding` | string (ro) | Momento da próxima alimentação planejada. |
+| `status.blocked` | boolean (ro) | A última tentativa foi bloqueada. |
+| `status.blockReason` | string (ro) | Motivo do bloqueio (noite / temperatura / oxigénio). |
+| `status.lastResult` | string (ro) | Texto de resultado da última tentativa de alimentação. |
+| `status.error` | boolean (ro) | A última tentativa teve uma falha de comutação. |
+| `status.winterActive` | boolean (ro) | A pausa de inverno está ativa no momento. |
+| `status.winterLastStartReminder` | string (ro) | Data do último lembrete de „início do inverno" enviado. |
+| `status.winterLastEndReminder` | string (ro) | Data do último lembrete de „fim do inverno" enviado. |
+| `status.dynamicAvgTemperature` | number (ro) | Temperatura média usada pela alimentação dinâmica. |
+| `status.dynamicRate` | number (ro) | Fator de taxa Q10 atualmente aplicado pela alimentação dinâmica. |
+| `status.dynamicIntervalMin` | number (ro) | Intervalo dinâmico atualmente calculado (minutos). |
+| `status.dynamicDurationSec` | number (ro) | Duração dinâmica atualmente calculada (segundos). |
+| `status.airTemperature` | number (ro) | Valor da fonte de temperatura do ar própria deste interruptor. |
+| `status.waterTemperature` | number (ro) | Valor da fonte de temperatura da água própria deste interruptor. |
+| `status.oxygen` | number (ro) | Valor da fonte de oxigénio dissolvido própria deste interruptor. |
 
-Esses pontos de dados podem ser usados em VIS, scripts ou outros adaptadores – p. ex. exibir `nextFeeding`
-num dashboard ou acionar um alarme próprio quando `error = true`.
+Esses pontos de dados podem ser usados em VIS, scripts ou outros adaptadores – p. ex. exibir `status.nextFeeding`
+num dashboard ou acionar um alarme próprio quando `status.error = true`.
 
 ---
 
@@ -390,7 +396,7 @@ Cache do navegador. Recarregar de forma forçada com **Strg+Shift+R**.
 
 **Não se alimenta de modo algum.**
 Verificar em ordem: interruptor **Ativo**; um **Objeto de interruptor** selecionado; **Cronograma**
-válido (`nextFeeding` mostra um horário); não **bloqueado** (observar `blocked` / `blockReason`);
+válido (`status.nextFeeding` mostra um horário); não **bloqueado** (observar `status.blocked` / `status.blockReason`);
 a **janela solar** não exclui o horário; definir o **nível de log** da instância para `debug`
 e observar o log.
 
@@ -408,11 +414,11 @@ interruptor.
 Certifique-se de que a fonte de temperatura selecionada (água ou ar) está ativada na aba do
 interruptor (*Fontes de temperatura & oxigénio*) e fornece valores. Logo após uma reinicialização, a
 média móvel ainda está a encher-se, por isso começa a partir dos valores base. Observe
-`dynamicAvgTemperature` e `dynamicIntervalMin`.
+`status.dynamicAvgTemperature` e `status.dynamicIntervalMin`.
 
 **Nada é alimentado embora não seja inverno (ou alimenta embora devesse pausar).**
 Verifique as datas da *Pausa de inverno* (`Início do inverno` / `Fim do inverno`, formato dd.mm) e o
-modo. O ponto de dados `winterActive` mostra se a pausa está ativa no momento.
+modo. O ponto de dados `status.winterActive` mostra se a pausa está ativa no momento.
 
 **A busca de endereço diz que a instância precisa estar em execução.**
 Iniciar a instância automatic-feeder – o geocoding é executado no backend.

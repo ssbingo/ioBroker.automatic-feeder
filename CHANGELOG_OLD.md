@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.2.0 (2026-06-29)
+* (ssbingo) Renamed the adapter to **Automatic Feeder** (technical name `automatic-feeder`, npm `iobroker.automatic-feeder`, namespace `automatic-feeder.0`). This is a new adapter id — reinstall and reconfigure; there is no automatic migration from `futterautomat`.
+
 ### 0.1.8 (2026-06-29)
 * (ssbingo) Create the intermediate `info` and `switches` objects so every object id path has a parent (repository checker E3009)
 

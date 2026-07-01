@@ -186,7 +186,7 @@ Abschnitte.
   * **Beginn Zeitraum** / **Ende Zeitraum** – z. B. 08:00 bis 18:00.
   * **Intervall (Minuten)** – z. B. 60 → füttert täglich um 08:00, 09:00, … bis zum Fensterende.
 
-Die nächste geplante Zeit steht jederzeit im Datenpunkt `nextFeeding`.
+Die nächste geplante Zeit steht jederzeit im Datenpunkt `status.nextFeeding`.
 
 #### Fütterungsvorgang
 
@@ -203,8 +203,8 @@ Jeder Schalter (Futterstation) hat **seine eigenen** Sensoren – verschiedene T
 * **Wassertemperatur** – Häkchen setzen und den Datenpunkt wählen, der die Wassertemperatur dieser Station enthält.
 * **Sauerstoff (O₂)** – Häkchen setzen und den Datenpunkt wählen, der den gelösten Sauerstoff enthält.
 
-Sinnvoll sind nur Zahl-Datenpunkte. Die aktuellen Werte werden in die Datenpunkte `airTemperature`,
-`waterTemperature` und `oxygen` dieses Schalters gespiegelt. Die Schwellen werden weiter unten
+Sinnvoll sind nur Zahl-Datenpunkte. Die aktuellen Werte werden in die Datenpunkte `status.airTemperature`,
+`status.waterTemperature` und `status.oxygen` dieses Schalters gespiegelt. Die Schwellen werden weiter unten
 eingestellt (*Temperatursperre*), und die Temperaturen steuern außerdem das *Dynamische Füttern*.
 
 #### Temperatursperre
@@ -215,7 +215,7 @@ Wird nur für die oben aktivierten Temperaturquellen angezeigt (*Temperatur- & S
 * **Nach Lufttemperatur sperren** – dasselbe für die Luft.
 
 Liegt die aktuelle Temperatur außerhalb des erlaubten Bereichs, wird die Fütterung übersprungen
-und der Grund in `blockReason` geschrieben. (Ist ein Temperaturwert unbekannt, sperrt diese
+und der Grund in `status.blockReason` geschrieben. (Ist ein Temperaturwert unbekannt, sperrt diese
 Quelle nicht.)
 
 #### Einschränkungen
@@ -234,7 +234,7 @@ Optional: passt **Intervall und Dauer der Fütterung an die Temperatur** an (Q10
 * **Intervall / Dauer (Basis, Min, Max)** – Grenzen für das berechnete Intervall (Minuten) und die Dauer (Sekunden).
 * **Mittelungsfenster / Hysterese** – ein gleitender Mittelwert (z. B. 24 h) glättet Ausreißer; die Hysterese vermeidet Neuplanung bei winzigen Änderungen.
 
-Die aktuellen Werte stehen in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` und `dynamicDurationSec`. Eine optionale **Sauerstoff-Quelle (O₂)** kann die Fütterung sperren, wenn der Sauerstoffgehalt unter einen Schwellwert fällt. Die Winterpause hat Vorrang vor dem dynamischen Füttern.
+Die aktuellen Werte stehen in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` und `status.dynamicDurationSec`. Eine optionale **Sauerstoff-Quelle (O₂)** kann die Fütterung sperren, wenn der Sauerstoffgehalt unter einen Schwellwert fällt. Die Winterpause hat Vorrang vor dem dynamischen Füttern.
 
 #### Winterpause
 
@@ -245,7 +245,7 @@ Pro Schalter lässt sich eine wiederkehrende **Winterpause** definieren (saisona
 * **Modus** – während der Pause entweder **Fütterung aussetzen**, mit **eingeschränktem** eigenem Intervall füttern oder **einmal täglich** zu einer festen Zeit; es gilt eine eigene **Winter-Fütterdauer**.
 * **Erinnerungen (Telegram)** – in den Tagen vor Beginn und vor Ende wird täglich (letztmalig am Stichtag) zur eingestellten Uhrzeit eine Erinnerung gesendet. Benötigt eine Telegram-Instanz (siehe unten).
 
-Der aktuelle Zustand steht im Datenpunkt `winterActive`. Nach Ende der Pause läuft die Fütterung automatisch wieder an.
+Der aktuelle Zustand steht im Datenpunkt `status.winterActive`. Nach Ende der Pause läuft die Fütterung automatisch wieder an.
 
 #### Schaltüberwachung
 
@@ -270,7 +270,7 @@ Nach dem Schalten kann der Adapter prüfen, ob der Schalter den Ein- und Aus-Zus
 > Steckdosen/Relais mit Statusrückmeldung). Ein einfacher Hilfs-Boolean, den niemand bestätigt,
 > würde immer eine Störung melden – dann die Überwachung für diesen Schalter ausschalten.
 
-Das Ergebnis steht außerdem in den Datenpunkten `lastResult` (Text) und `error` (boolean),
+Das Ergebnis steht außerdem in den Datenpunkten `status.lastResult` (Text) und `status.error` (boolean),
 sodass du darauf reagieren kannst (z. B. eine eigene Benachrichtigung auslösen).
 
 #### Telegram-Benachrichtigungen
@@ -305,31 +305,37 @@ Der Adapter legt folgende Datenpunkte in seinem Namespace an
 
 **Pro Schalter unter `switches.<id>.`** (`<id>` ist eine interne ID wie `sw-0`)
 
-Zusätzlich spiegelt eine schreibgeschützte Unterrubrik **`settings`** (`switches.<id>.settings.*`) die Konfiguration dieses Schalters, damit sie in VIS angezeigt oder in Skripten genutzt werden kann.
+Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
+
+* **`status`** (`switches.<id>.status.*`) – die schreibgeschützten Status-Datenpunkte, die unten aufgeführt sind.
+* **`settings`** (`switches.<id>.settings.*`) – eine **beschreibbare** Spiegelung der Konfiguration dieses
+  Schalters. Wird dort ein neuer Wert geschrieben (aus VIS oder einem Skript), ändert das die Konfiguration
+  und startet die Instanz neu, damit die Änderung wirksam wird. Einige abgeleitete Felder sind
+  schreibgeschützt (z. B. `winterWindow`).
 
 | Datenpunkt | Typ | Bedeutung |
 |------------|-----|-----------|
-| `feedingActive` | boolean (ro) | Gerade läuft eine Fütterung. |
-| `lastFeeding` | string (ro) | Zeitpunkt der letzten Fütterung. |
-| `nextFeeding` | string (ro) | Zeitpunkt der nächsten geplanten Fütterung. |
-| `blocked` | boolean (ro) | Der letzte Versuch war blockiert. |
-| `blockReason` | string (ro) | Grund der Blockierung (Nacht / Temperatur / Sauerstoff). |
-| `lastResult` | string (ro) | Ergebnistext des letzten Fütterungsversuchs. |
-| `error` | boolean (ro) | Der letzte Versuch hatte eine Schaltstörung. |
 | `feedNow` | boolean (rw) | `true` schreiben, um manuell zu füttern. |
-| `winterActive` | boolean (ro) | Die Winterpause ist gerade aktiv. |
-| `winterLastStartReminder` | string (ro) | Datum der zuletzt gesendeten „Winter beginnt"-Erinnerung. |
-| `winterLastEndReminder` | string (ro) | Datum der zuletzt gesendeten „Winter endet"-Erinnerung. |
-| `dynamicAvgTemperature` | number (ro) | Vom dynamischen Füttern verwendete gemittelte Temperatur. |
-| `dynamicRate` | number (ro) | Aktuell vom dynamischen Füttern angewendeter Q10-Ratenfaktor. |
-| `dynamicIntervalMin` | number (ro) | Aktuell berechnetes dynamisches Intervall (Minuten). |
-| `dynamicDurationSec` | number (ro) | Aktuell berechnete dynamische Dauer (Sekunden). |
-| `airTemperature` | number (ro) | Wert der eigenen Lufttemperatur-Quelle dieses Schalters. |
-| `waterTemperature` | number (ro) | Wert der eigenen Wassertemperatur-Quelle dieses Schalters. |
-| `oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
+| `status.feedingActive` | boolean (ro) | Gerade läuft eine Fütterung. |
+| `status.lastFeeding` | string (ro) | Zeitpunkt der letzten Fütterung. |
+| `status.nextFeeding` | string (ro) | Zeitpunkt der nächsten geplanten Fütterung. |
+| `status.blocked` | boolean (ro) | Der letzte Versuch war blockiert. |
+| `status.blockReason` | string (ro) | Grund der Blockierung (Nacht / Temperatur / Sauerstoff). |
+| `status.lastResult` | string (ro) | Ergebnistext des letzten Fütterungsversuchs. |
+| `status.error` | boolean (ro) | Der letzte Versuch hatte eine Schaltstörung. |
+| `status.winterActive` | boolean (ro) | Die Winterpause ist gerade aktiv. |
+| `status.winterLastStartReminder` | string (ro) | Datum der zuletzt gesendeten „Winter beginnt"-Erinnerung. |
+| `status.winterLastEndReminder` | string (ro) | Datum der zuletzt gesendeten „Winter endet"-Erinnerung. |
+| `status.dynamicAvgTemperature` | number (ro) | Vom dynamischen Füttern verwendete gemittelte Temperatur. |
+| `status.dynamicRate` | number (ro) | Aktuell vom dynamischen Füttern angewendeter Q10-Ratenfaktor. |
+| `status.dynamicIntervalMin` | number (ro) | Aktuell berechnetes dynamisches Intervall (Minuten). |
+| `status.dynamicDurationSec` | number (ro) | Aktuell berechnete dynamische Dauer (Sekunden). |
+| `status.airTemperature` | number (ro) | Wert der eigenen Lufttemperatur-Quelle dieses Schalters. |
+| `status.waterTemperature` | number (ro) | Wert der eigenen Wassertemperatur-Quelle dieses Schalters. |
+| `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
 
-Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `nextFeeding`
-auf einem Dashboard anzeigen oder bei `error = true` einen eigenen Alarm auslösen.
+Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `status.nextFeeding`
+auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm auslösen.
 
 ---
 
@@ -393,7 +399,7 @@ Browser-Cache. Mit **Strg+Shift+R** hart neu laden.
 
 **Es wird gar nicht gefüttert.**
 Der Reihe nach prüfen: Schalter **Aktiv**; ein **Schalter-Objekt** ausgewählt; **Zeitplan**
-gültig (`nextFeeding` zeigt eine Zeit); nicht **blockiert** (`blocked` / `blockReason` ansehen);
+gültig (`status.nextFeeding` zeigt eine Zeit); nicht **blockiert** (`status.blocked` / `status.blockReason` ansehen);
 das **Sonnenfenster** schließt die Zeit nicht aus; das **Log-Level** der Instanz auf `debug`
 setzen und das Log beobachten.
 
@@ -410,12 +416,12 @@ deaktivieren.
 **Das dynamische Füttern ändert nichts.**
 Stelle sicher, dass die gewählte Temperaturquelle (Wasser oder Luft) im Schalter-Tab
 (*Temperatur- & Sauerstoffquellen*) aktiviert ist und Werte liefert. Direkt nach einem Neustart füllt sich der gleitende Mittelwert
-erst, daher startet es mit den Basiswerten. Beobachte `dynamicAvgTemperature` und
-`dynamicIntervalMin`.
+erst, daher startet es mit den Basiswerten. Beobachte `status.dynamicAvgTemperature` und
+`status.dynamicIntervalMin`.
 
 **Es wird nicht gefüttert, obwohl kein Winter ist (oder es füttert, obwohl es pausieren sollte).**
 Prüfe die *Winterpause*-Daten (`Winterbeginn` / `Winterende`, Format tt.mm) und den Modus. Der
-Datenpunkt `winterActive` zeigt, ob die Pause gerade aktiv ist.
+Datenpunkt `status.winterActive` zeigt, ob die Pause gerade aktiv ist.
 
 **Die Adresssuche sagt, die Instanz müsse laufen.**
 Die automatic-feeder-Instanz starten – das Geocoding läuft im Backend.

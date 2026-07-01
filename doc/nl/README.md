@@ -186,7 +186,7 @@ secties.
   * **Begin periode** / **Einde periode** – bijv. 08:00 tot 18:00.
   * **Interval (minuten)** – bijv. 60 → voert dagelijks om 08:00, 09:00, … tot het einde van het venster.
 
-De volgende geplande tijd staat op elk moment in het datapunt `nextFeeding`.
+De volgende geplande tijd staat op elk moment in het datapunt `status.nextFeeding`.
 
 #### Voederproces
 
@@ -203,7 +203,7 @@ Elke schakelaar (voederstation) heeft **zijn eigen** sensoren – verschillende 
 * **Watertemperatuur** – vinkje zetten en het datapunt kiezen dat de watertemperatuur van dit station bevat.
 * **Zuurstof (O₂)** – vinkje zetten en het datapunt kiezen dat het opgeloste zuurstof bevat.
 
-Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten `airTemperature`, `waterTemperature` en `oxygen` van deze schakelaar gespiegeld. De drempels worden hieronder ingesteld (*Temperatuurblokkering*), en de temperaturen sturen ook het *Dynamisch voeren* aan.
+Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten `status.airTemperature`, `status.waterTemperature` en `status.oxygen` van deze schakelaar gespiegeld. De drempels worden hieronder ingesteld (*Temperatuurblokkering*), en de temperaturen sturen ook het *Dynamisch voeren* aan.
 
 #### Temperatuurblokkering
 
@@ -213,7 +213,7 @@ Wordt alleen weergegeven voor de hierboven geactiveerde temperatuurbronnen (*Tem
 * **Blokkeren op luchttemperatuur** – hetzelfde voor de lucht.
 
 Ligt de huidige temperatuur buiten het toegestane bereik, dan wordt de voedering overgeslagen
-en de reden in `blockReason` geschreven. (Is een temperatuurwaarde onbekend, dan blokkeert deze
+en de reden in `status.blockReason` geschreven. (Is een temperatuurwaarde onbekend, dan blokkeert deze
 bron niet.)
 
 #### Beperkingen
@@ -232,7 +232,7 @@ Optioneel: past het **voederinterval en de duur aan de temperatuur** aan via het
 * **Interval / duur (basis, min, max)** – grenzen voor het berekende interval (minuten) en de duur (seconden).
 * **Middelingsvenster / hysterese** – een voortschrijdend gemiddelde (bijv. 24 u) vlakt pieken af; hysterese voorkomt herplannen bij kleine wijzigingen.
 
-De huidige waarden staan in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` en `dynamicDurationSec`. Een optionele **zuurstofbron (O₂)** kan het voeren blokkeren wanneer het opgeloste zuurstof onder een drempel zakt. De winterpauze heeft voorrang op dynamisch voeren.
+De huidige waarden staan in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` en `status.dynamicDurationSec`. Een optionele **zuurstofbron (O₂)** kan het voeren blokkeren wanneer het opgeloste zuurstof onder een drempel zakt. De winterpauze heeft voorrang op dynamisch voeren.
 
 #### Winterpauze
 
@@ -243,7 +243,7 @@ Per schakelaar kun je een terugkerende **winterpauze** instellen (seizoensgebond
 * **Modus** – tijdens de pauze **voeding onderbreken**, voeden met een **beperkt** eigen interval of **één keer per dag** op een vast tijdstip; er geldt een eigen **wintervoederduur**.
 * **Herinneringen (Telegram)** – in de dagen vóór het begin en vóór het einde wordt dagelijks (voor het laatst op de dag zelf) op het ingestelde uur een herinnering verzonden. Vereist een Telegram-instantie (zie hieronder).
 
-De huidige status staat in het datapunt `winterActive`. Na afloop van de pauze start de voeding automatisch weer.
+De huidige status staat in het datapunt `status.winterActive`. Na afloop van de pauze start de voeding automatisch weer.
 
 #### Schakelbewaking
 
@@ -268,7 +268,7 @@ Na het schakelen kan de adapter controleren of de schakelaar de in- en uit-toest
 > stopcontacten/relais met statusterugmelding). Een eenvoudige hulp-boolean die niemand bevestigt,
 > zou altijd een storing melden – schakel dan de bewaking voor deze schakelaar uit.
 
-Het resultaat staat bovendien in de datapunten `lastResult` (tekst) en `error` (boolean),
+Het resultaat staat bovendien in de datapunten `status.lastResult` (tekst) en `status.error` (boolean),
 zodat je erop kunt reageren (bijv. een eigen melding activeren).
 
 #### Telegram-meldingen
@@ -303,31 +303,37 @@ De adapter legt de volgende datapunten in zijn namespace aan
 
 **Per schakelaar onder `switches.<id>.`** (`<id>` is een interne ID zoals `sw-0`)
 
-Daarnaast weerspiegelt een alleen-lezen subkanaal **`settings`** (`switches.<id>.settings.*`) de configuratie van deze schakelaar, zodat die in VIS getoond of in scripts gebruikt kan worden.
+Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanalen:
+
+* **`status`** (`switches.<id>.status.*`) – de alleen-lezen statusdatapunten die hieronder staan.
+* **`settings`** (`switches.<id>.settings.*`) – een **bewerkbare** spiegel van de configuratie
+  van deze schakelaar. Als je daar een nieuwe waarde schrijft (vanuit VIS of een script), wijzig
+  je de configuratie en wordt de instantie opnieuw gestart zodat de wijziging van kracht wordt.
+  Enkele afgeleide velden zijn alleen-lezen (bijv. `winterWindow`).
 
 | Datapunt | Type | Betekenis |
 |------------|-----|-----------|
-| `feedingActive` | boolean (ro) | Er loopt nu een voedering. |
-| `lastFeeding` | string (ro) | Tijdstip van de laatste voedering. |
-| `nextFeeding` | string (ro) | Tijdstip van de volgende geplande voedering. |
-| `blocked` | boolean (ro) | De laatste poging was geblokkeerd. |
-| `blockReason` | string (ro) | Reden van de blokkering (nacht / temperatuur / zuurstof). |
-| `lastResult` | string (ro) | Resultaattekst van de laatste voederpoging. |
-| `error` | boolean (ro) | De laatste poging had een schakelstoring. |
 | `feedNow` | boolean (rw) | `true` schrijven om handmatig te voeren. |
-| `winterActive` | boolean (ro) | De winterpauze is momenteel actief. |
-| `winterLastStartReminder` | string (ro) | Datum van de laatst verzonden „winter begint"-herinnering. |
-| `winterLastEndReminder` | string (ro) | Datum van de laatst verzonden „winter eindigt"-herinnering. |
-| `dynamicAvgTemperature` | number (ro) | Gemiddelde temperatuur die door dynamisch voeren wordt gebruikt. |
-| `dynamicRate` | number (ro) | Q10-factor die momenteel door dynamisch voeren wordt toegepast. |
-| `dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
-| `dynamicDurationSec` | number (ro) | Momenteel berekende dynamische duur (seconden). |
-| `airTemperature` | number (ro) | Eigen luchttemperatuur-bronwaarde van deze schakelaar. |
-| `waterTemperature` | number (ro) | Eigen watertemperatuur-bronwaarde van deze schakelaar. |
-| `oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
+| `status.feedingActive` | boolean (ro) | Er loopt nu een voedering. |
+| `status.lastFeeding` | string (ro) | Tijdstip van de laatste voedering. |
+| `status.nextFeeding` | string (ro) | Tijdstip van de volgende geplande voedering. |
+| `status.blocked` | boolean (ro) | De laatste poging was geblokkeerd. |
+| `status.blockReason` | string (ro) | Reden van de blokkering (nacht / temperatuur / zuurstof). |
+| `status.lastResult` | string (ro) | Resultaattekst van de laatste voederpoging. |
+| `status.error` | boolean (ro) | De laatste poging had een schakelstoring. |
+| `status.winterActive` | boolean (ro) | De winterpauze is momenteel actief. |
+| `status.winterLastStartReminder` | string (ro) | Datum van de laatst verzonden „winter begint"-herinnering. |
+| `status.winterLastEndReminder` | string (ro) | Datum van de laatst verzonden „winter eindigt"-herinnering. |
+| `status.dynamicAvgTemperature` | number (ro) | Gemiddelde temperatuur die door dynamisch voeren wordt gebruikt. |
+| `status.dynamicRate` | number (ro) | Q10-factor die momenteel door dynamisch voeren wordt toegepast. |
+| `status.dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
+| `status.dynamicDurationSec` | number (ro) | Momenteel berekende dynamische duur (seconden). |
+| `status.airTemperature` | number (ro) | Eigen luchttemperatuur-bronwaarde van deze schakelaar. |
+| `status.waterTemperature` | number (ro) | Eigen watertemperatuur-bronwaarde van deze schakelaar. |
+| `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
 
-Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `nextFeeding`
-op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
+Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `status.nextFeeding`
+op een dashboard weergeven of bij `status.error = true` een eigen alarm activeren.
 
 ---
 
@@ -389,7 +395,7 @@ Browser-cache. Hard opnieuw laden met **Strg+Shift+R**.
 
 **Er wordt helemaal niet gevoerd.**
 Op volgorde controleren: schakelaar **Actief**; een **schakelaar-object** geselecteerd; **schema**
-geldig (`nextFeeding` toont een tijd); niet **geblokkeerd** (`blocked` / `blockReason` bekijken);
+geldig (`status.nextFeeding` toont een tijd); niet **geblokkeerd** (`status.blocked` / `status.blockReason` bekijken);
 het **zonvenster** sluit de tijd niet uit; het **log-level** van de instantie op `debug`
 zetten en het log volgen.
 
@@ -406,11 +412,11 @@ deactiveren.
 **Dynamisch voeren verandert niets.**
 Zorg ervoor dat de gekozen temperatuurbron (water of lucht) in het schakelaar-tabblad
 (*Temperatuur- & zuurstofbronnen*) geactiveerd is en waarden levert. Direct na een herstart wordt het voortschrijdend gemiddelde nog opgebouwd,
-dus start het vanaf de basiswaarden. Bekijk `dynamicAvgTemperature` en `dynamicIntervalMin`.
+dus start het vanaf de basiswaarden. Bekijk `status.dynamicAvgTemperature` en `status.dynamicIntervalMin`.
 
 **Er wordt niet gevoerd hoewel het geen winter is (of er wordt gevoerd hoewel het zou moeten pauzeren).**
 Controleer de *Winterpauze*-data (`Winterbegin` / `Wintereinde`, formaat dd.mm) en de modus. Het
-datapunt `winterActive` geeft aan of de pauze momenteel actief is.
+datapunt `status.winterActive` geeft aan of de pauze momenteel actief is.
 
 **Het adres zoeken zegt dat de instantie moet draaien.**
 De automatic-feeder-instantie starten – de geocoding loopt in de backend.

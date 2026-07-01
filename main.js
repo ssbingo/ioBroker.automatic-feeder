@@ -29,6 +29,33 @@ const {
 
 const MAX_SWITCHES = 5;
 
+/** Read-only status states that live under `switches.<id>.status.*` (used for cleanup of legacy flat states). */
+const STATUS_STATE_IDS = [
+	'feedingActive',
+	'lastFeeding',
+	'nextFeeding',
+	'blocked',
+	'blockReason',
+	'lastResult',
+	'error',
+	'winterActive',
+	'winterLastStartReminder',
+	'winterLastEndReminder',
+	'dynamicAvgTemperature',
+	'dynamicRate',
+	'dynamicIntervalMin',
+	'dynamicDurationSec',
+	'airTemperature',
+	'waterTemperature',
+	'oxygen',
+];
+
+/** Settings mirror entries that are composite/derived and stay read-only (not editable from VIS). */
+const SETTINGS_READONLY = new Set(['winterWindow']);
+
+/** Numeric settings that may be null (empty = "no limit"). */
+const NULLABLE_SETTINGS = new Set(['waterMin', 'waterMax', 'airMin', 'airMax', 'o2Min']);
+
 /**
  * Formats a recurring "MM-DD" as "DD.MM" for display.
  *
@@ -425,6 +452,9 @@ class AutomaticFeeder extends utils.Adapter {
 		this.midnightTimer = null;
 		/** hourly tick that sends winter-pause reminders */
 		this.reminderTimer = null;
+		/** debounced settings writes from VIS: switch id -> { key: { val, type } } */
+		this.pendingSettingWrites = new Map();
+		this.settingsWriteTimer = null;
 
 		/** pending switch-state verifications: objectId -> { expected, resolve, timer } */
 		this.verifyWatchers = new Map();
@@ -575,9 +605,10 @@ class AutomaticFeeder extends utils.Adapter {
 				}
 			}
 
-			// --- subscribe to our own manual trigger states ---
+			// --- subscribe to our own manual trigger + editable settings states ---
 			this.subscribeStates('switches.*.feedNow');
-			this.log.silly('Subscribed to switches.*.feedNow');
+			this.subscribeStates('switches.*.settings.*');
+			this.log.silly('Subscribed to switches.*.feedNow and switches.*.settings.*');
 
 			// --- schedule feeding for every enabled switch ---
 			let planned = 0;
@@ -769,7 +800,20 @@ class AutomaticFeeder extends utils.Adapter {
 			// keep the channel name in sync with the configured name
 			await this.extendObjectAsync(base, { common: { name: sw.name || sw.id } });
 
-			await this.setObjectNotExistsAsync(`${base}.feedingActive`, {
+			// status sub-channel groups all read-only status states
+			await this.setObjectNotExistsAsync(`${base}.status`, {
+				type: 'channel',
+				common: { name: 'Status' },
+				native: {},
+			});
+			// clean up states that used to live directly under the switch (moved into .status)
+			for (const legacy of STATUS_STATE_IDS) {
+				if (await this.getObjectAsync(`${base}.${legacy}`)) {
+					await this.delObjectAsync(`${base}.${legacy}`);
+				}
+			}
+
+			await this.setObjectNotExistsAsync(`${base}.status.feedingActive`, {
 				type: 'state',
 				common: {
 					name: 'Feeding active',
@@ -781,17 +825,17 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.lastFeeding`, {
+			await this.setObjectNotExistsAsync(`${base}.status.lastFeeding`, {
 				type: 'state',
 				common: { name: 'Last feeding', type: 'string', role: 'date', read: true, write: false },
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.nextFeeding`, {
+			await this.setObjectNotExistsAsync(`${base}.status.nextFeeding`, {
 				type: 'state',
 				common: { name: 'Next feeding', type: 'string', role: 'date', read: true, write: false },
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.blocked`, {
+			await this.setObjectNotExistsAsync(`${base}.status.blocked`, {
 				type: 'state',
 				common: {
 					name: 'Feeding blocked',
@@ -803,12 +847,12 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.blockReason`, {
+			await this.setObjectNotExistsAsync(`${base}.status.blockReason`, {
 				type: 'state',
 				common: { name: 'Block reason', type: 'string', role: 'text', read: true, write: false, def: '' },
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.lastResult`, {
+			await this.setObjectNotExistsAsync(`${base}.status.lastResult`, {
 				type: 'state',
 				common: {
 					name: 'Result of the last feeding attempt',
@@ -820,7 +864,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.error`, {
+			await this.setObjectNotExistsAsync(`${base}.status.error`, {
 				type: 'state',
 				common: {
 					name: 'Last feeding had a switching fault',
@@ -844,7 +888,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.winterActive`, {
+			await this.setObjectNotExistsAsync(`${base}.status.winterActive`, {
 				type: 'state',
 				common: {
 					name: 'Winter pause currently active',
@@ -856,7 +900,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.winterLastStartReminder`, {
+			await this.setObjectNotExistsAsync(`${base}.status.winterLastStartReminder`, {
 				type: 'state',
 				common: {
 					name: 'Date of the last sent winter-start reminder',
@@ -868,7 +912,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.winterLastEndReminder`, {
+			await this.setObjectNotExistsAsync(`${base}.status.winterLastEndReminder`, {
 				type: 'state',
 				common: {
 					name: 'Date of the last sent winter-end reminder',
@@ -882,7 +926,7 @@ class AutomaticFeeder extends utils.Adapter {
 			});
 
 			// --- dynamic feeding status (computed from temperature) ---
-			await this.setObjectNotExistsAsync(`${base}.dynamicAvgTemperature`, {
+			await this.setObjectNotExistsAsync(`${base}.status.dynamicAvgTemperature`, {
 				type: 'state',
 				common: {
 					name: 'Dynamic feeding: averaged temperature',
@@ -894,7 +938,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.dynamicRate`, {
+			await this.setObjectNotExistsAsync(`${base}.status.dynamicRate`, {
 				type: 'state',
 				common: {
 					name: 'Dynamic feeding: Q10 rate factor',
@@ -905,7 +949,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.dynamicIntervalMin`, {
+			await this.setObjectNotExistsAsync(`${base}.status.dynamicIntervalMin`, {
 				type: 'state',
 				common: {
 					name: 'Dynamic feeding: current interval',
@@ -917,7 +961,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.dynamicDurationSec`, {
+			await this.setObjectNotExistsAsync(`${base}.status.dynamicDurationSec`, {
 				type: 'state',
 				common: {
 					name: 'Dynamic feeding: current duration',
@@ -931,7 +975,7 @@ class AutomaticFeeder extends utils.Adapter {
 			});
 
 			// --- per-switch mirrors of this station's own sources ---
-			await this.setObjectNotExistsAsync(`${base}.airTemperature`, {
+			await this.setObjectNotExistsAsync(`${base}.status.airTemperature`, {
 				type: 'state',
 				common: {
 					name: 'Air temperature (this switch)',
@@ -943,7 +987,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.waterTemperature`, {
+			await this.setObjectNotExistsAsync(`${base}.status.waterTemperature`, {
 				type: 'state',
 				common: {
 					name: 'Water temperature (this switch)',
@@ -955,7 +999,7 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync(`${base}.oxygen`, {
+			await this.setObjectNotExistsAsync(`${base}.status.oxygen`, {
 				type: 'state',
 				common: {
 					name: 'Dissolved oxygen (this switch)',
@@ -974,6 +1018,7 @@ class AutomaticFeeder extends utils.Adapter {
 				native: {},
 			});
 			for (const s of SWITCH_SETTINGS) {
+				const writable = !SETTINGS_READONLY.has(s.id);
 				await this.setObjectNotExistsAsync(`${base}.settings.${s.id}`, {
 					type: 'state',
 					common: {
@@ -981,11 +1026,13 @@ class AutomaticFeeder extends utils.Adapter {
 						type: asCommonType(s.type),
 						role: s.role,
 						read: true,
-						write: false,
+						write: writable,
 						...(s.unit ? { unit: s.unit } : {}),
 					},
 					native: {},
 				});
+				// keep write flag in sync for objects created by older versions
+				await this.extendObjectAsync(`${base}.settings.${s.id}`, { common: { write: writable } });
 				await this.setStateAsync(`${base}.settings.${s.id}`, { val: s.get(sw), ack: true });
 			}
 		}
@@ -994,13 +1041,13 @@ class AutomaticFeeder extends utils.Adapter {
 	async recoverActiveFeeds() {
 		this.log.silly('Checking for switches left active after an unclean shutdown...');
 		for (const sw of this.switches) {
-			const st = await this.getStateAsync(`switches.${sw.id}.feedingActive`);
+			const st = await this.getStateAsync(`switches.${sw.id}.status.feedingActive`);
 			if (st && st.val) {
 				this.log.info(`Recovering: switch ${this.swLabel(sw)} was still active, turning it off.`);
 				if (sw.objectId) {
 					await this.writeSwitch(sw, false);
 				}
-				await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: false, ack: true });
+				await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: false, ack: true });
 			}
 		}
 	}
@@ -1147,13 +1194,13 @@ class AutomaticFeeder extends utils.Adapter {
 	async updateSourceMirrors(objectId, value) {
 		for (const sw of this.switches) {
 			if (sw.airTempEnabled && sw.airTempObjectId === objectId) {
-				await this.setStateAsync(`switches.${sw.id}.airTemperature`, { val: value, ack: true });
+				await this.setStateAsync(`switches.${sw.id}.status.airTemperature`, { val: value, ack: true });
 			}
 			if (sw.waterTempEnabled && sw.waterTempObjectId === objectId) {
-				await this.setStateAsync(`switches.${sw.id}.waterTemperature`, { val: value, ack: true });
+				await this.setStateAsync(`switches.${sw.id}.status.waterTemperature`, { val: value, ack: true });
 			}
 			if (sw.o2Enabled && sw.o2ObjectId === objectId) {
-				await this.setStateAsync(`switches.${sw.id}.oxygen`, { val: value, ack: true });
+				await this.setStateAsync(`switches.${sw.id}.status.oxygen`, { val: value, ack: true });
 			}
 		}
 	}
@@ -1173,12 +1220,12 @@ class AutomaticFeeder extends utils.Adapter {
 
 		const next = this.computeNextFeeding(sw, new Date());
 		if (!next) {
-			this.setStateAsync(`switches.${sw.id}.nextFeeding`, { val: '', ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
 			this.log.warn(`Switch ${this.swLabel(sw)}: no valid schedule (mode=${sw.mode}), not planned.`);
 			return;
 		}
 
-		this.setStateAsync(`switches.${sw.id}.nextFeeding`, { val: next.toISOString(), ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: next.toISOString(), ack: true });
 		const delay = Math.max(0, next.getTime() - Date.now());
 		this.log.debug(
 			`Switch ${this.swLabel(sw)}: mode=${sw.mode}, next feeding at ${next.toISOString()} (in ${Math.round(delay / 1000)}s).`,
@@ -1204,7 +1251,7 @@ class AutomaticFeeder extends utils.Adapter {
 
 		// --- winter pause overrides the normal schedule ---
 		const inWinter = !!sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, now);
-		this.setStateAsync(`switches.${sw.id}.winterActive`, { val: inWinter, ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.winterActive`, { val: inWinter, ack: true });
 		if (inWinter) {
 			if (sw.winterMode === 'suspend') {
 				this.log.debug(`Switch ${this.swLabel(sw)}: winter pause active (suspend) - no feeding planned.`);
@@ -1327,8 +1374,8 @@ class AutomaticFeeder extends utils.Adapter {
 		const reason = ignoreBlocks ? null : this.getBlockReason(sw);
 		const blocked = !!reason;
 		const reasonText = reason ? this.t(reason.key, reason.params) : '';
-		await this.setStateAsync(`switches.${sw.id}.blocked`, { val: blocked, ack: true });
-		await this.setStateAsync(`switches.${sw.id}.blockReason`, { val: reasonText, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.status.blocked`, { val: blocked, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.status.blockReason`, { val: reasonText, ack: true });
 		if (reason) {
 			// log in English for consistent, language-independent logs
 			this.log.info(`Feeding of ${this.swLabel(sw)} blocked: ${translate(reason.key, 'en', reason.params)}`);
@@ -1347,8 +1394,11 @@ class AutomaticFeeder extends utils.Adapter {
 			// --- switch ON ---
 			this.log.info(`Feeding ${this.swLabel(sw)} for ${seconds}s.`);
 			await this.writeSwitch(sw, true);
-			await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: true, ack: true });
-			await this.setStateAsync(`switches.${sw.id}.lastFeeding`, { val: new Date().toISOString(), ack: true });
+			await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: true, ack: true });
+			await this.setStateAsync(`switches.${sw.id}.status.lastFeeding`, {
+				val: new Date().toISOString(),
+				ack: true,
+			});
 
 			if (verify) {
 				const onConfirmed = await this.verifyState(sw, true);
@@ -1358,7 +1408,7 @@ class AutomaticFeeder extends utils.Adapter {
 				if (!onConfirmed) {
 					// Scenario 2: the switch never confirmed the ON state
 					await this.writeSwitch(sw, false); // safety: try to switch off again
-					await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: false, ack: true });
+					await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: false, ack: true });
 					this.log.error(
 						`Feeding of ${this.swLabel(sw)} could not be performed - switch did not confirm ON. Check the switch!`,
 					);
@@ -1381,7 +1431,7 @@ class AutomaticFeeder extends utils.Adapter {
 
 			// --- switch OFF ---
 			await this.writeSwitch(sw, false);
-			await this.setStateAsync(`switches.${sw.id}.feedingActive`, { val: false, ack: true });
+			await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: false, ack: true });
 
 			if (verify) {
 				const offConfirmed = await this.verifyState(sw, false);
@@ -1530,8 +1580,8 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @param {string} message - human readable result text
 	 */
 	async reportResult(sw, isError, message) {
-		await this.setStateAsync(`switches.${sw.id}.lastResult`, { val: message, ack: true });
-		await this.setStateAsync(`switches.${sw.id}.error`, { val: isError, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.status.lastResult`, { val: message, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.status.error`, { val: isError, ack: true });
 	}
 
 	/**
@@ -1648,10 +1698,10 @@ class AutomaticFeeder extends utils.Adapter {
 		);
 		const rate = q10Rate(t, tRef, q10);
 		this.dynamicAppliedInterval.set(sw.id, interval);
-		this.setStateAsync(`switches.${sw.id}.dynamicAvgTemperature`, { val: avg, ack: true });
-		this.setStateAsync(`switches.${sw.id}.dynamicRate`, { val: Math.round(rate * 1000) / 1000, ack: true });
-		this.setStateAsync(`switches.${sw.id}.dynamicIntervalMin`, { val: interval, ack: true });
-		this.setStateAsync(`switches.${sw.id}.dynamicDurationSec`, { val: duration, ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.dynamicAvgTemperature`, { val: avg, ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.dynamicRate`, { val: Math.round(rate * 1000) / 1000, ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.dynamicIntervalMin`, { val: interval, ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.dynamicDurationSec`, { val: duration, ack: true });
 		this.log.debug(
 			`Dynamic ${this.swLabel(sw)}: avg=${avg === null ? 'n/a' : `${avg.toFixed(1)}°C`} rate=${rate.toFixed(2)} -> interval ${interval} min, duration ${duration}s.`,
 		);
@@ -1789,11 +1839,11 @@ class AutomaticFeeder extends utils.Adapter {
 			if (sw.winterStartReminderEnabled) {
 				const d = daysUntilMD(sw.winterStart, now);
 				if (d !== null && d <= (Number(sw.winterStartReminderDays) || 0)) {
-					const st = await this.getStateAsync(`switches.${sw.id}.winterLastStartReminder`);
+					const st = await this.getStateAsync(`switches.${sw.id}.status.winterLastStartReminder`);
 					if (!st || st.val !== todayKey) {
 						const dateStr = this.formatLocalDate(nextMDDate(sw.winterStart, now));
 						this.notifyWinter(sw, reduced ? 'winterStartReduced' : 'winterStartSuspend', { date: dateStr });
-						await this.setStateAsync(`switches.${sw.id}.winterLastStartReminder`, {
+						await this.setStateAsync(`switches.${sw.id}.status.winterLastStartReminder`, {
 							val: todayKey,
 							ack: true,
 						});
@@ -1804,11 +1854,11 @@ class AutomaticFeeder extends utils.Adapter {
 			if (sw.winterEndReminderEnabled) {
 				const d = daysUntilMD(sw.winterEnd, now);
 				if (d !== null && d <= (Number(sw.winterEndReminderDays) || 0)) {
-					const st = await this.getStateAsync(`switches.${sw.id}.winterLastEndReminder`);
+					const st = await this.getStateAsync(`switches.${sw.id}.status.winterLastEndReminder`);
 					if (!st || st.val !== todayKey) {
 						const dateStr = this.formatLocalDate(nextMDDate(sw.winterEnd, now));
 						this.notifyWinter(sw, reduced ? 'winterEndReduced' : 'winterEndSuspend', { date: dateStr });
-						await this.setStateAsync(`switches.${sw.id}.winterLastEndReminder`, {
+						await this.setStateAsync(`switches.${sw.id}.status.winterLastEndReminder`, {
 							val: todayKey,
 							ack: true,
 						});
@@ -1991,6 +2041,127 @@ class AutomaticFeeder extends utils.Adapter {
 				this.log.warn(`Manual trigger for unknown switch id "${m[1]}".`);
 			}
 			await this.setStateAsync(id, { val: false, ack: true });
+			return;
+		}
+
+		// editable settings written from VIS/scripts (command => ack === false)
+		const sm = id.match(/switches\.([^.]+)\.settings\.([^.]+)$/);
+		if (sm && state.ack === false) {
+			this.queueSettingWrite(sm[1], sm[2], state.val);
+			await this.setStateAsync(id, { val: state.val, ack: true });
+		}
+	}
+
+	/**
+	 * Queues an editable-setting write from VIS/scripts and debounces the apply so
+	 * several quick edits result in a single config change (one restart).
+	 *
+	 * @param {string} sid - switch id
+	 * @param {string} key - setting key (SWITCH_SETTINGS id)
+	 * @param {ioBroker.StateValue} val - the written value
+	 */
+	queueSettingWrite(sid, key, val) {
+		if (SETTINGS_READONLY.has(key)) {
+			this.log.debug(`Ignoring write to read-only setting "${key}".`);
+			return;
+		}
+		const desc = SWITCH_SETTINGS.find(s => s.id === key);
+		if (!desc) {
+			this.log.warn(`Write to unknown setting "${key}" ignored.`);
+			return;
+		}
+		if (!this.pendingSettingWrites.has(sid)) {
+			this.pendingSettingWrites.set(sid, {});
+		}
+		this.pendingSettingWrites.get(sid)[key] = { val, type: desc.type };
+		this.log.debug(`Queued setting write ${sid}.${key} = ${JSON.stringify(val)}.`);
+		if (this.settingsWriteTimer) {
+			this.clearTimeout(this.settingsWriteTimer);
+		}
+		this.settingsWriteTimer = this.setTimeout(() => {
+			this.settingsWriteTimer = null;
+			this.flushSettingWrites().catch(e => this.log.warn(`Applying setting writes failed: ${e.message}`));
+		}, 3000);
+	}
+
+	/** Applies all queued setting writes to the instance config in one write (restarts the adapter). */
+	async flushSettingWrites() {
+		if (!this.pendingSettingWrites.size) {
+			return;
+		}
+		const pending = this.pendingSettingWrites;
+		this.pendingSettingWrites = new Map();
+		const objId = `system.adapter.${this.namespace}`;
+		let obj;
+		try {
+			obj = await this.getForeignObjectAsync(objId);
+		} catch (e) {
+			this.log.warn(`Could not read ${objId} to apply setting writes: ${e.message}`);
+			return;
+		}
+		if (!obj || !obj.native) {
+			return;
+		}
+		const switches = Array.isArray(obj.native.switches) ? obj.native.switches : [];
+		let changed = 0;
+		for (const [sid, edits] of pending) {
+			const sw = switches.find(s => s && s.id === sid);
+			if (!sw) {
+				this.log.warn(`Setting write for unknown switch "${sid}" ignored.`);
+				continue;
+			}
+			for (const key of Object.keys(edits)) {
+				this.applyOneSetting(sw, key, edits[key].type, edits[key].val);
+				changed++;
+			}
+		}
+		if (!changed) {
+			return;
+		}
+		obj.native.switches = switches;
+		await this.setForeignObjectAsync(objId, obj);
+		this.log.info(`Applied ${changed} setting change(s) from VIS/states; the adapter restarts to apply them.`);
+	}
+
+	/**
+	 * Writes one setting value into a switch config object with the right coercion.
+	 *
+	 * @param {Record<string, unknown>} sw - the switch config object (from native)
+	 * @param {string} key - setting key
+	 * @param {string} type - descriptor type ("string" | "number" | "boolean")
+	 * @param {ioBroker.StateValue} val - the written value
+	 */
+	applyOneSetting(sw, key, type, val) {
+		if (key === 'times') {
+			sw.times = String(val ?? '')
+				.split(',')
+				.map(x => x.trim())
+				.filter(x => /^\d{1,2}:\d{2}$/.test(x));
+			return;
+		}
+		if (key === 'airTempObjectId' || key === 'waterTempObjectId' || key === 'o2ObjectId') {
+			const enableField =
+				key === 'airTempObjectId'
+					? 'airTempEnabled'
+					: key === 'waterTempObjectId'
+						? 'waterTempEnabled'
+						: 'o2Enabled';
+			const s = String(val ?? '').trim();
+			sw[key] = s;
+			sw[enableField] = s !== '';
+			return;
+		}
+		if (type === 'boolean') {
+			sw[key] = val === true || val === 'true' || val === 1 || val === '1';
+		} else if (type === 'number') {
+			if (NULLABLE_SETTINGS.has(key)) {
+				const n = val === '' || val === null || val === undefined ? NaN : Number(val);
+				sw[key] = Number.isNaN(n) ? null : n;
+			} else {
+				sw[key] = Number(val) || 0;
+			}
+		} else {
+			sw[key] = String(val ?? '');
 		}
 	}
 
@@ -2089,6 +2260,10 @@ class AutomaticFeeder extends utils.Adapter {
 			if (this.reminderTimer) {
 				this.clearTimeout(this.reminderTimer);
 				this.reminderTimer = null;
+			}
+			if (this.settingsWriteTimer) {
+				this.clearTimeout(this.settingsWriteTimer);
+				this.settingsWriteTimer = null;
 			}
 			for (const t of this.scheduleTimers.values()) {
 				this.clearTimeout(t);

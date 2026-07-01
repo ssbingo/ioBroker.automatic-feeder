@@ -195,7 +195,7 @@ Scegli **una** modalità:
   * **Intervallo (minuti)** – ad es. 60 → distribuisce ogni giorno alle 08:00, 09:00, … fino alla
     fine della finestra.
 
-Il prossimo orario programmato è sempre presente nel punto dati `nextFeeding`.
+Il prossimo orario programmato è sempre presente nel punto dati `status.nextFeeding`.
 
 #### Processo di distribuzione
 
@@ -219,7 +219,7 @@ possono usare oggetti diversi:
   disciolto.
 
 Sono utili solo i punti dati numerici. I valori attuali vengono rispecchiati nei punti dati
-`airTemperature`, `waterTemperature` e `oxygen` di questo interruttore. Le soglie si impostano più
+`status.airTemperature`, `status.waterTemperature` e `status.oxygen` di questo interruttore. Le soglie si impostano più
 in basso (*Blocco per temperatura*) e le temperature guidano anche l'*Alimentazione dinamica*.
 
 #### Blocco per temperatura
@@ -232,7 +232,7 @@ ossigeno*). Per ogni interruttore:
 * **Blocca in base alla temperatura dell'aria** – lo stesso per l'aria.
 
 Se la temperatura attuale è al di fuori dell'intervallo consentito, la distribuzione viene saltata
-e il motivo viene scritto in `blockReason`. (Se un valore di temperatura è sconosciuto, questa
+e il motivo viene scritto in `status.blockReason`. (Se un valore di temperatura è sconosciuto, questa
 sorgente non blocca.)
 
 #### Limitazioni
@@ -251,7 +251,7 @@ Opzionale: adatta **intervallo e durata dell'alimentazione alla temperatura** co
 * **Intervallo / durata (base, min, max)** – limiti per l'intervallo calcolato (minuti) e la durata (secondi).
 * **Finestra di media / isteresi** – una media mobile (es. 24 h) attenua i picchi; l'isteresi evita la ripianificazione per variazioni minime.
 
-I valori correnti sono in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` e `dynamicDurationSec`. Una fonte opzionale di **ossigeno (O₂)** può bloccare l'alimentazione quando l'ossigeno disciolto scende sotto una soglia. La pausa invernale ha la precedenza sull'alimentazione dinamica.
+I valori correnti sono in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` e `status.dynamicDurationSec`. Una fonte opzionale di **ossigeno (O₂)** può bloccare l'alimentazione quando l'ossigeno disciolto scende sotto una soglia. La pausa invernale ha la precedenza sull'alimentazione dinamica.
 
 #### Pausa invernale
 
@@ -262,7 +262,7 @@ Per ogni interruttore è possibile definire una **pausa invernale** ricorrente (
 * **Modalità** – durante la pausa, **sospendi l'alimentazione**, alimenta con un intervallo proprio **ridotto** oppure **una volta al giorno** a un orario fisso; si applica una **durata di alimentazione invernale** propria.
 * **Promemoria (Telegram)** – nei giorni prima dell'inizio e prima della fine viene inviato ogni giorno (l'ultima volta nel giorno stesso) un promemoria all'ora configurata. Richiede un'istanza Telegram (vedi sotto).
 
-Lo stato attuale è mostrato nel punto dati `winterActive`. L'alimentazione riprende automaticamente al termine della pausa.
+Lo stato attuale è mostrato nel punto dati `status.winterActive`. L'alimentazione riprende automaticamente al termine della pausa.
 
 #### Monitoraggio della commutazione
 
@@ -288,7 +288,7 @@ risultati:
 > prese/relè con conferma di stato). Un semplice booleano ausiliario che nessuno conferma
 > segnalerebbe sempre un guasto – in tal caso disattiva il monitoraggio per questo interruttore.
 
-Il risultato è inoltre presente nei punti dati `lastResult` (testo) ed `error` (booleano),
+Il risultato è inoltre presente nei punti dati `status.lastResult` (testo) ed `status.error` (booleano),
 così puoi reagire di conseguenza (ad es. attivare una notifica personalizzata).
 
 #### Notifiche Telegram
@@ -325,32 +325,38 @@ L'adattatore crea i seguenti punti dati nel suo namespace
 
 **Per ogni interruttore sotto `switches.<id>.`** (`<id>` è un ID interno come `sw-0`)
 
-Inoltre, un sotto-canale di sola lettura **`settings`** (`switches.<id>.settings.*`) rispecchia la configurazione di questo interruttore, così da poterla mostrare in VIS o usarla negli script.
+Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-canali:
+
+* **`status`** (`switches.<id>.status.*`) – i punti dati di stato di sola lettura elencati sotto.
+* **`settings`** (`switches.<id>.settings.*`) – un mirror **modificabile** della configurazione di
+  questo interruttore. Scrivendovi un nuovo valore (da VIS o da uno script) si modifica la
+  configurazione e si riavvia l'istanza affinché la modifica abbia effetto. Alcuni campi derivati
+  sono di sola lettura (ad es. `winterWindow`).
 
 | Punto dati | Tipo | Significato |
 |------------|-----|-----------|
-| `feedingActive` | boolean (ro) | È in corso una distribuzione. |
-| `lastFeeding` | string (ro) | Momento dell'ultima distribuzione. |
-| `nextFeeding` | string (ro) | Momento della prossima distribuzione programmata. |
-| `blocked` | boolean (ro) | L'ultimo tentativo è stato bloccato. |
-| `blockReason` | string (ro) | Motivo del blocco (notte/temperatura/ossigeno). |
-| `lastResult` | string (ro) | Testo dell'esito dell'ultimo tentativo di distribuzione. |
-| `error` | boolean (ro) | L'ultimo tentativo ha avuto un guasto di commutazione. |
 | `feedNow` | boolean (rw) | Scrivi `true` per distribuire manualmente. |
-| `winterActive` | boolean (ro) | La pausa invernale è attualmente attiva. |
-| `winterLastStartReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno inizia" inviato. |
-| `winterLastEndReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno finisce" inviato. |
-| `dynamicAvgTemperature` | number (ro) | Temperatura media usata dall'alimentazione dinamica. |
-| `dynamicRate` | number (ro) | Fattore di velocità Q10 attualmente applicato dall'alimentazione dinamica. |
-| `dynamicIntervalMin` | number (ro) | Intervallo dinamico attualmente calcolato (minuti). |
-| `dynamicDurationSec` | number (ro) | Durata dinamica attualmente calcolata (secondi). |
-| `airTemperature` | number (ro) | Valore della sorgente di temperatura dell'aria propria di questo interruttore. |
-| `waterTemperature` | number (ro) | Valore della sorgente di temperatura dell'acqua propria di questo interruttore. |
-| `oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
+| `status.feedingActive` | boolean (ro) | È in corso una distribuzione. |
+| `status.lastFeeding` | string (ro) | Momento dell'ultima distribuzione. |
+| `status.nextFeeding` | string (ro) | Momento della prossima distribuzione programmata. |
+| `status.blocked` | boolean (ro) | L'ultimo tentativo è stato bloccato. |
+| `status.blockReason` | string (ro) | Motivo del blocco (notte/temperatura/ossigeno). |
+| `status.lastResult` | string (ro) | Testo dell'esito dell'ultimo tentativo di distribuzione. |
+| `status.error` | boolean (ro) | L'ultimo tentativo ha avuto un guasto di commutazione. |
+| `status.winterActive` | boolean (ro) | La pausa invernale è attualmente attiva. |
+| `status.winterLastStartReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno inizia" inviato. |
+| `status.winterLastEndReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno finisce" inviato. |
+| `status.dynamicAvgTemperature` | number (ro) | Temperatura media usata dall'alimentazione dinamica. |
+| `status.dynamicRate` | number (ro) | Fattore di velocità Q10 attualmente applicato dall'alimentazione dinamica. |
+| `status.dynamicIntervalMin` | number (ro) | Intervallo dinamico attualmente calcolato (minuti). |
+| `status.dynamicDurationSec` | number (ro) | Durata dinamica attualmente calcolata (secondi). |
+| `status.airTemperature` | number (ro) | Valore della sorgente di temperatura dell'aria propria di questo interruttore. |
+| `status.waterTemperature` | number (ro) | Valore della sorgente di temperatura dell'acqua propria di questo interruttore. |
+| `status.oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
 
 Questi punti dati possono essere usati in VIS, negli script o in altri adattatori – ad es.
-mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando
-`error = true`.
+mostrare `status.nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando
+`status.error = true`.
 
 ---
 
@@ -418,8 +424,8 @@ Cache del browser. Ricarica forzatamente con **Strg+Shift+R**.
 
 **Non viene distribuito alcun mangime.**
 Controlla nell'ordine: l'interruttore è **Attivo**; è selezionato un **Oggetto interruttore**; il
-**programma** è valido (`nextFeeding` mostra un orario); non è **bloccato** (controlla `blocked` /
-`blockReason`); la **finestra solare** non esclude l'orario; imposta il **livello di log**
+**programma** è valido (`status.nextFeeding` mostra un orario); non è **bloccato** (controlla `status.blocked` /
+`status.blockReason`); la **finestra solare** non esclude l'orario; imposta il **livello di log**
 dell'istanza su `debug` e osserva il log.
 
 **Non viene mai distribuito mangime di notte, anche se lo desidero.**
@@ -434,11 +440,11 @@ per questo interruttore.
 **L'alimentazione dinamica non cambia nulla.**
 Assicurati che la fonte di temperatura selezionata (acqua o aria) sia attivata nella scheda
 dell'interruttore (*Sorgenti di temperatura e ossigeno*) e fornisca valori. Subito dopo un riavvio la media mobile si sta ancora riempiendo, quindi
-parte dai valori base. Osserva `dynamicAvgTemperature` e `dynamicIntervalMin`.
+parte dai valori base. Osserva `status.dynamicAvgTemperature` e `status.dynamicIntervalMin`.
 
 **Non viene distribuito nulla anche se non è inverno (oppure distribuisce quando dovrebbe essere in pausa).**
 Controlla le date della *Pausa invernale* (`Inizio inverno` / `Fine inverno`, formato gg.mm) e la
-modalità. Il punto dati `winterActive` indica se la pausa è attualmente attiva.
+modalità. Il punto dati `status.winterActive` indica se la pausa è attualmente attiva.
 
 **La ricerca dell'indirizzo dice che l'istanza deve essere in esecuzione.**
 Avvia l'istanza automatic-feeder – il geocoding viene eseguito nel backend.

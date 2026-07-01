@@ -172,7 +172,7 @@
   * **时间段开始** / **时间段结束**——例如 08:00 到 18:00。
   * **间隔（分钟）**——例如 60 → 每天在 08:00、09:00……一直到窗口结束时喂食。
 
-下一次计划的时间随时可在数据点 `nextFeeding` 中查看。
+下一次计划的时间随时可在数据点 `status.nextFeeding` 中查看。
 
 #### 喂食过程（Fütterungsvorgang）
 
@@ -188,8 +188,8 @@
 * **水温**——勾选并选择包含该站点水温的数据点。
 * **溶氧（O₂）**——勾选并选择包含溶解氧的数据点。
 
-只有数字类型的数据点才有意义。当前值会被镜像到该开关的 `airTemperature`、`waterTemperature`
-和 `oxygen` 数据点。阈值在下方设置（*温度阻止*），温度同时也驱动*动态投喂*。
+只有数字类型的数据点才有意义。当前值会被镜像到该开关的 `status.airTemperature`、`status.waterTemperature`
+和 `status.oxygen` 数据点。阈值在下方设置（*温度阻止*），温度同时也驱动*动态投喂*。
 
 #### 温度阻止
 
@@ -198,7 +198,7 @@
 * **按水温阻止**——*低于时阻止*和/或*高于时阻止*（°C）。
 * **按气温阻止**——气温方面同上。
 
-如果当前温度处于允许范围之外，喂食将被跳过，原因会写入 `blockReason`。
+如果当前温度处于允许范围之外，喂食将被跳过，原因会写入 `status.blockReason`。
 （如果某个温度值未知，则该来源不会阻止。）
 
 #### 限制
@@ -216,7 +216,7 @@
 * **间隔 / 时长（基准、最小、最大）** —— 计算所得间隔（分钟）和时长（秒）的上下限。
 * **平均窗口 / 迟滞** —— 移动平均（如 24 小时）平滑波动；迟滞避免因微小变化而重新排程。
 
-当前值可在 `dynamicAvgTemperature`、`dynamicRate`、`dynamicIntervalMin` 和 `dynamicDurationSec` 中查看。可选的**溶氧 (O₂)** 源可在溶解氧低于阈值时阻止投喂。冬季暂停优先于动态投喂。
+当前值可在 `status.dynamicAvgTemperature`、`status.dynamicRate`、`status.dynamicIntervalMin` 和 `status.dynamicDurationSec` 中查看。可选的**溶氧 (O₂)** 源可在溶解氧低于阈值时阻止投喂。冬季暂停优先于动态投喂。
 
 #### 冬季暂停
 
@@ -227,7 +227,7 @@
 * **模式** —— 暂停期间可以**暂停投喂**、以**减量**的自定义间隔投喂，或每日**一次**在固定时间投喂；并使用单独的**冬季投喂时长**。
 * **提醒 (Telegram)** —— 在开始前和结束前的若干天，每天（最后一次为当天）在设定的小时发送提醒。需要 Telegram 实例（见下方）。
 
-当前状态显示在数据点 `winterActive` 中。暂停结束后会自动恢复投喂。
+当前状态显示在数据点 `status.winterActive` 中。暂停结束后会自动恢复投喂。
 
 #### 开关监控（Schaltüberwachung）
 
@@ -251,7 +251,7 @@
 > 更新（对于带状态回报的插座/继电器是典型情况）。一个没有任何人确认的简单辅助布尔值
 > 总会报告故障——这时应为该开关关闭监控。
 
-结果还会写入数据点 `lastResult`（文本）和 `error`（boolean），以便你据此做出响应
+结果还会写入数据点 `status.lastResult`（文本）和 `status.error`（boolean），以便你据此做出响应
 （例如触发你自己的通知）。
 
 #### Telegram 通知
@@ -284,31 +284,34 @@
 
 **每个开关下，位于 `switches.<id>.`**（`<id>` 是诸如 `sw-0` 的内部 ID）
 
-此外，只读子通道 **`settings`**（`switches.<id>.settings.*`）会镜像该开关的配置，便于在 VIS 中显示或在脚本中使用。
+开关下方直接放置了手动触发器和两个子通道：
+
+* **`status`**（`switches.<id>.status.*`）——下方列出的只读状态数据点。
+* **`settings`**（`switches.<id>.settings.*`）——该开关配置的**可编辑**镜像。在此写入新值（从 VIS 或脚本）会更改配置并重启实例以使更改生效。少数派生字段为只读（例如 `winterWindow`）。
 
 | 数据点 | 类型 | 含义 |
 |------------|-----|-----------|
-| `feedingActive` | boolean (ro) | 当前正在进行一次喂食。 |
-| `lastFeeding` | string (ro) | 上次喂食的时间点。 |
-| `nextFeeding` | string (ro) | 下一次计划喂食的时间点。 |
-| `blocked` | boolean (ro) | 上次尝试被阻止。 |
-| `blockReason` | string (ro) | 阻止的原因（夜间/温度/氧）。 |
-| `lastResult` | string (ro) | 上次喂食尝试的结果文本。 |
-| `error` | boolean (ro) | 上次尝试出现了开关故障。 |
 | `feedNow` | boolean (rw) | 写入 `true` 以手动喂食。 |
-| `winterActive` | boolean (ro) | 冬季暂停当前处于生效状态。 |
-| `winterLastStartReminder` | string (ro) | 上次发送“冬季开始”提醒的日期。 |
-| `winterLastEndReminder` | string (ro) | 上次发送“冬季结束”提醒的日期。 |
-| `dynamicAvgTemperature` | number (ro) | 动态投喂所用的平均温度。 |
-| `dynamicRate` | number (ro) | 动态投喂当前应用的 Q10 速率因子。 |
-| `dynamicIntervalMin` | number (ro) | 当前计算得出的动态间隔（分钟）。 |
-| `dynamicDurationSec` | number (ro) | 当前计算得出的动态时长（秒）。 |
-| `airTemperature` | number (ro) | 该开关自身气温来源的值。 |
-| `waterTemperature` | number (ro) | 该开关自身水温来源的值。 |
-| `oxygen` | number (ro) | 该开关自身溶解氧来源的值。 |
+| `status.feedingActive` | boolean (ro) | 当前正在进行一次喂食。 |
+| `status.lastFeeding` | string (ro) | 上次喂食的时间点。 |
+| `status.nextFeeding` | string (ro) | 下一次计划喂食的时间点。 |
+| `status.blocked` | boolean (ro) | 上次尝试被阻止。 |
+| `status.blockReason` | string (ro) | 阻止的原因（夜间/温度/氧）。 |
+| `status.lastResult` | string (ro) | 上次喂食尝试的结果文本。 |
+| `status.error` | boolean (ro) | 上次尝试出现了开关故障。 |
+| `status.winterActive` | boolean (ro) | 冬季暂停当前处于生效状态。 |
+| `status.winterLastStartReminder` | string (ro) | 上次发送“冬季开始”提醒的日期。 |
+| `status.winterLastEndReminder` | string (ro) | 上次发送“冬季结束”提醒的日期。 |
+| `status.dynamicAvgTemperature` | number (ro) | 动态投喂所用的平均温度。 |
+| `status.dynamicRate` | number (ro) | 动态投喂当前应用的 Q10 速率因子。 |
+| `status.dynamicIntervalMin` | number (ro) | 当前计算得出的动态间隔（分钟）。 |
+| `status.dynamicDurationSec` | number (ro) | 当前计算得出的动态时长（秒）。 |
+| `status.airTemperature` | number (ro) | 该开关自身气温来源的值。 |
+| `status.waterTemperature` | number (ro) | 该开关自身水温来源的值。 |
+| `status.oxygen` | number (ro) | 该开关自身溶解氧来源的值。 |
 
-这些数据点可在 VIS、脚本或其他适配器中使用——例如在仪表盘上显示 `nextFeeding`，
-或在 `error = true` 时触发你自己的报警。
+这些数据点可在 VIS、脚本或其他适配器中使用——例如在仪表盘上显示 `status.nextFeeding`，
+或在 `status.error = true` 时触发你自己的报警。
 
 ---
 
@@ -364,8 +367,8 @@
 浏览器缓存。请用 **Strg+Shift+R** 强制重新加载。
 
 **完全没有喂食。**
-依次检查：开关已**激活**；已选择一个**开关对象**；**时间计划**有效（`nextFeeding` 显示一个时间）；
-未被**阻止**（查看 `blocked` / `blockReason`）；**日照时段**没有排除该时间；将实例的
+依次检查：开关已**激活**；已选择一个**开关对象**；**时间计划**有效（`status.nextFeeding` 显示一个时间）；
+未被**阻止**（查看 `status.blocked` / `status.blockReason`）；**日照时段**没有排除该时间；将实例的
 **日志级别**设为 `debug` 并观察日志。
 
 **尽管我想要，但从来不在夜间喂食。**
@@ -378,11 +381,11 @@
 
 **动态投喂没有任何变化。**
 请确保所选的温度来源（水温或气温）已在开关选项卡（*温度与溶氧来源*）中激活并提供数值。刚重启后移动平均仍在
-填充，因此会从基准值开始。请观察 `dynamicAvgTemperature` 和 `dynamicIntervalMin`。
+填充，因此会从基准值开始。请观察 `status.dynamicAvgTemperature` 和 `status.dynamicIntervalMin`。
 
 **尽管不是冬季却没有喂食（或应当暂停却仍在喂食）。**
 请检查*冬季暂停*的日期（`冬季开始` / `冬季结束`，格式 dd.mm）和模式。数据点
-`winterActive` 会显示暂停当前是否处于生效状态。
+`status.winterActive` 会显示暂停当前是否处于生效状态。
 
 **地址搜索提示实例必须正在运行。**
 启动 automatic-feeder 实例——地理编码在后端运行。

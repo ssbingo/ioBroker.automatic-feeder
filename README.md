@@ -198,7 +198,7 @@ Choose **one** mode:
   * **Interval (minutes)** – e.g. 60 → feed at 08:00, 09:00, …, up to the end of the window,
     every day.
 
-The next planned time is always visible in the `nextFeeding` data point.
+The next planned time is always visible in the `status.nextFeeding` data point.
 
 #### Feeding action
 
@@ -216,8 +216,8 @@ objects:
 * **Water temperature** – tick the box and pick the state that holds this station's water temperature.
 * **Oxygen (O₂)** – tick the box and pick the state that holds the dissolved oxygen.
 
-Only number states make sense. The current values are mirrored to this switch's `airTemperature`,
-`waterTemperature` and `oxygen` data points. The thresholds are set below (*Temperature blocking*),
+Only number states make sense. The current values are mirrored to this switch's `status.airTemperature`,
+`status.waterTemperature` and `status.oxygen` data points. The thresholds are set below (*Temperature blocking*),
 and the temperatures also drive *Dynamic feeding*.
 
 #### Temperature blocking
@@ -228,7 +228,7 @@ Only shown for the temperature sources you enabled above (*Temperature & oxygen 
 * **Block by air temperature** – same, for air.
 
 If the current temperature is outside the allowed range, the feeding is skipped and the reason
-is written to `blockReason`. (If a temperature value is unknown, that source does not block.)
+is written to `status.blockReason`. (If a temperature value is unknown, that source does not block.)
 
 #### Restrictions
 
@@ -246,7 +246,7 @@ Optional: adapt the feeding **interval and duration to temperature** using the Q
 * **Interval / duration (base, min, max)** – bounds for the computed interval (minutes) and duration (seconds).
 * **Averaging window / hysteresis** – a moving average (e.g. 24 h) smooths spikes; hysteresis avoids re-planning on tiny changes.
 
-The current values are exposed in `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin` and `dynamicDurationSec`. An optional **oxygen (O₂)** source can block feeding when the dissolved oxygen drops below a threshold. The winter pause takes precedence over dynamic feeding.
+The current values are exposed in `status.dynamicAvgTemperature`, `status.dynamicRate`, `status.dynamicIntervalMin` and `status.dynamicDurationSec`. An optional **oxygen (O₂)** source can block feeding when the dissolved oxygen drops below a threshold. The winter pause takes precedence over dynamic feeding.
 
 #### Winter pause
 
@@ -257,7 +257,7 @@ Per switch you can define a recurring **winter pause** (seasonal, given as `MM-D
 * **Mode** – during the pause either **suspend feeding**, feed with a **reduced** own interval, or **once daily** at a set time; a separate **winter feeding duration** applies.
 * **Reminders (Telegram)** – a daily reminder is sent in the days before the start and before the end (last on the day itself), at the configured hour. Needs a Telegram instance (see below).
 
-The current state is shown in the `winterActive` data point. Feeding resumes automatically when the pause ends.
+The current state is shown in the `status.winterActive` data point. Feeding resumes automatically when the pause ends.
 
 #### Switching supervision
 
@@ -282,7 +282,7 @@ state, and report one of three results per feeding:
 > A plain helper boolean that nobody acknowledges would always report a fault – in that case
 > turn supervision off for this switch.
 
-The result is also stored in the `lastResult` (text) and `error` (boolean) data points, so you
+The result is also stored in the `status.lastResult` (text) and `status.error` (boolean) data points, so you
 can react to it (e.g. trigger a notification of your own).
 
 #### Telegram notifications
@@ -317,31 +317,37 @@ The adapter creates the following states under its namespace
 
 **Per switch, under `switches.<id>.`** (`<id>` is an internal id like `sw-0`)
 
-In addition, a read-only **`settings`** sub-channel (`switches.<id>.settings.*`) mirrors this switch's configuration so it can be shown in VIS or used in scripts.
+Directly under the switch there is the manual trigger and two sub-channels:
+
+* **`status`** (`switches.<id>.status.*`) – the read-only status data points listed below.
+* **`settings`** (`switches.<id>.settings.*`) – an **editable** mirror of this switch's
+  configuration. Writing a new value there (from VIS or a script) changes the configuration and
+  restarts the instance so the change takes effect. A few derived fields are read-only
+  (e.g. `winterWindow`).
 
 | Data point | Type | Meaning |
 |------------|------|---------|
-| `feedingActive` | boolean (ro) | A feeding is running right now. |
-| `lastFeeding` | string (ro) | Timestamp of the last feeding. |
-| `nextFeeding` | string (ro) | Timestamp of the next planned feeding. |
-| `blocked` | boolean (ro) | The last attempt was blocked. |
-| `blockReason` | string (ro) | Why it was blocked (night / temperature / oxygen). |
-| `lastResult` | string (ro) | Result text of the last feeding attempt. |
-| `error` | boolean (ro) | The last attempt had a switching fault. |
 | `feedNow` | boolean (rw) | Write `true` to trigger a manual feeding. |
-| `winterActive` | boolean (ro) | The winter pause is currently active. |
-| `winterLastStartReminder` | string (ro) | Date of the last sent "winter starts" reminder. |
-| `winterLastEndReminder` | string (ro) | Date of the last sent "winter ends" reminder. |
-| `dynamicAvgTemperature` | number (ro) | Averaged temperature used by dynamic feeding. |
-| `dynamicRate` | number (ro) | Q10 rate factor currently applied by dynamic feeding. |
-| `dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
-| `dynamicDurationSec` | number (ro) | Currently computed dynamic duration (seconds). |
-| `airTemperature` | number (ro) | This switch's own air-temperature source value. |
-| `waterTemperature` | number (ro) | This switch's own water-temperature source value. |
-| `oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
+| `status.feedingActive` | boolean (ro) | A feeding is running right now. |
+| `status.lastFeeding` | string (ro) | Timestamp of the last feeding. |
+| `status.nextFeeding` | string (ro) | Timestamp of the next planned feeding. |
+| `status.blocked` | boolean (ro) | The last attempt was blocked. |
+| `status.blockReason` | string (ro) | Why it was blocked (night / temperature / oxygen). |
+| `status.lastResult` | string (ro) | Result text of the last feeding attempt. |
+| `status.error` | boolean (ro) | The last attempt had a switching fault. |
+| `status.winterActive` | boolean (ro) | The winter pause is currently active. |
+| `status.winterLastStartReminder` | string (ro) | Date of the last sent "winter starts" reminder. |
+| `status.winterLastEndReminder` | string (ro) | Date of the last sent "winter ends" reminder. |
+| `status.dynamicAvgTemperature` | number (ro) | Averaged temperature used by dynamic feeding. |
+| `status.dynamicRate` | number (ro) | Q10 rate factor currently applied by dynamic feeding. |
+| `status.dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
+| `status.dynamicDurationSec` | number (ro) | Currently computed dynamic duration (seconds). |
+| `status.airTemperature` | number (ro) | This switch's own air-temperature source value. |
+| `status.waterTemperature` | number (ro) | This switch's own water-temperature source value. |
+| `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 
-You can use these in VIS, scripts or other adapters – for example show `nextFeeding` on a
-dashboard, or react on `error = true` to send your own alarm.
+You can use these in VIS, scripts or other adapters – for example show `status.nextFeeding` on a
+dashboard, or react on `status.error = true` to send your own alarm.
 
 ---
 
@@ -401,7 +407,7 @@ Browser cache – hard-reload with **Ctrl+Shift+R**.
 
 **Nothing gets fed.**
 Check, in order: the switch is **Active**; a **switch object** is selected; the **schedule** is
-valid (`nextFeeding` shows a time); it is not **blocked** (look at `blocked` / `blockReason`);
+valid (`status.nextFeeding` shows a time); it is not **blocked** (look at `status.blocked` / `status.blockReason`);
 the **sun window** is not excluding the time; set the instance **log level** to `debug` and
 watch the log.
 
@@ -416,11 +422,11 @@ switch with status feedback, or disable *Switching supervision* for that switch.
 **Dynamic feeding does not change anything.**
 Make sure the selected temperature source (water or air) is enabled on the switch tab
 (*Temperature & oxygen sources*) and delivers values. Right after a restart the moving average is still filling up, so it starts from
-the base values. Watch `dynamicAvgTemperature` and `dynamicIntervalMin`.
+the base values. Watch `status.dynamicAvgTemperature` and `status.dynamicIntervalMin`.
 
 **Nothing is fed although it is not winter (or it feeds although it should pause).**
 Check the *Winter pause* dates (`Winter start` / `Winter end`, format dd.mm) and the mode. The
-`winterActive` data point shows whether the pause is currently active.
+`status.winterActive` data point shows whether the pause is currently active.
 
 **The address search says the instance must be running.**
 Start the automatic-feeder instance – the geocoding runs in the backend.
@@ -448,6 +454,12 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 1.0.0 (2026-07-01)
+* (ssbingo) First stable release
+* (ssbingo) The per-switch status data points are now grouped in a **`status`** sub-channel (`switches.<id>.status.*`) for a tidier object tree; existing flat status states are migrated automatically on first start
+* (ssbingo) The **`settings`** sub-channel is now **editable**: writing a value from VIS or a script (feeding times, durations, temperature/oxygen limits, sources, …) changes the configuration and restarts the instance to apply it; a few derived fields (e.g. `winterWindow`) stay read-only
+* (ssbingo) Documentation updated to match in all 11 languages
 
 ### 0.7.0 (2026-07-01)
 * (ssbingo) Temperature and oxygen sources are now assigned **per switch** (each feeding station can use its own sensors) instead of globally; the previous global sources are migrated into all switches automatically on first start
@@ -485,9 +497,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 * (ssbingo) Localize the feeding result messages (Telegram and the `lastResult` data point) and the block reasons (`blockReason`) into all 11 ioBroker languages; the text now follows the configured system language and defaults to English
 * (ssbingo) Translate the adapter title (`titleLang`) into all 11 languages
 * (ssbingo) Clean up the package keywords (removed "Futterautomat"; "Fisch" → "Fish")
-
-### 0.2.0 (2026-06-29)
-* (ssbingo) Renamed the adapter to **Automatic Feeder** (technical name `automatic-feeder`, npm `iobroker.automatic-feeder`, namespace `automatic-feeder.0`). This is a new adapter id — reinstall and reconfigure; there is no automatic migration from `futterautomat`.
 
 ---
 
