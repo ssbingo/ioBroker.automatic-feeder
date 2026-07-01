@@ -110,6 +110,15 @@ declare global {
 			blockO2Enabled: boolean;
 			/** Minimum oxygen (in the source object's unit) required to feed. */
 			o2Min: number | null;
+			/** Per-switch air-temperature source (this feeding station's own sensor). */
+			airTempEnabled: boolean;
+			airTempObjectId: string;
+			/** Per-switch water-temperature source. */
+			waterTempEnabled: boolean;
+			waterTempObjectId: string;
+			/** Per-switch dissolved-oxygen source. */
+			o2Enabled: boolean;
+			o2ObjectId: string;
 		}
 
 		interface AdapterConfig {
@@ -123,13 +132,15 @@ declare global {
 			sunOffsetMorning: number;
 			/** Stop feeding N minutes before sunset. */
 			sunOffsetEvening: number;
+			/** @deprecated Legacy global sources; kept only for the one-time migration to per-switch sources. */
 			airTempEnabled: boolean;
 			airTempObjectId: string;
 			waterTempEnabled: boolean;
 			waterTempObjectId: string;
-			/** Optional global dissolved-oxygen source (used by per-switch O2 blocking). */
 			o2Enabled: boolean;
 			o2ObjectId: string;
+			/** Set to true once the legacy global sources have been migrated into the switches. */
+			sourcesMigratedToSwitches: boolean;
 			switches: AutomaticFeederSwitchConfig[];
 		}
 	}

@@ -74,8 +74,8 @@ delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramit
 | **ioBroker** con **admin** aggiornato (≥ 7) | La pagina di configurazione è realizzata con React. |
 | **Un oggetto interruttore** | Un punto dati ioBroker scrivibile che accende/spegne il distributore di mangime – ad es. una presa elettrica (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relè o una variabile di script. |
 | **Coordinate geografiche** | Per il calcolo di alba/tramonto. O dalle impostazioni di sistema di ioBroker oppure tramite indirizzo/mappa. **Obbligatorio.** |
-| *(facoltativo)* Oggetti di temperatura | Punti dati esistenti con temperatura dell'aria e/o dell'acqua, se vuoi bloccare in base alla temperatura o l'alimentazione dinamica. |
-| *(facoltativo)* Un oggetto **ossigeno (O₂)** | Un punto dati esistente con l'ossigeno disciolto, se vuoi bloccare la distribuzione quando scende troppo. |
+| *(facoltativo)* Oggetti di temperatura | Punti dati esistenti con temperatura dell'aria e/o dell'acqua, per il blocco in base alla temperatura o l'alimentazione dinamica. Assegnati **per ciascun interruttore** nella scheda dell'interruttore. |
+| *(facoltativo)* Oggetti **ossigeno (O₂)** | Punti dati esistenti con l'ossigeno disciolto, per bloccare la distribuzione quando scende troppo. Assegnati **per ciascun interruttore**. |
 | *(facoltativo)* Un'istanza **Telegram** | L'adattatore ufficiale `telegram`, configurato e avviato, se desideri notifiche push. |
 | Accesso a Internet sull'host ioBroker | Solo per la ricerca dell'indirizzo/mappa nella configurazione. Il normale funzionamento avviene offline. |
 
@@ -157,21 +157,6 @@ solo tra le **07:00 e le 20:30**. Ogni interruttore può rispettare o ignorare q
 singolarmente (vedi *Limitazioni* nella scheda dell'interruttore). Gli orari calcolati si trovano
 inoltre nei punti dati `sunrise` / `sunset` e vengono ricalcolati automaticamente ogni notte.
 
-#### Sorgenti di temperatura
-
-Per il blocco in base alla temperatura attiva qui le sorgenti e seleziona gli oggetti:
-
-* **Temperatura dell'aria** – metti il segno di spunta e seleziona il punto dati con la
-  temperatura dell'aria.
-* **Temperatura dell'acqua** – metti il segno di spunta e seleziona il punto dati con la
-  temperatura dell'acqua.
-* **Ossigeno (O₂)** – metti il segno di spunta e seleziona il punto dati con l'ossigeno
-  disciolto. Viene usato dall'opzione per interruttore *Blocca in base all'ossigeno*.
-
-Sono utili solo i punti dati numerici. I valori attuali vengono rispecchiati nei punti dati
-`airTemperature` / `waterTemperature`. Le soglie vere e proprie si impostano **per ciascun
-interruttore** (vedi *Blocco per temperatura* e *Alimentazione dinamica*).
-
 #### Interruttori
 
 L'elenco dei distributori di mangime (fino a 5). Per ogni voce:
@@ -221,10 +206,26 @@ Il prossimo orario programmato è sempre presente nel punto dati `nextFeeding`.
   prese/relè. Se il tuo dispositivo si aspetta numeri o testo, inserisci qui ad es. `1` / `0`
   oppure `ON` / `OFF`.
 
+#### Sorgenti di temperatura e ossigeno
+
+Ogni interruttore (stazione di alimentazione) ha i **propri** sensori – laghetti/vasche diversi
+possono usare oggetti diversi:
+
+* **Temperatura dell'aria** – metti il segno di spunta e seleziona il punto dati che contiene la
+  temperatura dell'aria di questa stazione.
+* **Temperatura dell'acqua** – metti il segno di spunta e seleziona il punto dati che contiene la
+  temperatura dell'acqua di questa stazione.
+* **Ossigeno (O₂)** – metti il segno di spunta e seleziona il punto dati che contiene l'ossigeno
+  disciolto.
+
+Sono utili solo i punti dati numerici. I valori attuali vengono rispecchiati nei punti dati
+`airTemperature`, `waterTemperature` e `oxygen` di questo interruttore. Le soglie si impostano più
+in basso (*Blocco per temperatura*) e le temperature guidano anche l'*Alimentazione dinamica*.
+
 #### Blocco per temperatura
 
-Viene mostrato solo per le sorgenti di temperatura attivate nelle impostazioni di base. Per ogni
-interruttore:
+Viene mostrato solo per le sorgenti di temperatura attivate sopra (*Sorgenti di temperatura e
+ossigeno*). Per ogni interruttore:
 
 * **Blocca in base alla temperatura dell'acqua** – *Blocca se inferiore a* e/o *Blocca se
   superiore a* (°C).
@@ -320,8 +321,6 @@ L'adattatore crea i seguenti punti dati nel suo namespace
 | Punto dati | Tipo | Significato |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | L'adattatore è in esecuzione e la configurazione è valida. |
-| `airTemperature` | number (ro) | Specchio della sorgente di temperatura dell'aria configurata. |
-| `waterTemperature` | number (ro) | Specchio della sorgente di temperatura dell'acqua configurata. |
 | `sunrise` / `sunset` | string (ro) | Alba/tramonto calcolati per oggi. |
 
 **Per ogni interruttore sotto `switches.<id>.`** (`<id>` è un ID interno come `sw-0`)
@@ -345,6 +344,9 @@ Inoltre, un sotto-canale di sola lettura **`settings`** (`switches.<id>.settings
 | `dynamicRate` | number (ro) | Fattore di velocità Q10 attualmente applicato dall'alimentazione dinamica. |
 | `dynamicIntervalMin` | number (ro) | Intervallo dinamico attualmente calcolato (minuti). |
 | `dynamicDurationSec` | number (ro) | Durata dinamica attualmente calcolata (secondi). |
+| `airTemperature` | number (ro) | Valore della sorgente di temperatura dell'aria propria di questo interruttore. |
+| `waterTemperature` | number (ro) | Valore della sorgente di temperatura dell'acqua propria di questo interruttore. |
+| `oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
 
 Questi punti dati possono essere usati in VIS, negli script o in altri adattatori – ad es.
 mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando
@@ -356,18 +358,18 @@ mostrare `nextFeeding` su una dashboard oppure attivare un allarme personalizzat
 
 **Laghetto Koi, due volte al giorno, solo con calore sufficiente**
 * Modalità *Orari fissi* → `08:00`, `18:00`; durata `6` s.
-* Attiva la temperatura dell'acqua nelle impostazioni di base, poi nella scheda dell'interruttore
-  *Blocca in base alla temperatura dell'acqua* → *Blocca se inferiore a* `8` °C (nessuna
-  distribuzione con acqua troppo fredda).
+* Nella scheda dell'interruttore, sotto *Sorgenti di temperatura e ossigeno*, attiva *Temperatura
+  dell'acqua* e seleziona il sensore; poi *Blocca in base alla temperatura dell'acqua* → *Blocca se
+  inferiore a* `8` °C (nessuna distribuzione con acqua troppo fredda).
 * Attiva *Non distribuire di notte*.
 
 **Voliera, piccole porzioni frequenti durante il giorno**
 * Modalità *Intervallo all'interno di un periodo* → 07:00–19:00, intervallo `90` min; durata `3` s.
 
 **Laghetto Koi, adattivo alla temperatura (alimentazione dinamica)**
-* Attiva *Temperatura dell'acqua* nelle impostazioni di base.
-* Nella scheda dell'interruttore apri *Alimentazione dinamica*, attivala, fonte *Temperatura
-  dell'acqua*.
+* Nella scheda dell'interruttore, sotto *Sorgenti di temperatura e ossigeno*, attiva *Temperatura
+  dell'acqua* e seleziona il sensore.
+* Poi apri *Alimentazione dinamica*, attivala, fonte *Temperatura dell'acqua*.
 * Riferimento `20` °C, Q10 `2,2`, intervallo base `60` min (min `30`, max `480`), durata base `5` s
   (min `2`, max `15`). Distribuisce quindi più spesso e un po' di più con il caldo, e meno con il
   freddo.
@@ -430,8 +432,8 @@ Usa un interruttore con conferma di stato oppure disattiva il *Monitoraggio dell
 per questo interruttore.
 
 **L'alimentazione dinamica non cambia nulla.**
-Assicurati che la fonte di temperatura selezionata (acqua o aria) sia attivata nelle impostazioni
-di base e fornisca valori. Subito dopo un riavvio la media mobile si sta ancora riempiendo, quindi
+Assicurati che la fonte di temperatura selezionata (acqua o aria) sia attivata nella scheda
+dell'interruttore (*Sorgenti di temperatura e ossigeno*) e fornisca valori. Subito dopo un riavvio la media mobile si sta ancora riempiendo, quindi
 parte dai valori base. Osserva `dynamicAvgTemperature` e `dynamicIntervalMin`.
 
 **Non viene distribuito nulla anche se non è inverno (oppure distribuisce quando dovrebbe essere in pausa).**

@@ -73,8 +73,8 @@ VIS-weergave).
 | **ioBroker** met actuele **admin** (≥ 7) | De configuratiepagina is met React gerealiseerd. |
 | **Een schakelaar-object** | Een beschrijfbaar ioBroker-datapunt dat de voederautomaat in-/uitschakelt – bijv. een stopcontact (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), een relais of een scriptvariabele. |
 | **Geocoördinaten** | Voor de berekening van zonsop-/-ondergang. Ofwel uit de ioBroker-systeeminstellingen of via adres/kaart. **Verplicht.** |
-| *(optioneel)* Temperatuur-objecten | Aanwezige datapunten met lucht- en/of watertemperatuur, als je temperatuurafhankelijk wilt blokkeren of dynamisch wilt voeren. |
-| *(optioneel)* Een **zuurstof (O₂)**-object | Een aanwezig datapunt met het opgeloste zuurstof, als je het voeren wilt blokkeren wanneer dit te laag zakt. |
+| *(optioneel)* Temperatuur-objecten | Aanwezige datapunten met lucht- en/of watertemperatuur, voor temperatuurblokkering of dynamisch voeren. **Per schakelaar** toegewezen op het schakelaar-tabblad. |
+| *(optioneel)* **Zuurstof (O₂)**-objecten | Aanwezige datapunten met het opgeloste zuurstof, om het voeren te blokkeren wanneer dit te laag zakt. **Per schakelaar** toegewezen. |
 | *(optioneel)* Een **Telegram**-instantie | De officiële `telegram`-adapter, ingericht en gestart, als je push-meldingen wilt. |
 | Internettoegang op de ioBroker-host | Alleen voor adres zoeken/kaart in de configuratie. Het normale gebruik werkt offline. |
 
@@ -151,19 +151,6 @@ tussen **07:00 en 20:30** toegestaan. Elke schakelaar kan dit venster afzonderli
 negeren (zie *Beperkingen* in het schakelaar-tabblad). De berekende tijden staan bovendien in
 de datapunten `sunrise` / `sunset` en worden elke nacht automatisch opnieuw berekend.
 
-#### Temperatuurbronnen
-
-Voor temperatuurafhankelijk blokkeren hier de bronnen activeren en de objecten kiezen:
-
-* **Luchttemperatuur** – vinkje zetten en het datapunt met de luchttemperatuur selecteren.
-* **Watertemperatuur** – vinkje zetten en het datapunt met de watertemperatuur selecteren.
-* **Zuurstof (O₂)** – vinkje zetten en het datapunt met het opgeloste zuurstof selecteren. Het
-  wordt gebruikt door de optie *Blokkeren op zuurstof* per schakelaar.
-
-Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten
-`airTemperature` / `waterTemperature` gespiegeld. De eigenlijke drempels worden **per
-schakelaar** ingesteld (zie *Temperatuurblokkering* en *Dynamisch voeren*).
-
 #### Schakelaars
 
 De lijst met voederautomaten (tot 5). Per item:
@@ -208,9 +195,19 @@ De volgende geplande tijd staat op elk moment in het datapunt `nextFeeding`.
   Standaard zijn `true` en `false`, wat bij de meeste stopcontacten/relais past. Verwacht jouw
   apparaat getallen of tekst, hier bijv. `1` / `0` of `ON` / `OFF` invoeren.
 
+#### Temperatuur- & zuurstofbronnen
+
+Elke schakelaar (voederstation) heeft **zijn eigen** sensoren – verschillende vijvers/bassins kunnen verschillende objecten gebruiken:
+
+* **Luchttemperatuur** – vinkje zetten en het datapunt kiezen dat de luchttemperatuur van dit station bevat.
+* **Watertemperatuur** – vinkje zetten en het datapunt kiezen dat de watertemperatuur van dit station bevat.
+* **Zuurstof (O₂)** – vinkje zetten en het datapunt kiezen dat het opgeloste zuurstof bevat.
+
+Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten `airTemperature`, `waterTemperature` en `oxygen` van deze schakelaar gespiegeld. De drempels worden hieronder ingesteld (*Temperatuurblokkering*), en de temperaturen sturen ook het *Dynamisch voeren* aan.
+
 #### Temperatuurblokkering
 
-Wordt alleen weergegeven voor de in de basisinstellingen geactiveerde temperatuurbronnen. Per schakelaar:
+Wordt alleen weergegeven voor de hierboven geactiveerde temperatuurbronnen (*Temperatuur- & zuurstofbronnen*). Per schakelaar:
 
 * **Blokkeren op watertemperatuur** – *Blokkeren wanneer onder* en/of *Blokkeren wanneer boven* (°C).
 * **Blokkeren op luchttemperatuur** – hetzelfde voor de lucht.
@@ -302,8 +299,6 @@ De adapter legt de volgende datapunten in zijn namespace aan
 | Datapunt | Type | Betekenis |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter draait en de configuratie is geldig. |
-| `airTemperature` | number (ro) | Spiegel van de geconfigureerde luchttemperatuur-bron. |
-| `waterTemperature` | number (ro) | Spiegel van de geconfigureerde watertemperatuur-bron. |
 | `sunrise` / `sunset` | string (ro) | Berekende zonsop-/-ondergang voor vandaag. |
 
 **Per schakelaar onder `switches.<id>.`** (`<id>` is een interne ID zoals `sw-0`)
@@ -327,6 +322,9 @@ Daarnaast weerspiegelt een alleen-lezen subkanaal **`settings`** (`switches.<id>
 | `dynamicRate` | number (ro) | Q10-factor die momenteel door dynamisch voeren wordt toegepast. |
 | `dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
 | `dynamicDurationSec` | number (ro) | Momenteel berekende dynamische duur (seconden). |
+| `airTemperature` | number (ro) | Eigen luchttemperatuur-bronwaarde van deze schakelaar. |
+| `waterTemperature` | number (ro) | Eigen watertemperatuur-bronwaarde van deze schakelaar. |
+| `oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
 
 Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `nextFeeding`
 op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
@@ -337,16 +335,16 @@ op een dashboard weergeven of bij `error = true` een eigen alarm activeren.
 
 **Koi-vijver, tweemaal daags, alleen bij voldoende warmte**
 * Modus *Vaste tijden* → `08:00`, `18:00`; duur `6` s.
-* Watertemperatuur in de basisinstellingen activeren, dan in het schakelaar-tabblad *Blokkeren
-  op watertemperatuur* → *Blokkeren wanneer onder* `8` °C (geen voedering bij te koud water).
+* In het schakelaar-tabblad, onder *Temperatuur- & zuurstofbronnen*, *Watertemperatuur* activeren
+  en de sensor kiezen; dan *Blokkeren op watertemperatuur* → *Blokkeren wanneer onder* `8` °C (geen voedering bij te koud water).
 * *'s Nachts niet voeren* aan.
 
 **Volière, frequente kleine porties overdag**
 * Modus *Interval binnen een periode* → 07:00–19:00, interval `90` min; duur `3` s.
 
 **Koi-vijver, temperatuurafhankelijk (dynamisch voeren)**
-* *Watertemperatuur* in de basisinstellingen activeren.
-* In het schakelaar-tabblad *Dynamisch voeren* openen, inschakelen, bron *Watertemperatuur*.
+* In het schakelaar-tabblad, onder *Temperatuur- & zuurstofbronnen*, *Watertemperatuur* activeren en de sensor kiezen.
+* Dan *Dynamisch voeren* openen, inschakelen, bron *Watertemperatuur*.
 * Referentie `20` °C, Q10 `2,2`, basisinterval `60` min (min `30`, max `480`), basisduur `5` s
   (min `2`, max `15`). Er wordt dan bij warmte vaker en iets meer gevoerd, en bij kou minder.
 
@@ -406,8 +404,8 @@ een schakelaar met statusterugmelding gebruiken of de *schakelbewaking* voor dez
 deactiveren.
 
 **Dynamisch voeren verandert niets.**
-Zorg ervoor dat de gekozen temperatuurbron (water of lucht) in de basisinstellingen geactiveerd is
-en waarden levert. Direct na een herstart wordt het voortschrijdend gemiddelde nog opgebouwd,
+Zorg ervoor dat de gekozen temperatuurbron (water of lucht) in het schakelaar-tabblad
+(*Temperatuur- & zuurstofbronnen*) geactiveerd is en waarden levert. Direct na een herstart wordt het voortschrijdend gemiddelde nog opgebouwd,
 dus start het vanaf de basiswaarden. Bekijk `dynamicAvgTemperature` en `dynamicIntervalMin`.
 
 **Er wordt niet gevoerd hoewel het geen winter is (of er wordt gevoerd hoewel het zou moeten pauzeren).**

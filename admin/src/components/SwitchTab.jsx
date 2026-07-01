@@ -38,6 +38,10 @@ import 'dayjs/locale/uk';
 import 'dayjs/locale/zh-cn';
 import { I18n } from '@iobroker/adapter-react-v5';
 
+import ObjectSelect from './ObjectSelect';
+
+const TEMPERATURE_FILTER = (obj) => !!obj.common && obj.common.type === 'number';
+
 // leap year so 29.02. is selectable; only day+month are stored (recurring MM-DD)
 const WINTER_REF_YEAR = 2024;
 
@@ -99,7 +103,7 @@ function toNumberOrNull(value) {
 }
 
 function SwitchTab(props) {
-	const { sw, onChange, native, socket, instanceId, telegramInstances } = props;
+	const { sw, onChange, native, socket, instanceId, telegramInstances, theme, themeName, themeType } = props;
 
 	const mode = sw.mode || 'times';
 	const times = Array.isArray(sw.times) ? sw.times : [];
@@ -283,15 +287,40 @@ function SwitchTab(props) {
 				</Box>
 			</Section>
 
+			{/* Sources (this station) */}
+			<Section title={I18n.t('Temperature & oxygen sources')}>
+				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+					{I18n.t('Assign this feeding station\u2019s own sensors. Used for temperature blocking and dynamic feeding.')}
+				</Typography>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<FormControlLabel control={<Checkbox checked={!!sw.airTempEnabled} onChange={(e) => onChange({ airTempEnabled: e.target.checked })} />} label={I18n.t('Air temperature')} />
+					<Box sx={{ flexGrow: 1 }}>
+						<ObjectSelect label={I18n.t('Air temperature object')} value={sw.airTempObjectId} disabled={!sw.airTempEnabled} onChange={(v) => onChange({ airTempObjectId: v })} socket={socket} theme={theme} themeName={themeName} themeType={themeType} filterFunc={TEMPERATURE_FILTER} />
+					</Box>
+				</Box>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<FormControlLabel control={<Checkbox checked={!!sw.waterTempEnabled} onChange={(e) => onChange({ waterTempEnabled: e.target.checked })} />} label={I18n.t('Water temperature')} />
+					<Box sx={{ flexGrow: 1 }}>
+						<ObjectSelect label={I18n.t('Water temperature object')} value={sw.waterTempObjectId} disabled={!sw.waterTempEnabled} onChange={(v) => onChange({ waterTempObjectId: v })} socket={socket} theme={theme} themeName={themeName} themeType={themeType} filterFunc={TEMPERATURE_FILTER} />
+					</Box>
+				</Box>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<FormControlLabel control={<Checkbox checked={!!sw.o2Enabled} onChange={(e) => onChange({ o2Enabled: e.target.checked })} />} label={I18n.t('Oxygen (O₂)')} />
+					<Box sx={{ flexGrow: 1 }}>
+						<ObjectSelect label={I18n.t('Oxygen object')} value={sw.o2ObjectId} disabled={!sw.o2Enabled} onChange={(v) => onChange({ o2ObjectId: v })} socket={socket} theme={theme} themeName={themeName} themeType={themeType} filterFunc={TEMPERATURE_FILTER} />
+					</Box>
+				</Box>
+			</Section>
+
 			{/* Temperature blocking */}
 			<Section title={I18n.t('Temperature blocking')}>
-				{!native.airTempEnabled && !native.waterTempEnabled ? (
+				{!sw.airTempEnabled && !sw.waterTempEnabled ? (
 					<Typography variant="body2" color="textSecondary">
-						{I18n.t('Enable a temperature source in the general settings to use this.')}
+						{I18n.t('Enable a temperature source above to use it here.')}
 					</Typography>
 				) : null}
 
-				{native.waterTempEnabled ? (
+				{sw.waterTempEnabled ? (
 					<Box sx={{ mb: 1 }}>
 						<FormControlLabel
 							control={
@@ -323,9 +352,9 @@ function SwitchTab(props) {
 					</Box>
 				) : null}
 
-				{native.airTempEnabled ? (
+				{sw.airTempEnabled ? (
 					<Box>
-						{native.waterTempEnabled ? <Divider sx={{ my: 1 }} /> : null}
+						{sw.waterTempEnabled ? <Divider sx={{ my: 1 }} /> : null}
 						<FormControlLabel
 							control={
 								<Checkbox
@@ -355,7 +384,7 @@ function SwitchTab(props) {
 						</Box>
 					</Box>
 				) : null}
-				{native.o2Enabled ? (
+				{sw.o2Enabled ? (
 					<Box>
 						<Divider sx={{ my: 1 }} />
 						<FormControlLabel
@@ -376,9 +405,9 @@ function SwitchTab(props) {
 
 			{/* Dynamic feeding */}
 			<Section title={I18n.t('Dynamic feeding')}>
-				{!native.airTempEnabled && !native.waterTempEnabled ? (
+				{!sw.airTempEnabled && !sw.waterTempEnabled ? (
 					<Typography variant="body2" color="textSecondary">
-						{I18n.t('Enable a temperature source in the general settings to use this.')}
+						{I18n.t('Enable a temperature source above to use it here.')}
 					</Typography>
 				) : (
 					<Box>
@@ -390,8 +419,8 @@ function SwitchTab(props) {
 							{I18n.t('Adapts interval and duration to temperature; fixed times are replaced by an interval within the window.')}
 						</Typography>
 						<RadioGroup row value={sw.dynamicSource || 'water'} onChange={(e) => onChange({ dynamicSource: e.target.value })}>
-							<FormControlLabel value="water" disabled={!sw.dynamicEnabled || !native.waterTempEnabled} control={<Radio />} label={I18n.t('Water temperature')} />
-							<FormControlLabel value="air" disabled={!sw.dynamicEnabled || !native.airTempEnabled} control={<Radio />} label={I18n.t('Air temperature')} />
+							<FormControlLabel value="water" disabled={!sw.dynamicEnabled || !sw.waterTempEnabled} control={<Radio />} label={I18n.t('Water temperature')} />
+							<FormControlLabel value="air" disabled={!sw.dynamicEnabled || !sw.airTempEnabled} control={<Radio />} label={I18n.t('Air temperature')} />
 						</RadioGroup>
 						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
 						<TextField
@@ -776,6 +805,9 @@ SwitchTab.propTypes = {
 	socket: PropTypes.object.isRequired,
 	instanceId: PropTypes.string.isRequired,
 	telegramInstances: PropTypes.array,
+	theme: PropTypes.object,
+	themeName: PropTypes.string,
+	themeType: PropTypes.string,
 };
 
 export default SwitchTab;

@@ -72,8 +72,8 @@ vista de VIS).
 | **ioBroker** con **admin** actual (≥ 7) | La página de configuración está implementada con React. |
 | **Un objeto interruptor** | Un punto de datos de ioBroker escribible que encienda/apague el comedero automático, p. ej. un enchufe (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relé o una variable de script. |
 | **Coordenadas geográficas** | Para el cálculo del orto y el ocaso. Ya sea desde los ajustes del sistema de ioBroker o mediante dirección/mapa. **Obligatorio.** |
-| *(opcional)* Objetos de temperatura | Puntos de datos existentes con la temperatura del aire o del agua, si quieres bloquear en función de la temperatura o usar la alimentación dinámica. |
-| *(opcional)* Un objeto de **oxígeno (O₂)** | Un punto de datos existente con el oxígeno disuelto, si quieres bloquear la alimentación cuando cae demasiado bajo. |
+| *(opcional)* Objetos de temperatura | Puntos de datos existentes con la temperatura del aire o del agua, para el bloqueo por temperatura o la alimentación dinámica. Se asignan **por interruptor** en la pestaña del interruptor. |
+| *(opcional)* Objetos de **oxígeno (O₂)** | Puntos de datos existentes con el oxígeno disuelto, para bloquear la alimentación cuando cae demasiado bajo. Se asignan **por interruptor**. |
 | *(opcional)* Una instancia de **Telegram** | El adaptador oficial `telegram`, configurado e iniciado, si quieres notificaciones push. |
 | Acceso a Internet en el host de ioBroker | Solo para la búsqueda de direcciones/mapa en la configuración. El funcionamiento normal se realiza sin conexión. |
 
@@ -161,21 +161,6 @@ forma individual o ignorarla (consulta *Restricciones* en la pestaña del interr
 calculadas figuran además en los puntos de datos `sunrise` / `sunset` y se recalculan
 automáticamente cada noche.
 
-#### Fuentes de temperatura
-
-Para el bloqueo en función de la temperatura, activa aquí las fuentes y elige los objetos:
-
-* **Temperatura del aire** (Lufttemperatur): marca la casilla y selecciona el punto de datos con la
-  temperatura del aire.
-* **Temperatura del agua** (Wassertemperatur): marca la casilla y selecciona el punto de datos con
-  la temperatura del agua.
-* **Oxígeno (O₂)**: marca la casilla y selecciona el punto de datos con el oxígeno disuelto. Lo usa
-  la opción por interruptor *Bloquear por oxígeno*.
-
-Solo tienen sentido los puntos de datos numéricos. Los valores actuales se reflejan en los puntos de
-datos `airTemperature` / `waterTemperature`. Los umbrales propiamente dichos se establecen **por
-interruptor** (consulta *Bloqueo por temperatura* y *Alimentación dinámica*).
-
 #### Interruptores
 
 La lista de comederos automáticos (hasta 5). Por cada entrada:
@@ -223,10 +208,26 @@ La siguiente hora planificada figura en todo momento en el punto de datos `nextF
   interruptor. Por defecto son `true` y `false`, lo que encaja con la mayoría de enchufes/relés. Si
   tu dispositivo espera números o texto, introduce aquí p. ej. `1` / `0` o `ON` / `OFF`.
 
+#### Fuentes de temperatura y oxígeno
+
+Cada interruptor (estación de alimentación) tiene **sus propios** sensores: distintos
+estanques/depósitos pueden usar objetos diferentes:
+
+* **Temperatura del aire**: marca la casilla y elige el punto de datos que contiene la temperatura
+  del aire de esta estación.
+* **Temperatura del agua**: marca la casilla y elige el punto de datos que contiene la temperatura
+  del agua de esta estación.
+* **Oxígeno (O₂)**: marca la casilla y elige el punto de datos que contiene el oxígeno disuelto.
+
+Solo tienen sentido los puntos de datos numéricos. Los valores actuales se reflejan en los puntos de
+datos `airTemperature`, `waterTemperature` y `oxygen` de este interruptor. Los umbrales se
+establecen más abajo (*Bloqueo por temperatura*), y las temperaturas también alimentan la
+*Alimentación dinámica*.
+
 #### Bloqueo por temperatura
 
-Solo se muestra para las fuentes de temperatura activadas en los ajustes básicos. Por cada
-interruptor:
+Solo se muestra para las fuentes de temperatura activadas más arriba (*Fuentes de temperatura y
+oxígeno*). Por cada interruptor:
 
 * **Bloquear según la temperatura del agua**: *Bloquear si está por debajo de* o *Bloquear si está
   por encima de* (°C).
@@ -319,8 +320,6 @@ El adaptador crea los siguientes puntos de datos en su espacio de nombres
 | Punto de datos | Tipo | Significado |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | El adaptador está en ejecución y la configuración es válida. |
-| `airTemperature` | number (ro) | Reflejo de la fuente de temperatura del aire configurada. |
-| `waterTemperature` | number (ro) | Reflejo de la fuente de temperatura del agua configurada. |
 | `sunrise` / `sunset` | string (ro) | Orto/ocaso calculados para hoy. |
 
 **Por interruptor bajo `switches.<id>.`** (`<id>` es un ID interno como `sw-0`)
@@ -344,6 +343,9 @@ Además, un subcanal de solo lectura **`settings`** (`switches.<id>.settings.*`)
 | `dynamicRate` | number (ro) | Factor de tasa Q10 aplicado actualmente por la alimentación dinámica. |
 | `dynamicIntervalMin` | number (ro) | Intervalo dinámico calculado actualmente (minutos). |
 | `dynamicDurationSec` | number (ro) | Duración dinámica calculada actualmente (segundos). |
+| `airTemperature` | number (ro) | Valor de la fuente de temperatura del aire propia de este interruptor. |
+| `waterTemperature` | number (ro) | Valor de la fuente de temperatura del agua propia de este interruptor. |
+| `oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
 
 Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. ej. mostrar
 `nextFeeding` en un panel o activar una alarma propia cuando `error = true`.
@@ -354,16 +356,17 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
 
 **Estanque de koi, dos veces al día, solo con suficiente calor**
 * Modo *Horas fijas* → `08:00`, `18:00`; duración `6` s.
-* Activa la temperatura del agua en los ajustes básicos, luego en la pestaña del interruptor
-  *Bloquear según la temperatura del agua* → *Bloquear si está por debajo de* `8` °C (sin
-  alimentación con el agua demasiado fría).
+* En la pestaña del interruptor, en *Fuentes de temperatura y oxígeno*, activa *Temperatura del
+  agua* y elige el sensor; luego *Bloquear según la temperatura del agua* → *Bloquear si está por
+  debajo de* `8` °C (sin alimentación con el agua demasiado fría).
 * *No alimentar por la noche* activado.
 
 **Aviario, raciones pequeñas frecuentes durante el día**
 * Modo *Intervalo dentro de un periodo* → 07:00–19:00, intervalo `90` min; duración `3` s.
 
 **Estanque de koi, adaptado a la temperatura (alimentación dinámica)**
-* Activa la *Temperatura del agua* en los ajustes básicos.
+* En la pestaña del interruptor, en *Fuentes de temperatura y oxígeno*, activa *Temperatura del
+  agua* y elige el sensor.
 * En la pestaña del interruptor abre *Alimentación dinámica*, actívala, fuente *Temperatura del agua*.
 * Referencia `20` °C, Q10 `2,2`, intervalo base `60` min (mín `30`, máx `480`), duración base `5` s
   (mín `2`, máx `15`). Entonces alimenta más a menudo y un poco más cuando hace calor, y menos cuando
@@ -426,9 +429,10 @@ interruptor con retroalimentación de estado, o bien desactiva la *supervisión 
 para ese interruptor.
 
 **La alimentación dinámica no cambia nada.**
-Asegúrate de que la fuente de temperatura seleccionada (agua o aire) esté activada en los ajustes
-básicos y proporcione valores. Justo después de un reinicio, la media móvil aún se está llenando, por
-lo que empieza desde los valores base. Observa `dynamicAvgTemperature` y `dynamicIntervalMin`.
+Asegúrate de que la fuente de temperatura seleccionada (agua o aire) esté activada en la pestaña del
+interruptor (*Fuentes de temperatura y oxígeno*) y proporcione valores. Justo después de un reinicio,
+la media móvil aún se está llenando, por lo que empieza desde los valores base. Observa
+`dynamicAvgTemperature` y `dynamicIntervalMin`.
 
 **No se alimenta aunque no sea invierno (o se alimenta aunque debería pausar).**
 Comprueba las fechas de la *Pausa de invierno* (`Inicio del invierno` / `Fin del invierno`, formato

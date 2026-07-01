@@ -85,8 +85,8 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 | **ioBroker** with a recent **admin** (≥ 7) | The configuration page is built with React. |
 | **A switch object** | Any writable ioBroker state that turns your feeder on/off – e.g. a smart plug (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), a relay, a script variable. |
 | **Geo-coordinates** | Used to calculate sunrise/sunset. Either taken from the ioBroker system settings or entered per address/map. **Mandatory.** |
-| *(optional)* Temperature objects | Existing states that hold air and/or water temperature, if you want temperature-based blocking or dynamic feeding. |
-| *(optional)* An **oxygen (O₂)** object | An existing state with the dissolved oxygen, if you want to block feeding when it drops too low. |
+| *(optional)* Temperature objects | Existing states with air and/or water temperature, for temperature blocking or dynamic feeding. Assigned **per switch** on the switch tab. |
+| *(optional)* **Oxygen (O₂)** objects | Existing states with the dissolved oxygen, to block feeding when it drops too low. Assigned **per switch**. |
 | *(optional)* A **Telegram** instance | The official `telegram` adapter, configured and running, if you want push notifications. |
 | Internet access on the ioBroker host | Only for the address search / map in the configuration. Normal operation works offline. |
 
@@ -162,19 +162,6 @@ Example: with sunrise 06:30, sunset 21:00 and offsets 30 / 30, feeding is only a
 on the switch tab). The calculated times are also published as the `sunrise` / `sunset` data
 points and recalculated automatically every night.
 
-#### Temperature sources
-
-If you want temperature-dependent blocking, enable the sources here and pick the objects:
-
-* **Air temperature** – tick the box and select the state that holds the air temperature.
-* **Water temperature** – tick the box and select the state that holds the water temperature.
-* **Oxygen (O₂)** – tick the box and select the state that holds the dissolved oxygen. It is
-  used by the per-switch *Block by oxygen* option.
-
-Only number states make sense here. The current temperatures are mirrored to the `airTemperature` /
-`waterTemperature` data points. The actual thresholds are configured **per switch** (see
-*Temperature blocking* and *Dynamic feeding*).
-
 #### Switches
 
 The list of feeders (up to 5). For each entry:
@@ -220,9 +207,22 @@ The next planned time is always visible in the `nextFeeding` data point.
   and `false`, which fit most smart plugs/relays. If your device expects numbers or text, enter
   e.g. `1` / `0` or `ON` / `OFF` here.
 
+#### Temperature & oxygen sources
+
+Each switch (feeding station) has **its own** sensors – different ponds/tanks can use different
+objects:
+
+* **Air temperature** – tick the box and pick the state that holds this station's air temperature.
+* **Water temperature** – tick the box and pick the state that holds this station's water temperature.
+* **Oxygen (O₂)** – tick the box and pick the state that holds the dissolved oxygen.
+
+Only number states make sense. The current values are mirrored to this switch's `airTemperature`,
+`waterTemperature` and `oxygen` data points. The thresholds are set below (*Temperature blocking*),
+and the temperatures also drive *Dynamic feeding*.
+
 #### Temperature blocking
 
-Only shown for the temperature sources you enabled in the General settings. Per switch you can:
+Only shown for the temperature sources you enabled above (*Temperature & oxygen sources*). Per switch you can:
 
 * **Block by water temperature** – set *Block if below* and/or *Block if above* (°C).
 * **Block by air temperature** – same, for air.
@@ -313,8 +313,6 @@ The adapter creates the following states under its namespace
 | Data point | Type | Meaning |
 |------------|------|---------|
 | `info.connection` | boolean (ro) | Adapter is running and the configuration is valid. |
-| `airTemperature` | number (ro) | Mirror of the configured air-temperature source. |
-| `waterTemperature` | number (ro) | Mirror of the configured water-temperature source. |
 | `sunrise` / `sunset` | string (ro) | Calculated sunrise/sunset for today. |
 
 **Per switch, under `switches.<id>.`** (`<id>` is an internal id like `sw-0`)
@@ -338,6 +336,9 @@ In addition, a read-only **`settings`** sub-channel (`switches.<id>.settings.*`)
 | `dynamicRate` | number (ro) | Q10 rate factor currently applied by dynamic feeding. |
 | `dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
 | `dynamicDurationSec` | number (ro) | Currently computed dynamic duration (seconds). |
+| `airTemperature` | number (ro) | This switch's own air-temperature source value. |
+| `waterTemperature` | number (ro) | This switch's own water-temperature source value. |
+| `oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 
 You can use these in VIS, scripts or other adapters – for example show `nextFeeding` on a
 dashboard, or react on `error = true` to send your own alarm.
@@ -348,16 +349,16 @@ dashboard, or react on `error = true` to send your own alarm.
 
 **Koi pond, twice a day, only when warm enough**
 * Mode *Fixed times* → `08:00`, `18:00`; duration `6` s.
-* Enable water temperature in General settings, then on the switch tab *Block by water
-  temperature* → *Block if below* `8` °C (no feeding when the water is too cold).
+* On the switch tab, under *Temperature & oxygen sources*, enable *Water temperature* and pick
+  the sensor; then *Block by water temperature* → *Block if below* `8` °C (no feeding when cold).
 * *Do not feed at night* on.
 
 **Aviary, frequent small portions during the day**
 * Mode *Interval within a time window* → 07:00–19:00, interval `90` min; duration `3` s.
 
 **Koi pond, temperature-adaptive (dynamic feeding)**
-* Enable *Water temperature* in General settings.
-* On the switch tab open *Dynamic feeding*, enable it, source *Water temperature*.
+* On the switch tab, under *Temperature & oxygen sources*, enable *Water temperature* and pick the sensor.
+* Then open *Dynamic feeding*, enable it, source *Water temperature*.
 * Reference `20` °C, Q10 `2.2`, base interval `60` min (min `30`, max `480`), base duration `5` s
   (min `2`, max `15`). It then feeds more often and a little more when warm, and less when cold.
 
@@ -413,8 +414,8 @@ Your switch object probably does not report its real state back (`ack=true`). Ei
 switch with status feedback, or disable *Switching supervision* for that switch.
 
 **Dynamic feeding does not change anything.**
-Make sure the selected temperature source (water or air) is enabled in the General settings and
-delivers values. Right after a restart the moving average is still filling up, so it starts from
+Make sure the selected temperature source (water or air) is enabled on the switch tab
+(*Temperature & oxygen sources*) and delivers values. Right after a restart the moving average is still filling up, so it starts from
 the base values. Watch `dynamicAvgTemperature` and `dynamicIntervalMin`.
 
 **Nothing is fed although it is not winter (or it feeds although it should pause).**
@@ -447,6 +448,11 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 0.7.0 (2026-07-01)
+* (ssbingo) Temperature and oxygen sources are now assigned **per switch** (each feeding station can use its own sensors) instead of globally; the previous global sources are migrated into all switches automatically on first start
+* (ssbingo) New per-switch mirror data points `airTemperature`, `waterTemperature`, `oxygen`; the global `airTemperature`/`waterTemperature` states were removed
+* (ssbingo) Documentation updated to match in all 11 languages
 
 ### 0.6.0 (2026-07-01)
 * (ssbingo) New per-switch **dynamic feeding** (Q10 model): the feeding interval and the portion (duration) adapt to the water/air temperature, using a real moving average with configurable hysteresis; replaces fixed times with an interval inside the window
@@ -482,9 +488,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 
 ### 0.2.0 (2026-06-29)
 * (ssbingo) Renamed the adapter to **Automatic Feeder** (technical name `automatic-feeder`, npm `iobroker.automatic-feeder`, namespace `automatic-feeder.0`). This is a new adapter id — reinstall and reconfigure; there is no automatic migration from `futterautomat`.
-
-### 0.1.8 (2026-06-29)
-* (ssbingo) Create the intermediate `info` and `switches` objects so every object id path has a parent (repository checker E3009)
 
 ---
 

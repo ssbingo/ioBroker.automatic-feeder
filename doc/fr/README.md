@@ -77,8 +77,8 @@ dans une vue VIS).
 | **ioBroker** avec un **admin** récent (≥ 7) | La page de configuration est réalisée avec React. |
 | **Un objet interrupteur** | Un point de données ioBroker accessible en écriture qui active/désactive le distributeur — p. ex. une prise (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relais ou une variable de script. |
 | **Coordonnées géographiques** | Pour le calcul du lever/coucher du soleil. Soit depuis les paramètres système d'ioBroker, soit via une adresse/carte. **Obligatoire.** |
-| *(optionnel)* Objets de température | Des points de données existants avec la température de l'air et/ou de l'eau, si tu souhaites un blocage basé sur la température ou l'alimentation dynamique. |
-| *(optionnel)* Un objet **oxygène (O₂)** | Un point de données existant contenant l'oxygène dissous, si tu souhaites bloquer la distribution lorsqu'il descend trop bas. |
+| *(optionnel)* Objets de température | Des points de données existants avec la température de l'air et/ou de l'eau, pour le blocage par température ou l'alimentation dynamique. Attribués **par interrupteur** dans l'onglet de l'interrupteur. |
+| *(optionnel)* Objets **oxygène (O₂)** | Des points de données existants contenant l'oxygène dissous, pour bloquer la distribution lorsqu'il descend trop bas. Attribués **par interrupteur**. |
 | *(optionnel)* Une instance **Telegram** | L'adaptateur officiel `telegram`, installé et démarré, si tu souhaites des notifications push. |
 | Accès Internet sur l'hôte ioBroker | Uniquement pour la recherche d'adresse/la carte dans la configuration. Le fonctionnement normal se fait hors ligne. |
 
@@ -164,21 +164,6 @@ cette fenêtre individuellement ou l'ignorer (voir *Restrictions* dans l'onglet 
 Les heures calculées figurent en outre dans les points de données `sunrise` / `sunset` et sont
 recalculées automatiquement chaque nuit.
 
-#### Sources de température
-
-Pour le blocage en fonction de la température, active ici les sources et choisis les objets :
-
-* **Température de l'air** — coche la case et sélectionne le point de données contenant la
-  température de l'air.
-* **Température de l'eau** — coche la case et sélectionne le point de données contenant la
-  température de l'eau.
-* **Oxygène (O₂)** — coche la case et sélectionne le point de données contenant l'oxygène dissous.
-  Il est utilisé par l'option *Bloquer selon l'oxygène* propre à chaque interrupteur.
-
-Seuls les points de données numériques sont pertinents. Les valeurs actuelles sont reflétées dans
-les points de données `airTemperature` / `waterTemperature`. Les seuils proprement dits se règlent
-**par interrupteur** (voir *Blocage par température* et *Alimentation dynamique*).
-
 #### Interrupteurs
 
 La liste des distributeurs de nourriture (jusqu'à 5). Pour chaque entrée :
@@ -227,10 +212,26 @@ La prochaine heure planifiée figure à tout moment dans le point de données `n
   interrupteur. Par défaut `true` et `false`, ce qui convient à la plupart des prises/relais. Si
   ton appareil attend des nombres ou du texte, saisis ici p. ex. `1` / `0` ou `ON` / `OFF`.
 
+#### Sources de température et d'oxygène
+
+Chaque interrupteur (station de distribution) possède **ses propres** capteurs — différents
+bassins/aquariums peuvent utiliser des objets différents :
+
+* **Température de l'air** — coche la case et sélectionne le point de données contenant la
+  température de l'air de cette station.
+* **Température de l'eau** — coche la case et sélectionne le point de données contenant la
+  température de l'eau de cette station.
+* **Oxygène (O₂)** — coche la case et sélectionne le point de données contenant l'oxygène dissous.
+
+Seuls les points de données numériques sont pertinents. Les valeurs actuelles sont reflétées dans
+les points de données `airTemperature`, `waterTemperature` et `oxygen` de cet interrupteur. Les
+seuils se règlent ci-dessous (*Blocage par température*), et les températures alimentent aussi
+l'*Alimentation dynamique*.
+
 #### Blocage par température
 
-Affiché uniquement pour les sources de température activées dans les réglages de base. Par
-interrupteur :
+Affiché uniquement pour les sources de température activées ci-dessus (*Sources de température et
+d'oxygène*). Par interrupteur :
 
 * **Bloquer selon la température de l'eau** — *Bloquer si en dessous de* et/ou *Bloquer si
   au-dessus de* (°C).
@@ -324,8 +325,6 @@ L'adaptateur crée les points de données suivants dans son espace de noms
 | Point de données | Type | Signification |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | L'adaptateur fonctionne et la configuration est valide. |
-| `airTemperature` | number (ro) | Reflet de la source de température de l'air configurée. |
-| `waterTemperature` | number (ro) | Reflet de la source de température de l'eau configurée. |
 | `sunrise` / `sunset` | string (ro) | Lever/coucher du soleil calculé pour aujourd'hui. |
 
 **Par interrupteur sous `switches.<id>.`** (`<id>` est un ID interne comme `sw-0`)
@@ -349,6 +348,9 @@ De plus, un sous-canal en lecture seule **`settings`** (`switches.<id>.settings.
 | `dynamicRate` | number (ro) | Facteur de taux Q10 actuellement appliqué par l'alimentation dynamique. |
 | `dynamicIntervalMin` | number (ro) | Intervalle dynamique actuellement calculé (minutes). |
 | `dynamicDurationSec` | number (ro) | Durée dynamique actuellement calculée (secondes). |
+| `airTemperature` | number (ro) | Valeur de la source de température de l'air propre à cet interrupteur. |
+| `waterTemperature` | number (ro) | Valeur de la source de température de l'eau propre à cet interrupteur. |
+| `oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
 
 Ces points de données peuvent être utilisés dans VIS, des scripts ou d'autres adaptateurs — p. ex.
 afficher `nextFeeding` sur un tableau de bord ou déclencher ta propre alarme lorsque `error =
@@ -360,18 +362,18 @@ true`.
 
 **Bassin à koïs, deux fois par jour, uniquement s'il fait assez chaud**
 * Mode *Heures fixes* → `08:00`, `18:00` ; durée `6` s.
-* Active la température de l'eau dans les réglages de base, puis dans l'onglet de l'interrupteur
-  *Bloquer selon la température de l'eau* → *Bloquer si en dessous de* `8` °C (pas de distribution
-  si l'eau est trop froide).
+* Dans l'onglet de l'interrupteur, sous *Sources de température et d'oxygène*, active *Température de
+  l'eau* et choisis le capteur ; puis *Bloquer selon la température de l'eau* → *Bloquer si en
+  dessous de* `8` °C (pas de distribution si l'eau est trop froide).
 * *Ne pas distribuer la nuit* activé.
 
 **Volière, petites portions fréquentes pendant la journée**
 * Mode *Intervalle à l'intérieur d'une plage* → 07:00–19:00, intervalle `90` min ; durée `3` s.
 
 **Bassin à koïs, adaptatif à la température (alimentation dynamique)**
-* Active *Température de l'eau* dans les réglages de base.
-* Dans l'onglet de l'interrupteur, ouvre *Alimentation dynamique*, active-la, source *Température de
-  l'eau*.
+* Dans l'onglet de l'interrupteur, sous *Sources de température et d'oxygène*, active *Température de
+  l'eau* et choisis le capteur.
+* Puis ouvre *Alimentation dynamique*, active-la, source *Température de l'eau*.
 * Référence `20` °C, Q10 `2,2`, intervalle de base `60` min (min `30`, max `480`), durée de base
   `5` s (min `2`, max `15`). Il distribue alors plus souvent et un peu plus quand il fait chaud, et
   moins quand il fait froid.
@@ -434,9 +436,10 @@ interrupteur avec retour d'état, soit désactive la *Surveillance de la commuta
 interrupteur.
 
 **L'alimentation dynamique ne change rien.**
-Assure-toi que la source de température sélectionnée (eau ou air) est activée dans les réglages de
-base et fournit des valeurs. Juste après un redémarrage, la moyenne glissante se remplit encore,
-elle part donc des valeurs de base. Surveille `dynamicAvgTemperature` et `dynamicIntervalMin`.
+Assure-toi que la source de température sélectionnée (eau ou air) est activée dans l'onglet de
+l'interrupteur (*Sources de température et d'oxygène*) et fournit des valeurs. Juste après un
+redémarrage, la moyenne glissante se remplit encore, elle part donc des valeurs de base. Surveille
+`dynamicAvgTemperature` et `dynamicIntervalMin`.
 
 **Rien n'est distribué alors que ce n'est pas l'hiver (ou la distribution a lieu alors qu'elle devrait être en pause).**
 Vérifie les dates de la *Pause hivernale* (`Début de l'hiver` / `Fin de l'hiver`, format jj.mm) et

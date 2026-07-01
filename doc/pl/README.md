@@ -73,8 +73,8 @@ VIS).
 | **ioBroker** z aktualnym **admin** (≥ 7) | Strona konfiguracji jest zrealizowana w React. |
 | **Obiekt przełącznika** | Zapisywalny punkt danych ioBroker, który włącza/wyłącza automat do karmienia – np. gniazdko (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), przekaźnik lub zmienna skryptowa. |
 | **Współrzędne geograficzne** | Do obliczania wschodu/zachodu słońca. Albo z ustawień systemowych ioBroker, albo poprzez adres/mapę. **Obowiązkowe.** |
-| *(opcjonalnie)* Obiekty temperatury | Istniejące punkty danych z temperaturą powietrza i/lub wody, jeśli chcesz blokować w zależności od temperatury lub karmić dynamicznie. |
-| *(opcjonalnie)* Obiekt **tlenu (O₂)** | Istniejący punkt danych z rozpuszczonym tlenem, jeśli chcesz blokować karmienie, gdy spadnie zbyt nisko. |
+| *(opcjonalnie)* Obiekty temperatury | Istniejące punkty danych z temperaturą powietrza i/lub wody, do blokowania temperaturowego lub karmienia dynamicznego. Przypisywane **dla każdego przełącznika** w zakładce przełącznika. |
+| *(opcjonalnie)* Obiekty **tlenu (O₂)** | Istniejące punkty danych z rozpuszczonym tlenem, aby blokować karmienie, gdy spadnie zbyt nisko. Przypisywane **dla każdego przełącznika**. |
 | *(opcjonalnie)* Instancja **Telegram** | Oficjalny adapter `telegram`, skonfigurowany i uruchomiony, jeśli chcesz otrzymywać powiadomienia push. |
 | Dostęp do internetu na hoście ioBroker | Tylko do wyszukiwania adresu/mapy w konfiguracji. Normalna praca przebiega offline. |
 
@@ -152,19 +152,6 @@ dozwolone tylko między **07:00 a 20:30**. Każdy przełącznik może to okno uw
 ignorować indywidualnie (zobacz *Ograniczenia* w zakładce przełącznika). Obliczone czasy znajdują
 się ponadto w punktach danych `sunrise` / `sunset` i są co noc automatycznie obliczane na nowo.
 
-#### Źródła temperatury
-
-Do blokowania w zależności od temperatury aktywuj tutaj źródła i wybierz obiekty:
-
-* **Temperatura powietrza** – zaznacz haczyk i wybierz punkt danych z temperaturą powietrza.
-* **Temperatura wody** – zaznacz haczyk i wybierz punkt danych z temperaturą wody.
-* **Tlen (O₂)** – zaznacz haczyk i wybierz punkt danych z rozpuszczonym tlenem. Jest
-  używany przez opcję *Blokuj według tlenu* dostępną dla każdego przełącznika.
-
-Sensowne są tylko liczbowe punkty danych. Aktualne wartości są odzwierciedlane w punktach danych
-`airTemperature` / `waterTemperature`. Właściwe progi ustawia się **dla każdego
-przełącznika** (zobacz *Blokada temperaturowa* i *Karmienie dynamiczne*).
-
 #### Przełączniki
 
 Lista automatów do karmienia (maksymalnie 5). Dla każdego wpisu:
@@ -210,9 +197,22 @@ Następna zaplanowana pora znajduje się zawsze w punkcie danych `nextFeeding`.
   Domyślnie są to `true` i `false`, co pasuje do większości gniazdek/przekaźników. Jeśli Twoje
   urządzenie oczekuje liczb lub tekstu, wpisz tutaj np. `1` / `0` lub `ON` / `OFF`.
 
+#### Źródła temperatury i tlenu
+
+Każdy przełącznik (stacja karmienia) ma **własne** czujniki – różne stawy/zbiorniki mogą używać
+różnych obiektów:
+
+* **Temperatura powietrza** – zaznacz haczyk i wybierz punkt danych z temperaturą powietrza tej stacji.
+* **Temperatura wody** – zaznacz haczyk i wybierz punkt danych z temperaturą wody tej stacji.
+* **Tlen (O₂)** – zaznacz haczyk i wybierz punkt danych z rozpuszczonym tlenem.
+
+Sensowne są tylko liczbowe punkty danych. Aktualne wartości są odzwierciedlane w punktach danych
+`airTemperature`, `waterTemperature` i `oxygen` tego przełącznika. Progi ustawia się poniżej
+(*Blokada temperaturowa*), a temperatury napędzają również *Karmienie dynamiczne*.
+
 #### Blokada temperaturowa
 
-Wyświetlana tylko dla źródeł temperatury aktywowanych w ustawieniach podstawowych. Dla każdego
+Wyświetlana tylko dla źródeł temperatury aktywowanych powyżej (*Źródła temperatury i tlenu*). Dla każdego
 przełącznika:
 
 * **Blokuj według temperatury wody** – *Blokuj jeśli poniżej* i/lub *Blokuj jeśli powyżej* (°C).
@@ -308,8 +308,6 @@ Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 | Punkt danych | Typ | Znaczenie |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter działa, a konfiguracja jest prawidłowa. |
-| `airTemperature` | number (ro) | Odzwierciedlenie skonfigurowanego źródła temperatury powietrza. |
-| `waterTemperature` | number (ro) | Odzwierciedlenie skonfigurowanego źródła temperatury wody. |
 | `sunrise` / `sunset` | string (ro) | Obliczony wschód/zachód słońca na dziś. |
 
 **Dla każdego przełącznika pod `switches.<id>.`** (`<id>` to wewnętrzny identyfikator, np. `sw-0`)
@@ -333,6 +331,9 @@ Ponadto podkanał tylko do odczytu **`settings`** (`switches.<id>.settings.*`) o
 | `dynamicRate` | number (ro) | Współczynnik Q10 aktualnie stosowany przez karmienie dynamiczne. |
 | `dynamicIntervalMin` | number (ro) | Aktualnie obliczony dynamiczny interwał (minuty). |
 | `dynamicDurationSec` | number (ro) | Aktualnie obliczony dynamiczny czas (sekundy). |
+| `airTemperature` | number (ro) | Wartość własnego źródła temperatury powietrza tego przełącznika. |
+| `waterTemperature` | number (ro) | Wartość własnego źródła temperatury wody tego przełącznika. |
+| `oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
 
 Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – np. wyświetlić
 `nextFeeding` na pulpicie albo wyzwolić własny alarm przy `error = true`.
@@ -343,16 +344,16 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
 
 **Staw koi, dwa razy dziennie, tylko przy wystarczającym cieple**
 * Tryb *Stałe pory* → `08:00`, `18:00`; czas `6` s.
-* Aktywuj temperaturę wody w ustawieniach podstawowych, następnie w zakładce przełącznika *Blokuj
-  według temperatury wody* → *Blokuj jeśli poniżej* `8` °C (brak karmienia przy zbyt zimnej wodzie).
+* W zakładce przełącznika, w sekcji *Źródła temperatury i tlenu*, aktywuj *Temperatura wody* i wybierz
+  czujnik; następnie *Blokuj według temperatury wody* → *Blokuj jeśli poniżej* `8` °C (brak karmienia przy zbyt zimnej wodzie).
 * Włącz *Nie karm w nocy*.
 
 **Woliera, częste małe porcje w ciągu dnia**
 * Tryb *Interwał w obrębie okresu* → 07:00–19:00, interwał `90` min; czas `3` s.
 
 **Staw koi, dostosowany do temperatury (karmienie dynamiczne)**
-* Aktywuj *Temperatura wody* w ustawieniach podstawowych.
-* W zakładce przełącznika otwórz *Karmienie dynamiczne*, włącz je, źródło *Temperatura wody*.
+* W zakładce przełącznika, w sekcji *Źródła temperatury i tlenu*, aktywuj *Temperatura wody* i wybierz czujnik.
+* Następnie otwórz *Karmienie dynamiczne*, włącz je, źródło *Temperatura wody*.
 * Odniesienie `20` °C, Q10 `2,2`, bazowy interwał `60` min (min `30`, maks `480`), bazowy czas `5` s
   (min `2`, maks `15`). Wtedy karmi częściej i nieco więcej przy cieple, a mniej przy zimnie.
 
@@ -414,8 +415,8 @@ Twój obiekt przełącznika prawdopodobnie nie zgłasza zwrotnie swojego rzeczyw
 przełączania* dla tego przełącznika.
 
 **Karmienie dynamiczne niczego nie zmienia.**
-Upewnij się, że wybrane źródło temperatury (woda lub powietrze) jest aktywowane w ustawieniach
-podstawowych i dostarcza wartości. Zaraz po restarcie średnia krocząca dopiero się zapełnia, więc
+Upewnij się, że wybrane źródło temperatury (woda lub powietrze) jest aktywowane w zakładce
+przełącznika (*Źródła temperatury i tlenu*) i dostarcza wartości. Zaraz po restarcie średnia krocząca dopiero się zapełnia, więc
 karmienie startuje od wartości bazowych. Obserwuj `dynamicAvgTemperature` i `dynamicIntervalMin`.
 
 **Nic nie jest karmione, choć nie jest zima (albo karmi, choć powinna być przerwa).**

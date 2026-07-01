@@ -74,6 +74,12 @@ function createSwitch(switches) {
 		dynamicHysteresisPct: 15,
 		blockO2Enabled: false,
 		o2Min: null,
+		airTempEnabled: false,
+		airTempObjectId: '',
+		waterTempEnabled: false,
+		waterTempObjectId: '',
+		o2Enabled: false,
+		o2ObjectId: '',
 	};
 }
 
@@ -165,6 +171,9 @@ function Settings(props) {
 					socket={socket}
 					instanceId={instanceId}
 					telegramInstances={telegramInstances}
+					theme={theme}
+					themeName={themeName}
+					themeType={themeType}
 				/>
 			) : null}
 		</Box>

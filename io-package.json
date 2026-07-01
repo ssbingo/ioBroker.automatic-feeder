@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "0.6.0",
+		"version": "0.7.0",
 		"news": {
-			"0.6.0": {
-				"en": "Dynamic feeding (Q10): the interval and portion adapt to the water/air temperature (moving average, hysteresis). Optional oxygen (O₂) source with per-switch low-O₂ blocking. Documentation completed in all 11 languages.",
-				"de": "Dynamisches Füttern (Q10): Intervall und Menge passen sich an die Wasser-/Lufttemperatur an (gleitender Mittelwert, Hysterese). Optionale Sauerstoff-Quelle (O₂) mit Sperre bei zu wenig O₂ je Schalter. Doku in allen 11 Sprachen vervollständigt.",
-				"ru": "Динамическое кормление (Q10): интервал и порция подстраиваются под температуру воды/воздуха (скользящее среднее, гистерезис). Опциональный источник кислорода (O₂) с блокировкой при низком O₂ для каждого переключателя. Документация дополнена на всех 11 языках.",
-				"pt": "Alimentação dinâmica (Q10): o intervalo e a porção adaptam-se à temperatura da água/ar (média móvel, histerese). Fonte opcional de oxigénio (O₂) com bloqueio por O₂ baixo por interruptor. Documentação completada nos 11 idiomas.",
-				"nl": "Dynamisch voeren (Q10): interval en portie passen zich aan de water-/luchttemperatuur aan (voortschrijdend gemiddelde, hysterese). Optionele zuurstofbron (O₂) met blokkering bij laag O₂ per schakelaar. Documentatie in alle 11 talen aangevuld.",
-				"fr": "Alimentation dynamique (Q10) : l'intervalle et la portion s'adaptent à la température de l'eau/l'air (moyenne glissante, hystérésis). Source d'oxygène (O₂) optionnelle avec blocage en cas d'O₂ faible par interrupteur. Documentation complétée dans les 11 langues.",
-				"it": "Alimentazione dinamica (Q10): intervallo e porzione si adattano alla temperatura dell'acqua/aria (media mobile, isteresi). Fonte di ossigeno (O₂) opzionale con blocco per O₂ basso per interruttore. Documentazione completata in tutte le 11 lingue.",
-				"es": "Alimentación dinámica (Q10): el intervalo y la porción se adaptan a la temperatura del agua/aire (media móvil, histéresis). Fuente de oxígeno (O₂) opcional con bloqueo por O₂ bajo por interruptor. Documentación completada en los 11 idiomas.",
-				"pl": "Karmienie dynamiczne (Q10): interwał i porcja dostosowują się do temperatury wody/powietrza (średnia krocząca, histereza). Opcjonalne źródło tlenu (O₂) z blokadą przy niskim O₂ dla każdego przełącznika. Dokumentacja uzupełniona we wszystkich 11 językach.",
-				"uk": "Динамічне годування (Q10): інтервал і порція підлаштовуються під температуру води/повітря (ковзне середнє, гістерезис). Опційне джерело кисню (O₂) з блокуванням за низького O₂ для кожного перемикача. Документацію доповнено всіма 11 мовами.",
-				"zh-cn": "动态投喂 (Q10)：间隔和份量随水温/气温自适应（移动平均、迟滞）。可选溶氧 (O₂) 源，每个开关可在低氧时阻止投喂。文档已在全部 11 种语言中补全。"
+			"0.7.0": {
+				"en": "Temperature and oxygen sources are now assigned per switch (different feeding stations can use their own sensors). Existing global sources are migrated automatically. New per-switch airTemperature/waterTemperature/oxygen data points.",
+				"de": "Temperatur- und Sauerstoffquellen werden jetzt je Schalter zugewiesen (verschiedene Fütterungsstellen können eigene Sensoren nutzen). Bestehende globale Quellen werden automatisch migriert. Neue per-Schalter-Datenpunkte airTemperature/waterTemperature/oxygen.",
+				"ru": "Источники температуры и кислорода теперь назначаются для каждого переключателя (разные места кормления могут использовать свои датчики). Существующие глобальные источники переносятся автоматически. Новые точки данных airTemperature/waterTemperature/oxygen для каждого переключателя.",
+				"pt": "As fontes de temperatura e oxigénio são agora atribuídas por interruptor (diferentes pontos de alimentação podem usar os seus sensores). As fontes globais existentes são migradas automaticamente. Novos pontos de dados airTemperature/waterTemperature/oxygen por interruptor.",
+				"nl": "Temperatuur- en zuurstofbronnen worden nu per schakelaar toegewezen (verschillende voederplekken kunnen eigen sensoren gebruiken). Bestaande globale bronnen worden automatisch gemigreerd. Nieuwe datapunten airTemperature/waterTemperature/oxygen per schakelaar.",
+				"fr": "Les sources de température et d'oxygène sont désormais attribuées par interrupteur (différents points d'alimentation peuvent utiliser leurs propres capteurs). Les sources globales existantes sont migrées automatiquement. Nouveaux points de données airTemperature/waterTemperature/oxygen par interrupteur.",
+				"it": "Le sorgenti di temperatura e ossigeno sono ora assegnate per interruttore (diverse postazioni di alimentazione possono usare i propri sensori). Le sorgenti globali esistenti vengono migrate automaticamente. Nuovi punti dati airTemperature/waterTemperature/oxygen per interruttore.",
+				"es": "Las fuentes de temperatura y oxígeno ahora se asignan por interruptor (distintos puntos de alimentación pueden usar sus propios sensores). Las fuentes globales existentes se migran automáticamente. Nuevos puntos de datos airTemperature/waterTemperature/oxygen por interruptor.",
+				"pl": "Źródła temperatury i tlenu są teraz przypisywane do każdego przełącznika (różne stanowiska karmienia mogą używać własnych czujników). Istniejące źródła globalne są migrowane automatycznie. Nowe punkty danych airTemperature/waterTemperature/oxygen dla każdego przełącznika.",
+				"uk": "Джерела температури та кисню тепер призначаються для кожного перемикача (різні місця годування можуть використовувати власні датчики). Наявні глобальні джерела мігруються автоматично. Нові точки даних airTemperature/waterTemperature/oxygen для кожного перемикача.",
+				"zh-cn": "温度和溶氧来源现在按开关分配（不同投喂点可使用各自的传感器）。现有的全局来源会自动迁移。每个开关新增 airTemperature/waterTemperature/oxygen 数据点。"
 			}
 		},
 		"titleLang": {
@@ -97,6 +97,7 @@
 		"waterTempObjectId": "",
 		"o2Enabled": false,
 		"o2ObjectId": "",
+		"sourcesMigratedToSwitches": false,
 		"switches": []
 	},
 	"objects": [],

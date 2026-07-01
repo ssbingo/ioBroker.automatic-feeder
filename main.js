@@ -387,6 +387,27 @@ const SWITCH_SETTINGS = [
 		get: sw => !!sw.blockO2Enabled,
 	},
 	{ id: 'o2Min', name: 'Oxygen minimum', type: 'number', role: 'value', get: sw => sw.o2Min ?? null },
+	{
+		id: 'airTempObjectId',
+		name: 'Air temperature source',
+		type: 'string',
+		role: 'text',
+		get: sw => (sw.airTempEnabled ? sw.airTempObjectId || '' : ''),
+	},
+	{
+		id: 'waterTempObjectId',
+		name: 'Water temperature source',
+		type: 'string',
+		role: 'text',
+		get: sw => (sw.waterTempEnabled ? sw.waterTempObjectId || '' : ''),
+	},
+	{
+		id: 'o2ObjectId',
+		name: 'Oxygen source',
+		type: 'string',
+		role: 'text',
+		get: sw => (sw.o2Enabled ? sw.o2ObjectId || '' : ''),
+	},
 ];
 
 class AutomaticFeeder extends utils.Adapter {
@@ -415,15 +436,14 @@ class AutomaticFeeder extends utils.Adapter {
 		this.coords = null;
 		/** effective feeding window (sun +/- offsets) */
 		this.window = null;
-		// current temperatures (null = unknown); kept as separate fields so the
-		// type checker infers a flexible type and feeds it back as number | null
-		this.airTemp = null;
-		this.waterTemp = null;
-		// dissolved oxygen (null = unknown)
-		this.o2 = null;
-		// rolling temperature samples for the dynamic (Q10) moving average: { air:[], water:[] }
-		this.tempBuffers = { air: [], water: [] };
-		// longest sample window we need to keep (ms); set in setupTemperatureSources
+		// sources are per switch; we subscribe to the union of referenced foreign
+		// objects and keep the current value (and, for temperatures, a rolling buffer)
+		// keyed by object id. null = unknown.
+		this.foreignValues = new Map();
+		this.foreignBuffers = new Map();
+		this.tempObjectIds = new Set();
+		this.o2ObjectIds = new Set();
+		// longest sample window we need to keep (ms); set in setupSources
 		this.maxBufferMs = 24 * 3600000;
 		// last dynamic interval (minutes) applied per switch id (hysteresis reference)
 		this.dynamicAppliedInterval = new Map();
@@ -498,6 +518,11 @@ class AutomaticFeeder extends utils.Adapter {
 				);
 			}
 
+			// --- one-time migration of the legacy global sources into the switches ---
+			if (await this.migrateGlobalSourcesToSwitches()) {
+				return; // configuration was rewritten -> the adapter restarts
+			}
+
 			this.log.debug(
 				`Configuration: ${JSON.stringify({
 					coordinateSource: this.config.coordinateSource,
@@ -538,7 +563,7 @@ class AutomaticFeeder extends utils.Adapter {
 			this.scheduleMidnightRecalc();
 
 			// --- temperature sources ---
-			await this.setupTemperatureSources();
+			await this.setupSources();
 
 			// --- switch-state supervision: subscribe to the controlled foreign states ---
 			for (const sw of this.switches) {
@@ -687,30 +712,13 @@ class AutomaticFeeder extends utils.Adapter {
 			},
 			native: {},
 		});
-		await this.setObjectNotExistsAsync('airTemperature', {
-			type: 'state',
-			common: {
-				name: 'Air temperature',
-				type: 'number',
-				role: 'value.temperature',
-				unit: '°C',
-				read: true,
-				write: false,
-			},
-			native: {},
-		});
-		await this.setObjectNotExistsAsync('waterTemperature', {
-			type: 'state',
-			common: {
-				name: 'Water temperature',
-				type: 'number',
-				role: 'value.temperature',
-				unit: '°C',
-				read: true,
-				write: false,
-			},
-			native: {},
-		});
+		// legacy global temperature mirrors: sources are per switch now, remove them
+		for (const legacy of ['airTemperature', 'waterTemperature']) {
+			if (await this.getObjectAsync(legacy)) {
+				await this.delObjectAsync(legacy);
+				this.log.debug(`Removed obsolete global state "${legacy}" (sources are per switch now).`);
+			}
+		}
 		await this.setObjectNotExistsAsync('sunrise', {
 			type: 'state',
 			common: { name: 'Sunrise', type: 'string', role: 'date.sunrise', read: true, write: false },
@@ -922,6 +930,43 @@ class AutomaticFeeder extends utils.Adapter {
 				native: {},
 			});
 
+			// --- per-switch mirrors of this station's own sources ---
+			await this.setObjectNotExistsAsync(`${base}.airTemperature`, {
+				type: 'state',
+				common: {
+					name: 'Air temperature (this switch)',
+					type: 'number',
+					role: 'value.temperature',
+					unit: '°C',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.waterTemperature`, {
+				type: 'state',
+				common: {
+					name: 'Water temperature (this switch)',
+					type: 'number',
+					role: 'value.temperature',
+					unit: '°C',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.oxygen`, {
+				type: 'state',
+				common: {
+					name: 'Dissolved oxygen (this switch)',
+					type: 'number',
+					role: 'value',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+
 			// --- read-only mirror of the configuration (visible in the object tree / VIS) ---
 			await this.setObjectNotExistsAsync(`${base}.settings`, {
 				type: 'folder',
@@ -964,69 +1009,152 @@ class AutomaticFeeder extends utils.Adapter {
 	// Temperatures
 	// ----------------------------------------------------------------------------
 
-	async setupTemperatureSources() {
+	/**
+	 * One-time migration: copies the legacy global temperature/oxygen sources into
+	 * every switch that has none yet, marks the migration done and clears the
+	 * legacy globals. Writing the instance config restarts the adapter.
+	 *
+	 * @returns {Promise<boolean>} true if the configuration was rewritten (restart imminent)
+	 */
+	async migrateGlobalSourcesToSwitches() {
+		const g = this.config;
+		if (g.sourcesMigratedToSwitches) {
+			return false;
+		}
+		const hasGlobal =
+			(g.airTempEnabled && g.airTempObjectId) ||
+			(g.waterTempEnabled && g.waterTempObjectId) ||
+			(g.o2Enabled && g.o2ObjectId);
+		if (!hasGlobal) {
+			return false;
+		}
+		const objId = `system.adapter.${this.namespace}`;
+		let obj;
+		try {
+			obj = await this.getForeignObjectAsync(objId);
+		} catch (e) {
+			this.log.warn(`Source migration skipped (could not read ${objId}): ${e.message}`);
+			return false;
+		}
+		if (!obj || !obj.native) {
+			return false;
+		}
+		const switches = Array.isArray(obj.native.switches) ? obj.native.switches : [];
+		for (const sw of switches) {
+			if (g.airTempEnabled && g.airTempObjectId && !sw.airTempObjectId) {
+				sw.airTempEnabled = true;
+				sw.airTempObjectId = g.airTempObjectId;
+			}
+			if (g.waterTempEnabled && g.waterTempObjectId && !sw.waterTempObjectId) {
+				sw.waterTempEnabled = true;
+				sw.waterTempObjectId = g.waterTempObjectId;
+			}
+			if (g.o2Enabled && g.o2ObjectId && !sw.o2ObjectId) {
+				sw.o2Enabled = true;
+				sw.o2ObjectId = g.o2ObjectId;
+			}
+		}
+		obj.native.sourcesMigratedToSwitches = true;
+		obj.native.airTempEnabled = false;
+		obj.native.waterTempEnabled = false;
+		obj.native.o2Enabled = false;
+		await this.setForeignObjectAsync(objId, obj);
+		this.log.info(
+			`Migrated the global temperature/oxygen source(s) into ${switches.length} switch(es); the adapter restarts to apply the new per-switch configuration.`,
+		);
+		return true;
+	}
+
+	async setupSources() {
 		// keep enough history for the largest configured moving-average window
 		const maxHours = Math.max(24, ...this.switches.map(s => Number(s.dynamicBufferHours) || 0));
 		this.maxBufferMs = maxHours * 3600000;
 
-		if (this.config.airTempEnabled && this.config.airTempObjectId) {
-			this.subscribeForeignStates(this.config.airTempObjectId);
-			const st = await this.getForeignStateAsync(this.config.airTempObjectId);
-			if (st && st.val !== null && st.val !== undefined) {
-				this.airTemp = Number(st.val);
-				this.pushTempSample('air', this.airTemp);
-				await this.setStateAsync('airTemperature', { val: this.airTemp, ack: true });
+		// collect the union of foreign objects referenced by any switch
+		this.tempObjectIds = new Set();
+		this.o2ObjectIds = new Set();
+		for (const sw of this.switches) {
+			if (sw.airTempEnabled && sw.airTempObjectId) {
+				this.tempObjectIds.add(sw.airTempObjectId);
 			}
-			this.log.debug(
-				`Air temperature source subscribed: ${this.config.airTempObjectId} (initial value: ${this.airTemp ?? 'unknown'}°C).`,
-			);
-		} else {
-			this.log.debug('Air temperature source disabled.');
+			if (sw.waterTempEnabled && sw.waterTempObjectId) {
+				this.tempObjectIds.add(sw.waterTempObjectId);
+			}
+			if (sw.o2Enabled && sw.o2ObjectId) {
+				this.o2ObjectIds.add(sw.o2ObjectId);
+			}
 		}
-		if (this.config.waterTempEnabled && this.config.waterTempObjectId) {
-			this.subscribeForeignStates(this.config.waterTempObjectId);
-			const st = await this.getForeignStateAsync(this.config.waterTempObjectId);
-			if (st && st.val !== null && st.val !== undefined) {
-				this.waterTemp = Number(st.val);
-				this.pushTempSample('water', this.waterTemp);
-				await this.setStateAsync('waterTemperature', { val: this.waterTemp, ack: true });
+
+		const allIds = new Set([...this.tempObjectIds, ...this.o2ObjectIds]);
+		for (const id of allIds) {
+			this.subscribeForeignStates(id);
+			let value = null;
+			try {
+				const st = await this.getForeignStateAsync(id);
+				value = st && st.val !== null && st.val !== undefined ? Number(st.val) : null;
+			} catch (e) {
+				this.log.warn(`Could not read source ${id}: ${e.message}`);
 			}
-			this.log.debug(
-				`Water temperature source subscribed: ${this.config.waterTempObjectId} (initial value: ${this.waterTemp ?? 'unknown'}°C).`,
-			);
-		} else {
-			this.log.debug('Water temperature source disabled.');
+			this.foreignValues.set(id, value);
+			if (this.tempObjectIds.has(id)) {
+				this.foreignBuffers.set(id, []);
+				if (value !== null) {
+					this.pushTempSample(id, value);
+				}
+			}
+			this.log.debug(`Source subscribed: ${id} (initial value: ${value ?? 'unknown'}).`);
 		}
-		if (this.config.o2Enabled && this.config.o2ObjectId) {
-			this.subscribeForeignStates(this.config.o2ObjectId);
-			const st = await this.getForeignStateAsync(this.config.o2ObjectId);
-			if (st && st.val !== null && st.val !== undefined) {
-				this.o2 = Number(st.val);
-			}
-			this.log.debug(
-				`Oxygen source subscribed: ${this.config.o2ObjectId} (initial value: ${this.o2 ?? 'unknown'}).`,
-			);
-		} else {
-			this.log.debug('Oxygen source disabled.');
+		if (!allIds.size) {
+			this.log.debug('No per-switch temperature/oxygen sources configured.');
+		}
+		// initialize the per-switch mirror states
+		for (const id of allIds) {
+			await this.updateSourceMirrors(id, this.foreignValues.get(id) ?? null);
 		}
 	}
 
 	/**
-	 * Appends a temperature sample to the rolling buffer and prunes old samples.
+	 * Appends a temperature sample to the rolling buffer of a foreign object and
+	 * prunes samples older than the retained window.
 	 *
-	 * @param {'air' | 'water'} which - which temperature source
+	 * @param {string} objectId - the temperature source object id
 	 * @param {number} value - the temperature value in °C
 	 */
-	pushTempSample(which, value) {
+	pushTempSample(objectId, value) {
 		if (!Number.isFinite(value)) {
 			return;
 		}
+		let buf = this.foreignBuffers.get(objectId);
+		if (!buf) {
+			buf = [];
+			this.foreignBuffers.set(objectId, buf);
+		}
 		const now = Date.now();
-		const buf = this.tempBuffers[which];
 		buf.push({ t: now, v: value });
 		const from = now - this.maxBufferMs;
 		while (buf.length && buf[0].t < from) {
 			buf.shift();
+		}
+	}
+
+	/**
+	 * Writes the per-switch mirror states (airTemperature / waterTemperature /
+	 * oxygen) for every switch that uses the given source object.
+	 *
+	 * @param {string} objectId - the source object that changed
+	 * @param {number | null} value - its current value
+	 */
+	async updateSourceMirrors(objectId, value) {
+		for (const sw of this.switches) {
+			if (sw.airTempEnabled && sw.airTempObjectId === objectId) {
+				await this.setStateAsync(`switches.${sw.id}.airTemperature`, { val: value, ack: true });
+			}
+			if (sw.waterTempEnabled && sw.waterTempObjectId === objectId) {
+				await this.setStateAsync(`switches.${sw.id}.waterTemperature`, { val: value, ack: true });
+			}
+			if (sw.o2Enabled && sw.o2ObjectId === objectId) {
+				await this.setStateAsync(`switches.${sw.id}.oxygen`, { val: value, ack: true });
+			}
 		}
 	}
 
@@ -1479,7 +1607,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @returns {number} the temperature to feed into the Q10 model
 	 */
 	dynamicTemp(sw) {
-		const buf = this.tempBuffers[sw.dynamicSource === 'air' ? 'air' : 'water'];
+		const buf = this.dynamicSourceBuffer(sw);
 		const avg = averageOver(buf, Date.now(), Number(sw.dynamicBufferHours) || 24);
 		if (avg !== null) {
 			return avg;
@@ -1497,7 +1625,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @returns {Date | null} the next feeding time or null
 	 */
 	planDynamic(sw, now) {
-		const buf = this.tempBuffers[sw.dynamicSource === 'air' ? 'air' : 'water'];
+		const buf = this.dynamicSourceBuffer(sw);
 		const avg = averageOver(buf, Date.now(), Number(sw.dynamicBufferHours) || 24);
 		const tRef = Number(sw.dynamicTRef);
 		const q10 = Number(sw.dynamicQ10);
@@ -1707,6 +1835,47 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
+	 * Current value of a switch's own air/water/oxygen source, or null.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {'air' | 'water' | 'o2'} kind - which source
+	 * @returns {number | null} the current value, or null if unknown/disabled
+	 */
+	sourceValue(sw, kind) {
+		let objId = '';
+		if (kind === 'air') {
+			objId = sw.airTempEnabled ? sw.airTempObjectId : '';
+		} else if (kind === 'water') {
+			objId = sw.waterTempEnabled ? sw.waterTempObjectId : '';
+		} else if (kind === 'o2') {
+			objId = sw.o2Enabled ? sw.o2ObjectId : '';
+		}
+		if (!objId) {
+			return null;
+		}
+		const v = this.foreignValues.get(objId);
+		return v === undefined ? null : v;
+	}
+
+	/**
+	 * Rolling temperature buffer of the switch's dynamic source object.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {Array<{t: number, v: number}>} the sample buffer (possibly empty)
+	 */
+	dynamicSourceBuffer(sw) {
+		const objId =
+			sw.dynamicSource === 'air'
+				? sw.airTempEnabled
+					? sw.airTempObjectId
+					: ''
+				: sw.waterTempEnabled
+					? sw.waterTempObjectId
+					: '';
+		return (objId && this.foreignBuffers.get(objId)) || [];
+	}
+
+	/**
 	 * Returns the reason why feeding is blocked, or null if feeding is allowed.
 	 * The reason is a message key + params so the caller can render it both
 	 * localized (status datapoint) and in English (log).
@@ -1727,39 +1896,42 @@ class AutomaticFeeder extends utils.Adapter {
 		} else if (sw.respectNight !== false) {
 			this.log.silly(`Block check ${this.swLabel(sw)}: night protection requested but no sun window available.`);
 		}
-		// water temperature
+		// water temperature (this switch's own source)
 		if (sw.blockWaterEnabled) {
+			const water = this.sourceValue(sw, 'water');
 			this.log.silly(
-				`Block check ${this.swLabel(sw)}: water=${this.waterTemp ?? 'unknown'}°C, min=${sw.waterMin}, max=${sw.waterMax}`,
+				`Block check ${this.swLabel(sw)}: water=${water ?? 'unknown'}°C, min=${sw.waterMin}, max=${sw.waterMax}`,
 			);
-			if (this.waterTemp !== null) {
-				if (sw.waterMin !== null && sw.waterMin !== undefined && this.waterTemp < sw.waterMin) {
-					return { key: 'blockWaterBelow', params: { temp: this.waterTemp, limit: sw.waterMin } };
+			if (water !== null) {
+				if (sw.waterMin !== null && sw.waterMin !== undefined && water < sw.waterMin) {
+					return { key: 'blockWaterBelow', params: { temp: water, limit: sw.waterMin } };
 				}
-				if (sw.waterMax !== null && sw.waterMax !== undefined && this.waterTemp > sw.waterMax) {
-					return { key: 'blockWaterAbove', params: { temp: this.waterTemp, limit: sw.waterMax } };
+				if (sw.waterMax !== null && sw.waterMax !== undefined && water > sw.waterMax) {
+					return { key: 'blockWaterAbove', params: { temp: water, limit: sw.waterMax } };
 				}
 			}
 		}
-		// air temperature
+		// air temperature (this switch's own source)
 		if (sw.blockAirEnabled) {
+			const air = this.sourceValue(sw, 'air');
 			this.log.silly(
-				`Block check ${this.swLabel(sw)}: air=${this.airTemp ?? 'unknown'}°C, min=${sw.airMin}, max=${sw.airMax}`,
+				`Block check ${this.swLabel(sw)}: air=${air ?? 'unknown'}°C, min=${sw.airMin}, max=${sw.airMax}`,
 			);
-			if (this.airTemp !== null) {
-				if (sw.airMin !== null && sw.airMin !== undefined && this.airTemp < sw.airMin) {
-					return { key: 'blockAirBelow', params: { temp: this.airTemp, limit: sw.airMin } };
+			if (air !== null) {
+				if (sw.airMin !== null && sw.airMin !== undefined && air < sw.airMin) {
+					return { key: 'blockAirBelow', params: { temp: air, limit: sw.airMin } };
 				}
-				if (sw.airMax !== null && sw.airMax !== undefined && this.airTemp > sw.airMax) {
-					return { key: 'blockAirAbove', params: { temp: this.airTemp, limit: sw.airMax } };
+				if (sw.airMax !== null && sw.airMax !== undefined && air > sw.airMax) {
+					return { key: 'blockAirAbove', params: { temp: air, limit: sw.airMax } };
 				}
 			}
 		}
-		// dissolved oxygen too low (water quality safety)
-		if (sw.blockO2Enabled && this.config.o2Enabled) {
-			this.log.silly(`Block check ${this.swLabel(sw)}: o2=${this.o2 ?? 'unknown'}, min=${sw.o2Min}`);
-			if (this.o2 !== null && sw.o2Min !== null && sw.o2Min !== undefined && this.o2 < sw.o2Min) {
-				return { key: 'blockOxygenLow', params: { value: this.o2, limit: sw.o2Min } };
+		// dissolved oxygen too low (water quality safety, this switch's own source)
+		if (sw.blockO2Enabled) {
+			const o2 = this.sourceValue(sw, 'o2');
+			this.log.silly(`Block check ${this.swLabel(sw)}: o2=${o2 ?? 'unknown'}, min=${sw.o2Min}`);
+			if (o2 !== null && sw.o2Min !== null && sw.o2Min !== undefined && o2 < sw.o2Min) {
+				return { key: 'blockOxygenLow', params: { value: o2, limit: sw.o2Min } };
 			}
 		}
 		this.log.silly(`Block check ${this.swLabel(sw)}: no block, feeding allowed.`);
@@ -1781,28 +1953,15 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		this.log.silly(`State change: ${id} = ${state.val} (ack=${state.ack})`);
 
-		// temperature sources (foreign states)
-		if (this.config.airTempEnabled && id === this.config.airTempObjectId) {
-			this.airTemp = state.val === null ? null : Number(state.val);
-			if (this.airTemp !== null) {
-				this.pushTempSample('air', this.airTemp);
+		// per-switch temperature / oxygen sources (foreign states)
+		if (this.tempObjectIds.has(id) || this.o2ObjectIds.has(id)) {
+			const value = state.val === null ? null : Number(state.val);
+			this.foreignValues.set(id, value);
+			if (this.tempObjectIds.has(id) && value !== null) {
+				this.pushTempSample(id, value);
 			}
-			await this.setStateAsync('airTemperature', { val: this.airTemp, ack: true });
-			this.log.debug(`Air temperature updated: ${this.airTemp ?? 'unknown'}°C (from ${id}).`);
-			return;
-		}
-		if (this.config.waterTempEnabled && id === this.config.waterTempObjectId) {
-			this.waterTemp = state.val === null ? null : Number(state.val);
-			if (this.waterTemp !== null) {
-				this.pushTempSample('water', this.waterTemp);
-			}
-			await this.setStateAsync('waterTemperature', { val: this.waterTemp, ack: true });
-			this.log.debug(`Water temperature updated: ${this.waterTemp ?? 'unknown'}°C (from ${id}).`);
-			return;
-		}
-		if (this.config.o2Enabled && id === this.config.o2ObjectId) {
-			this.o2 = state.val === null ? null : Number(state.val);
-			this.log.debug(`Oxygen updated: ${this.o2 ?? 'unknown'} (from ${id}).`);
+			await this.updateSourceMirrors(id, value);
+			this.log.debug(`Source updated: ${id} = ${value ?? 'unknown'}.`);
 			return;
 		}
 

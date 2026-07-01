@@ -22,7 +22,6 @@ import ObjectSelect from './ObjectSelect';
 import LocationPicker from './LocationPicker';
 
 const MAX_SWITCHES = 5;
-const TEMPERATURE_FILTER = (obj) => !!obj.common && obj.common.type === 'number';
 
 function Section({ title, children }) {
 	return (
@@ -142,75 +141,6 @@ function GeneralTab(props) {
 				</Box>
 			</Section>
 
-			{/* Temperatures */}
-			<Section title={I18n.t('Temperature sources')}>
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={!!native.airTempEnabled}
-								onChange={(e) => onChange('airTempEnabled', e.target.checked)}
-							/>
-						}
-						label={I18n.t('Air temperature')}
-					/>
-					<ObjectSelect
-						label={I18n.t('Air temperature object')}
-						value={native.airTempObjectId}
-						disabled={!native.airTempEnabled}
-						onChange={(v) => onChange('airTempObjectId', v)}
-						socket={socket}
-						theme={theme}
-						themeName={themeName}
-						themeType={themeType}
-						filterFunc={TEMPERATURE_FILTER}
-					/>
-				</Box>
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={!!native.waterTempEnabled}
-								onChange={(e) => onChange('waterTempEnabled', e.target.checked)}
-							/>
-						}
-						label={I18n.t('Water temperature')}
-					/>
-					<ObjectSelect
-						label={I18n.t('Water temperature object')}
-						value={native.waterTempObjectId}
-						disabled={!native.waterTempEnabled}
-						onChange={(v) => onChange('waterTempObjectId', v)}
-						socket={socket}
-						theme={theme}
-						themeName={themeName}
-						themeType={themeType}
-						filterFunc={TEMPERATURE_FILTER}
-					/>
-				</Box>
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={!!native.o2Enabled}
-									onChange={(e) => onChange('o2Enabled', e.target.checked)}
-								/>
-							}
-							label={I18n.t('Oxygen (O₂)')}
-						/>
-						<ObjectSelect
-							label={I18n.t('Oxygen object')}
-							value={native.o2ObjectId}
-							disabled={!native.o2Enabled}
-							onChange={(v) => onChange('o2ObjectId', v)}
-							socket={socket}
-							theme={theme}
-							themeName={themeName}
-							themeType={themeType}
-							filterFunc={TEMPERATURE_FILTER}
-						/>
-					</Box>
-			</Section>
 
 			{/* Switches roster */}
 			<Section title={`${I18n.t('Switches')} (${switches.length}/${MAX_SWITCHES})`}>

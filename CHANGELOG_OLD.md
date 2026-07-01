@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.1.8 (2026-06-29)
+* (ssbingo) Create the intermediate `info` and `switches` objects so every object id path has a parent (repository checker E3009)
+
 ### 0.1.7 (2026-06-29)
 * (ssbingo) Remove the unsupported custom "comment-overrides" key from package.json (repository checker E0058)
 

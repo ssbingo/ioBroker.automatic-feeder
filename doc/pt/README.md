@@ -73,8 +73,8 @@ botão numa visualização VIS).
 | **ioBroker** com **admin** atual (≥ 7) | A página de configuração é implementada com React. |
 | **Um objeto de interruptor** | Um ponto de dados gravável do ioBroker que liga/desliga o alimentador automático – p. ex. uma tomada (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), um relé ou uma variável de script. |
 | **Coordenadas geográficas** | Para o cálculo do nascer/pôr do sol. Seja a partir das configurações de sistema do ioBroker ou por endereço/mapa. **Obrigatório.** |
-| *(opcional)* Objetos de temperatura | Pontos de dados existentes com temperatura do ar e/ou da água, caso você queira bloquear dependendo da temperatura ou usar a alimentação dinâmica. |
-| *(opcional)* Um objeto de **oxigénio (O₂)** | Um ponto de dados existente com o oxigénio dissolvido, caso você queira bloquear a alimentação quando ele cair demais. |
+| *(opcional)* Objetos de temperatura | Pontos de dados existentes com temperatura do ar e/ou da água, para o bloqueio por temperatura ou a alimentação dinâmica. Atribuídos **por interruptor** na aba do interruptor. |
+| *(opcional)* Objetos de **oxigénio (O₂)** | Pontos de dados existentes com o oxigénio dissolvido, para bloquear a alimentação quando ele cair demais. Atribuídos **por interruptor**. |
 | *(opcional)* Uma instância do **Telegram** | O adaptador oficial `telegram`, configurado e iniciado, caso você queira notificações push. |
 | Acesso à internet no host do ioBroker | Apenas para a busca de endereço/mapa na configuração. A operação normal funciona offline. |
 
@@ -151,19 +151,6 @@ permitida entre **07:00 e 20:30**. Cada interruptor pode considerar ou ignorar e
 individualmente (ver *Restrições* na aba do interruptor). Os horários calculados também constam nos
 pontos de dados `sunrise` / `sunset` e são recalculados automaticamente todas as noites.
 
-#### Fontes de temperatura
-
-Para o bloqueio dependente da temperatura, ativar aqui as fontes e escolher os objetos:
-
-* **Temperatura do ar** – marcar a caixa e selecionar o ponto de dados com a temperatura do ar.
-* **Temperatura da água** – marcar a caixa e selecionar o ponto de dados com a temperatura da água.
-* **Oxigénio (O₂)** – marcar a caixa e selecionar o ponto de dados com o oxigénio dissolvido. É
-  usado pela opção *Bloquear por oxigénio* de cada interruptor.
-
-Só fazem sentido pontos de dados numéricos. Os valores atuais são espelhados nos pontos de dados
-`airTemperature` / `waterTemperature`. Os limites propriamente ditos são definidos **por
-interruptor** (ver *Bloqueio por temperatura* e *Alimentação dinâmica*).
-
 #### Interruptores
 
 A lista dos alimentadores automáticos (até 5). Por entrada:
@@ -208,9 +195,19 @@ O próximo horário planejado consta a qualquer momento no ponto de dados `nextF
   O padrão é `true` e `false`, o que combina com a maioria das tomadas/relés. Se o seu
   dispositivo espera números ou texto, inserir aqui p. ex. `1` / `0` ou `ON` / `OFF`.
 
+#### Fontes de temperatura & oxigénio
+
+Cada interruptor (estação de alimentação) tem os **seus próprios** sensores – lagos/tanques diferentes podem usar objetos diferentes:
+
+* **Temperatura do ar** – marcar a caixa e selecionar o ponto de dados que contém a temperatura do ar desta estação.
+* **Temperatura da água** – marcar a caixa e selecionar o ponto de dados que contém a temperatura da água desta estação.
+* **Oxigénio (O₂)** – marcar a caixa e selecionar o ponto de dados que contém o oxigénio dissolvido.
+
+Só fazem sentido pontos de dados numéricos. Os valores atuais são espelhados nos pontos de dados `airTemperature`, `waterTemperature` e `oxygen` deste interruptor. Os limites são definidos abaixo (*Bloqueio por temperatura*), e as temperaturas também alimentam a *Alimentação dinâmica*.
+
 #### Bloqueio por temperatura
 
-É exibido apenas para as fontes de temperatura ativadas nas configurações básicas. Por interruptor:
+É exibido apenas para as fontes de temperatura ativadas acima (*Fontes de temperatura & oxigénio*). Por interruptor:
 
 * **Bloquear por temperatura da água** – *Bloquear se abaixo de* e/ou *Bloquear se acima de* (°C).
 * **Bloquear por temperatura do ar** – o mesmo para o ar.
@@ -302,8 +299,6 @@ O adaptador cria os seguintes pontos de dados no seu namespace
 | Ponto de dados | Tipo | Significado |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | O adaptador está em execução e a configuração é válida. |
-| `airTemperature` | number (ro) | Espelho da fonte de temperatura do ar configurada. |
-| `waterTemperature` | number (ro) | Espelho da fonte de temperatura da água configurada. |
 | `sunrise` / `sunset` | string (ro) | Nascer/pôr do sol calculado para hoje. |
 
 **Por interruptor em `switches.<id>.`** (`<id>` é um ID interno como `sw-0`)
@@ -327,6 +322,9 @@ Além disso, um subcanal somente leitura **`settings`** (`switches.<id>.settings
 | `dynamicRate` | number (ro) | Fator de taxa Q10 atualmente aplicado pela alimentação dinâmica. |
 | `dynamicIntervalMin` | number (ro) | Intervalo dinâmico atualmente calculado (minutos). |
 | `dynamicDurationSec` | number (ro) | Duração dinâmica atualmente calculada (segundos). |
+| `airTemperature` | number (ro) | Valor da fonte de temperatura do ar própria deste interruptor. |
+| `waterTemperature` | number (ro) | Valor da fonte de temperatura da água própria deste interruptor. |
+| `oxygen` | number (ro) | Valor da fonte de oxigénio dissolvido própria deste interruptor. |
 
 Esses pontos de dados podem ser usados em VIS, scripts ou outros adaptadores – p. ex. exibir `nextFeeding`
 num dashboard ou acionar um alarme próprio quando `error = true`.
@@ -337,16 +335,16 @@ num dashboard ou acionar um alarme próprio quando `error = true`.
 
 **Lago de carpas Koi, duas vezes ao dia, apenas com calor suficiente**
 * Modo *Horários fixos* → `08:00`, `18:00`; duração `6` s.
-* Ativar a temperatura da água nas configurações básicas, depois na aba do interruptor *Bloquear por
-  temperatura da água* → *Bloquear se abaixo de* `8` °C (sem alimentação com a água muito fria).
+* Na aba do interruptor, em *Fontes de temperatura & oxigénio*, ativar *Temperatura da água* e
+  selecionar o sensor; depois *Bloquear por temperatura da água* → *Bloquear se abaixo de* `8` °C (sem alimentação com a água muito fria).
 * Ativar *Não alimentar à noite*.
 
 **Viveiro de aves, porções pequenas e frequentes durante o dia**
 * Modo *Intervalo dentro de um período* → 07:00–19:00, intervalo `90` min; duração `3` s.
 
 **Lago de carpas Koi, adaptativo à temperatura (alimentação dinâmica)**
-* Ativar *Temperatura da água* nas configurações básicas.
-* Na aba do interruptor, abrir *Alimentação dinâmica*, ativá-la, fonte *Temperatura da água*.
+* Na aba do interruptor, em *Fontes de temperatura & oxigénio*, ativar *Temperatura da água* e selecionar o sensor.
+* Depois abrir *Alimentação dinâmica*, ativá-la, fonte *Temperatura da água*.
 * Referência `20` °C, Q10 `2,2`, intervalo base `60` min (mín `30`, máx `480`), duração base `5` s
   (mín `2`, máx `15`). Ele então alimenta com mais frequência e um pouco mais quando está quente, e
   menos quando está frio.
@@ -407,9 +405,10 @@ usar um interruptor com retorno de status ou desativar o *Monitoramento de comut
 interruptor.
 
 **A alimentação dinâmica não muda nada.**
-Certifique-se de que a fonte de temperatura selecionada (água ou ar) está ativada nas configurações
-básicas e fornece valores. Logo após uma reinicialização, a média móvel ainda está a encher-se, por
-isso começa a partir dos valores base. Observe `dynamicAvgTemperature` e `dynamicIntervalMin`.
+Certifique-se de que a fonte de temperatura selecionada (água ou ar) está ativada na aba do
+interruptor (*Fontes de temperatura & oxigénio*) e fornece valores. Logo após uma reinicialização, a
+média móvel ainda está a encher-se, por isso começa a partir dos valores base. Observe
+`dynamicAvgTemperature` e `dynamicIntervalMin`.
 
 **Nada é alimentado embora não seja inverno (ou alimenta embora devesse pausar).**
 Verifique as datas da *Pausa de inverno* (`Início do inverno` / `Fim do inverno`, formato dd.mm) e o
