@@ -286,6 +286,8 @@ O adaptador cria os seguintes pontos de dados no seu namespace
 
 **Por interruptor em `switches.<id>.`** (`<id>` é um ID interno como `sw-0`)
 
+Além disso, um subcanal somente leitura **`settings`** (`switches.<id>.settings.*`) espelha a configuração deste interruptor para que possa ser exibida no VIS ou usada em scripts.
+
 | Ponto de dados | Tipo | Significado |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | Uma alimentação está em andamento no momento. |

@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "0.5.2",
+		"version": "0.5.3",
 		"news": {
-			"0.5.2": {
-				"en": "Admin UI: all time fields now use a proper time picker (popup, HH:mm) instead of the native time input, fixing the hard-to-read floating label.",
-				"de": "Admin-UI: alle Zeitfelder nutzen jetzt einen echten Zeit-Picker (Popup, HH:mm) statt des nativen Zeitfelds; das schlecht lesbare Label ist behoben.",
-				"ru": "Интерфейс администратора: все поля времени теперь используют полноценный выбор времени (всплывающее окно, ЧЧ:мм) вместо нативного поля; плохо читаемая подпись исправлена.",
-				"pt": "IU do administrador: todos os campos de hora agora usam um seletor de hora adequado (pop-up, HH:mm) em vez do campo de hora nativo; o rótulo difícil de ler foi corrigido.",
-				"nl": "Admin-UI: alle tijdvelden gebruiken nu een echte tijdkiezer (pop-up, uu:mm) in plaats van het native tijdveld; het slecht leesbare label is opgelost.",
-				"fr": "Interface d'administration : tous les champs d'heure utilisent désormais un vrai sélecteur d'heure (fenêtre, HH:mm) au lieu du champ natif ; l'étiquette peu lisible est corrigée.",
-				"it": "Interfaccia di amministrazione: tutti i campi orari ora usano un vero selettore dell'ora (popup, HH:mm) invece del campo nativo; l'etichetta poco leggibile è stata corretta.",
-				"es": "Interfaz de administración: todos los campos de hora ahora usan un selector de hora adecuado (ventana, HH:mm) en lugar del campo nativo; la etiqueta poco legible se ha corregido.",
-				"pl": "Interfejs administratora: wszystkie pola czasu używają teraz właściwego selektora czasu (okno, GG:mm) zamiast natywnego pola; słabo czytelna etykieta została naprawiona.",
-				"uk": "Інтерфейс адміністратора: усі поля часу тепер використовують повноцінний вибір часу (спливаюче вікно, ГГ:хх) замість нативного поля; погано читабельну підпис виправлено.",
-				"zh-cn": "管理界面：所有时间字段现在使用真正的时间选择器（弹窗，HH:mm），不再使用原生时间输入框；修复了难以辨认的标签。"
+			"0.5.3": {
+				"en": "Each switch now exposes a read-only settings sub-channel (switches.<id>.settings.*) mirroring its configuration, so it can be shown in VIS or used in scripts.",
+				"de": "Jeder Schalter hat jetzt eine schreibgeschützte Einstellungs-Unterrubrik (switches.<id>.settings.*), die die Konfiguration spiegelt, damit sie in VIS angezeigt oder in Skripten genutzt werden kann.",
+				"ru": "Каждый выключатель теперь имеет подгруппу настроек только для чтения (switches.<id>.settings.*), отражающую его конфигурацию, чтобы её можно было показать в VIS или использовать в скриптах.",
+				"pt": "Cada interruptor agora tem um subcanal de configurações somente leitura (switches.<id>.settings.*) que espelha a sua configuração, para ser exibido no VIS ou usado em scripts.",
+				"nl": "Elke schakelaar heeft nu een alleen-lezen instellingen-subkanaal (switches.<id>.settings.*) dat de configuratie weerspiegelt, zodat die in VIS getoond of in scripts gebruikt kan worden.",
+				"fr": "Chaque interrupteur expose désormais un sous-canal de paramètres en lecture seule (switches.<id>.settings.*) reflétant sa configuration, pour l'afficher dans VIS ou l'utiliser dans des scripts.",
+				"it": "Ogni interruttore ora espone un sotto-canale di impostazioni di sola lettura (switches.<id>.settings.*) che rispecchia la sua configurazione, così da mostrarla in VIS o usarla negli script.",
+				"es": "Cada interruptor ahora expone un subcanal de ajustes de solo lectura (switches.<id>.settings.*) que refleja su configuración, para mostrarla en VIS o usarla en scripts.",
+				"pl": "Każdy przełącznik ma teraz podkanał ustawień tylko do odczytu (switches.<id>.settings.*), który odzwierciedla jego konfigurację, aby pokazać ją w VIS lub użyć w skryptach.",
+				"uk": "Кожен вимикач тепер має підканал налаштувань лише для читання (switches.<id>.settings.*), що віддзеркалює його конфігурацію, щоб показати її у VIS або використати у скриптах.",
+				"zh-cn": "每个开关现在都提供一个只读的设置子通道（switches.<id>.settings.*），镜像其配置，便于在 VIS 中显示或在脚本中使用。"
 			}
 		},
 		"titleLang": {

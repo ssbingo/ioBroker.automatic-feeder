@@ -292,6 +292,8 @@ Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 
 **Dla każdego przełącznika pod `switches.<id>.`** (`<id>` to wewnętrzny identyfikator, np. `sw-0`)
 
+Ponadto podkanał tylko do odczytu **`settings`** (`switches.<id>.settings.*`) odzwierciedla konfigurację tego przełącznika, aby można ją było pokazać w VIS lub użyć w skryptach.
+
 | Punkt danych | Typ | Znaczenie |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | Właśnie trwa karmienie. |

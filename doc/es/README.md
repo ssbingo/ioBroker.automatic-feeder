@@ -303,6 +303,8 @@ El adaptador crea los siguientes puntos de datos en su espacio de nombres
 
 **Por interruptor bajo `switches.<id>.`** (`<id>` es un ID interno como `sw-0`)
 
+Además, un subcanal de solo lectura **`settings`** (`switches.<id>.settings.*`) refleja la configuración de este interruptor para poder mostrarla en VIS o usarla en scripts.
+
 | Punto de datos | Tipo | Significado |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | En este momento hay una alimentación en curso. |

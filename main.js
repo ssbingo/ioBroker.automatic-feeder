@@ -21,6 +21,265 @@ const { isInWinterPause, daysUntilMD, nextMDDate } = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
 
+/**
+ * Formats a recurring "MM-DD" as "DD.MM" for display.
+ *
+ * @param {string} md - recurring date "MM-DD"
+ * @returns {string} "DD.MM" or "" if invalid
+ */
+function mdToDotMM(md) {
+	const m = typeof md === 'string' && md.match(/^(\d{1,2})-(\d{1,2})$/);
+	if (!m) {
+		return '';
+	}
+	return `${String(Number(m[2])).padStart(2, '0')}.${String(Number(m[1])).padStart(2, '0')}`;
+}
+
+/**
+ * Maps a descriptor type string to the matching ioBroker common type (kept as
+ * literals so the type checker accepts it without a cast).
+ *
+ * @param {string} t - descriptor type ("string" | "number" | "boolean")
+ * @returns {ioBroker.CommonType} the ioBroker common type
+ */
+function asCommonType(t) {
+	if (t === 'number') {
+		return 'number';
+	}
+	if (t === 'boolean') {
+		return 'boolean';
+	}
+	return 'string';
+}
+
+/**
+ * Read-only mirror of the per-switch configuration, exposed under
+ * `switches.<id>.settings.*` so the settings are visible in the object tree / VIS.
+ * (Writing them back from VIS is a possible future step; for now they are read-only.)
+ */
+const SWITCH_SETTINGS = [
+	{ id: 'name', name: 'Name', type: 'string', role: 'text', get: sw => sw.name || '' },
+	{ id: 'enabled', name: 'Active', type: 'boolean', role: 'indicator', get: sw => !!sw.enabled },
+	{ id: 'objectId', name: 'Switch object id', type: 'string', role: 'text', get: sw => sw.objectId || '' },
+	{ id: 'onValue', name: 'On value', type: 'string', role: 'text', get: sw => String(sw.onValue ?? true) },
+	{ id: 'offValue', name: 'Off value', type: 'string', role: 'text', get: sw => String(sw.offValue ?? false) },
+	{
+		id: 'durationSec',
+		name: 'Feeding duration',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.durationSec) || 0,
+	},
+	{ id: 'mode', name: 'Schedule mode', type: 'string', role: 'text', get: sw => sw.mode || 'times' },
+	{
+		id: 'times',
+		name: 'Fixed times',
+		type: 'string',
+		role: 'text',
+		get: sw => (Array.isArray(sw.times) ? sw.times.join(', ') : ''),
+	},
+	{ id: 'windowStart', name: 'Interval window start', type: 'string', role: 'text', get: sw => sw.windowStart || '' },
+	{ id: 'windowEnd', name: 'Interval window end', type: 'string', role: 'text', get: sw => sw.windowEnd || '' },
+	{
+		id: 'intervalMin',
+		name: 'Interval',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.intervalMin) || 0,
+	},
+	{
+		id: 'blockWaterEnabled',
+		name: 'Block by water temperature',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.blockWaterEnabled,
+	},
+	{
+		id: 'waterMin',
+		name: 'Water temperature min',
+		type: 'number',
+		role: 'value.temperature',
+		unit: '°C',
+		get: sw => sw.waterMin ?? null,
+	},
+	{
+		id: 'waterMax',
+		name: 'Water temperature max',
+		type: 'number',
+		role: 'value.temperature',
+		unit: '°C',
+		get: sw => sw.waterMax ?? null,
+	},
+	{
+		id: 'blockAirEnabled',
+		name: 'Block by air temperature',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.blockAirEnabled,
+	},
+	{
+		id: 'airMin',
+		name: 'Air temperature min',
+		type: 'number',
+		role: 'value.temperature',
+		unit: '°C',
+		get: sw => sw.airMin ?? null,
+	},
+	{
+		id: 'airMax',
+		name: 'Air temperature max',
+		type: 'number',
+		role: 'value.temperature',
+		unit: '°C',
+		get: sw => sw.airMax ?? null,
+	},
+	{
+		id: 'respectNight',
+		name: 'Do not feed at night',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => sw.respectNight !== false,
+	},
+	{
+		id: 'manualIgnoresBlocks',
+		name: 'Manual trigger ignores all blocks',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.manualIgnoresBlocks,
+	},
+	{
+		id: 'verifyEnabled',
+		name: 'Supervision enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => sw.verifyEnabled !== false,
+	},
+	{
+		id: 'verifyTimeoutSec',
+		name: 'Verification timeout',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.verifyTimeoutSec) || 5,
+	},
+	{
+		id: 'verifyRetries',
+		name: 'Verification attempts',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.verifyRetries) || 3,
+	},
+	{
+		id: 'telegramInstance',
+		name: 'Telegram instance',
+		type: 'string',
+		role: 'text',
+		get: sw => sw.telegramInstance || '',
+	},
+	{ id: 'telegramUser', name: 'Telegram recipient', type: 'string', role: 'text', get: sw => sw.telegramUser || '' },
+	{
+		id: 'notifySuccess',
+		name: 'Notify on success',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.notifySuccess,
+	},
+	{
+		id: 'notifyOnFail',
+		name: 'Notify on could-not-feed',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.notifyOnFail,
+	},
+	{
+		id: 'notifyOffFail',
+		name: 'Notify on switch-off fault',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.notifyOffFail,
+	},
+	{
+		id: 'manualDurationSec',
+		name: 'Manual feeding duration',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.manualDurationSec) || 0,
+	},
+	{
+		id: 'winterEnabled',
+		name: 'Winter pause enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.winterEnabled,
+	},
+	{
+		id: 'winterWindow',
+		name: 'Winter pause window (dd.mm)',
+		type: 'string',
+		role: 'text',
+		get: sw => (sw.winterStart && sw.winterEnd ? `${mdToDotMM(sw.winterStart)} - ${mdToDotMM(sw.winterEnd)}` : ''),
+	},
+	{ id: 'winterMode', name: 'Winter mode', type: 'string', role: 'text', get: sw => sw.winterMode || 'suspend' },
+	{
+		id: 'winterIntervalMin',
+		name: 'Winter interval',
+		type: 'number',
+		role: 'value',
+		unit: 'min',
+		get: sw => Number(sw.winterIntervalMin) || 0,
+	},
+	{ id: 'winterTime', name: 'Winter feeding time', type: 'string', role: 'text', get: sw => sw.winterTime || '' },
+	{
+		id: 'winterDurationSec',
+		name: 'Winter feeding duration',
+		type: 'number',
+		role: 'value',
+		unit: 's',
+		get: sw => Number(sw.winterDurationSec) || 0,
+	},
+	{
+		id: 'winterStartReminderEnabled',
+		name: 'Remind before winter start',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.winterStartReminderEnabled,
+	},
+	{
+		id: 'winterStartReminderDays',
+		name: 'Days before winter start',
+		type: 'number',
+		role: 'value',
+		unit: 'd',
+		get: sw => Number(sw.winterStartReminderDays) || 0,
+	},
+	{
+		id: 'winterEndReminderEnabled',
+		name: 'Remind before winter end',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.winterEndReminderEnabled,
+	},
+	{
+		id: 'winterEndReminderDays',
+		name: 'Days before winter end',
+		type: 'number',
+		role: 'value',
+		unit: 'd',
+		get: sw => Number(sw.winterEndReminderDays) || 0,
+	},
+	{
+		id: 'winterReminderHour',
+		name: 'Winter reminder hour',
+		type: 'number',
+		role: 'value',
+		unit: 'h',
+		get: sw => Number(sw.winterReminderHour) || 0,
+	},
+];
+
 class AutomaticFeeder extends utils.Adapter {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
@@ -496,6 +755,28 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+
+			// --- read-only mirror of the configuration (visible in the object tree / VIS) ---
+			await this.setObjectNotExistsAsync(`${base}.settings`, {
+				type: 'folder',
+				common: { name: 'Settings' },
+				native: {},
+			});
+			for (const s of SWITCH_SETTINGS) {
+				await this.setObjectNotExistsAsync(`${base}.settings.${s.id}`, {
+					type: 'state',
+					common: {
+						name: s.name,
+						type: asCommonType(s.type),
+						role: s.role,
+						read: true,
+						write: false,
+						...(s.unit ? { unit: s.unit } : {}),
+					},
+					native: {},
+				});
+				await this.setStateAsync(`${base}.settings.${s.id}`, { val: s.get(sw), ack: true });
+			}
 		}
 	}
 

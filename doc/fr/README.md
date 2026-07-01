@@ -308,6 +308,8 @@ L'adaptateur crée les points de données suivants dans son espace de noms
 
 **Par interrupteur sous `switches.<id>.`** (`<id>` est un ID interne comme `sw-0`)
 
+De plus, un sous-canal en lecture seule **`settings`** (`switches.<id>.settings.*`) reflète la configuration de cet interrupteur afin de pouvoir l'afficher dans VIS ou l'utiliser dans des scripts.
+
 | Point de données | Type | Signification |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | Une distribution est en cours. |

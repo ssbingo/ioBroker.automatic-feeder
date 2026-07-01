@@ -286,6 +286,8 @@ Der Adapter legt folgende Datenpunkte in seinem Namespace an
 
 **Pro Schalter unter `switches.<id>.`** (`<id>` ist eine interne ID wie `sw-0`)
 
+Zusätzlich spiegelt eine schreibgeschützte Unterrubrik **`settings`** (`switches.<id>.settings.*`) die Konfiguration dieses Schalters, damit sie in VIS angezeigt oder in Skripten genutzt werden kann.
+
 | Datenpunkt | Typ | Bedeutung |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | Gerade läuft eine Fütterung. |

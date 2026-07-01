@@ -304,6 +304,8 @@ L'adattatore crea i seguenti punti dati nel suo namespace
 
 **Per ogni interruttore sotto `switches.<id>.`** (`<id>` è un ID interno come `sw-0`)
 
+Inoltre, un sotto-canale di sola lettura **`settings`** (`switches.<id>.settings.*`) rispecchia la configurazione di questo interruttore, così da poterla mostrare in VIS o usarla negli script.
+
 | Punto dati | Tipo | Significato |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | È in corso una distribuzione. |

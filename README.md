@@ -297,6 +297,8 @@ The adapter creates the following states under its namespace
 
 **Per switch, under `switches.<id>.`** (`<id>` is an internal id like `sw-0`)
 
+In addition, a read-only **`settings`** sub-channel (`switches.<id>.settings.*`) mirrors this switch's configuration so it can be shown in VIS or used in scripts.
+
 | Data point | Type | Meaning |
 |------------|------|---------|
 | `feedingActive` | boolean (ro) | A feeding is running right now. |
@@ -394,6 +396,9 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	### **WORK IN PROGRESS**
 -->
 
+### 0.5.3 (2026-07-01)
+* (ssbingo) Each switch now exposes a read-only `settings` sub-channel (`switches.<id>.settings.*`) that mirrors its configuration, so the settings can be shown in VIS or used in scripts
+
 ### 0.5.2 (2026-07-01)
 * (ssbingo) Admin UI: all time fields (fixed feeding times, interval window start/end, winter once-daily time) now use a proper time picker instead of the native time input, fixing the hard-to-read floating label
 
@@ -425,12 +430,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 
 ### 0.1.7 (2026-06-29)
 * (ssbingo) Remove the unsupported custom "comment-overrides" key from package.json (repository checker E0058)
-
-### 0.1.6 (2026-06-29)
-* (ssbingo) Resolve repository checker W0083: the pinned UI packages (react, react-dom, @mui/*, @types/react(-dom)) are no longer direct dependencies (kept via peerDependencies of adapter-react-v5 + npm overrides)
-* (ssbingo) Replace react-leaflet with plain Leaflet in the location picker (removes the react-leaflet dependency)
-* (ssbingo) Upgrade TypeScript to 6.x; exclude test files from the type-check
-* (ssbingo) Use cron schedules for Dependabot (S8906)
 
 ---
 

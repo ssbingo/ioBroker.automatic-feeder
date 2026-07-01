@@ -286,6 +286,8 @@ De adapter legt de volgende datapunten in zijn namespace aan
 
 **Per schakelaar onder `switches.<id>.`** (`<id>` is een interne ID zoals `sw-0`)
 
+Daarnaast weerspiegelt een alleen-lezen subkanaal **`settings`** (`switches.<id>.settings.*`) de configuratie van deze schakelaar, zodat die in VIS getoond of in scripts gebruikt kan worden.
+
 | Datapunt | Type | Betekenis |
 |------------|-----|-----------|
 | `feedingActive` | boolean (ro) | Er loopt nu een voedering. |
