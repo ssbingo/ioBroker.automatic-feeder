@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.1.2 (2026-06-29)
+* (ssbingo) Require admin >= 7.6.20 (repository checker E1057)
+* (ssbingo) Add the "ioBroker" keyword (repository checker W0040)
+* (ssbingo) Update minor dev dependencies (@emotion/*, @types/leaflet)
+
 ### 0.1.1 (2026-06-29)
 * (ssbingo) Raised the minimum Node.js version to >= 22 (Node 20 is no longer used)
 * (ssbingo) Enabled npm releases via trusted publishing (OIDC) in the GitHub Actions workflow

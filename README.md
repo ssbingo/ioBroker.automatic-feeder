@@ -383,6 +383,9 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	### **WORK IN PROGRESS**
 -->
 
+### 0.4.1 (2026-06-30)
+* (ssbingo) Admin UI: adding a switch no longer jumps to its (still empty) tab — the focus stays on the General settings tab so the switch object can be selected first; the new row is scrolled into view
+
 ### 0.4.0 (2026-06-30)
 * (ssbingo) More reliable switch supervision for devices with delayed status feedback (e.g. Homematic radio): each verification now actively reads the current acknowledged state back and performs several staggered re-checks before reporting a fault, instead of failing after a single timeout
 * (ssbingo) New per-switch option "Verification attempts" (default 3) to configure the number of staggered re-checks
@@ -421,11 +424,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 * (ssbingo) dependabot.yml: add cooldown, ignore @types/node major updates, raise PR limit to 15
 * (ssbingo) README/docs: install via the ioBroker admin (removed GitHub/CLI install instructions)
 * (ssbingo) i18n: complete all 11 languages and drop obsolete keys; remove obsolete .prettierignore
-
-### 0.1.2 (2026-06-29)
-* (ssbingo) Require admin >= 7.6.20 (repository checker E1057)
-* (ssbingo) Add the "ioBroker" keyword (repository checker W0040)
-* (ssbingo) Update minor dev dependencies (@emotion/*, @types/leaflet)
 
 ---
 

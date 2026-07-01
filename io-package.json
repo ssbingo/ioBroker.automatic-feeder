@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "0.4.0",
+		"version": "0.4.1",
 		"news": {
-			"0.4.0": {
-				"en": "More reliable switch supervision: verification now actively reads the current state back and retries in staggered attempts (new per-switch option 'Verification attempts', default 3) before reporting a fault. Fixes false faults with delayed status feedback such as Homematic radio.",
-				"de": "Zuverlässigere Schaltüberwachung: Die Verifikation fragt jetzt den Ist-Wert aktiv ab und prüft in mehreren zeitversetzten Versuchen nach (neues Feld 'Überwachungs-Versuche', Standard 3), bevor eine Störung gemeldet wird. Behebt Fehlmeldungen bei verzögerter Rückmeldung wie Homematic-Funk.",
-				"ru": "Более надёжный контроль переключателя: проверка теперь активно считывает текущее значение и повторяется несколькими попытками с интервалами (новый параметр 'Попытки проверки', по умолчанию 3) перед сообщением о неисправности. Исправляет ложные ошибки при задержке обратной связи, например радио Homematic.",
-				"pt": "Monitoramento de comutação mais confiável: a verificação agora lê o estado atual de volta e tenta novamente em várias tentativas escalonadas (nova opção 'Tentativas de verificação', padrão 3) antes de relatar uma falha. Corrige falhas falsas com retorno atrasado, como rádio Homematic.",
-				"nl": "Betrouwbaardere schakelbewaking: de verificatie leest nu de huidige toestand terug en probeert het in meerdere gespreide pogingen opnieuw (nieuwe optie 'Verificatiepogingen', standaard 3) voordat een storing wordt gemeld. Lost valse storingen op bij vertraagde terugmelding zoals Homematic-radio.",
-				"fr": "Surveillance de commutation plus fiable : la vérification relit désormais l'état actuel et réessaie en plusieurs tentatives échelonnées (nouvelle option 'Tentatives de vérification', 3 par défaut) avant de signaler un défaut. Corrige les faux défauts en cas de retour différé comme la radio Homematic.",
-				"it": "Monitoraggio della commutazione più affidabile: la verifica ora rilegge lo stato attuale e riprova con più tentativi scaglionati (nuova opzione 'Tentativi di verifica', predefinito 3) prima di segnalare un guasto. Corregge i falsi guasti con feedback ritardato come la radio Homematic.",
-				"es": "Supervisión de conmutación más fiable: la verificación ahora vuelve a leer el estado actual y reintenta en varios intentos escalonados (nueva opción 'Intentos de verificación', 3 por defecto) antes de informar de una avería. Corrige averías falsas con respuesta retardada como la radio Homematic.",
-				"pl": "Bardziej niezawodne monitorowanie przełącznika: weryfikacja odczytuje teraz bieżący stan i ponawia próbę w kilku rozłożonych w czasie próbach (nowa opcja 'Próby weryfikacji', domyślnie 3) przed zgłoszeniem awarii. Naprawia fałszywe awarie przy opóźnionej informacji zwrotnej, np. radio Homematic.",
-				"uk": "Надійніший контроль перемикача: перевірка тепер активно зчитує поточний стан і повторює кілька рознесених у часі спроб (нова опція 'Спроби перевірки', за замовчуванням 3) перед повідомленням про несправність. Виправляє хибні помилки за затримки зворотного зв’язку, як-от радіо Homematic.",
-				"zh-cn": "更可靠的开关监控：验证现在会主动回读当前状态，并在报告故障前进行多次错时复查（新增'验证次数'选项，默认 3）。修复了 Homematic 无线电等延迟反馈导致的误报。"
+			"0.4.1": {
+				"en": "Admin UI: adding a switch no longer jumps to its empty tab — focus stays on the General settings tab so the switch object can be selected first.",
+				"de": "Admin-UI: Beim Hinzufügen eines Schalters springt die Seite nicht mehr auf dessen leeren Tab — der Fokus bleibt im Tab Grundeinstellungen, damit zuerst das Schalterobjekt gewählt werden kann.",
+				"ru": "Интерфейс администратора: при добавлении переключателя страница больше не переходит на его пустую вкладку — фокус остаётся на вкладке основных настроек, чтобы сначала выбрать объект переключателя.",
+				"pt": "IU do administrador: ao adicionar um interruptor, a página não salta mais para a sua aba vazia — o foco permanece na aba de configurações gerais para selecionar primeiro o objeto do interruptor.",
+				"nl": "Admin-UI: bij het toevoegen van een schakelaar springt de pagina niet meer naar het lege tabblad — de focus blijft op het tabblad Algemene instellingen zodat eerst het schakelaarobject kan worden gekozen.",
+				"fr": "Interface d'administration : l'ajout d'un interrupteur ne bascule plus sur son onglet vide — le focus reste sur l'onglet Paramètres généraux afin de sélectionner d'abord l'objet de l'interrupteur.",
+				"it": "Interfaccia di amministrazione: l'aggiunta di un interruttore non passa più alla sua scheda vuota — il focus rimane sulla scheda Impostazioni generali per selezionare prima l'oggetto dell'interruttore.",
+				"es": "Interfaz de administración: al añadir un interruptor, la página ya no salta a su pestaña vacía; el foco permanece en la pestaña de ajustes generales para seleccionar primero el objeto del interruptor.",
+				"pl": "Interfejs administratora: dodanie przełącznika nie przełącza już na jego pustą kartę — fokus pozostaje na karcie ustawień ogólnych, aby najpierw wybrać obiekt przełącznika.",
+				"uk": "Інтерфейс адміністратора: додавання перемикача більше не перемикає на його порожню вкладку — фокус залишається на вкладці загальних налаштувань, щоб спочатку вибрати об’єкт перемикача.",
+				"zh-cn": "管理界面：添加开关时不再跳转到其（空的）选项卡——焦点保留在常规设置选项卡，以便先选择开关对象。"
 			}
 		},
 		"titleLang": {

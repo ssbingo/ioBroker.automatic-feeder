@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
 	Box,
@@ -64,6 +64,17 @@ function GeneralTab(props) {
 	}, [socket]);
 
 	const switches = Array.isArray(native.switches) ? native.switches : [];
+
+	// when a switch is added we stay on this tab (no tab jump); scroll the new
+	// row into view so it is obvious that a switch was added and can be picked
+	const lastSwitchRef = useRef(null);
+	const prevSwitchCount = useRef(switches.length);
+	useEffect(() => {
+		if (switches.length > prevSwitchCount.current && lastSwitchRef.current) {
+			lastSwitchRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+		prevSwitchCount.current = switches.length;
+	}, [switches.length]);
 
 	return (
 		<Box>
@@ -187,7 +198,7 @@ function GeneralTab(props) {
 					</Typography>
 				) : null}
 				{switches.map((sw, index) => (
-					<Box key={sw.id || index}>
+					<Box key={sw.id || index} ref={index === switches.length - 1 ? lastSwitchRef : undefined}>
 						{index > 0 ? <Divider sx={{ my: 1 }} /> : null}
 						<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
 							<Tooltip title={I18n.t('Active')}>

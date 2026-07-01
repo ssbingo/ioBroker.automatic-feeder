@@ -41,6 +41,7 @@ function createSwitch(switches) {
 		manualIgnoresBlocks: false,
 		verifyEnabled: true,
 		verifyTimeoutSec: 5,
+		verifyRetries: 3,
 		telegramInstance: '',
 		telegramUser: '',
 		notifySuccess: false,
@@ -86,7 +87,8 @@ function Settings(props) {
 		}
 		const next = [...switches, createSwitch(switches)];
 		onChange('switches', next);
-		setTab(next.length); // focus the new switch tab
+		// stay on the general tab so the switch object is selected first; the new
+		// switch's own tab is created but intentionally not focused
 	};
 
 	const removeSwitch = (index) => {
