@@ -469,6 +469,9 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	### **WORK IN PROGRESS**
 -->
 
+### 1.1.2 (2026-07-01)
+* (ssbingo) More detailed **debug/silly logging** for troubleshooting: a readable per-switch configuration summary on start, the next feeding with local time and remaining time, the source of the feeding duration (winter/dynamic/static), the per-switch source assignments, and dynamic re-plan/hysteresis details. No behaviour change; the normal info-level output stays unchanged
+
 ### 1.1.1 (2026-07-01)
 * (ssbingo) Admin UI: under dynamic feeding the static **Feeding duration** field is now hidden (the duration is computed from temperature there, so the static value only confused); the on/off values stay visible
 
@@ -508,9 +511,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 
 ### 0.5.2 (2026-07-01)
 * (ssbingo) Admin UI: all time fields (fixed feeding times, interval window start/end, winter once-daily time) now use a proper time picker instead of the native time input, fixing the hard-to-read floating label
-
-### 0.5.1 (2026-07-01)
-* (ssbingo) Admin UI: the winter pause start/end are now picked from a **calendar** (day + month, shown as dd.mm) instead of a raw MM-DD text field (adds @mui/x-date-pickers + dayjs)
 
 ---
 

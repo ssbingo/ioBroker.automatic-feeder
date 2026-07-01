@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.5.1 (2026-07-01)
+* (ssbingo) Admin UI: the winter pause start/end are now picked from a **calendar** (day + month, shown as dd.mm) instead of a raw MM-DD text field (adds @mui/x-date-pickers + dayjs)
+
 ### 0.5.0 (2026-07-01)
 * (ssbingo) New per-switch **Winter pause**: during a recurring season (given as MM-DD dates that repeat every year and may wrap around New Year) feeding can be suspended, run on a reduced own interval, or once daily, each with its own winter feeding duration
 * (ssbingo) Optional **Telegram reminders** a configurable number of days before the winter pause starts and ends (sent once daily up to and including the day itself, at a configurable hour), with mode-dependent texts in all 11 languages

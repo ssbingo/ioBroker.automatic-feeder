@@ -631,6 +631,102 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
+	 * Friendly local "dd.mm. HH:MM" for a Date (used in debug logs alongside the ISO value).
+	 *
+	 * @param {Date} date - the date to format
+	 * @returns {string} the local time string, or "n/a" for an invalid date
+	 */
+	localTimeStr(date) {
+		if (!(date instanceof Date) || isNaN(date.getTime())) {
+			return 'n/a';
+		}
+		const p = n => String(n).padStart(2, '0');
+		return `${p(date.getDate())}.${p(date.getMonth() + 1)}. ${p(date.getHours())}:${p(date.getMinutes())}`;
+	}
+
+	/**
+	 * Formats a millisecond delay as a compact human string (e.g. "45s", "12min", "3h 05min").
+	 *
+	 * @param {number} ms - the delay in milliseconds
+	 * @returns {string} a compact human-readable duration
+	 */
+	humanDelay(ms) {
+		const s = Math.max(0, Math.round(ms / 1000));
+		if (s < 90) {
+			return `${s}s`;
+		}
+		const m = Math.round(s / 60);
+		if (m < 90) {
+			return `${m}min`;
+		}
+		return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}min`;
+	}
+
+	/**
+	 * Compact, human-readable one-line summary of a switch's effective configuration,
+	 * used for a readable per-switch debug line on startup (the full config is still
+	 * dumped at silly level as JSON).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {string} the summary string
+	 */
+	describeSwitch(sw) {
+		const parts = [`enabled=${!!sw.enabled}`, `object=${sw.objectId || '(none)'}`];
+		if (sw.dynamicEnabled) {
+			parts.push(
+				`mode=dynamic(src=${sw.dynamicSource || 'water'}, tRef=${sw.dynamicTRef}, Q10=${sw.dynamicQ10}, ` +
+					`interval=${sw.dynamicBaseIntervalMin}[${sw.dynamicMinIntervalMin}-${sw.dynamicMaxIntervalMin}]min, ` +
+					`duration=${sw.dynamicBaseDurationSec}[${sw.dynamicMinDurationSec}-${sw.dynamicMaxDurationSec}]s, ` +
+					`buffer=${sw.dynamicBufferHours}h, hyst=${sw.dynamicHysteresisPct}%)`,
+			);
+		} else if ((sw.mode || 'times') === 'interval') {
+			parts.push(`mode=interval(every ${sw.intervalMin}min, duration=${sw.durationSec}s)`);
+		} else {
+			const t = Array.isArray(sw.times) ? sw.times.join(',') : '';
+			parts.push(`mode=times(${t || 'none'}, duration=${sw.durationSec}s)`);
+		}
+		if (sw.astroWindowEnabled) {
+			parts.push(`window=astro(+${Number(sw.sunOffsetMorning) || 0}/-${Number(sw.sunOffsetEvening) || 0}min)`);
+		} else if (sw.dynamicEnabled || (sw.mode || 'times') === 'interval') {
+			parts.push(`window=${sw.windowStart}-${sw.windowEnd}`);
+		}
+		const blocks = [];
+		if (sw.blockWaterEnabled) {
+			blocks.push(`water[${sw.waterMin ?? '-'}..${sw.waterMax ?? '-'}]`);
+		}
+		if (sw.blockAirEnabled) {
+			blocks.push(`air[${sw.airMin ?? '-'}..${sw.airMax ?? '-'}]`);
+		}
+		if (sw.blockO2Enabled) {
+			blocks.push(`o2>=${sw.o2Min ?? '-'}`);
+		}
+		parts.push(`blocks=${blocks.length ? blocks.join('+') : 'none'}`);
+		if (sw.winterEnabled) {
+			parts.push(`winter=${sw.winterMode}(${mdToDotMM(sw.winterStart)}-${mdToDotMM(sw.winterEnd)})`);
+		}
+		const src = [];
+		if (sw.airTempEnabled && sw.airTempObjectId) {
+			src.push(`air=${sw.airTempObjectId}`);
+		}
+		if (sw.waterTempEnabled && sw.waterTempObjectId) {
+			src.push(`water=${sw.waterTempObjectId}`);
+		}
+		if (sw.o2Enabled && sw.o2ObjectId) {
+			src.push(`o2=${sw.o2ObjectId}`);
+		}
+		if (src.length) {
+			parts.push(`sources=${src.join(',')}`);
+		}
+		parts.push(
+			`verify=${sw.verifyEnabled !== false ? `${sw.verifyRetries || 3}x${sw.verifyTimeoutSec || 5}s` : 'off'}`,
+		);
+		if (sw.telegramInstance) {
+			parts.push(`telegram=${sw.telegramInstance}${sw.telegramUser ? `/${sw.telegramUser}` : ''}`);
+		}
+		return parts.join(' ');
+	}
+
+	/**
 	 * Reads the ioBroker system language and stores it for user-facing messages.
 	 * Falls back to English when the language is unset or not supported.
 	 */
@@ -702,7 +798,8 @@ class AutomaticFeeder extends utils.Adapter {
 				})}`,
 			);
 			for (const sw of this.switches) {
-				this.log.silly(`Switch config ${this.swLabel(sw)}: ${JSON.stringify(sw)}`);
+				this.log.debug(`Switch ${this.swLabel(sw)}: ${this.describeSwitch(sw)}`);
+				this.log.silly(`Switch ${this.swLabel(sw)} full config: ${JSON.stringify(sw)}`);
 			}
 
 			// --- resolve per-switch coordinates for the astronomical window ---
@@ -1438,19 +1535,27 @@ class AutomaticFeeder extends utils.Adapter {
 		// keep enough history for the largest configured moving-average window
 		const maxHours = Math.max(24, ...this.switches.map(s => Number(s.dynamicBufferHours) || 0));
 		this.maxBufferMs = maxHours * 3600000;
+		this.log.silly(`Source history window: ${maxHours}h (${this.maxBufferMs}ms).`);
 
 		// collect the union of foreign objects referenced by any switch
 		this.tempObjectIds = new Set();
 		this.o2ObjectIds = new Set();
 		for (const sw of this.switches) {
+			const used = [];
 			if (sw.airTempEnabled && sw.airTempObjectId) {
 				this.tempObjectIds.add(sw.airTempObjectId);
+				used.push(`air=${sw.airTempObjectId}`);
 			}
 			if (sw.waterTempEnabled && sw.waterTempObjectId) {
 				this.tempObjectIds.add(sw.waterTempObjectId);
+				used.push(`water=${sw.waterTempObjectId}`);
 			}
 			if (sw.o2Enabled && sw.o2ObjectId) {
 				this.o2ObjectIds.add(sw.o2ObjectId);
+				used.push(`o2=${sw.o2ObjectId}`);
+			}
+			if (used.length) {
+				this.log.debug(`Sources for ${this.swLabel(sw)}: ${used.join(', ')}.`);
 			}
 		}
 
@@ -1569,8 +1674,14 @@ class AutomaticFeeder extends utils.Adapter {
 
 		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: next.toISOString(), ack: true });
 		const delay = Math.max(0, next.getTime() - Date.now());
+		const windowKind = sw.astroWindowEnabled
+			? 'astro'
+			: sw.dynamicEnabled || sw.mode === 'interval'
+				? 'window'
+				: 'times';
 		this.log.debug(
-			`Switch ${this.swLabel(sw)}: mode=${sw.mode}, next feeding at ${next.toISOString()} (in ${Math.round(delay / 1000)}s).`,
+			`Switch ${this.swLabel(sw)}: next feeding at local ${this.localTimeStr(next)} (${next.toISOString()}, ` +
+				`in ${this.humanDelay(delay)}; mode=${sw.dynamicEnabled ? 'dynamic' : sw.mode || 'times'}, source=${windowKind}).`,
 		);
 
 		const timer = this.setTimeout(async () => {
@@ -1951,6 +2062,7 @@ class AutomaticFeeder extends utils.Adapter {
 	notify(sw, type, message) {
 		const instance = sw.telegramInstance;
 		if (!instance) {
+			this.log.silly(`No Telegram instance configured for ${this.swLabel(sw)}; skipping "${type}" notification.`);
 			return;
 		}
 		const want = type === 'success' ? sw.notifySuccess : type === 'onFail' ? sw.notifyOnFail : sw.notifyOffFail;
@@ -1985,11 +2097,13 @@ class AutomaticFeeder extends utils.Adapter {
 			sw.winterMode !== 'suspend' &&
 			isInWinterPause(sw.winterStart, sw.winterEnd, new Date())
 		) {
-			return Number(sw.winterDurationSec) || 0;
+			const d = Number(sw.winterDurationSec) || 0;
+			this.log.silly(`Duration ${this.swLabel(sw)}: winter (${sw.winterMode}) -> ${d}s.`);
+			return d;
 		}
 		if (sw.dynamicEnabled) {
 			const t = this.dynamicTemp(sw);
-			return q10DurationSec(
+			const d = q10DurationSec(
 				Number(sw.dynamicBaseDurationSec) || 0,
 				t,
 				Number(sw.dynamicTRef),
@@ -1997,8 +2111,12 @@ class AutomaticFeeder extends utils.Adapter {
 				Number(sw.dynamicMinDurationSec) || 0,
 				Number(sw.dynamicMaxDurationSec) || 0,
 			);
+			this.log.silly(`Duration ${this.swLabel(sw)}: dynamic @ ${t.toFixed(1)}°C -> ${d}s.`);
+			return d;
 		}
-		return Number(sw.durationSec) || 0;
+		const d = Number(sw.durationSec) || 0;
+		this.log.silly(`Duration ${this.swLabel(sw)}: static -> ${d}s.`);
+		return d;
 	}
 
 	// ----------------------------------------------------------------------------
@@ -2076,9 +2194,11 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 			// winter pause controls the schedule while it is active
 			if (sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, new Date())) {
+				this.log.silly(`Dynamic refresh ${this.swLabel(sw)}: skipped (winter pause active).`);
 				continue;
 			}
 			if (this.feedingBusy.has(sw.id)) {
+				this.log.silly(`Dynamic refresh ${this.swLabel(sw)}: skipped (a feeding cycle is running).`);
 				continue;
 			}
 			const applied = Number(this.dynamicAppliedInterval.get(sw.id)) || 0;
@@ -2096,6 +2216,10 @@ class AutomaticFeeder extends utils.Adapter {
 					`Dynamic ${this.swLabel(sw)}: interval ${applied || 'n/a'} -> ${next} min (beyond ${hyst}% hysteresis), re-planning.`,
 				);
 				this.scheduleSwitch(sw);
+			} else {
+				this.log.silly(
+					`Dynamic refresh ${this.swLabel(sw)}: interval ${applied} -> ${next} min within ${hyst}% hysteresis, keeping current plan.`,
+				);
 			}
 		}
 	}
