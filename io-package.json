@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "0.4.1",
+		"version": "0.5.0",
 		"news": {
-			"0.4.1": {
-				"en": "Admin UI: adding a switch no longer jumps to its empty tab — focus stays on the General settings tab so the switch object can be selected first.",
-				"de": "Admin-UI: Beim Hinzufügen eines Schalters springt die Seite nicht mehr auf dessen leeren Tab — der Fokus bleibt im Tab Grundeinstellungen, damit zuerst das Schalterobjekt gewählt werden kann.",
-				"ru": "Интерфейс администратора: при добавлении переключателя страница больше не переходит на его пустую вкладку — фокус остаётся на вкладке основных настроек, чтобы сначала выбрать объект переключателя.",
-				"pt": "IU do administrador: ao adicionar um interruptor, a página não salta mais para a sua aba vazia — o foco permanece na aba de configurações gerais para selecionar primeiro o objeto do interruptor.",
-				"nl": "Admin-UI: bij het toevoegen van een schakelaar springt de pagina niet meer naar het lege tabblad — de focus blijft op het tabblad Algemene instellingen zodat eerst het schakelaarobject kan worden gekozen.",
-				"fr": "Interface d'administration : l'ajout d'un interrupteur ne bascule plus sur son onglet vide — le focus reste sur l'onglet Paramètres généraux afin de sélectionner d'abord l'objet de l'interrupteur.",
-				"it": "Interfaccia di amministrazione: l'aggiunta di un interruttore non passa più alla sua scheda vuota — il focus rimane sulla scheda Impostazioni generali per selezionare prima l'oggetto dell'interruttore.",
-				"es": "Interfaz de administración: al añadir un interruptor, la página ya no salta a su pestaña vacía; el foco permanece en la pestaña de ajustes generales para seleccionar primero el objeto del interruptor.",
-				"pl": "Interfejs administratora: dodanie przełącznika nie przełącza już na jego pustą kartę — fokus pozostaje na karcie ustawień ogólnych, aby najpierw wybrać obiekt przełącznika.",
-				"uk": "Інтерфейс адміністратора: додавання перемикача більше не перемикає на його порожню вкладку — фокус залишається на вкладці загальних налаштувань, щоб спочатку вибрати об’єкт перемикача.",
-				"zh-cn": "管理界面：添加开关时不再跳转到其（空的）选项卡——焦点保留在常规设置选项卡，以便先选择开关对象。"
+			"0.5.0": {
+				"en": "New per-switch Winter pause: suspend or reduce feeding during a recurring season (MM-DD), with optional Telegram reminders before it starts and ends.",
+				"de": "Neue Winterpause je Schalter: Fütterung in einer wiederkehrenden Saison (MM-TT) aussetzen oder reduzieren, mit optionalen Telegram-Erinnerungen vor Beginn und Ende.",
+				"ru": "Новая зимняя пауза для каждого переключателя: приостановка или сокращение кормления в повторяющийся сезон (ММ-ДД) с необязательными напоминаниями в Telegram перед началом и окончанием.",
+				"pt": "Nova pausa de inverno por interruptor: suspender ou reduzir a alimentação numa estação recorrente (MM-DD), com lembretes opcionais do Telegram antes do início e do fim.",
+				"nl": "Nieuwe winterpauze per schakelaar: voeding onderbreken of verminderen in een terugkerend seizoen (MM-DD), met optionele Telegram-herinneringen voor het begin en einde.",
+				"fr": "Nouvelle pause hivernale par interrupteur : suspendre ou réduire l'alimentation pendant une saison récurrente (MM-JJ), avec des rappels Telegram facultatifs avant le début et la fin.",
+				"it": "Nuova pausa invernale per interruttore: sospendere o ridurre l'alimentazione in una stagione ricorrente (MM-GG), con promemoria Telegram opzionali prima dell'inizio e della fine.",
+				"es": "Nueva pausa de invierno por interruptor: suspender o reducir la alimentación en una temporada recurrente (MM-DD), con recordatorios opcionales de Telegram antes del inicio y del fin.",
+				"pl": "Nowa przerwa zimowa dla każdego przełącznika: wstrzymanie lub ograniczenie karmienia w cyklicznym sezonie (MM-DD), z opcjonalnymi przypomnieniami Telegram przed rozpoczęciem i zakończeniem.",
+				"uk": "Нова зимова пауза для кожного перемикача: призупинення або зменшення годування у повторюваний сезон (ММ-ДД) з необовʼязковими нагадуваннями в Telegram перед початком і завершенням.",
+				"zh-cn": "新增每个开关的冬季暂停：在重复的季节（MM-DD）暂停或减量投喂，并可在开始和结束前发送 Telegram 提醒。"
 			}
 		},
 		"titleLang": {

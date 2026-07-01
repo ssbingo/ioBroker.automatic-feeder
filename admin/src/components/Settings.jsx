@@ -48,6 +48,18 @@ function createSwitch(switches) {
 		notifyOnFail: true,
 		notifyOffFail: true,
 		manualDurationSec: 5,
+		winterEnabled: false,
+		winterStart: '11-01',
+		winterEnd: '03-15',
+		winterMode: 'suspend',
+		winterIntervalMin: 240,
+		winterTime: '12:00',
+		winterDurationSec: 5,
+		winterStartReminderEnabled: false,
+		winterStartReminderDays: 7,
+		winterEndReminderEnabled: false,
+		winterEndReminderDays: 7,
+		winterReminderHour: 9,
 	};
 }
 

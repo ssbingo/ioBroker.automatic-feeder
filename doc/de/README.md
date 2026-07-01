@@ -218,6 +218,17 @@ Quelle nicht.)
 * **Manueller Auslöser ignoriert alle Sperren** – wenn aktiv, füttern der Button und der
   Datenpunkt `feedNow` auch bei aktiver Temperatur-/Nachtsperre.
 
+#### Winterpause
+
+Pro Schalter lässt sich eine wiederkehrende **Winterpause** definieren (saisonal, als `MM-TT`-Daten, die sich jährlich wiederholen und über den Jahreswechsel reichen können).
+
+* **Winterpause aktivieren** – die Pause einschalten.
+* **Beginn / Ende (MM-TT)** – die Saison, z. B. `11-01` bis `03-15`.
+* **Modus** – während der Pause entweder **Fütterung aussetzen**, mit **eingeschränktem** eigenem Intervall füttern oder **einmal täglich** zu einer festen Zeit; es gilt eine eigene **Winter-Fütterdauer**.
+* **Erinnerungen (Telegram)** – in den Tagen vor Beginn und vor Ende wird täglich (letztmalig am Stichtag) zur eingestellten Uhrzeit eine Erinnerung gesendet. Benötigt eine Telegram-Instanz (siehe unten).
+
+Der aktuelle Zustand steht im Datenpunkt `winterActive`. Nach Ende der Pause läuft die Fütterung automatisch wieder an.
+
 #### Schaltüberwachung
 
 Nach dem Schalten kann der Adapter prüfen, ob der Schalter den Ein- und Aus-Zustand

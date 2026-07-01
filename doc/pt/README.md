@@ -218,6 +218,17 @@ fonte não bloqueia.)
 * **O acionador manual ignora todos os bloqueios** – quando ativo, o botão e o
   ponto de dados `feedNow` alimentam mesmo com bloqueio de temperatura/noturno ativo.
 
+#### Pausa de inverno
+
+Para cada interruptor pode definir uma **pausa de inverno** recorrente (sazonal, como datas `MM-DD` que se repetem todos os anos e podem atravessar o Ano Novo).
+
+* **Ativar pausa de inverno** – ligar a pausa.
+* **Início / Fim (MM-DD)** – a estação, por exemplo de `11-01` a `03-15`.
+* **Modo** – durante a pausa, **suspender a alimentação**, alimentar com um intervalo próprio **reduzido** ou **uma vez por dia** a uma hora definida; aplica-se uma **duração de alimentação de inverno** própria.
+* **Lembretes (Telegram)** – nos dias antes do início e antes do fim é enviado diariamente (a última vez no próprio dia) um lembrete à hora configurada. Precisa de uma instância do Telegram (veja abaixo).
+
+O estado atual é mostrado no ponto de dados `winterActive`. A alimentação recomeça automaticamente quando a pausa termina.
+
 #### Monitoramento de comutação
 
 Após a comutação, o adaptador pode verificar se o interruptor **realmente** atingiu os estados

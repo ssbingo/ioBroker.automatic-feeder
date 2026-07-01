@@ -221,6 +221,17 @@ blokuje.)
 * **Ręczny wyzwalacz ignoruje wszystkie blokady** – gdy aktywne, przycisk oraz punkt danych
   `feedNow` karmią również przy aktywnej blokadzie temperaturowej/nocnej.
 
+#### Przerwa zimowa
+
+Dla każdego przełącznika można zdefiniować cykliczną **przerwę zimową** (sezonową, jako daty `MM-DD`, które powtarzają się co roku i mogą przechodzić przez Nowy Rok).
+
+* **Włącz przerwę zimową** – włączyć przerwę.
+* **Początek / Koniec (MM-DD)** – sezon, np. od `11-01` do `03-15`.
+* **Tryb** – podczas przerwy **wstrzymaj karmienie**, karm z własnym **ograniczonym** interwałem lub **raz dziennie** o ustalonej godzinie; obowiązuje własny **czas karmienia zimą**.
+* **Przypomnienia (Telegram)** – w dniach przed rozpoczęciem i przed zakończeniem codziennie (ostatni raz w danym dniu) o ustawionej godzinie wysyłane jest przypomnienie. Wymaga instancji Telegram (patrz poniżej).
+
+Bieżący stan jest pokazany w punkcie danych `winterActive`. Po zakończeniu przerwy karmienie wznawia się automatycznie.
+
 #### Monitorowanie przełączania
 
 Po przełączeniu adapter może sprawdzić, czy przełącznik **rzeczywiście** osiągnął stan

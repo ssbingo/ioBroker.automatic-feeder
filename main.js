@@ -17,6 +17,7 @@
 const utils = require('@iobroker/adapter-core');
 const SunCalc = require('suncalc');
 const { translate, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
+const { isInWinterPause, daysUntilMD, nextMDDate } = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
 
@@ -33,6 +34,8 @@ class AutomaticFeeder extends utils.Adapter {
 		/** next-feeding timer per switch id */
 		this.scheduleTimers = new Map();
 		this.midnightTimer = null;
+		/** hourly tick that sends winter-pause reminders */
+		this.reminderTimer = null;
 
 		/** pending switch-state verifications: objectId -> { expected, resolve, timer } */
 		this.verifyWatchers = new Map();
@@ -187,6 +190,10 @@ class AutomaticFeeder extends utils.Adapter {
 					);
 				}
 			}
+
+			// --- winter-pause reminders (initial check + hourly tick) ---
+			await this.checkWinterReminders();
+			this.scheduleReminderTick();
 
 			await this.setStateAsync('info.connection', { val: true, ack: true });
 			this.log.info(`Started. ${this.switches.length} switch(es) configured, ${planned} scheduled.`);
@@ -453,6 +460,42 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.winterActive`, {
+				type: 'state',
+				common: {
+					name: 'Winter pause currently active',
+					type: 'boolean',
+					role: 'indicator',
+					read: true,
+					write: false,
+					def: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.winterLastStartReminder`, {
+				type: 'state',
+				common: {
+					name: 'Date of the last sent winter-start reminder',
+					type: 'string',
+					role: 'date',
+					read: true,
+					write: false,
+					def: '',
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.winterLastEndReminder`, {
+				type: 'state',
+				common: {
+					name: 'Date of the last sent winter-end reminder',
+					type: 'string',
+					role: 'date',
+					read: true,
+					write: false,
+					def: '',
+				},
+				native: {},
+			});
 		}
 	}
 
@@ -546,6 +589,28 @@ class AutomaticFeeder extends utils.Adapter {
 	 */
 	computeNextFeeding(sw, now) {
 		const epsilon = 1000; // ignore times that are essentially "now"
+
+		// --- winter pause overrides the normal schedule ---
+		const inWinter = !!sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, now);
+		this.setStateAsync(`switches.${sw.id}.winterActive`, { val: inWinter, ack: true });
+		if (inWinter) {
+			if (sw.winterMode === 'suspend') {
+				this.log.debug(`Switch ${this.swLabel(sw)}: winter pause active (suspend) - no feeding planned.`);
+				return null; // resumes automatically via the daily midnight recalculation
+			}
+			if (sw.winterMode === 'onceDaily') {
+				const d = this.timeToDate(sw.winterTime, now);
+				if (d && d.getTime() <= now.getTime() + epsilon) {
+					d.setDate(d.getDate() + 1);
+				}
+				this.log.debug(`Switch ${this.swLabel(sw)}: winter pause active (once daily at ${sw.winterTime}).`);
+				return d || null;
+			}
+			// reduced: use the winter interval within the normal window
+			this.log.debug(`Switch ${this.swLabel(sw)}: winter pause active (reduced, ${sw.winterIntervalMin} min).`);
+			return this.nextFromInterval(sw, now, Number(sw.winterIntervalMin) || 0);
+		}
+
 		if (sw.mode === 'interval') {
 			return this.nextFromInterval(sw, now);
 		}
@@ -569,13 +634,14 @@ class AutomaticFeeder extends utils.Adapter {
 		return best;
 	}
 
-	nextFromInterval(sw, now) {
+	nextFromInterval(sw, now, intervalMinOverride) {
 		const start = this.timeToDate(sw.windowStart, now);
 		const end = this.timeToDate(sw.windowEnd, now);
-		const interval = (Number(sw.intervalMin) || 0) * 60000;
+		const intervalMin = intervalMinOverride !== undefined ? intervalMinOverride : Number(sw.intervalMin) || 0;
+		const interval = (Number(intervalMin) || 0) * 60000;
 		if (!start || !end || interval <= 0 || end.getTime() <= start.getTime()) {
 			this.log.silly(
-				`Switch ${this.swLabel(sw)}: invalid interval config (start=${sw.windowStart}, end=${sw.windowEnd}, intervalMin=${sw.intervalMin}).`,
+				`Switch ${this.swLabel(sw)}: invalid interval config (start=${sw.windowStart}, end=${sw.windowEnd}, intervalMin=${intervalMin}).`,
 			);
 			return null;
 		}
@@ -658,7 +724,7 @@ class AutomaticFeeder extends utils.Adapter {
 			durationOverrideSec !== null &&
 			!Number.isNaN(Number(durationOverrideSec))
 				? Math.max(0, Number(durationOverrideSec))
-				: Number(sw.durationSec) || 0;
+				: this.effectiveDurationSec(sw);
 		this.feedingBusy.add(sw.id);
 		try {
 			// --- switch ON ---
@@ -876,6 +942,147 @@ class AutomaticFeeder extends utils.Adapter {
 			this.sendTo(instance, payload);
 		} catch (e) {
 			this.log.warn(`Could not send Telegram message via ${instance}: ${e.message}`);
+		}
+	}
+
+	// ----------------------------------------------------------------------------
+	// Winter pause
+	// ----------------------------------------------------------------------------
+
+	/**
+	 * Effective feeding duration: the winter duration while a non-suspending winter
+	 * pause is active, otherwise the normal duration.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {number} duration in seconds
+	 */
+	effectiveDurationSec(sw) {
+		if (
+			sw.winterEnabled &&
+			sw.winterMode !== 'suspend' &&
+			isInWinterPause(sw.winterStart, sw.winterEnd, new Date())
+		) {
+			return Number(sw.winterDurationSec) || 0;
+		}
+		return Number(sw.durationSec) || 0;
+	}
+
+	/**
+	 * Local date as "YYYY-MM-DD" (used to de-duplicate once-per-day reminders).
+	 *
+	 * @param date
+	 */
+	localDateKey(date) {
+		const mm = String(date.getMonth() + 1).padStart(2, '0');
+		const dd = String(date.getDate()).padStart(2, '0');
+		return `${date.getFullYear()}-${mm}-${dd}`;
+	}
+
+	/**
+	 * Local date formatted as "DD.MM.YYYY" for user-facing messages.
+	 *
+	 * @param date
+	 */
+	formatLocalDate(date) {
+		if (!(date instanceof Date)) {
+			return '';
+		}
+		const mm = String(date.getMonth() + 1).padStart(2, '0');
+		const dd = String(date.getDate()).padStart(2, '0');
+		return `${dd}.${mm}.${date.getFullYear()}`;
+	}
+
+	/**
+	 * Sends a winter-pause reminder to the switch's Telegram instance (if configured).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {string} key - message key from lib/messages
+	 * @param {Record<string, string | number>} [params] - placeholder values
+	 */
+	notifyWinter(sw, key, params) {
+		const instance = sw.telegramInstance;
+		if (!instance) {
+			this.log.debug(`Winter reminder for ${this.swLabel(sw)} not sent: no Telegram instance configured.`);
+			return;
+		}
+		const text = `${sw.name || sw.id}: ${this.t(key, params)}`;
+		const payload = sw.telegramUser ? { text, user: sw.telegramUser } : { text };
+		this.log.info(`Sending winter reminder via ${instance} for ${this.swLabel(sw)}: ${text}`);
+		try {
+			this.sendTo(instance, payload);
+		} catch (e) {
+			this.log.warn(`Could not send Telegram message via ${instance}: ${e.message}`);
+		}
+	}
+
+	/** Arms an hourly tick (top of the hour) that dispatches due winter reminders. */
+	scheduleReminderTick() {
+		if (this.reminderTimer) {
+			this.clearTimeout(this.reminderTimer);
+			this.reminderTimer = null;
+		}
+		const now = new Date();
+		const next = new Date(now);
+		next.setHours(now.getHours() + 1, 0, 15, 0); // 15s past the next full hour
+		const delay = Math.max(1000, next.getTime() - now.getTime());
+		this.reminderTimer = this.setTimeout(async () => {
+			this.reminderTimer = null;
+			try {
+				await this.checkWinterReminders();
+			} catch (e) {
+				this.log.warn(`Winter reminder check failed: ${e.message}`);
+			}
+			this.scheduleReminderTick();
+		}, delay);
+		this.log.silly(`Winter reminder tick armed (in ${Math.round(delay / 1000)}s).`);
+	}
+
+	/**
+	 * Sends winter start/end reminders that are due today at the configured hour,
+	 * at most once per day per switch (de-duplicated via status data points).
+	 */
+	async checkWinterReminders() {
+		const now = new Date();
+		const hour = now.getHours();
+		const todayKey = this.localDateKey(now);
+		for (const sw of this.switches) {
+			if (!sw.enabled || !sw.winterEnabled) {
+				continue;
+			}
+			if (hour !== (Number(sw.winterReminderHour) || 0)) {
+				continue;
+			}
+			const reduced = sw.winterMode !== 'suspend';
+			// reminder before the winter pause starts
+			if (sw.winterStartReminderEnabled) {
+				const d = daysUntilMD(sw.winterStart, now);
+				if (d !== null && d <= (Number(sw.winterStartReminderDays) || 0)) {
+					const st = await this.getStateAsync(`switches.${sw.id}.winterLastStartReminder`);
+					if (!st || st.val !== todayKey) {
+						const dateStr = this.formatLocalDate(nextMDDate(sw.winterStart, now));
+						this.notifyWinter(sw, reduced ? 'winterStartReduced' : 'winterStartSuspend', { date: dateStr });
+						await this.setStateAsync(`switches.${sw.id}.winterLastStartReminder`, {
+							val: todayKey,
+							ack: true,
+						});
+					}
+				}
+			}
+			// reminder before the winter pause ends
+			if (sw.winterEndReminderEnabled) {
+				const d = daysUntilMD(sw.winterEnd, now);
+				if (d !== null && d <= (Number(sw.winterEndReminderDays) || 0)) {
+					const st = await this.getStateAsync(`switches.${sw.id}.winterLastEndReminder`);
+					if (!st || st.val !== todayKey) {
+						const dateStr = this.formatLocalDate(nextMDDate(sw.winterEnd, now));
+						this.notifyWinter(sw, reduced ? 'winterEndReduced' : 'winterEndSuspend', { date: dateStr });
+						await this.setStateAsync(`switches.${sw.id}.winterLastEndReminder`, {
+							val: todayKey,
+							ack: true,
+						});
+					}
+				}
+			}
 		}
 	}
 
@@ -1097,6 +1304,10 @@ class AutomaticFeeder extends utils.Adapter {
 			if (this.midnightTimer) {
 				this.clearTimeout(this.midnightTimer);
 				this.midnightTimer = null;
+			}
+			if (this.reminderTimer) {
+				this.clearTimeout(this.reminderTimer);
+				this.reminderTimer = null;
 			}
 			for (const t of this.scheduleTimers.values()) {
 				this.clearTimeout(t);

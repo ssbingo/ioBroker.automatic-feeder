@@ -58,6 +58,30 @@ declare global {
 			notifyOffFail: boolean;
 			/** Duration in seconds used by the manual "feed now" button. */
 			manualDurationSec: number;
+			/** Winter pause: suspend or change the feeding rhythm during a recurring season. */
+			winterEnabled: boolean;
+			/** Winter pause start as recurring "MM-DD" (e.g. "11-01"). */
+			winterStart: string;
+			/** Winter pause end as recurring "MM-DD" (e.g. "03-15"). */
+			winterEnd: string;
+			/** What happens during the winter pause. */
+			winterMode: 'suspend' | 'reduced' | 'onceDaily';
+			/** Mode "reduced": feeding interval in minutes during winter. */
+			winterIntervalMin: number;
+			/** Mode "onceDaily": the single "HH:mm" feeding time during winter. */
+			winterTime: string;
+			/** Feeding duration in seconds used during winter (reduced/onceDaily). */
+			winterDurationSec: number;
+			/** Send a Telegram reminder in the days leading up to the winter pause. */
+			winterStartReminderEnabled: boolean;
+			/** How many days before the start the daily reminder is sent (last on the start day). */
+			winterStartReminderDays: number;
+			/** Send a Telegram reminder in the days leading up to the end of the winter pause. */
+			winterEndReminderEnabled: boolean;
+			/** How many days before the end the daily reminder is sent (last on the end day). */
+			winterEndReminderDays: number;
+			/** Hour of day (0-23, local) at which winter reminders are sent. */
+			winterReminderHour: number;
 		}
 
 		interface AdapterConfig {

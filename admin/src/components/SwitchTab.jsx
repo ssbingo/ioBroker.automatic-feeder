@@ -314,6 +314,154 @@ function SwitchTab(props) {
 				/>
 			</Section>
 
+			{/* Winter pause */}
+			<Section title={I18n.t('Winter pause')}>
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={!!sw.winterEnabled}
+							onChange={(e) => onChange({ winterEnabled: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Enable winter pause')}
+				/>
+				<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+					<TextField
+						variant="standard"
+						label={I18n.t('Start (MM-DD)')}
+						placeholder="MM-DD"
+						disabled={!sw.winterEnabled}
+						value={sw.winterStart || ''}
+						onChange={(e) => onChange({ winterStart: e.target.value })}
+					/>
+					<TextField
+						variant="standard"
+						label={I18n.t('End (MM-DD)')}
+						placeholder="MM-DD"
+						disabled={!sw.winterEnabled}
+						value={sw.winterEnd || ''}
+						onChange={(e) => onChange({ winterEnd: e.target.value })}
+					/>
+				</Box>
+
+				<RadioGroup
+					row
+					value={sw.winterMode || 'suspend'}
+					onChange={(e) => onChange({ winterMode: e.target.value })}
+					sx={{ mt: 1 }}
+				>
+					<FormControlLabel
+						value="suspend"
+						disabled={!sw.winterEnabled}
+						control={<Radio />}
+						label={I18n.t('Suspend feeding')}
+					/>
+					<FormControlLabel
+						value="reduced"
+						disabled={!sw.winterEnabled}
+						control={<Radio />}
+						label={I18n.t('Reduced feeding (own interval)')}
+					/>
+					<FormControlLabel
+						value="onceDaily"
+						disabled={!sw.winterEnabled}
+						control={<Radio />}
+						label={I18n.t('Once daily')}
+					/>
+				</RadioGroup>
+
+				{sw.winterEnabled && sw.winterMode !== 'suspend' ? (
+					<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+						{sw.winterMode === 'reduced' ? (
+							<TextField
+								variant="standard"
+								type="number"
+								label={I18n.t('Winter interval (minutes)')}
+								value={sw.winterIntervalMin ?? 240}
+								onChange={(e) => onChange({ winterIntervalMin: Number(e.target.value) || 0 })}
+							/>
+						) : null}
+						{sw.winterMode === 'onceDaily' ? (
+							<TextField
+								variant="standard"
+								type="time"
+								label={I18n.t('Winter feeding time')}
+								value={sw.winterTime || ''}
+								onChange={(e) => onChange({ winterTime: e.target.value })}
+							/>
+						) : null}
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Winter feeding duration (seconds)')}
+							value={sw.winterDurationSec ?? 5}
+							onChange={(e) => onChange({ winterDurationSec: Number(e.target.value) || 0 })}
+						/>
+					</Box>
+				) : null}
+
+				<Divider sx={{ my: 2 }} />
+				<Typography variant="subtitle2" sx={{ mb: 1 }}>
+					{I18n.t('Reminders (Telegram)')}
+				</Typography>
+				<TextField
+					variant="standard"
+					type="number"
+					label={I18n.t('Reminder time (hour 0-23)')}
+					disabled={!sw.winterEnabled}
+					value={sw.winterReminderHour ?? 9}
+					onChange={(e) =>
+						onChange({ winterReminderHour: Math.min(23, Math.max(0, Number(e.target.value) || 0)) })
+					}
+					sx={{ mb: 1, width: 200 }}
+				/>
+				<Box>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={!!sw.winterStartReminderEnabled}
+								disabled={!sw.winterEnabled}
+								onChange={(e) => onChange({ winterStartReminderEnabled: e.target.checked })}
+							/>
+						}
+						label={I18n.t('Remind before the pause starts')}
+					/>
+					<TextField
+						variant="standard"
+						type="number"
+						label={I18n.t('Days before')}
+						disabled={!sw.winterEnabled || !sw.winterStartReminderEnabled}
+						value={sw.winterStartReminderDays ?? 7}
+						onChange={(e) => onChange({ winterStartReminderDays: Number(e.target.value) || 0 })}
+						sx={{ ml: 2, width: 120 }}
+					/>
+				</Box>
+				<Box sx={{ mt: 1 }}>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={!!sw.winterEndReminderEnabled}
+								disabled={!sw.winterEnabled}
+								onChange={(e) => onChange({ winterEndReminderEnabled: e.target.checked })}
+							/>
+						}
+						label={I18n.t('Remind before the pause ends')}
+					/>
+					<TextField
+						variant="standard"
+						type="number"
+						label={I18n.t('Days before')}
+						disabled={!sw.winterEnabled || !sw.winterEndReminderEnabled}
+						value={sw.winterEndReminderDays ?? 7}
+						onChange={(e) => onChange({ winterEndReminderDays: Number(e.target.value) || 0 })}
+						sx={{ ml: 2, width: 120 }}
+					/>
+				</Box>
+				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+					{I18n.t('Reminders need a configured Telegram instance (see below).')}
+				</Typography>
+			</Section>
+
 			{/* Switching supervision */}
 			<Section title={I18n.t('Switching supervision')}>
 				<FormControlLabel

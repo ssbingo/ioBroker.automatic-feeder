@@ -233,6 +233,17 @@ sorgente non blocca.)
 * **L'attivatore manuale ignora tutti i blocchi** – se attivo, il pulsante e il punto dati
   `feedNow` distribuiscono mangime anche con blocco per temperatura/notturno attivo.
 
+#### Pausa invernale
+
+Per ogni interruttore è possibile definire una **pausa invernale** ricorrente (stagionale, come date `MM-GG` che si ripetono ogni anno e possono attraversare il Capodanno).
+
+* **Attiva la pausa invernale** – attivare la pausa.
+* **Inizio / Fine (MM-GG)** – la stagione, ad es. dal `11-01` al `03-15`.
+* **Modalità** – durante la pausa, **sospendi l'alimentazione**, alimenta con un intervallo proprio **ridotto** oppure **una volta al giorno** a un orario fisso; si applica una **durata di alimentazione invernale** propria.
+* **Promemoria (Telegram)** – nei giorni prima dell'inizio e prima della fine viene inviato ogni giorno (l'ultima volta nel giorno stesso) un promemoria all'ora configurata. Richiede un'istanza Telegram (vedi sotto).
+
+Lo stato attuale è mostrato nel punto dati `winterActive`. L'alimentazione riprende automaticamente al termine della pausa.
+
 #### Monitoraggio della commutazione
 
 Dopo la commutazione l'adattatore può verificare se l'interruttore ha **effettivamente**

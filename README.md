@@ -229,6 +229,17 @@ is written to `blockReason`. (If a temperature value is unknown, that source doe
 * **Manual trigger ignores all blocks** – when on, the manual button and the `feedNow` data
   point feed even if a temperature/night block is active.
 
+#### Winter pause
+
+Per switch you can define a recurring **winter pause** (seasonal, given as `MM-DD` dates that repeat every year and may wrap around New Year).
+
+* **Enable winter pause** – turn the pause on.
+* **Start / End (MM-DD)** – the season, e.g. `11-01` to `03-15`.
+* **Mode** – during the pause either **suspend feeding**, feed with a **reduced** own interval, or **once daily** at a set time; a separate **winter feeding duration** applies.
+* **Reminders (Telegram)** – a daily reminder is sent in the days before the start and before the end (last on the day itself), at the configured hour. Needs a Telegram instance (see below).
+
+The current state is shown in the `winterActive` data point. Feeding resumes automatically when the pause ends.
+
 #### Switching supervision
 
 After switching, the adapter can verify that the switch **actually** reached the on and off
@@ -383,6 +394,11 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 	### **WORK IN PROGRESS**
 -->
 
+### 0.5.0 (2026-07-01)
+* (ssbingo) New per-switch **Winter pause**: during a recurring season (given as MM-DD dates that repeat every year and may wrap around New Year) feeding can be suspended, run on a reduced own interval, or once daily, each with its own winter feeding duration
+* (ssbingo) Optional **Telegram reminders** a configurable number of days before the winter pause starts and ends (sent once daily up to and including the day itself, at a configurable hour), with mode-dependent texts in all 11 languages
+* (ssbingo) New status data point `winterActive` per switch
+
 ### 0.4.1 (2026-06-30)
 * (ssbingo) Admin UI: adding a switch no longer jumps to its (still empty) tab — the focus stays on the General settings tab so the switch object can be selected first; the new row is scrolled into view
 
@@ -416,14 +432,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 
 ### 0.1.4 (2026-06-29)
 * (ssbingo) Fully translate the admin UI into all supported languages (repository checker E5606)
-
-### 0.1.3 (2026-06-29)
-* (ssbingo) Use this.setTimeout/this.clearTimeout instead of global timers (repository checker E5005)
-* (ssbingo) CI: run check-and-lint and deploy on Node 24; adapter-tests now needs check-and-lint
-* (ssbingo) Migrate Dependabot auto-merge to iobroker-bot-orga/action-automerge-dependabot
-* (ssbingo) dependabot.yml: add cooldown, ignore @types/node major updates, raise PR limit to 15
-* (ssbingo) README/docs: install via the ioBroker admin (removed GitHub/CLI install instructions)
-* (ssbingo) i18n: complete all 11 languages and drop obsolete keys; remove obsolete .prettierignore
 
 ---
 

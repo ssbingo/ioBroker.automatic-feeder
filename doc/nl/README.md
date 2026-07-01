@@ -218,6 +218,17 @@ bron niet.)
 * **Handmatige trigger negeert alle blokkeringen** – wanneer actief, voeren de knop en het
   datapunt `feedNow` ook bij actieve temperatuur-/nachtblokkering.
 
+#### Winterpauze
+
+Per schakelaar kun je een terugkerende **winterpauze** instellen (seizoensgebonden, als `MM-DD`-data die zich jaarlijks herhalen en over de jaarwisseling kunnen lopen).
+
+* **Winterpauze inschakelen** – de pauze inschakelen.
+* **Begin / Einde (MM-DD)** – het seizoen, bijv. `11-01` tot `03-15`.
+* **Modus** – tijdens de pauze **voeding onderbreken**, voeden met een **beperkt** eigen interval of **één keer per dag** op een vast tijdstip; er geldt een eigen **wintervoederduur**.
+* **Herinneringen (Telegram)** – in de dagen vóór het begin en vóór het einde wordt dagelijks (voor het laatst op de dag zelf) op het ingestelde uur een herinnering verzonden. Vereist een Telegram-instantie (zie hieronder).
+
+De huidige status staat in het datapunt `winterActive`. Na afloop van de pauze start de voeding automatisch weer.
+
 #### Schakelbewaking
 
 Na het schakelen kan de adapter controleren of de schakelaar de in- en uit-toestand

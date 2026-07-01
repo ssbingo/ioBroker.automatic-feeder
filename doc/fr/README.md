@@ -239,6 +239,17 @@ source ne bloque pas.)
 * **Le déclencheur manuel ignore tous les blocages** — si activé, le bouton et le point de données
   `feedNow` distribuent même en cas de blocage par température/nocturne actif.
 
+#### Pause hivernale
+
+Pour chaque interrupteur, vous pouvez définir une **pause hivernale** récurrente (saisonnière, sous forme de dates `MM-JJ` qui se répètent chaque année et peuvent chevaucher le Nouvel An).
+
+* **Activer la pause hivernale** – activer la pause.
+* **Début / Fin (MM-JJ)** – la saison, par ex. du `11-01` au `03-15`.
+* **Mode** – pendant la pause, **suspendre l'alimentation**, alimenter avec un intervalle propre **réduit** ou **une fois par jour** à une heure fixe ; une **durée d'alimentation hivernale** propre s'applique.
+* **Rappels (Telegram)** – dans les jours précédant le début et la fin, un rappel est envoyé chaque jour (la dernière fois le jour même) à l'heure configurée. Nécessite une instance Telegram (voir ci-dessous).
+
+L'état actuel est indiqué dans le point de données `winterActive`. L'alimentation reprend automatiquement à la fin de la pause.
+
 #### Surveillance de la commutation
 
 Après la commutation, l'adaptateur peut vérifier si l'interrupteur a **réellement** atteint l'état
