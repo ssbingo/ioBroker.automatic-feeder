@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.7.0 (2026-07-01)
+* (ssbingo) Temperature and oxygen sources are now assigned **per switch** (each feeding station can use its own sensors) instead of globally; the previous global sources are migrated into all switches automatically on first start
+* (ssbingo) New per-switch mirror data points `airTemperature`, `waterTemperature`, `oxygen`; the global `airTemperature`/`waterTemperature` states were removed
+* (ssbingo) Documentation updated to match in all 11 languages
+
 ### 0.6.0 (2026-07-01)
 * (ssbingo) New per-switch **dynamic feeding** (Q10 model): the feeding interval and the portion (duration) adapt to the water/air temperature, using a real moving average with configurable hysteresis; replaces fixed times with an interval inside the window
 * (ssbingo) Optional global **oxygen (O₂)** source with a per-switch "block feeding when O₂ is too low" option

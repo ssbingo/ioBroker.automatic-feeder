@@ -312,6 +312,8 @@ De volledige inrichting staat onder [Telegram-meldingen](#8-telegram-meldingen).
 
 ## 6. Objecten / datapunten
 
+> **Let op:** alle datapunten met tijdstempel worden weergegeven in de **lokale tijdzone van het systeem** (ISO 8601 met offset, bijv. `2026-07-01T16:20:00+02:00`).
+
 De adapter legt de volgende datapunten in zijn namespace aan
 (`automatic-feeder.<instanz>.`).
 

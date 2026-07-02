@@ -329,6 +329,8 @@ La configuración completa se encuentra en [Notificaciones de Telegram](#8-notif
 
 ## 6. Objetos / puntos de datos
 
+> **Nota:** todos los puntos de datos con marca de tiempo se muestran en la **zona horaria local del sistema** (ISO 8601 con desfase, p. ej. `2026-07-01T16:20:00+02:00`).
+
 El adaptador crea los siguientes puntos de datos en su espacio de nombres
 (`automatic-feeder.<instanz>.`).
 

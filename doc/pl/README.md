@@ -323,6 +323,8 @@ Pełna konfiguracja znajduje się w sekcji [Powiadomienia Telegram](#8-powiadomi
 
 ## 6. Obiekty / punkty danych
 
+> **Uwaga:** wszystkie punkty danych ze znacznikiem czasu są pokazywane w **lokalnej strefie czasowej systemu** (ISO 8601 z przesunięciem, np. `2026-07-01T16:20:00+02:00`).
+
 Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 (`automatic-feeder.<instanz>.`).
 

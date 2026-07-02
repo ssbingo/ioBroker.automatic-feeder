@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.2.1",
+		"version": "1.2.2",
 		"news": {
-			"1.2.1": {
-				"en": "Admin UI: the OpenStreetMap location map is no longer stretched across the full screen width — it is capped (≈ a third/half) on wider screens and stays full width on small screens (responsive).",
-				"de": "Admin-UI: Die OpenStreetMap-Standortkarte wird nicht mehr über die gesamte Bildschirmbreite gezogen — auf breiten Bildschirmen begrenzt (≈ ein Drittel/Hälfte), auf schmalen Bildschirmen weiterhin volle Breite (responsiv).",
-				"ru": "Интерфейс администратора: карта местоположения OpenStreetMap больше не растягивается на всю ширину экрана — на широких экранах она ограничена (≈ треть/половина), а на узких остаётся во всю ширину (адаптивно).",
-				"pt": "Interface de administração: o mapa de localização OpenStreetMap deixa de ocupar toda a largura do ecrã — é limitado (≈ um terço/metade) em ecrãs largos e mantém a largura total em ecrãs pequenos (responsivo).",
-				"nl": "Admin-UI: de OpenStreetMap-locatiekaart wordt niet meer over de volledige schermbreedte uitgerekt — op brede schermen begrensd (≈ een derde/helft) en op kleine schermen volledige breedte (responsief).",
-				"fr": "Interface d'administration : la carte de localisation OpenStreetMap ne s'étire plus sur toute la largeur de l'écran — limitée (≈ un tiers/moitié) sur les grands écrans et pleine largeur sur les petits écrans (responsive).",
-				"it": "Interfaccia di amministrazione: la mappa di localizzazione OpenStreetMap non si estende più su tutta la larghezza dello schermo — limitata (≈ un terzo/metà) su schermi larghi e a larghezza piena su schermi piccoli (responsive).",
-				"es": "Interfaz de administración: el mapa de ubicación de OpenStreetMap ya no se estira por todo el ancho de la pantalla — se limita (≈ un tercio/mitad) en pantallas anchas y mantiene el ancho completo en pantallas pequeñas (responsivo).",
-				"pl": "Interfejs administratora: mapa lokalizacji OpenStreetMap nie jest już rozciągana na całą szerokość ekranu — ograniczona (≈ jedna trzecia/połowa) na szerokich ekranach i pełna szerokość na małych ekranach (responsywnie).",
-				"uk": "Інтерфейс адміністратора: карта розташування OpenStreetMap більше не розтягується на всю ширину екрана — обмежена (≈ третина/половина) на широких екранах і на всю ширину на малих екранах (адаптивно).",
-				"zh-cn": "管理界面：OpenStreetMap 位置地图不再横跨整个屏幕宽度——在宽屏上限制为约三分之一/一半，在小屏上仍为全宽（自适应）。"
+			"1.2.2": {
+				"en": "All timestamp data points (nextFeeding, lastFeeding, sunrise, sunset) and the times in the log/debug output are now shown in the system's local timezone (ISO 8601 with offset, e.g. 2026-07-01T16:20:00+02:00) instead of UTC — no more mental conversion, still a correct, sortable, parseable date string.",
+				"de": "Alle Zeitstempel-Datenpunkte (nextFeeding, lastFeeding, sunrise, sunset) und die Zeiten in den Log-/Debug-Ausgaben werden jetzt in der lokalen Systemzeitzone angezeigt (ISO 8601 mit Offset, z. B. 2026-07-01T16:20:00+02:00) statt in UTC — kein Umrechnen mehr, weiterhin ein korrektes, sortierbares, parsebares Datumsformat.",
+				"ru": "Все точки данных с отметками времени (nextFeeding, lastFeeding, sunrise, sunset) и время в журнале/отладке теперь отображаются в локальном часовом поясе системы (ISO 8601 со смещением, напр. 2026-07-01T16:20:00+02:00) вместо UTC — больше не нужно пересчитывать, при этом остаётся корректной, сортируемой и разбираемой строкой даты.",
+				"pt": "Todos os pontos de dados com data/hora (nextFeeding, lastFeeding, sunrise, sunset) e as horas no registo/depuração passam a ser apresentados no fuso horário local do sistema (ISO 8601 com deslocamento, por ex. 2026-07-01T16:20:00+02:00) em vez de UTC — sem conversões mentais, continuando a ser uma data correta, ordenável e analisável.",
+				"nl": "Alle datapunten met tijdstempel (nextFeeding, lastFeeding, sunrise, sunset) en de tijden in de log-/debuguitvoer worden nu weergegeven in de lokale tijdzone van het systeem (ISO 8601 met offset, bijv. 2026-07-01T16:20:00+02:00) in plaats van UTC — geen omrekenen meer, nog steeds een correcte, sorteerbare, verwerkbare datum.",
+				"fr": "Tous les points de données horodatés (nextFeeding, lastFeeding, sunrise, sunset) et les heures dans le journal/débogage sont désormais affichés dans le fuseau horaire local du système (ISO 8601 avec décalage, p. ex. 2026-07-01T16:20:00+02:00) au lieu d'UTC — plus de conversion mentale, tout en restant une date correcte, triable et analysable.",
+				"it": "Tutti i punti dati con timestamp (nextFeeding, lastFeeding, sunrise, sunset) e gli orari nel log/debug sono ora mostrati nel fuso orario locale del sistema (ISO 8601 con offset, es. 2026-07-01T16:20:00+02:00) invece che in UTC — niente più conversioni mentali, restando una data corretta, ordinabile e analizzabile.",
+				"es": "Todos los puntos de datos con marca de tiempo (nextFeeding, lastFeeding, sunrise, sunset) y las horas en el registro/depuración ahora se muestran en la zona horaria local del sistema (ISO 8601 con desfase, p. ej. 2026-07-01T16:20:00+02:00) en lugar de UTC — sin conversiones mentales, y sigue siendo una fecha correcta, ordenable y analizable.",
+				"pl": "Wszystkie punkty danych ze znacznikiem czasu (nextFeeding, lastFeeding, sunrise, sunset) oraz godziny w logu/debugu są teraz pokazywane w lokalnej strefie czasowej systemu (ISO 8601 z przesunięciem, np. 2026-07-01T16:20:00+02:00) zamiast UTC — koniec z przeliczaniem, nadal poprawny, sortowalny i parsowalny format daty.",
+				"uk": "Усі точки даних із позначками часу (nextFeeding, lastFeeding, sunrise, sunset) та час у журналі/налагодженні тепер відображаються в локальному часовому поясі системи (ISO 8601 зі зміщенням, напр. 2026-07-01T16:20:00+02:00) замість UTC — більше не потрібно перераховувати, і це й далі коректний, сортований та розбірливий рядок дати.",
+				"zh-cn": "所有带时间戳的数据点（nextFeeding、lastFeeding、sunrise、sunset）以及日志/调试输出中的时间，现在以系统本地时区显示（ISO 8601 带偏移，例如 2026-07-01T16:20:00+02:00），不再使用 UTC——无需再心算换算，且仍是正确、可排序、可解析的日期字符串。"
 			}
 		},
 		"titleLang": {

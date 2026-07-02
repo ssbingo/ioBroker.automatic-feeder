@@ -341,6 +341,8 @@ La configuration complète est décrite sous [Notifications Telegram](#8-notific
 
 ## 6. Objets / Points de données
 
+> **Remarque :** tous les points de données horodatés sont affichés dans le **fuseau horaire local du système** (ISO 8601 avec décalage, p. ex. `2026-07-01T16:20:00+02:00`).
+
 L'adaptateur crée les points de données suivants dans son espace de noms
 (`automatic-feeder.<instanz>.`).
 

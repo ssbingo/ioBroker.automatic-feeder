@@ -321,6 +321,8 @@ See [Telegram notifications](#8-telegram-notifications) for the full setup.
 
 ## 6. Objects / data points
 
+> **Note:** All timestamp data points are shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`).
+
 The adapter creates the following states under its namespace
 (`automatic-feeder.<instance>.`).
 
@@ -515,6 +517,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.2.2 (2026-07-02)
+* (ssbingo) All timestamp data points (`status.nextFeeding`, `status.lastFeeding`, `status.sunrise`, `status.sunset`) and the times in the log/debug output are now shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`) instead of UTC — no more mental conversion, and still a correct/sortable/parseable date string
+
 ### 1.2.1 (2026-07-02)
 * (ssbingo) Admin UI: the OpenStreetMap location map is no longer stretched across the full screen width — it is capped (≈ a third/half) on wider screens and stays full width on small screens (responsive)
 
@@ -554,11 +559,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) First stable release
 * (ssbingo) The per-switch status data points are now grouped in a **`status`** sub-channel (`switches.<id>.status.*`) for a tidier object tree; existing flat status states are migrated automatically on first start
 * (ssbingo) The **`settings`** sub-channel is now **editable**: writing a value from VIS or a script (feeding times, durations, temperature/oxygen limits, sources, …) changes the configuration and restarts the instance to apply it; a few derived fields (e.g. `winterWindow`) stay read-only
-* (ssbingo) Documentation updated to match in all 11 languages
-
-### 0.7.0 (2026-07-01)
-* (ssbingo) Temperature and oxygen sources are now assigned **per switch** (each feeding station can use its own sensors) instead of globally; the previous global sources are migrated into all switches automatically on first start
-* (ssbingo) New per-switch mirror data points `airTemperature`, `waterTemperature`, `oxygen`; the global `airTemperature`/`waterTemperature` states were removed
 * (ssbingo) Documentation updated to match in all 11 languages
 
 ---

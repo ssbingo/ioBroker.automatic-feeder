@@ -338,6 +338,8 @@ La configurazione completa è descritta in [Notifiche Telegram](#8-notifiche-tel
 
 ## 6. Oggetti / Punti dati
 
+> **Nota:** tutti i punti dati con timestamp sono mostrati nel **fuso orario locale del sistema** (ISO 8601 con offset, es. `2026-07-01T16:20:00+02:00`).
+
 L'adattatore crea i seguenti punti dati nel suo namespace
 (`automatic-feeder.<instanz>.`).
 
