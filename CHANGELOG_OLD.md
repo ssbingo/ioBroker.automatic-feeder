@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.5.2 (2026-07-01)
+* (ssbingo) Admin UI: all time fields (fixed feeding times, interval window start/end, winter once-daily time) now use a proper time picker instead of the native time input, fixing the hard-to-read floating label
+
 ### 0.5.1 (2026-07-01)
 * (ssbingo) Admin UI: the winter pause start/end are now picked from a **calendar** (day + month, shown as dd.mm) instead of a raw MM-DD text field (adds @mui/x-date-pickers + dayjs)
 

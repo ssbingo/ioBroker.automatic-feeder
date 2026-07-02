@@ -19,7 +19,7 @@ const SunCalc = require('suncalc');
 const { translate, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
 const {
 	isInWinterPause,
-	daysUntilMD,
+	reminderDue,
 	nextMDDate,
 	q10Rate,
 	q10IntervalMin,
@@ -29,6 +29,18 @@ const {
 } = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
+
+// --- absolute safety bounds enforced in code (independent of any UI limits) ---
+/** Largest delay Node's setTimeout accepts without overflowing (~24.8 days). */
+const MAX_TIMEOUT_MS = 2147483647;
+/** Upper bound for a single feeding duration (seconds). */
+const MAX_DURATION_SEC = 3600;
+/** Upper bound for the switching-supervision timeout (seconds). */
+const MAX_VERIFY_TIMEOUT_SEC = 300;
+/** Upper bound for any feeding interval (minutes) fed into the scheduler. */
+const MAX_INTERVAL_MIN = 1440;
+/** Timeout for the Nominatim geocoding request (milliseconds). */
+const GEOCODE_TIMEOUT_MS = 10000;
 
 /** Read-only status states that live under `switches.<id>.status.*` (used for cleanup of legacy flat states). */
 const STATUS_STATE_IDS = [
@@ -58,6 +70,35 @@ const SETTINGS_READONLY = new Set(['winterWindow']);
 
 /** Numeric settings that may be null (empty = "no limit"). */
 const NULLABLE_SETTINGS = new Set(['waterMin', 'waterMax', 'airMin', 'airMax', 'o2Min']);
+
+/**
+ * Absolute [min, max] bounds for non-nullable numeric settings, enforced on the
+ * config-write path (applyOneSetting) so values written via the settings.* states
+ * from VIS/scripts cannot bypass the UI clamps and stay within a sane range.
+ */
+const NUMERIC_BOUNDS = {
+	durationSec: [0, MAX_DURATION_SEC],
+	manualDurationSec: [0, MAX_DURATION_SEC],
+	winterDurationSec: [0, MAX_DURATION_SEC],
+	dynamicBaseDurationSec: [0, MAX_DURATION_SEC],
+	dynamicMinDurationSec: [0, MAX_DURATION_SEC],
+	dynamicMaxDurationSec: [0, MAX_DURATION_SEC],
+	intervalMin: [0, MAX_INTERVAL_MIN],
+	winterIntervalMin: [0, MAX_INTERVAL_MIN],
+	dynamicBaseIntervalMin: [0, MAX_INTERVAL_MIN],
+	dynamicMinIntervalMin: [0, MAX_INTERVAL_MIN],
+	dynamicMaxIntervalMin: [0, MAX_INTERVAL_MIN],
+	verifyTimeoutSec: [1, MAX_VERIFY_TIMEOUT_SEC],
+	verifyRetries: [1, 10],
+	winterReminderHour: [0, 23],
+	winterStartReminderDays: [0, 366],
+	winterEndReminderDays: [0, 366],
+	dynamicBufferHours: [0, 168],
+	dynamicHysteresisPct: [0, 100],
+	dynamicQ10: [0, 10],
+	sunOffsetMorning: [0, 720],
+	sunOffsetEvening: [0, 720],
+};
 
 /**
  * Per-switch default values (mirrors the admin `createSwitch`, without the id).
@@ -603,6 +644,8 @@ class AutomaticFeeder extends utils.Adapter {
 		this.foreignBuffers = new Map();
 		this.tempObjectIds = new Set();
 		this.o2ObjectIds = new Set();
+		/** source object ids for which an "ack=false" hint has already been logged (once each) */
+		this.unackedSources = new Set();
 		// longest sample window we need to keep (ms); set in setupSources
 		this.maxBufferMs = 24 * 3600000;
 		// last dynamic interval (minutes) applied per switch id (hysteresis reference)
@@ -1673,7 +1716,7 @@ class AutomaticFeeder extends utils.Adapter {
 			.catch(() => {});
 
 		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: next.toISOString(), ack: true });
-		const delay = Math.max(0, next.getTime() - Date.now());
+		const delay = Math.min(MAX_TIMEOUT_MS, Math.max(0, next.getTime() - Date.now()));
 		const windowKind = sw.astroWindowEnabled
 			? 'astro'
 			: sw.dynamicEnabled || sw.mode === 'interval'
@@ -1752,8 +1795,10 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	nextFromInterval(sw, now, intervalMinOverride) {
-		const intervalMin = intervalMinOverride !== undefined ? intervalMinOverride : Number(sw.intervalMin) || 0;
-		const interval = (Number(intervalMin) || 0) * 60000;
+		const rawIntervalMin = intervalMinOverride !== undefined ? intervalMinOverride : Number(sw.intervalMin) || 0;
+		// clamp to a sane maximum so the grid step cannot become absurd
+		const intervalMin = Math.min(MAX_INTERVAL_MIN, Math.max(0, Number(rawIntervalMin) || 0));
+		const interval = intervalMin * 60000;
 
 		// the feeding window is either fixed (windowStart/windowEnd) or astronomical
 		// (sunrise/sunset +/- the per-switch offsets, computed for the given day)
@@ -1850,12 +1895,19 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 
 		const verify = sw.verifyEnabled !== false;
-		const seconds =
+		const rawSeconds =
 			durationOverrideSec !== undefined &&
 			durationOverrideSec !== null &&
 			!Number.isNaN(Number(durationOverrideSec))
 				? Math.max(0, Number(durationOverrideSec))
 				: this.effectiveDurationSec(sw);
+		// hard upper bound so a mis-configured value cannot hang the ON phase
+		const seconds = Math.min(MAX_DURATION_SEC, Math.max(0, rawSeconds));
+		if (seconds !== rawSeconds) {
+			this.log.warn(
+				`Feeding duration for ${this.swLabel(sw)} clamped from ${rawSeconds}s to ${seconds}s (max ${MAX_DURATION_SEC}s).`,
+			);
+		}
 		this.feedingBusy.add(sw.id);
 		try {
 			// --- switch ON ---
@@ -1922,7 +1974,8 @@ class AutomaticFeeder extends utils.Adapter {
 			const okMsg = this.t('feedSuccess', { seconds });
 			await this.reportResult(sw, false, okMsg);
 			this.notify(sw, 'success', okMsg);
-			this.log.info(`${this.swLabel(sw)}: ${okMsg}`);
+			// log in English (language-independent); the localized text goes to the datapoint/Telegram
+			this.log.info(`${this.swLabel(sw)}: ${translate('feedSuccess', 'en', { seconds })}`);
 		} finally {
 			this.feedingBusy.delete(sw.id);
 		}
@@ -1944,7 +1997,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 */
 	async verifyState(sw, expectOn) {
 		const expected = coerce(expectOn ? (sw.onValue ?? true) : (sw.offValue ?? false));
-		const timeoutMs = Math.max(1, Number(sw.verifyTimeoutSec) || 5) * 1000;
+		const timeoutMs = Math.min(MAX_VERIFY_TIMEOUT_SEC, Math.max(1, Number(sw.verifyTimeoutSec) || 5)) * 1000;
 		const attempts = Math.max(1, Number(sw.verifyRetries) || 3);
 		const label = expectOn ? 'ON' : 'OFF';
 		this.log.silly(
@@ -2072,7 +2125,10 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		const text = `${sw.name || sw.id}: ${message}`;
 		const payload = sw.telegramUser ? { text, user: sw.telegramUser } : { text };
-		this.log.debug(`Sending Telegram notification via ${instance} for ${this.swLabel(sw)}: ${text}`);
+		// English log line; the message body itself (text) is localized for the recipient
+		this.log.debug(
+			`Sending Telegram "${type}" notification via ${instance} to ${sw.telegramUser || 'all'} for ${this.swLabel(sw)}.`,
+		);
 		try {
 			this.sendTo(instance, payload);
 		} catch (e) {
@@ -2264,7 +2320,10 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		const text = `${sw.name || sw.id}: ${this.t(key, params)}`;
 		const payload = sw.telegramUser ? { text, user: sw.telegramUser } : { text };
-		this.log.info(`Sending winter reminder via ${instance} for ${this.swLabel(sw)}: ${text}`);
+		// English log line; the reminder body (text) is localized for the recipient
+		this.log.info(
+			`Sending winter reminder "${key}" via ${instance} to ${sw.telegramUser || 'all'} for ${this.swLabel(sw)}.`,
+		);
 		try {
 			this.sendTo(instance, payload);
 		} catch (e) {
@@ -2317,8 +2376,7 @@ class AutomaticFeeder extends utils.Adapter {
 			const reduced = sw.winterMode !== 'suspend';
 			// reminder before the winter pause starts
 			if (sw.winterStartReminderEnabled) {
-				const d = daysUntilMD(sw.winterStart, now);
-				if (d !== null && d <= (Number(sw.winterStartReminderDays) || 0)) {
+				if (reminderDue(sw.winterStart, sw.winterStartReminderDays, now)) {
 					const st = await this.getStateAsync(`switches.${sw.id}.status.winterLastStartReminder`);
 					if (!st || st.val !== todayKey) {
 						const dateStr = this.formatLocalDate(nextMDDate(sw.winterStart, now));
@@ -2332,8 +2390,7 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 			// reminder before the winter pause ends
 			if (sw.winterEndReminderEnabled) {
-				const d = daysUntilMD(sw.winterEnd, now);
-				if (d !== null && d <= (Number(sw.winterEndReminderDays) || 0)) {
+				if (reminderDue(sw.winterEnd, sw.winterEndReminderDays, now)) {
 					const st = await this.getStateAsync(`switches.${sw.id}.status.winterLastEndReminder`);
 					if (!st || st.val !== todayKey) {
 						const dateStr = this.formatLocalDate(nextMDDate(sw.winterEnd, now));
@@ -2491,15 +2548,27 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		this.log.silly(`State change: ${id} = ${state.val} (ack=${state.ack})`);
 
-		// per-switch temperature / oxygen sources (foreign states)
+		// per-switch temperature / oxygen sources (foreign states). These are read-only
+		// inputs we never write to, so there is no command echo to guard against - the
+		// value is accepted on any ack (real sensors send ack=true, but script/userdata
+		// sources are commonly ack=false and must still work). The ack flag is logged for
+		// transparency, and a persistently un-acknowledged source is surfaced once so a
+		// mis-pointed source (e.g. a command/setpoint state) stays diagnosable. The strict
+		// ack=true rule remains where it matters: the switch on/off verification.
 		if (this.tempObjectIds.has(id) || this.o2ObjectIds.has(id)) {
+			if (state.ack !== true && !this.unackedSources.has(id)) {
+				this.unackedSources.add(id);
+				this.log.debug(
+					`Source ${id} delivers un-acknowledged values (ack=false) - using them anyway (e.g. a script/userdata source).`,
+				);
+			}
 			const value = state.val === null ? null : Number(state.val);
 			this.foreignValues.set(id, value);
 			if (this.tempObjectIds.has(id) && value !== null) {
 				this.pushTempSample(id, value);
 			}
 			await this.updateSourceMirrors(id, value);
-			this.log.debug(`Source updated: ${id} = ${value ?? 'unknown'}.`);
+			this.log.debug(`Source updated: ${id} = ${value ?? 'unknown'} (ack=${state.ack === true}).`);
 			return;
 		}
 
@@ -2646,7 +2715,18 @@ class AutomaticFeeder extends utils.Adapter {
 				const n = val === '' || val === null || val === undefined ? NaN : Number(val);
 				sw[key] = Number.isNaN(n) ? null : n;
 			} else {
-				sw[key] = Number(val) || 0;
+				let n = Number(val) || 0;
+				const bounds = NUMERIC_BOUNDS[key];
+				if (bounds) {
+					const clamped = Math.min(bounds[1], Math.max(bounds[0], n));
+					if (clamped !== n) {
+						this.log.warn(
+							`Setting "${key}" value ${n} clamped to ${clamped} (allowed ${bounds[0]}..${bounds[1]}).`,
+						);
+						n = clamped;
+					}
+				}
+				sw[key] = n;
 			}
 		} else {
 			sw[key] = String(val ?? '');
@@ -2698,12 +2778,15 @@ class AutomaticFeeder extends utils.Adapter {
 				}
 				return;
 			}
+			const controller = new AbortController();
+			const timeout = this.setTimeout(() => controller.abort(), GEOCODE_TIMEOUT_MS);
 			try {
 				const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
 				const version = this.version || '0.0.1';
-				this.log.debug(`Geocoding "${query}" via Nominatim...`);
+				this.log.debug(`Geocoding "${query}" via Nominatim (timeout ${GEOCODE_TIMEOUT_MS}ms)...`);
 				const res = await fetch(url, {
 					headers: { 'User-Agent': `ioBroker.automatic-feeder/${version}` },
+					signal: controller.signal,
 				});
 				const data = await res.json();
 				if (Array.isArray(data) && data.length) {
@@ -2724,10 +2807,16 @@ class AutomaticFeeder extends utils.Adapter {
 					}
 				}
 			} catch (e) {
-				this.log.warn(`Geocoding failed: ${e.message}`);
+				const msg =
+					e.name === 'AbortError'
+						? `Geocoding timed out after ${GEOCODE_TIMEOUT_MS}ms`
+						: `Geocoding failed: ${e.message}`;
+				this.log.warn(msg);
 				if (obj.callback) {
-					this.sendTo(obj.from, obj.command, { error: e.message }, obj.callback);
+					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);
 				}
+			} finally {
+				this.clearTimeout(timeout);
 			}
 		}
 	}
