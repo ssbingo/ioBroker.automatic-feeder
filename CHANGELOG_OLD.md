@@ -3,6 +3,12 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.6.0 (2026-07-01)
+* (ssbingo) New per-switch **dynamic feeding** (Q10 model): the feeding interval and the portion (duration) adapt to the water/air temperature, using a real moving average with configurable hysteresis; replaces fixed times with an interval inside the window
+* (ssbingo) Optional global **oxygen (O₂)** source with a per-switch "block feeding when O₂ is too low" option
+* (ssbingo) New status data points per switch: `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin`, `dynamicDurationSec`
+* (ssbingo) Documentation overhauled and completed in all 11 languages (feature overview, requirements, oxygen source, all data points, Telegram winter reminders, examples and FAQ)
+
 ### 0.5.3 (2026-07-01)
 * (ssbingo) Each switch now exposes a read-only `settings` sub-channel (`switches.<id>.settings.*`) that mirrors its configuration, so the settings can be shown in VIS or used in scripts
 

@@ -133,7 +133,17 @@ function LocationPicker(props) {
 					{error}
 				</Typography>
 			) : null}
-			<Box sx={{ height: 320, mb: 1, border: '1px solid rgba(128,128,128,0.4)' }}>
+			{/* keep the map from stretching across the whole screen: full width on small
+			    screens, capped to ~a third/half on wider ones (responsive design) */}
+			<Box
+				sx={{
+					height: 320,
+					width: '100%',
+					maxWidth: { xs: '100%', sm: 480, md: 600 },
+					mb: 1,
+					border: '1px solid rgba(128,128,128,0.4)',
+				}}
+			>
 				<div ref={containerRef} style={{ height: '100%', width: '100%' }} />
 			</Box>
 			<Typography variant="caption" color="textSecondary">

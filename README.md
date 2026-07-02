@@ -515,6 +515,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.2.1 (2026-07-02)
+* (ssbingo) Admin UI: the OpenStreetMap location map is no longer stretched across the full screen width — it is capped (≈ a third/half) on wider screens and stays full width on small screens (responsive)
+
 ### 1.2.0 (2026-07-02)
 * (ssbingo) New optional **second (deep) water-temperature sensor** per switch, with a combine mode for dynamic feeding: *feeding zone (shallow)* [default], *average*, *coldest layer* or *seasonal* (shallow while warm enough, otherwise deep). The temperature block always uses the coldest of the two layers. Only useful for deep, unmixed ponds
 * (ssbingo) New per-switch data points `status.waterTemperatureDeep` and `status.waterStratification` (shallow − deep)
@@ -557,12 +560,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) Temperature and oxygen sources are now assigned **per switch** (each feeding station can use its own sensors) instead of globally; the previous global sources are migrated into all switches automatically on first start
 * (ssbingo) New per-switch mirror data points `airTemperature`, `waterTemperature`, `oxygen`; the global `airTemperature`/`waterTemperature` states were removed
 * (ssbingo) Documentation updated to match in all 11 languages
-
-### 0.6.0 (2026-07-01)
-* (ssbingo) New per-switch **dynamic feeding** (Q10 model): the feeding interval and the portion (duration) adapt to the water/air temperature, using a real moving average with configurable hysteresis; replaces fixed times with an interval inside the window
-* (ssbingo) Optional global **oxygen (O₂)** source with a per-switch "block feeding when O₂ is too low" option
-* (ssbingo) New status data points per switch: `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin`, `dynamicDurationSec`
-* (ssbingo) Documentation overhauled and completed in all 11 languages (feature overview, requirements, oxygen source, all data points, Telegram winter reminders, examples and FAQ)
 
 ---
 
