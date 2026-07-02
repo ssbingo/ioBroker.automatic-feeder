@@ -316,7 +316,7 @@ Die vollständige Einrichtung steht unter [Telegram-Benachrichtigungen](#8-teleg
 
 ## 6. Objekte / Datenpunkte
 
-> **Hinweis:** Alle Zeitstempel-Datenpunkte werden in der **lokalen Systemzeitzone** angezeigt (ISO 8601 mit Offset, z. B. `2026-07-01T16:20:00+02:00`).
+> **Hinweis:** Alle Zeitstempel-Datenpunkte werden in der **lokalen Systemzeitzone** angezeigt (Format `TT.MM.JJJJ HH:MM:SS`, z. B. `01.07.2026 16:20:00`).
 
 Der Adapter legt folgende Datenpunkte in seinem Namespace an
 (`automatic-feeder.<instanz>.`).

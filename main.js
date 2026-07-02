@@ -718,26 +718,19 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * Local ISO-8601 timestamp with the system's timezone offset, e.g.
-	 * "2026-07-01T16:20:00+02:00" — shown in the system's local time (no mental UTC
-	 * conversion) while staying a correct, sortable, parseable date string. Used for the
-	 * timestamp data points and for the times in log messages.
+	 * Human-readable local timestamp in the system's timezone, "DD.MM.YYYY HH:MM:SS"
+	 * (e.g. "01.07.2026 16:20:00") — shown in local time so no mental UTC conversion is
+	 * needed. Used for the timestamp data points and for the times in log messages.
 	 *
 	 * @param {Date} date - the date to format
-	 * @returns {string} the local ISO timestamp, or "" for an invalid date
+	 * @returns {string} the local timestamp, or "" for an invalid date
 	 */
-	localIso(date) {
+	localTs(date) {
 		if (!(date instanceof Date) || isNaN(date.getTime())) {
 			return '';
 		}
-		const p = n => String(Math.trunc(Math.abs(n))).padStart(2, '0');
-		const off = -date.getTimezoneOffset(); // minutes east of UTC
-		const sign = off >= 0 ? '+' : '-';
-		return (
-			`${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}` +
-			`T${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}` +
-			`${sign}${p(off / 60)}:${p(off % 60)}`
-		);
+		const p = n => String(n).padStart(2, '0');
+		return `${this.formatLocalDate(date)} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
 	}
 
 	/**
@@ -1070,11 +1063,11 @@ class AutomaticFeeder extends utils.Adapter {
 			const start = new Date(times.sunrise.getTime() + morning * 60000);
 			const end = new Date(times.sunset.getTime() - evening * 60000);
 			this.switchWindows.set(sw.id, { start, end });
-			this.setStateAsync(`switches.${sw.id}.status.sunrise`, { val: this.localIso(times.sunrise), ack: true });
-			this.setStateAsync(`switches.${sw.id}.status.sunset`, { val: this.localIso(times.sunset), ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.sunrise`, { val: this.localTs(times.sunrise), ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.sunset`, { val: this.localTs(times.sunset), ack: true });
 			this.log.debug(
-				`Sun times ${this.swLabel(sw)}: sunrise=${this.localIso(times.sunrise)}, sunset=${this.localIso(times.sunset)}; ` +
-					`offsets +${morning}/-${evening} min -> window ${this.localIso(start)} ... ${this.localIso(end)}`,
+				`Sun times ${this.swLabel(sw)}: sunrise=${this.localTs(times.sunrise)}, sunset=${this.localTs(times.sunset)}; ` +
+					`offsets +${morning}/-${evening} min -> window ${this.localTs(start)} ... ${this.localTs(end)}`,
 			);
 		}
 	}
@@ -1085,7 +1078,7 @@ class AutomaticFeeder extends utils.Adapter {
 		midnight.setHours(24, 0, 30, 0); // 00:00:30 next day
 		const delay = midnight.getTime() - now.getTime();
 		this.log.debug(
-			`Midnight recalculation scheduled for ${this.localIso(midnight)} (in ${Math.round(delay / 1000)}s).`,
+			`Midnight recalculation scheduled for ${this.localTs(midnight)} (in ${Math.round(delay / 1000)}s).`,
 		);
 		this.midnightTimer = this.setTimeout(() => {
 			this.log.debug('Midnight reached: recomputing per-switch sun windows and rescheduling all switches.');
@@ -1811,7 +1804,7 @@ class AutomaticFeeder extends utils.Adapter {
 			})
 			.catch(() => {});
 
-		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: this.localIso(next), ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: this.localTs(next), ack: true });
 		const delay = Math.min(MAX_TIMEOUT_MS, Math.max(0, next.getTime() - Date.now()));
 		const windowKind = sw.astroWindowEnabled
 			? 'astro'
@@ -1819,7 +1812,7 @@ class AutomaticFeeder extends utils.Adapter {
 				? 'window'
 				: 'times';
 		this.log.debug(
-			`Switch ${this.swLabel(sw)}: next feeding at ${this.localIso(next)} ` +
+			`Switch ${this.swLabel(sw)}: next feeding at ${this.localTs(next)} ` +
 				`(in ${this.humanDelay(delay)}; mode=${sw.dynamicEnabled ? 'dynamic' : sw.mode || 'times'}, source=${windowKind}).`,
 		);
 
@@ -1882,7 +1875,7 @@ class AutomaticFeeder extends utils.Adapter {
 			if (d.getTime() <= now.getTime() + epsilon) {
 				d.setDate(d.getDate() + 1); // tomorrow
 			}
-			this.log.silly(`Switch ${this.swLabel(sw)}: candidate time "${t}" -> ${this.localIso(d)}`);
+			this.log.silly(`Switch ${this.swLabel(sw)}: candidate time "${t}" -> ${this.localTs(d)}`);
 			if (!best || d.getTime() < best.getTime()) {
 				best = d;
 			}
@@ -1911,14 +1904,14 @@ class AutomaticFeeder extends utils.Adapter {
 		if (!start || !end || interval <= 0 || end.getTime() <= start.getTime()) {
 			this.log.silly(
 				`Switch ${this.swLabel(sw)}: invalid interval config (astro=${!!sw.astroWindowEnabled}, ` +
-					`start=${start ? this.localIso(start) : 'n/a'}, end=${end ? this.localIso(end) : 'n/a'}, intervalMin=${intervalMin}).`,
+					`start=${start ? this.localTs(start) : 'n/a'}, end=${end ? this.localTs(end) : 'n/a'}, intervalMin=${intervalMin}).`,
 			);
 			return null;
 		}
 		const slot = nextSlotInWindow(start.getTime(), end.getTime(), interval, now.getTime());
 		if (slot !== null) {
 			const d = new Date(slot);
-			this.log.silly(`Switch ${this.swLabel(sw)}: next slot within today's window -> ${this.localIso(d)}.`);
+			this.log.silly(`Switch ${this.swLabel(sw)}: next slot within today's window -> ${this.localTs(d)}.`);
 			return d;
 		}
 		// past the window -> first slot of tomorrow's window
@@ -1935,7 +1928,7 @@ class AutomaticFeeder extends utils.Adapter {
 		if (!tomorrowStart) {
 			return null;
 		}
-		this.log.silly(`Switch ${this.swLabel(sw)}: after window -> next is tomorrow ${this.localIso(tomorrowStart)}.`);
+		this.log.silly(`Switch ${this.swLabel(sw)}: after window -> next is tomorrow ${this.localTs(tomorrowStart)}.`);
 		return tomorrowStart;
 	}
 
@@ -2011,7 +2004,7 @@ class AutomaticFeeder extends utils.Adapter {
 			await this.writeSwitch(sw, true);
 			await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: true, ack: true });
 			await this.setStateAsync(`switches.${sw.id}.status.lastFeeding`, {
-				val: this.localIso(new Date()),
+				val: this.localTs(new Date()),
 				ack: true,
 			});
 
@@ -2606,7 +2599,7 @@ class AutomaticFeeder extends utils.Adapter {
 			if (win) {
 				const now = Date.now();
 				this.log.silly(
-					`Block check ${this.swLabel(sw)}: now=${this.localIso(new Date(now))} window=${this.localIso(win.start)}..${this.localIso(win.end)}`,
+					`Block check ${this.swLabel(sw)}: now=${this.localTs(new Date(now))} window=${this.localTs(win.start)}..${this.localTs(win.end)}`,
 				);
 				if (now < win.start.getTime() || now > win.end.getTime()) {
 					return { key: 'blockNight' };

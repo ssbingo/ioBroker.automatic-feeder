@@ -321,7 +321,7 @@ See [Telegram notifications](#8-telegram-notifications) for the full setup.
 
 ## 6. Objects / data points
 
-> **Note:** All timestamp data points are shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`).
+> **Note:** All timestamp data points are shown in the **system's local timezone** (format `DD.MM.YYYY HH:MM:SS`, e.g. `01.07.2026 16:20:00`).
 
 The adapter creates the following states under its namespace
 (`automatic-feeder.<instance>.`).
@@ -517,6 +517,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.2.3 (2026-07-02)
+* (ssbingo) The local timestamps introduced in 1.2.2 now use a **human-readable format** `DD.MM.YYYY HH:MM:SS` (e.g. `01.07.2026 16:20:00`) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users
+
 ### 1.2.2 (2026-07-02)
 * (ssbingo) All timestamp data points (`status.nextFeeding`, `status.lastFeeding`, `status.sunrise`, `status.sunset`) and the times in the log/debug output are now shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`) instead of UTC — no more mental conversion, and still a correct/sortable/parseable date string
 
@@ -554,12 +557,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.0.1 (2026-07-01)
 * (ssbingo) Fix: switches created by an older version were missing the dynamic-feeding defaults (Q10, base/min/max interval and duration, averaging window, hysteresis), so dynamic feeding computed a 0 interval and never fed. The missing per-switch defaults are now filled in automatically on start
 * (ssbingo) When dynamic feeding is enabled but no valid interval can be computed (base/max interval 0 or an invalid time window), the adapter now logs a warning and shows a hint in `status.blockReason` instead of silently doing nothing
-
-### 1.0.0 (2026-07-01)
-* (ssbingo) First stable release
-* (ssbingo) The per-switch status data points are now grouped in a **`status`** sub-channel (`switches.<id>.status.*`) for a tidier object tree; existing flat status states are migrated automatically on first start
-* (ssbingo) The **`settings`** sub-channel is now **editable**: writing a value from VIS or a script (feeding times, durations, temperature/oxygen limits, sources, …) changes the configuration and restarts the instance to apply it; a few derived fields (e.g. `winterWindow`) stay read-only
-* (ssbingo) Documentation updated to match in all 11 languages
 
 ---
 

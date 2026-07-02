@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.2.2",
+		"version": "1.2.3",
 		"news": {
-			"1.2.2": {
-				"en": "All timestamp data points (nextFeeding, lastFeeding, sunrise, sunset) and the times in the log/debug output are now shown in the system's local timezone (ISO 8601 with offset, e.g. 2026-07-01T16:20:00+02:00) instead of UTC — no more mental conversion, still a correct, sortable, parseable date string.",
-				"de": "Alle Zeitstempel-Datenpunkte (nextFeeding, lastFeeding, sunrise, sunset) und die Zeiten in den Log-/Debug-Ausgaben werden jetzt in der lokalen Systemzeitzone angezeigt (ISO 8601 mit Offset, z. B. 2026-07-01T16:20:00+02:00) statt in UTC — kein Umrechnen mehr, weiterhin ein korrektes, sortierbares, parsebares Datumsformat.",
-				"ru": "Все точки данных с отметками времени (nextFeeding, lastFeeding, sunrise, sunset) и время в журнале/отладке теперь отображаются в локальном часовом поясе системы (ISO 8601 со смещением, напр. 2026-07-01T16:20:00+02:00) вместо UTC — больше не нужно пересчитывать, при этом остаётся корректной, сортируемой и разбираемой строкой даты.",
-				"pt": "Todos os pontos de dados com data/hora (nextFeeding, lastFeeding, sunrise, sunset) e as horas no registo/depuração passam a ser apresentados no fuso horário local do sistema (ISO 8601 com deslocamento, por ex. 2026-07-01T16:20:00+02:00) em vez de UTC — sem conversões mentais, continuando a ser uma data correta, ordenável e analisável.",
-				"nl": "Alle datapunten met tijdstempel (nextFeeding, lastFeeding, sunrise, sunset) en de tijden in de log-/debuguitvoer worden nu weergegeven in de lokale tijdzone van het systeem (ISO 8601 met offset, bijv. 2026-07-01T16:20:00+02:00) in plaats van UTC — geen omrekenen meer, nog steeds een correcte, sorteerbare, verwerkbare datum.",
-				"fr": "Tous les points de données horodatés (nextFeeding, lastFeeding, sunrise, sunset) et les heures dans le journal/débogage sont désormais affichés dans le fuseau horaire local du système (ISO 8601 avec décalage, p. ex. 2026-07-01T16:20:00+02:00) au lieu d'UTC — plus de conversion mentale, tout en restant une date correcte, triable et analysable.",
-				"it": "Tutti i punti dati con timestamp (nextFeeding, lastFeeding, sunrise, sunset) e gli orari nel log/debug sono ora mostrati nel fuso orario locale del sistema (ISO 8601 con offset, es. 2026-07-01T16:20:00+02:00) invece che in UTC — niente più conversioni mentali, restando una data corretta, ordinabile e analizzabile.",
-				"es": "Todos los puntos de datos con marca de tiempo (nextFeeding, lastFeeding, sunrise, sunset) y las horas en el registro/depuración ahora se muestran en la zona horaria local del sistema (ISO 8601 con desfase, p. ej. 2026-07-01T16:20:00+02:00) en lugar de UTC — sin conversiones mentales, y sigue siendo una fecha correcta, ordenable y analizable.",
-				"pl": "Wszystkie punkty danych ze znacznikiem czasu (nextFeeding, lastFeeding, sunrise, sunset) oraz godziny w logu/debugu są teraz pokazywane w lokalnej strefie czasowej systemu (ISO 8601 z przesunięciem, np. 2026-07-01T16:20:00+02:00) zamiast UTC — koniec z przeliczaniem, nadal poprawny, sortowalny i parsowalny format daty.",
-				"uk": "Усі точки даних із позначками часу (nextFeeding, lastFeeding, sunrise, sunset) та час у журналі/налагодженні тепер відображаються в локальному часовому поясі системи (ISO 8601 зі зміщенням, напр. 2026-07-01T16:20:00+02:00) замість UTC — більше не потрібно перераховувати, і це й далі коректний, сортований та розбірливий рядок дати.",
-				"zh-cn": "所有带时间戳的数据点（nextFeeding、lastFeeding、sunrise、sunset）以及日志/调试输出中的时间，现在以系统本地时区显示（ISO 8601 带偏移，例如 2026-07-01T16:20:00+02:00），不再使用 UTC——无需再心算换算，且仍是正确、可排序、可解析的日期字符串。"
+			"1.2.3": {
+				"en": "The local timestamps introduced in 1.2.2 now use a human-readable format DD.MM.YYYY HH:MM:SS (e.g. 01.07.2026 16:20:00) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users.",
+				"de": "Die in 1.2.2 eingeführten lokalen Zeitstempel nutzen jetzt ein menschenlesbares Format TT.MM.JJJJ HH:MM:SS (z. B. 01.07.2026 16:20:00) statt lokalem ISO 8601 — konsistent mit den übrigen Datumsanzeigen und am übersichtlichsten für alle Anwender.",
+				"ru": "Локальные отметки времени, введённые в 1.2.2, теперь используют удобочитаемый формат ДД.ММ.ГГГГ ЧЧ:ММ:СС (напр. 01.07.2026 16:20:00) вместо локального ISO 8601 — согласуется с остальными отображениями дат и наиболее понятно для всех пользователей.",
+				"pt": "As datas/horas locais introduzidas na 1.2.2 passam a usar um formato legível DD.MM.AAAA HH:MM:SS (por ex. 01.07.2026 16:20:00) em vez do ISO 8601 local — coerente com as restantes apresentações de datas e a opção mais clara para todos os utilizadores.",
+				"nl": "De lokale tijdstempels uit 1.2.2 gebruiken nu een leesbaar formaat DD.MM.JJJJ UU:MM:SS (bijv. 01.07.2026 16:20:00) in plaats van lokale ISO 8601 — consistent met de andere datumweergaven en het duidelijkst voor alle gebruikers.",
+				"fr": "Les horodatages locaux introduits dans la 1.2.2 utilisent désormais un format lisible JJ.MM.AAAA HH:MM:SS (p. ex. 01.07.2026 16:20:00) au lieu de l'ISO 8601 local — cohérent avec les autres affichages de dates et l'option la plus claire pour tous les utilisateurs.",
+				"it": "Le date/ora locali introdotte nella 1.2.2 usano ora un formato leggibile GG.MM.AAAA HH:MM:SS (es. 01.07.2026 16:20:00) invece dell'ISO 8601 locale — coerente con le altre visualizzazioni di date e l'opzione più chiara per tutti gli utenti.",
+				"es": "Las marcas de tiempo locales introducidas en 1.2.2 ahora usan un formato legible DD.MM.AAAA HH:MM:SS (p. ej. 01.07.2026 16:20:00) en lugar de ISO 8601 local — coherente con las demás fechas y la opción más clara para todos los usuarios.",
+				"pl": "Lokalne znaczniki czasu wprowadzone w 1.2.2 używają teraz czytelnego formatu DD.MM.RRRR GG:MM:SS (np. 01.07.2026 16:20:00) zamiast lokalnego ISO 8601 — spójnie z innymi datami i najczytelniej dla wszystkich użytkowników.",
+				"uk": "Локальні позначки часу, додані в 1.2.2, тепер використовують зручний формат ДД.ММ.РРРР ГГ:ХХ:СС (напр. 01.07.2026 16:20:00) замість локального ISO 8601 — узгоджено з іншими показами дат і найзрозуміліше для всіх користувачів.",
+				"zh-cn": "1.2.2 中引入的本地时间戳现在改用可读格式 DD.MM.YYYY HH:MM:SS（例如 01.07.2026 16:20:00），不再使用本地 ISO 8601——与其他日期显示保持一致，对所有用户最为清晰。"
 			}
 		},
 		"titleLang": {

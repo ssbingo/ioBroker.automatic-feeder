@@ -3,6 +3,12 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.0.0 (2026-07-01)
+* (ssbingo) First stable release
+* (ssbingo) The per-switch status data points are now grouped in a **`status`** sub-channel (`switches.<id>.status.*`) for a tidier object tree; existing flat status states are migrated automatically on first start
+* (ssbingo) The **`settings`** sub-channel is now **editable**: writing a value from VIS or a script (feeding times, durations, temperature/oxygen limits, sources, …) changes the configuration and restarts the instance to apply it; a few derived fields (e.g. `winterWindow`) stay read-only
+* (ssbingo) Documentation updated to match in all 11 languages
+
 ### 0.7.0 (2026-07-01)
 * (ssbingo) Temperature and oxygen sources are now assigned **per switch** (each feeding station can use its own sensors) instead of globally; the previous global sources are migrated into all switches automatically on first start
 * (ssbingo) New per-switch mirror data points `airTemperature`, `waterTemperature`, `oxygen`; the global `airTemperature`/`waterTemperature` states were removed

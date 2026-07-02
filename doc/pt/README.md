@@ -310,7 +310,7 @@ A configuração completa consta em [Notificações do Telegram](#8-notificaçõ
 
 ## 6. Objetos / Pontos de dados
 
-> **Nota:** todos os pontos de dados com data/hora são apresentados no **fuso horário local do sistema** (ISO 8601 com deslocamento, por ex. `2026-07-01T16:20:00+02:00`).
+> **Nota:** todos os pontos de dados com data/hora são apresentados no **fuso horário local do sistema** (formato `DD.MM.AAAA HH:MM:SS`, por ex. `01.07.2026 16:20:00`).
 
 O adaptador cria os seguintes pontos de dados no seu namespace
 (`automatic-feeder.<instanz>.`).
