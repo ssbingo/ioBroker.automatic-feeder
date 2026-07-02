@@ -111,5 +111,14 @@
 	"Each switch defines its own location on its tab.": "每个开关在其选项卡上定义自己的位置。",
 	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "时间窗口跟随日出/日落（在“限制”中启用天文窗口）。",
 	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "将投喂限制在天文白昼窗口内（日出/日落 + 偏移）",
-	"Location for this switch": "此开关的位置"
+	"Location for this switch": "此开关的位置",
+	"Water temperature (deep)": "水温（深层）",
+	"Deep water temperature object": "深层水温对象",
+	"Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.": "两个水温传感器仅在深水、未混合（未开泵）的池塘中有用。阻止判断始终使用最冷的水层。",
+	"Water sensor combine mode": "水温传感器组合方式",
+	"Feeding zone (shallow only)": "投喂区（仅浅层）",
+	"Average of both": "两者平均",
+	"Coldest layer": "最冷水层",
+	"Seasonal (shallow when warm, else deep)": "按季节（温暖时用浅层，否则用深层）",
+	"Seasonal switch threshold (°C)": "季节切换阈值（°C）"
 }

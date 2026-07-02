@@ -31,7 +31,7 @@ Fütterung, der Rest erklärt jede Einstellung im Detail.
 8. [Telegram-Benachrichtigungen](#8-telegram-benachrichtigungen)
 9. [Fehlerbehebung & FAQ](#9-fehlerbehebung--faq)
 10. [Logging & Fehlersuche](#10-logging--fehlersuche)
-
+11. [Dynamisches Füttern — Hintergrund & Quellen](#11-dynamisches-füttern--hintergrund--quellen)
 ---
 
 ## 1. Was der Adapter macht
@@ -203,10 +203,18 @@ Jeder Schalter (Futterstation) hat **seine eigenen** Sensoren – verschiedene T
 
 * **Lufttemperatur** – Häkchen setzen und den Datenpunkt wählen, der die Lufttemperatur dieser Station enthält.
 * **Wassertemperatur** – Häkchen setzen und den Datenpunkt wählen, der die Wassertemperatur dieser Station enthält.
+  Dies ist der primäre Sensor der **Futterzone** (dort platzieren, wo die Fische tatsächlich fressen, nicht an der Oberfläche).
+* **Wassertemperatur (tief)** – *optionaler zweiter* Wassersensor (z. B. nahe dem Boden). Wird erst angezeigt, sobald
+  der primäre Wassersensor aktiviert ist. Bei zwei Sensoren wählst du einen **Kombinationsmodus** für das dynamische
+  Füttern: *Futterzone (nur flach)* [Standard], *Mittelwert beider*, *Kälteste Schicht* oder *Saisonal* (nutzt den
+  flachen Sensor, solange er auf oder über einem Schwellwert liegt, sonst den tiefen Sensor). Die Temperatur-**Sperre**
+  verwendet immer die **kälteste** der beiden Schichten. Ein zweiter Sensor hilft nur in **tiefen, ungemischten Teichen**
+  (eine laufende Pumpe durchmischt das Wasser und beseitigt jede Schichtung) – siehe *Dynamisches Füttern – Hintergrund & Quellen*.
 * **Sauerstoff (O₂)** – Häkchen setzen und den Datenpunkt wählen, der den gelösten Sauerstoff enthält.
 
 Sinnvoll sind nur Zahl-Datenpunkte. Die aktuellen Werte werden in die Datenpunkte `status.airTemperature`,
-`status.waterTemperature` und `status.oxygen` dieses Schalters gespiegelt. Die Schwellen werden weiter unten
+`status.waterTemperature`, `status.waterTemperatureDeep`, `status.oxygen` (und `status.waterStratification`
+= flach − tief) dieses Schalters gespiegelt. Die Schwellen werden weiter unten
 eingestellt (*Temperatursperre*), und die Temperaturen steuern außerdem das *Dynamische Füttern*.
 
 #### Temperatursperre
@@ -242,8 +250,8 @@ Quelle nicht.)
 
 Optional: passt **Intervall und Dauer der Fütterung an die Temperatur** an (Q10-Modell – der Stoffwechsel verdoppelt sich grob pro +10 °C). Benötigt eine aktive Temperaturquelle; feste Zeiten werden dann durch ein Intervall innerhalb des Fensters ersetzt.
 
-* **Aktivieren / Quelle** – einschalten und Wasser- oder Lufttemperatur wählen.
-* **Referenz / Q10** – Basis-Intervall und -Dauer gelten bei der Referenztemperatur (z. B. 20 °C); Q10 typischerweise 2–2,5.
+* **Aktivieren / Quelle** – einschalten und Wasser- oder Lufttemperatur wählen. Ist ein zweiter (tiefer) Wassersensor konfiguriert, wird die hier verwendete Wassertemperatur gemäß dem gewählten Kombinationsmodus aus beiden Schichten kombiniert (siehe *Temperatur- & Sauerstoffquellen*).
+* **Referenz / Q10** – Basis-Intervall und -Dauer gelten bei der Referenztemperatur (z. B. 20 °C); Q10 typischerweise 2–2,5 (der Stoffwechsel verdoppelt sich grob pro +10 °C – siehe *Dynamisches Füttern – Hintergrund & Quellen*).
 * **Intervall / Dauer (Basis, Min, Max)** – Grenzen für das berechnete Intervall (Minuten) und die Dauer (Sekunden). Das **Basis-Intervall und das Max-Intervall müssen größer als 0 sein**, sonst kann keine Fütterung geplant werden.
 * **Mittelungsfenster / Hysterese** – ein gleitender Mittelwert (z. B. 24 h) glättet Ausreißer; die Hysterese vermeidet Neuplanung bei winzigen Änderungen.
 
@@ -345,7 +353,9 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.dynamicIntervalMin` | number (ro) | Aktuell berechnetes dynamisches Intervall (Minuten). |
 | `status.dynamicDurationSec` | number (ro) | Aktuell berechnete dynamische Dauer (Sekunden). |
 | `status.airTemperature` | number (ro) | Wert der eigenen Lufttemperatur-Quelle dieses Schalters. |
-| `status.waterTemperature` | number (ro) | Wert der eigenen Wassertemperatur-Quelle dieses Schalters. |
+| `status.waterTemperature` | number (ro) | Wert der eigenen Wassertemperatur-Quelle dieses Schalters (Futterzone / flacher Sensor). |
+| `status.waterTemperatureDeep` | number (ro) | Wert des optionalen tiefen Wassertemperatur-Sensors dieses Schalters. |
+| `status.waterStratification` | number (ro) | Temperaturdifferenz flach − tief (nur bei zwei Wassersensoren). |
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 
@@ -467,6 +477,42 @@ Instanz (Instanzen → automatic-feeder.x → Log-Level) auf **debug** oder **si
 * **debug** – detaillierter Ablauf (Planungsentscheidungen, Temperatur-Updates, Geocoding,
   Ein-/Aus-Werte, Verifikation bestätigt/Timeout).
 * **silly** – sehr ausführliches Tracing (jeder Timer, jede Sperrprüfung, jede Zustandsänderung).
+
+---
+
+## 11. Dynamisches Füttern — Hintergrund & Quellen
+
+Fische (Koi, Goldfisch, Teichkarpfen) sind **poikilotherm (wechselwarm)**: ihr Stoffwechsel folgt der
+Wassertemperatur. Als Faustregel **verdoppelt sich die Stoffwechselrate grob pro +10 °C** – genau das ist
+der **Q10-Koeffizient** (typischerweise 2–3), den dieser Adapter verwendet. Häufiger und etwas mehr zu
+füttern, wenn es warm ist, und weniger, wenn es kalt ist, ist daher physiologisch begründet.
+
+**Praktische Temperatur-Richtwerte (Koi/Teichfische):**
+
+* **unter ~4–5 °C** – nicht füttern (die *Winterpause* nutzen).
+* **~4–10 °C** – kaum aktiv; selten bis gar nicht füttern, leicht verdauliches (Weizenkeim-)Futter.
+* **~10–15 °C** – reduziert füttern; das Immunsystem ist noch schwach (~12 °C).
+* **~15–25 °C** – optimaler Wachstumsbereich, volle Fütterung.
+* **über ~28 °C** – der gelöste **Sauerstoff** wird zum limitierenden Faktor → hier ist die O₂-Sperre nützlich.
+
+**Wo messen und warum ein zweiter Sensor:** Entscheidend ist die Temperatur des Wassers, in dem sich die Fische
+tatsächlich aufhalten (die **Futterzone**), *nicht* die der Oberfläche (die mehrere Grad abweichen kann). In einem
+Teich, der durch eine laufende Pumpe durchmischt wird, oder in einem flachen Teich genügt ein gut platzierter Sensor.
+Nur in einem **tiefen, ungemischten Teich** schichtet sich das Wasser: über 4 °C liegt das warme Wasser oben (kälter
+darunter); unter 4 °C kehrt es sich um und hinterlässt ein ~4 °C warmes Rückzugsgebiet nahe dem Boden. Dort bringt
+ein **zweiter (tiefer) Sensor** einen Mehrwert – für die Sicherheit (nach der kältesten Schicht füttern), für einen
+saisonalen Wechsel flach/tief und um die Schichtung sichtbar zu machen (`status.waterStratification`). Für die meisten
+Teiche ist er optional.
+
+**Quellen / weiterführende Literatur:**
+
+* Volkoff H. & Rønnestad I. (2020): *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> Diese Werte sind allgemeine Richtwerte für Koi/Teichfische und kein Ersatz für die Beobachtung der eigenen
+> Tiere. Passe Referenztemperatur, Q10, Grenzen und Schwellwerte an deine Art und dein Setup an.
 
 ---
 

@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 0.5.3 (2026-07-01)
+* (ssbingo) Each switch now exposes a read-only `settings` sub-channel (`switches.<id>.settings.*`) that mirrors its configuration, so the settings can be shown in VIS or used in scripts
+
 ### 0.5.2 (2026-07-01)
 * (ssbingo) Admin UI: all time fields (fixed feeding times, interval window start/end, winter once-daily time) now use a proper time picker instead of the native time input, fixing the hard-to-read floating label
 

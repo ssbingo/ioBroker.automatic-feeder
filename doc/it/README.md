@@ -31,7 +31,7 @@ resto spiega ogni impostazione nel dettaglio.
 8. [Notifiche Telegram](#8-notifiche-telegram)
 9. [Risoluzione dei problemi & FAQ](#9-risoluzione-dei-problemi--faq)
 10. [Logging & Ricerca degli errori](#10-logging--ricerca-degli-errori)
-
+11. [Alimentazione dinamica — contesto e fonti](#11-alimentazione-dinamica--contesto-e-fonti)
 ---
 
 ## 1. Cosa fa l'adattatore
@@ -215,13 +215,23 @@ possono usare oggetti diversi:
 * **Temperatura dell'aria** – metti il segno di spunta e seleziona il punto dati che contiene la
   temperatura dell'aria di questa stazione.
 * **Temperatura dell'acqua** – metti il segno di spunta e seleziona il punto dati che contiene la
-  temperatura dell'acqua di questa stazione.
+  temperatura dell'acqua di questa stazione. È il sensore principale della **zona di alimentazione**
+  (collocalo dove i pesci mangiano effettivamente, non in superficie).
+* **Temperatura dell'acqua (profonda)** – *secondo sensore facoltativo* dell'acqua (ad es. vicino al
+  fondo). Mostrato solo dopo aver attivato il sensore principale dell'acqua. Con due sensori scegli una
+  **modalità di combinazione** per l'alimentazione dinamica: *Zona di alimentazione (solo superficiale)*
+  [predefinita], *Media dei due*, *Strato più freddo* oppure *Stagionale* (usa il sensore superficiale
+  finché è pari o superiore a una soglia, altrimenti quello profondo). Il **blocco** per temperatura usa
+  sempre lo strato **più freddo** dei due. Un secondo sensore è utile solo in **laghetti profondi e non
+  mescolati** (una pompa in funzione mescola l'acqua ed elimina qualsiasi stratificazione) — vedi
+  *Alimentazione dinamica — contesto e fonti*.
 * **Ossigeno (O₂)** – metti il segno di spunta e seleziona il punto dati che contiene l'ossigeno
   disciolto.
 
 Sono utili solo i punti dati numerici. I valori attuali vengono rispecchiati nei punti dati
-`status.airTemperature`, `status.waterTemperature` e `status.oxygen` di questo interruttore. Le soglie si impostano più
-in basso (*Blocco per temperatura*) e le temperature guidano anche l'*Alimentazione dinamica*.
+`status.airTemperature`, `status.waterTemperature`, `status.waterTemperatureDeep`, `status.oxygen`
+(e `status.waterStratification` = superficiale − profondo) di questo interruttore. Le soglie si
+impostano più in basso (*Blocco per temperatura*) e le temperature guidano anche l'*Alimentazione dinamica*.
 
 #### Blocco per temperatura
 
@@ -257,8 +267,10 @@ sorgente non blocca.)
 
 Opzionale: adatta **intervallo e durata dell'alimentazione alla temperatura** con il modello Q10 (il metabolismo raddoppia circa ogni +10 °C). Richiede una fonte di temperatura attiva; gli orari fissi vengono quindi sostituiti da un intervallo all'interno della finestra.
 
-* **Attiva / fonte** – attivalo e scegli la temperatura dell'acqua o dell'aria.
-* **Riferimento / Q10** – l'intervallo e la durata base valgono alla temperatura di riferimento (es. 20 °C); Q10 tipicamente 2–2,5.
+* **Attiva / fonte** – attivalo e scegli la temperatura dell'acqua o dell'aria. Quando è configurato un
+  secondo sensore dell'acqua (profondo), la temperatura dell'acqua qui usata è combinata dai due strati
+  secondo la modalità di combinazione scelta (vedi *Sorgenti di temperatura e ossigeno*).
+* **Riferimento / Q10** – l'intervallo e la durata base valgono alla temperatura di riferimento (es. 20 °C); Q10 tipicamente 2–2,5 (il metabolismo raddoppia circa ogni +10 °C — vedi *Alimentazione dinamica — contesto e fonti*).
 * **Intervallo / durata (base, min, max)** – limiti per l'intervallo calcolato (minuti) e la durata (secondi). L'**intervallo base e l'intervallo massimo devono essere maggiori di 0**, altrimenti non è possibile pianificare alcuna distribuzione.
 * **Finestra di media / isteresi** – una media mobile (es. 24 h) attenua i picchi; l'isteresi evita la ripianificazione per variazioni minime.
 
@@ -363,7 +375,9 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.dynamicIntervalMin` | number (ro) | Intervallo dinamico attualmente calcolato (minuti). |
 | `status.dynamicDurationSec` | number (ro) | Durata dinamica attualmente calcolata (secondi). |
 | `status.airTemperature` | number (ro) | Valore della sorgente di temperatura dell'aria propria di questo interruttore. |
-| `status.waterTemperature` | number (ro) | Valore della sorgente di temperatura dell'acqua propria di questo interruttore. |
+| `status.waterTemperature` | number (ro) | Valore della sorgente di temperatura dell'acqua propria di questo interruttore (sensore della zona di alimentazione / superficiale). |
+| `status.waterTemperatureDeep` | number (ro) | Valore del sensore facoltativo di temperatura dell'acqua profonda di questo interruttore. |
+| `status.waterStratification` | number (ro) | Differenza di temperatura superficiale − profondo (solo con due sensori dell'acqua). |
 | `status.oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
 | `status.sunrise` / `status.sunset` | string (ro) | Alba/tramonto calcolati per la posizione di questo interruttore (finestra astronomica). |
 
@@ -489,6 +503,46 @@ di log dell'istanza (Istanze → automatic-feeder.x → Livello di log) a **debu
   geocoding, valori di accensione/spegnimento, verifica confermata/timeout).
 * **silly** – tracciamento molto dettagliato (ogni timer, ogni controllo di blocco, ogni cambio
   di stato).
+
+---
+
+## 11. Alimentazione dinamica — contesto e fonti
+
+I pesci (koi, pesci rossi, carpe da laghetto) sono **pecilotermi (ectotermi)**: il loro metabolismo
+segue la temperatura dell'acqua. Come regola pratica il tasso metabolico **raddoppia circa a ogni
++10 °C**, che è esattamente il **coefficiente Q10** (tipicamente 2–3) usato da questo adattatore —
+perciò alimentare più spesso e un po' di più quando fa caldo, e meno quando fa freddo, è
+fisiologicamente giustificato.
+
+**Indicazioni pratiche sulla temperatura (koi/pesci da laghetto):**
+
+* **sotto ~4–5 °C** – non alimentare (usa la *Pausa invernale*).
+* **~4–10 °C** – attività ridotta; alimenta di rado o per niente, con mangime facilmente digeribile
+  (germe di grano).
+* **~10–15 °C** – alimentazione ridotta; il sistema immunitario è ancora debole (~12 °C).
+* **~15–25 °C** – intervallo di crescita ottimale, alimentazione completa.
+* **sopra ~28 °C** – l'**ossigeno** disciolto diventa il fattore limitante → qui è utile il blocco per O₂.
+
+**Dove misurare e perché un secondo sensore:** la temperatura che conta è quella dell'acqua che i
+pesci occupano effettivamente (la **zona di alimentazione**), *non* la superficie (che può differire
+di diversi gradi). In un laghetto mescolato da una pompa in funzione, o in un laghetto poco profondo,
+un solo sensore ben posizionato è sufficiente. Solo in un **laghetto profondo e non mescolato** l'acqua
+si stratifica: sopra i 4 °C l'acqua calda sta in alto (più fredda sotto); sotto i 4 °C si inverte,
+lasciando un rifugio a ~4 °C vicino al fondo. Lì un **secondo sensore (profondo)** aggiunge valore —
+per la sicurezza (alimentare in base allo strato più freddo), per un passaggio stagionale
+superficiale/profondo e per rendere visibile la stratificazione (`status.waterStratification`). Per la
+maggior parte dei laghetti è facoltativo.
+
+**Fonti / approfondimenti:**
+
+* Volkoff H. & Rønnestad I. (2020): *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> Queste cifre sono indicazioni generali per koi/pesci da laghetto, non un sostituto dell'osservazione
+> dei tuoi animali. Adatta la temperatura di riferimento, il Q10, i limiti e le soglie alla tua specie
+> e al tuo impianto.
 
 ---
 

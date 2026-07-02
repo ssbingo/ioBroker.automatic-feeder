@@ -111,5 +111,14 @@
 	"Each switch defines its own location on its tab.": "Każdy przełącznik określa własną lokalizację na swojej karcie.",
 	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Okno podąża za wschodem/zachodem słońca (okno astronomiczne włączone w Ograniczeniach).",
 	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Ogranicz karmienie do astronomicznego okna dziennego (wschód/zachód + przesunięcia)",
-	"Location for this switch": "Lokalizacja dla tego przełącznika"
+	"Location for this switch": "Lokalizacja dla tego przełącznika",
+	"Water temperature (deep)": "Temperatura wody (głęboko)",
+	"Deep water temperature object": "Obiekt temperatury wody (głęboko)",
+	"Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.": "Dwa czujniki wody pomagają tylko w głębokich, niemieszanych stawach (pompa wyłączona). Blokada zawsze używa najzimniejszej warstwy.",
+	"Water sensor combine mode": "Tryb łączenia czujników wody",
+	"Feeding zone (shallow only)": "Strefa karmienia (tylko płytko)",
+	"Average of both": "Średnia z obu",
+	"Coldest layer": "Najzimniejsza warstwa",
+	"Seasonal (shallow when warm, else deep)": "Sezonowo (płytko gdy ciepło, inaczej głęboko)",
+	"Seasonal switch threshold (°C)": "Próg przełączania sezonowego (°C)"
 }

@@ -84,6 +84,10 @@ function createSwitch(switches) {
 		airTempObjectId: '',
 		waterTempEnabled: false,
 		waterTempObjectId: '',
+		waterTemp2Enabled: false,
+		waterTemp2ObjectId: '',
+		waterCombineMode: 'shallow',
+		waterSeasonalThresholdC: 12,
 		o2Enabled: false,
 		o2ObjectId: '',
 	};

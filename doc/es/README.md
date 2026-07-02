@@ -30,7 +30,7 @@ ajuste en detalle.
 8. [Notificaciones de Telegram](#8-notificaciones-de-telegram)
 9. [Solución de problemas y preguntas frecuentes](#9-solución-de-problemas-y-preguntas-frecuentes)
 10. [Registro y diagnóstico](#10-registro-y-diagnóstico)
-
+11. [Alimentación dinámica — fundamentos y fuentes](#11-alimentación-dinámica--fundamentos-y-fuentes)
 ---
 
 ## 1. Qué hace el adaptador
@@ -212,12 +212,22 @@ estanques/depósitos pueden usar objetos diferentes:
 * **Temperatura del aire**: marca la casilla y elige el punto de datos que contiene la temperatura
   del aire de esta estación.
 * **Temperatura del agua**: marca la casilla y elige el punto de datos que contiene la temperatura
-  del agua de esta estación.
+  del agua de esta estación. Es el sensor primario de la **zona de alimentación** (colócalo donde
+  los peces comen realmente, no en la superficie).
+* **Temperatura del agua (profunda)**: *segundo sensor opcional* de agua (p. ej. cerca del fondo).
+  Solo se muestra una vez activado el sensor de agua primario. Con dos sensores eliges un **modo de
+  combinación** para la alimentación dinámica: *Zona de alimentación (solo superficial)* [por
+  defecto], *Promedio de ambos*, *Capa más fría* o *Estacional* (usa el sensor superficial mientras
+  esté por encima o igual a un umbral, y en caso contrario el sensor profundo). El **bloqueo** por
+  temperatura usa siempre la **capa más fría** de las dos. Un segundo sensor solo aporta valor en
+  **estanques profundos y sin mezcla** (una bomba en marcha mezcla el agua y elimina cualquier
+  estratificación); consulta *Alimentación dinámica — fundamentos y fuentes*.
 * **Oxígeno (O₂)**: marca la casilla y elige el punto de datos que contiene el oxígeno disuelto.
 
 Solo tienen sentido los puntos de datos numéricos. Los valores actuales se reflejan en los puntos de
-datos `status.airTemperature`, `status.waterTemperature` y `status.oxygen` de este interruptor. Los umbrales se
-establecen más abajo (*Bloqueo por temperatura*), y las temperaturas también alimentan la
+datos `status.airTemperature`, `status.waterTemperature`, `status.waterTemperatureDeep`,
+`status.oxygen` (y `status.waterStratification` = superficial − profunda) de este interruptor. Los
+umbrales se establecen más abajo (*Bloqueo por temperatura*), y las temperaturas también alimentan la
 *Alimentación dinámica*.
 
 #### Bloqueo por temperatura
@@ -252,8 +262,8 @@ escribe en `status.blockReason`. (Si un valor de temperatura es desconocido, esa
 
 Opcional: adapta el **intervalo y la duración de la alimentación a la temperatura** con el modelo Q10 (el metabolismo casi se duplica por cada +10 °C). Requiere una fuente de temperatura activa; los horarios fijos se sustituyen entonces por un intervalo dentro de la ventana.
 
-* **Activar / fuente** – actívalo y elige la temperatura del agua o del aire.
-* **Referencia / Q10** – el intervalo y la duración base se aplican a la temperatura de referencia (p. ej. 20 °C); Q10 normalmente 2–2,5.
+* **Activar / fuente** – actívalo y elige la temperatura del agua o del aire. Cuando hay configurado un segundo sensor de agua (profundo), la temperatura del agua utilizada aquí se combina a partir de ambas capas según el modo de combinación elegido (consulta *Fuentes de temperatura y oxígeno*).
+* **Referencia / Q10** – el intervalo y la duración base se aplican a la temperatura de referencia (p. ej. 20 °C); Q10 normalmente 2–2,5 (el metabolismo casi se duplica por cada +10 °C — consulta *Alimentación dinámica — fundamentos y fuentes*).
 * **Intervalo / duración (base, mín, máx)** – límites para el intervalo calculado (minutos) y la duración (segundos). El **intervalo base y el intervalo máximo deben ser mayores que 0**, de lo contrario no se puede planificar ninguna alimentación.
 * **Ventana de promedio / histéresis** – una media móvil (p. ej. 24 h) suaviza los picos; la histéresis evita replanificar por cambios mínimos.
 
@@ -357,7 +367,9 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.dynamicIntervalMin` | number (ro) | Intervalo dinámico calculado actualmente (minutos). |
 | `status.dynamicDurationSec` | number (ro) | Duración dinámica calculada actualmente (segundos). |
 | `status.airTemperature` | number (ro) | Valor de la fuente de temperatura del aire propia de este interruptor. |
-| `status.waterTemperature` | number (ro) | Valor de la fuente de temperatura del agua propia de este interruptor. |
+| `status.waterTemperature` | number (ro) | Valor de la fuente de temperatura del agua propia de este interruptor (sensor de la zona de alimentación / superficial). |
+| `status.waterTemperatureDeep` | number (ro) | Valor del sensor opcional de temperatura del agua profunda de este interruptor. |
+| `status.waterStratification` | number (ro) | Diferencia de temperatura superficial − profunda (solo con dos sensores de agua). |
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 
@@ -482,6 +494,47 @@ de registro de la instancia (Instancias → automatic-feeder.x → nivel de regi
   geocodificación, valores de encendido/apagado, verificación confirmada/tiempo de espera agotado).
 * **silly**: rastreo muy detallado (cada temporizador, cada comprobación de bloqueo, cada cambio de
   estado).
+
+---
+
+## 11. Alimentación dinámica — fundamentos y fuentes
+
+Los peces (koi, carpas doradas, carpas de estanque) son **poiquilotermos (ectotermos)**: su
+metabolismo sigue la temperatura del agua. Como regla general, la tasa metabólica casi se **duplica
+por cada +10 °C**, que es justamente el **coeficiente Q10** (normalmente 2–3) que usa este adaptador,
+de modo que alimentar más a menudo y un poco más cuando hace calor, y menos cuando hace frío, está
+justificado fisiológicamente.
+
+**Guía práctica de temperatura (koi/peces de estanque):**
+
+* **por debajo de ~4–5 °C** – no alimentar (usa la *Pausa de invierno*).
+* **~4–10 °C** – apenas activos; alimentar rara vez o nada, con comida fácilmente digestible (germen
+  de trigo).
+* **~10–15 °C** – alimentación reducida; el sistema inmunitario todavía está débil (~12 °C).
+* **~15–25 °C** – rango óptimo de crecimiento, alimentación completa.
+* **por encima de ~28 °C** – el **oxígeno** disuelto se convierte en el factor limitante → aquí es
+  útil el bloqueo por O₂.
+
+**Dónde medir, y por qué un segundo sensor:** la temperatura que importa es la del agua que los
+peces ocupan realmente (la **zona de alimentación**), *no* la de la superficie (que puede diferir
+varios grados). En un estanque mezclado por una bomba en marcha, o en un estanque poco profundo, un
+sensor bien colocado es suficiente. Solo en un **estanque profundo y sin mezcla** el agua se
+estratifica: por encima de 4 °C el agua caliente queda arriba (más fría abajo); por debajo de 4 °C
+se invierte, dejando un refugio de ~4 °C cerca del fondo. Ahí un **segundo sensor (profundo)** aporta
+valor: por seguridad (alimentar según la capa más fría), para un cambio estacional
+superficial/profundo y para hacer visible la estratificación (`status.waterStratification`). Para la
+mayoría de los estanques es opcional.
+
+**Fuentes / lecturas adicionales:**
+
+* Volkoff H. & Rønnestad I. (2020): *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> Estas cifras son una orientación general para koi/peces de estanque, no un sustituto de observar a
+> tus propios animales. Ajusta la temperatura de referencia, el Q10, los límites y los umbrales a tu
+> especie y a tu instalación.
 
 ---
 

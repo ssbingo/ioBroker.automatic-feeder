@@ -26,6 +26,7 @@ const {
 	q10DurationSec,
 	averageOver,
 	nextSlotInWindow,
+	combineWaterTemp,
 } = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
@@ -60,6 +61,8 @@ const STATUS_STATE_IDS = [
 	'dynamicDurationSec',
 	'airTemperature',
 	'waterTemperature',
+	'waterTemperatureDeep',
+	'waterStratification',
 	'oxygen',
 	'sunrise',
 	'sunset',
@@ -98,6 +101,7 @@ const NUMERIC_BOUNDS = {
 	dynamicQ10: [0, 10],
 	sunOffsetMorning: [0, 720],
 	sunOffsetEvening: [0, 720],
+	waterSeasonalThresholdC: [0, 40],
 };
 
 /**
@@ -172,6 +176,10 @@ const SWITCH_DEFAULTS = {
 	airTempObjectId: '',
 	waterTempEnabled: false,
 	waterTempObjectId: '',
+	waterTemp2Enabled: false,
+	waterTemp2ObjectId: '',
+	waterCombineMode: 'shallow',
+	waterSeasonalThresholdC: 12,
 	o2Enabled: false,
 	o2ObjectId: '',
 };
@@ -597,6 +605,28 @@ const SWITCH_SETTINGS = [
 		type: 'string',
 		role: 'text',
 		get: sw => (sw.waterTempEnabled ? sw.waterTempObjectId || '' : ''),
+	},
+	{
+		id: 'waterTemp2ObjectId',
+		name: 'Water temperature source (deep)',
+		type: 'string',
+		role: 'text',
+		get: sw => (sw.waterTemp2Enabled ? sw.waterTemp2ObjectId || '' : ''),
+	},
+	{
+		id: 'waterCombineMode',
+		name: 'Water sensor combine mode',
+		type: 'string',
+		role: 'text',
+		get: sw => sw.waterCombineMode || 'shallow',
+	},
+	{
+		id: 'waterSeasonalThresholdC',
+		name: 'Seasonal switch threshold',
+		type: 'number',
+		role: 'value.temperature',
+		unit: '°C',
+		get: sw => Number(sw.waterSeasonalThresholdC) || 0,
 	},
 	{
 		id: 'o2ObjectId',
@@ -1317,6 +1347,30 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.waterTemperatureDeep`, {
+				type: 'state',
+				common: {
+					name: 'Water temperature, deep sensor (this switch)',
+					type: 'number',
+					role: 'value.temperature',
+					unit: '°C',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.waterStratification`, {
+				type: 'state',
+				common: {
+					name: 'Water stratification (shallow − deep)',
+					type: 'number',
+					role: 'value.temperature',
+					unit: '°C',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
 			await this.setObjectNotExistsAsync(`${base}.status.oxygen`, {
 				type: 'state',
 				common: {
@@ -1593,6 +1647,10 @@ class AutomaticFeeder extends utils.Adapter {
 				this.tempObjectIds.add(sw.waterTempObjectId);
 				used.push(`water=${sw.waterTempObjectId}`);
 			}
+			if (sw.waterTemp2Enabled && sw.waterTemp2ObjectId) {
+				this.tempObjectIds.add(sw.waterTemp2ObjectId);
+				used.push(`water2=${sw.waterTemp2ObjectId}`);
+			}
 			if (sw.o2Enabled && sw.o2ObjectId) {
 				this.o2ObjectIds.add(sw.o2ObjectId);
 				used.push(`o2=${sw.o2ObjectId}`);
@@ -1668,6 +1726,21 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 			if (sw.waterTempEnabled && sw.waterTempObjectId === objectId) {
 				await this.setStateAsync(`switches.${sw.id}.status.waterTemperature`, { val: value, ack: true });
+			}
+			if (sw.waterTemp2Enabled && sw.waterTemp2ObjectId === objectId) {
+				await this.setStateAsync(`switches.${sw.id}.status.waterTemperatureDeep`, { val: value, ack: true });
+			}
+			// stratification delta (shallow - deep) whenever a switch uses both water sensors
+			if (
+				sw.waterTempEnabled &&
+				sw.waterTemp2Enabled &&
+				(sw.waterTempObjectId === objectId || sw.waterTemp2ObjectId === objectId)
+			) {
+				const shallow = this.foreignValues.get(sw.waterTempObjectId);
+				const deep = this.foreignValues.get(sw.waterTemp2ObjectId);
+				const delta =
+					Number.isFinite(shallow) && Number.isFinite(deep) ? Math.round((shallow - deep) * 10) / 10 : null;
+				await this.setStateAsync(`switches.${sw.id}.status.waterStratification`, { val: delta, ack: true });
 			}
 			if (sw.o2Enabled && sw.o2ObjectId === objectId) {
 				await this.setStateAsync(`switches.${sw.id}.status.oxygen`, { val: value, ack: true });
@@ -2187,8 +2260,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @returns {number} the temperature to feed into the Q10 model
 	 */
 	dynamicTemp(sw) {
-		const buf = this.dynamicSourceBuffer(sw);
-		const avg = averageOver(buf, Date.now(), Number(sw.dynamicBufferHours) || 24);
+		const avg = this.dynamicAvg(sw);
 		if (avg !== null) {
 			return avg;
 		}
@@ -2205,8 +2277,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @returns {Date | null} the next feeding time or null
 	 */
 	planDynamic(sw, now) {
-		const buf = this.dynamicSourceBuffer(sw);
-		const avg = averageOver(buf, Date.now(), Number(sw.dynamicBufferHours) || 24);
+		const avg = this.dynamicAvg(sw);
 		const tRef = Number(sw.dynamicTRef);
 		const q10 = Number(sw.dynamicQ10);
 		const t = avg !== null ? avg : Number.isFinite(tRef) ? tRef : 20;
@@ -2445,21 +2516,51 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * Rolling temperature buffer of the switch's dynamic source object.
+	 * Current water temperature used for the water-temperature block: the coldest of the
+	 * shallow (feeding-zone) and the optional deep sensor, so a cold layer is never
+	 * ignored. Falls back to whichever value is known.
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
-	 * @returns {Array<{t: number, v: number}>} the sample buffer (possibly empty)
+	 * @returns {number | null} the conservative current water temperature, or null
 	 */
-	dynamicSourceBuffer(sw) {
-		const objId =
-			sw.dynamicSource === 'air'
-				? sw.airTempEnabled
-					? sw.airTempObjectId
-					: ''
-				: sw.waterTempEnabled
-					? sw.waterTempObjectId
-					: '';
-		return (objId && this.foreignBuffers.get(objId)) || [];
+	blockWaterValue(sw) {
+		const shallow = this.sourceValue(sw, 'water');
+		if (!sw.waterTemp2Enabled || !sw.waterTemp2ObjectId) {
+			return shallow;
+		}
+		const dv = this.foreignValues.get(sw.waterTemp2ObjectId);
+		const deep = dv === undefined ? null : dv;
+		return combineWaterTemp('coldest', shallow, deep, 0);
+	}
+
+	/**
+	 * Moving-average temperature that drives dynamic feeding: the air source, or the
+	 * water source combined from the shallow (feeding-zone) and optional deep sensor
+	 * according to the switch's waterCombineMode. Returns null when no samples exist yet.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {number | null} the averaged temperature, or null if unavailable
+	 */
+	dynamicAvg(sw) {
+		const now = Date.now();
+		const hours = Number(sw.dynamicBufferHours) || 24;
+		const avgOf = objId =>
+			objId && this.foreignBuffers.has(objId) ? averageOver(this.foreignBuffers.get(objId), now, hours) : null;
+		if (sw.dynamicSource === 'air') {
+			return avgOf(sw.airTempEnabled ? sw.airTempObjectId : '');
+		}
+		// water: combine the shallow (feeding-zone) and optional deep sensor
+		const shallowAvg = avgOf(sw.waterTempEnabled ? sw.waterTempObjectId : '');
+		if (!sw.waterTemp2Enabled || !sw.waterTemp2ObjectId) {
+			return shallowAvg;
+		}
+		const deepAvg = avgOf(sw.waterTemp2ObjectId);
+		return combineWaterTemp(
+			sw.waterCombineMode || 'shallow',
+			shallowAvg,
+			deepAvg,
+			Number(sw.waterSeasonalThresholdC) || 0,
+		);
 	}
 
 	/**
@@ -2491,11 +2592,12 @@ class AutomaticFeeder extends utils.Adapter {
 				this.log.silly(`Block check ${this.swLabel(sw)}: astro window requested but not available.`);
 			}
 		}
-		// water temperature (this switch's own source)
+		// water temperature (this switch's own source). With a second (deep) sensor the
+		// block conservatively uses the COLDEST of both layers.
 		if (sw.blockWaterEnabled) {
-			const water = this.sourceValue(sw, 'water');
+			const water = this.blockWaterValue(sw);
 			this.log.silly(
-				`Block check ${this.swLabel(sw)}: water=${water ?? 'unknown'}°C, min=${sw.waterMin}, max=${sw.waterMax}`,
+				`Block check ${this.swLabel(sw)}: water=${water ?? 'unknown'}°C (coldest layer), min=${sw.waterMin}, max=${sw.waterMax}`,
 			);
 			if (water !== null) {
 				if (sw.waterMin !== null && sw.waterMin !== undefined && water < sw.waterMin) {
@@ -2696,13 +2798,20 @@ class AutomaticFeeder extends utils.Adapter {
 				.filter(x => /^\d{1,2}:\d{2}$/.test(x));
 			return;
 		}
-		if (key === 'airTempObjectId' || key === 'waterTempObjectId' || key === 'o2ObjectId') {
+		if (
+			key === 'airTempObjectId' ||
+			key === 'waterTempObjectId' ||
+			key === 'waterTemp2ObjectId' ||
+			key === 'o2ObjectId'
+		) {
 			const enableField =
 				key === 'airTempObjectId'
 					? 'airTempEnabled'
 					: key === 'waterTempObjectId'
 						? 'waterTempEnabled'
-						: 'o2Enabled';
+						: key === 'waterTemp2ObjectId'
+							? 'waterTemp2Enabled'
+							: 'o2Enabled';
 			const s = String(val ?? '').trim();
 			sw[key] = s;
 			sw[enableField] = s !== '';

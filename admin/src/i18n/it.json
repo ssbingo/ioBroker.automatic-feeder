@@ -111,5 +111,14 @@
 	"Each switch defines its own location on its tab.": "Ogni interruttore definisce la propria posizione nella sua scheda.",
 	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "La finestra segue alba/tramonto (finestra astronomica attivata in Restrizioni).",
 	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Limita l'alimentazione alla finestra diurna astronomica (alba/tramonto + scostamenti)",
-	"Location for this switch": "Posizione per questo interruttore"
+	"Location for this switch": "Posizione per questo interruttore",
+	"Water temperature (deep)": "Temperatura dell'acqua (profonda)",
+	"Deep water temperature object": "Oggetto temperatura acqua profonda",
+	"Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.": "Due sensori d'acqua servono solo in laghetti profondi e non miscelati (pompa spenta). Il blocco usa sempre lo strato più freddo.",
+	"Water sensor combine mode": "Modalità di combinazione dei sensori d'acqua",
+	"Feeding zone (shallow only)": "Zona di alimentazione (solo superficiale)",
+	"Average of both": "Media di entrambi",
+	"Coldest layer": "Strato più freddo",
+	"Seasonal (shallow when warm, else deep)": "Stagionale (superficiale se caldo, altrimenti profondo)",
+	"Seasonal switch threshold (°C)": "Soglia di commutazione stagionale (°C)"
 }

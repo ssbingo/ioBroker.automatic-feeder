@@ -31,7 +31,7 @@ voedering, de rest legt elke instelling in detail uit.
 8. [Telegram-meldingen](#8-telegram-meldingen)
 9. [Probleemoplossing & FAQ](#9-probleemoplossing--faq)
 10. [Logging & foutopsporing](#10-logging--foutopsporing)
-
+11. [Dynamisch voeren — achtergrond & bronnen](#11-dynamisch-voeren--achtergrond--bronnen)
 ---
 
 ## 1. Wat de adapter doet
@@ -201,9 +201,19 @@ Elke schakelaar (voederstation) heeft **zijn eigen** sensoren – verschillende 
 
 * **Luchttemperatuur** – vinkje zetten en het datapunt kiezen dat de luchttemperatuur van dit station bevat.
 * **Watertemperatuur** – vinkje zetten en het datapunt kiezen dat de watertemperatuur van dit station bevat.
+  Dit is de primaire sensor van de **voederzone** (plaats hem waar de vissen daadwerkelijk voeren, niet aan het oppervlak).
+* **Watertemperatuur (diep)** – *optionele tweede* watersensor (bijv. bij de bodem). Wordt pas weergegeven zodra
+  de primaire watersensor is ingeschakeld. Met twee sensoren kies je een **combinatiemodus** voor dynamisch voeren:
+  *Voederzone (alleen ondiep)* [standaard], *Gemiddelde van beide*, *Koudste laag* of *Seizoensgebonden* (gebruikt de
+  ondiepe sensor zolang die op of boven een drempel ligt, anders de diepe sensor). De temperatuur**blokkering**
+  gebruikt altijd de **koudste** van de twee lagen. Een tweede sensor helpt alleen in **diepe, niet-gemengde vijvers**
+  (een draaiende pomp mengt het water en heft elke gelaagdheid op) — zie *Dynamisch voeren — achtergrond & bronnen*.
 * **Zuurstof (O₂)** – vinkje zetten en het datapunt kiezen dat het opgeloste zuurstof bevat.
 
-Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten `status.airTemperature`, `status.waterTemperature` en `status.oxygen` van deze schakelaar gespiegeld. De drempels worden hieronder ingesteld (*Temperatuurblokkering*), en de temperaturen sturen ook het *Dynamisch voeren* aan.
+Alleen getal-datapunten zijn zinvol. De huidige waarden worden naar de datapunten `status.airTemperature`,
+`status.waterTemperature`, `status.waterTemperatureDeep`, `status.oxygen` (en `status.waterStratification`
+= ondiep − diep) van deze schakelaar gespiegeld. De drempels worden hieronder ingesteld (*Temperatuurblokkering*),
+en de temperaturen sturen ook het *Dynamisch voeren* aan.
 
 #### Temperatuurblokkering
 
@@ -236,8 +246,8 @@ bron niet.)
 
 Optioneel: past het **voederinterval en de duur aan de temperatuur** aan via het Q10-model (het metabolisme verdubbelt ongeveer per +10 °C). Vereist een actieve temperatuurbron; vaste tijden worden dan vervangen door een interval binnen het venster.
 
-* **Inschakelen / bron** – schakel in en kies water- of luchttemperatuur.
-* **Referentie / Q10** – het basisinterval en de duur gelden bij de referentietemperatuur (bijv. 20 °C); Q10 meestal 2–2,5.
+* **Inschakelen / bron** – schakel in en kies water- of luchttemperatuur. Wanneer een tweede (diepe) watersensor is geconfigureerd, wordt de hier gebruikte watertemperatuur uit beide lagen gecombineerd volgens de gekozen combinatiemodus (zie *Temperatuur- & zuurstofbronnen*).
+* **Referentie / Q10** – het basisinterval en de duur gelden bij de referentietemperatuur (bijv. 20 °C); Q10 meestal 2–2,5 (het metabolisme verdubbelt ongeveer per +10 °C — zie *Dynamisch voeren — achtergrond & bronnen*).
 * **Interval / duur (basis, min, max)** – grenzen voor het berekende interval (minuten) en de duur (seconden). Het **basisinterval en het max-interval moeten groter dan 0 zijn**, anders kan er geen voedering worden gepland.
 * **Middelingsvenster / hysterese** – een voortschrijdend gemiddelde (bijv. 24 u) vlakt pieken af; hysterese voorkomt herplannen bij kleine wijzigingen.
 
@@ -339,7 +349,9 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
 | `status.dynamicDurationSec` | number (ro) | Momenteel berekende dynamische duur (seconden). |
 | `status.airTemperature` | number (ro) | Eigen luchttemperatuur-bronwaarde van deze schakelaar. |
-| `status.waterTemperature` | number (ro) | Eigen watertemperatuur-bronwaarde van deze schakelaar. |
+| `status.waterTemperature` | number (ro) | Eigen watertemperatuur-bronwaarde van deze schakelaar (voederzone- / ondiepe sensor). |
+| `status.waterTemperatureDeep` | number (ro) | Optionele diepe watertemperatuursensorwaarde van deze schakelaar. |
+| `status.waterStratification` | number (ro) | Temperatuurverschil ondiep − diep (alleen met twee watersensoren). |
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 
@@ -457,6 +469,42 @@ instantie (Instanties → automatic-feeder.x → log-level) op **debug** of **si
 * **debug** – gedetailleerd verloop (planningsbeslissingen, temperatuur-updates, geocoding,
   aan-/uit-waarden, verificatie bevestigd/timeout).
 * **silly** – zeer uitgebreide tracing (elke timer, elke blokkeringscontrole, elke toestandswijziging).
+
+---
+
+## 11. Dynamisch voeren — achtergrond & bronnen
+
+Vissen (koi, goudvissen, vijverkarpers) zijn **poikilotherm (ectotherm)**: hun metabolisme volgt de
+watertemperatuur. Als vuistregel **verdubbelt** de stofwisselingssnelheid ongeveer **per +10 °C**, wat
+precies de **Q10-coëfficiënt** (meestal 2–3) is die deze adapter gebruikt — dus bij warmte vaker en iets
+meer voeren, en bij kou minder, is fysiologisch verantwoord.
+
+**Praktische temperatuurrichtlijn (koi/vijvervissen):**
+
+* **onder ~4–5 °C** – niet voeren (gebruik de *Winterpauze*).
+* **~4–10 °C** – nauwelijks actief; zelden of niet voeren, licht verteerbaar (tarwekiem-)voer.
+* **~10–15 °C** – verminderd voeren; het immuunsysteem is nog zwak (~12 °C).
+* **~15–25 °C** – optimaal groeibereik, volledige voeding.
+* **boven ~28 °C** – het opgeloste **zuurstof** wordt de beperkende factor → de O₂-blokkering is hier nuttig.
+
+**Waar meten, en waarom een tweede sensor:** de temperatuur die telt is het water waarin de vissen zich
+daadwerkelijk bevinden (de **voederzone**), *niet* het oppervlak (dat enkele graden kan afwijken). In een
+vijver die door een draaiende pomp wordt gemengd, of een ondiepe vijver, volstaat één goed geplaatste sensor.
+Alleen in een **diepe, niet-gemengde vijver** treedt gelaagdheid van het water op: boven 4 °C ligt het warme
+water bovenop (kouder eronder); onder 4 °C keert dit om, waardoor bij de bodem een refugium van ~4 °C
+overblijft. Daar voegt een **tweede (diepe) sensor** waarde toe — voor de veiligheid (voeren op basis van de
+koudste laag), voor een seizoensgebonden ondiep/diep-omschakeling en om de gelaagdheid zichtbaar te maken
+(`status.waterStratification`). Voor de meeste vijvers is hij optioneel.
+
+**Bronnen / verder lezen:**
+
+* Volkoff H. & Rønnestad I. (2020): *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> Deze waarden zijn algemene richtlijnen voor koi/vijvervissen, geen vervanging voor het observeren van je
+> eigen dieren. Pas de referentietemperatuur, Q10, grenzen en drempels aan jouw soort en opstelling aan.
 
 ---
 

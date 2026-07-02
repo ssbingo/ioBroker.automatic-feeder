@@ -31,7 +31,7 @@ karmienia, a reszta wyjaśnia każde ustawienie szczegółowo.
 8. [Powiadomienia Telegram](#8-powiadomienia-telegram)
 9. [Rozwiązywanie problemów i FAQ](#9-rozwiązywanie-problemów-i-faq)
 10. [Logowanie i diagnostyka](#10-logowanie-i-diagnostyka)
-
+11. [Karmienie dynamiczne — podstawy i źródła](#11-karmienie-dynamiczne--podstawy-i-źródła)
 ---
 
 ## 1. Co robi adapter
@@ -207,10 +207,19 @@ różnych obiektów:
 
 * **Temperatura powietrza** – zaznacz haczyk i wybierz punkt danych z temperaturą powietrza tej stacji.
 * **Temperatura wody** – zaznacz haczyk i wybierz punkt danych z temperaturą wody tej stacji.
+  Jest to główny czujnik **strefy karmienia** (umieść go tam, gdzie ryby faktycznie się karmią, a nie przy powierzchni).
+* **Temperatura wody (głęboka)** – *opcjonalny drugi* czujnik wody (np. przy dnie). Wyświetlany dopiero,
+  gdy główny czujnik wody jest włączony. Przy dwóch czujnikach wybierasz **tryb łączenia** dla karmienia
+  dynamicznego: *Strefa karmienia (tylko płytki)* [domyślnie], *Średnia z obu*, *Najzimniejsza warstwa* lub
+  *Sezonowy* (używa czujnika płytkiego, dopóki znajduje się on na progu lub powyżej niego, w przeciwnym razie
+  czujnika głębokiego). **Blokada** temperaturowa zawsze używa **najzimniejszej** z dwóch warstw. Drugi czujnik
+  przydaje się tylko w **głębokich, niemieszanych stawach** (pracująca pompa miesza wodę i usuwa uwarstwienie) —
+  zobacz *Karmienie dynamiczne — podstawy i źródła*.
 * **Tlen (O₂)** – zaznacz haczyk i wybierz punkt danych z rozpuszczonym tlenem.
 
 Sensowne są tylko liczbowe punkty danych. Aktualne wartości są odzwierciedlane w punktach danych
-`status.airTemperature`, `status.waterTemperature` i `status.oxygen` tego przełącznika. Progi ustawia się poniżej
+`status.airTemperature`, `status.waterTemperature`, `status.waterTemperatureDeep`, `status.oxygen`
+(oraz `status.waterStratification` = płytki − głęboki) tego przełącznika. Progi ustawia się poniżej
 (*Blokada temperaturowa*), a temperatury napędzają również *Karmienie dynamiczne*.
 
 #### Blokada temperaturowa
@@ -245,8 +254,8 @@ blokuje.)
 
 Opcjonalnie: dostosowuje **interwał i czas karmienia do temperatury** według modelu Q10 (metabolizm mniej więcej podwaja się na każde +10 °C). Wymaga aktywnego źródła temperatury; stałe godziny są wtedy zastępowane interwałem w oknie.
 
-* **Włączenie / źródło** – włącz i wybierz temperaturę wody lub powietrza.
-* **Odniesienie / Q10** – bazowy interwał i czas obowiązują przy temperaturze odniesienia (np. 20 °C); Q10 zwykle 2–2,5.
+* **Włączenie / źródło** – włącz i wybierz temperaturę wody lub powietrza. Gdy skonfigurowany jest drugi (głęboki) czujnik wody, używana tutaj temperatura wody jest łączona z obu warstw według wybranego trybu łączenia (zobacz *Źródła temperatury i tlenu*).
+* **Odniesienie / Q10** – bazowy interwał i czas obowiązują przy temperaturze odniesienia (np. 20 °C); Q10 zwykle 2–2,5 (metabolizm mniej więcej podwaja się na każde +10 °C — zobacz *Karmienie dynamiczne — podstawy i źródła*).
 * **Interwał / czas (baza, min, maks)** – granice obliczanego interwału (minuty) i czasu (sekundy). **Interwał bazowy i interwał maksymalny muszą być większe od 0**, w przeciwnym razie nie można zaplanować żadnego karmienia.
 * **Okno uśredniania / histereza** – średnia krocząca (np. 24 h) wygładza skoki; histereza zapobiega przeplanowaniu przy drobnych zmianach.
 
@@ -351,7 +360,9 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.dynamicIntervalMin` | number (ro) | Aktualnie obliczony dynamiczny interwał (minuty). |
 | `status.dynamicDurationSec` | number (ro) | Aktualnie obliczony dynamiczny czas (sekundy). |
 | `status.airTemperature` | number (ro) | Wartość własnego źródła temperatury powietrza tego przełącznika. |
-| `status.waterTemperature` | number (ro) | Wartość własnego źródła temperatury wody tego przełącznika. |
+| `status.waterTemperature` | number (ro) | Wartość własnego źródła temperatury wody tego przełącznika (czujnik strefy karmienia / płytki). |
+| `status.waterTemperatureDeep` | number (ro) | Wartość opcjonalnego głębokiego czujnika temperatury wody tego przełącznika. |
+| `status.waterStratification` | number (ro) | Różnica temperatur płytki − głęboki (tylko przy dwóch czujnikach wody). |
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 
@@ -474,6 +485,41 @@ podnieś poziom logowania instancji (Instancje → automatic-feeder.x → poziom
   wartości WŁ/WYŁ, weryfikacja potwierdzona/limit czasu).
 * **silly** – bardzo szczegółowe śledzenie (każdy timer, każde sprawdzenie blokady, każda zmiana
   stanu).
+
+---
+
+## 11. Karmienie dynamiczne — podstawy i źródła
+
+Ryby (koi, złote rybki, karpie stawowe) są **poikilotermiczne (zmiennocieplne)**: ich metabolizm podąża za
+temperaturą wody. Z reguły tempo metabolizmu mniej więcej **podwaja się na każde +10 °C**, co jest dokładnie
+**współczynnikiem Q10** (zwykle 2–3), którego używa ten adapter — dlatego karmienie częstsze i nieco obfitsze,
+gdy jest ciepło, a rzadsze, gdy jest zimno, jest uzasadnione fizjologicznie.
+
+**Praktyczne wskazówki temperaturowe (koi/ryby stawowe):**
+
+* **poniżej ~4–5 °C** – nie karm (użyj *Przerwy zimowej*).
+* **~4–10 °C** – ledwo aktywne; karm rzadko lub wcale, lekkostrawną (na bazie kiełków pszenicy) karmą.
+* **~10–15 °C** – ograniczone karmienie; układ odpornościowy jest wciąż słaby (~12 °C).
+* **~15–25 °C** – optymalny zakres wzrostu, pełne karmienie.
+* **powyżej ~28 °C** – rozpuszczony **tlen** staje się czynnikiem ograniczającym → blokada O₂ jest tutaj przydatna.
+
+**Gdzie mierzyć i dlaczego drugi czujnik:** znaczenie ma temperatura wody, którą ryby faktycznie zajmują
+(**strefa karmienia**), a *nie* powierzchnia (która może się różnić o kilka stopni). W stawie mieszanym przez
+pracującą pompę lub w płytkim stawie wystarczy jeden dobrze umieszczony czujnik. Tylko w **głębokim, niemieszanym
+stawie** woda się uwarstwia: powyżej 4 °C ciepła woda znajduje się na górze (chłodniejsza poniżej); poniżej 4 °C
+układ się odwraca, pozostawiając przy dnie schronienie o temperaturze ~4 °C. Tam **drugi (głęboki) czujnik** daje
+korzyść — dla bezpieczeństwa (karm według najzimniejszej warstwy), dla sezonowego przełączania płytki/głęboki oraz
+aby uwidocznić uwarstwienie (`status.waterStratification`). Dla większości stawów jest opcjonalny.
+
+**Źródła / dalsza lektura:**
+
+* Volkoff H. & Rønnestad I. (2020): *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> Te wartości są ogólnymi wskazówkami dla koi/ryb stawowych, a nie zamiennikiem obserwacji własnych zwierząt.
+> Dostosuj temperaturę odniesienia, Q10, limity i progi do swojego gatunku i konfiguracji.
 
 ---
 

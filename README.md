@@ -46,6 +46,7 @@ explains every option in detail.
 8. [Telegram notifications](#8-telegram-notifications)
 9. [Troubleshooting & FAQ](#9-troubleshooting--faq)
 10. [Logging & debugging](#10-logging--debugging)
+11. [Dynamic feeding — background & sources](#11-dynamic-feeding--background--sources)
 
 ---
 
@@ -212,11 +213,19 @@ objects:
 
 * **Air temperature** – tick the box and pick the state that holds this station's air temperature.
 * **Water temperature** – tick the box and pick the state that holds this station's water temperature.
+  This is the primary **feeding-zone** sensor (place it where the fish actually feed, not at the surface).
+* **Water temperature (deep)** – *optional second* water sensor (e.g. near the bottom). Only shown once
+  the primary water sensor is enabled. With two sensors you choose a **combine mode** for dynamic feeding:
+  *Feeding zone (shallow only)* [default], *Average of both*, *Coldest layer*, or *Seasonal* (uses the
+  shallow sensor while it is at or above a threshold, otherwise the deep sensor). The temperature **block**
+  always uses the **coldest** of the two layers. A second sensor only helps in **deep, unmixed ponds**
+  (a running pump mixes the water and removes any stratification) — see *Dynamic feeding — background & sources*.
 * **Oxygen (O₂)** – tick the box and pick the state that holds the dissolved oxygen.
 
 Only number states make sense. The current values are mirrored to this switch's `status.airTemperature`,
-`status.waterTemperature` and `status.oxygen` data points. The thresholds are set below (*Temperature blocking*),
-and the temperatures also drive *Dynamic feeding*.
+`status.waterTemperature`, `status.waterTemperatureDeep`, `status.oxygen` (and `status.waterStratification`
+= shallow − deep) data points. The thresholds are set below (*Temperature blocking*), and the temperatures
+also drive *Dynamic feeding*.
 
 #### Temperature blocking
 
@@ -246,8 +255,8 @@ is written to `status.blockReason`. (If a temperature value is unknown, that sou
 
 Optional: adapt the feeding **interval and duration to temperature** using the Q10 model (metabolism roughly doubles per +10 °C). Requires an active temperature source; fixed times are then replaced by an interval within the window.
 
-* **Enable / source** – turn it on and pick water or air temperature.
-* **Reference / Q10** – the base interval and duration apply at the reference temperature (e.g. 20 °C); Q10 is typically 2–2.5.
+* **Enable / source** – turn it on and pick water or air temperature. When a second (deep) water sensor is configured, the water temperature used here is combined from both layers per the chosen combine mode (see *Temperature & oxygen sources*).
+* **Reference / Q10** – the base interval and duration apply at the reference temperature (e.g. 20 °C); Q10 is typically 2–2.5 (metabolism roughly doubles per +10 °C — see *Dynamic feeding — background & sources*).
 * **Interval / duration (base, min, max)** – bounds for the computed interval (minutes) and duration (seconds). The **base interval and the max interval must be greater than 0**, otherwise no feeding can be planned.
 * **Averaging window / hysteresis** – a moving average (e.g. 24 h) smooths spikes; hysteresis avoids re-planning on tiny changes.
 
@@ -349,7 +358,9 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
 | `status.dynamicDurationSec` | number (ro) | Currently computed dynamic duration (seconds). |
 | `status.airTemperature` | number (ro) | This switch's own air-temperature source value. |
-| `status.waterTemperature` | number (ro) | This switch's own water-temperature source value. |
+| `status.waterTemperature` | number (ro) | This switch's own water-temperature source value (feeding-zone / shallow sensor). |
+| `status.waterTemperatureDeep` | number (ro) | This switch's optional deep water-temperature sensor value. |
+| `status.waterStratification` | number (ro) | Temperature difference shallow − deep (only with two water sensors). |
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 
@@ -463,11 +474,51 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
   values, verification confirmed/timeout).
 * **silly** – very verbose tracing (every timer, every block check, every state change).
 
+---
+
+## 11. Dynamic feeding — background & sources
+
+Fish (koi, goldfish, pond carp) are **poikilothermic (ectothermic)**: their metabolism follows the
+water temperature. As a rule of thumb the metabolic rate roughly **doubles for every +10 °C**, which
+is exactly the **Q10 coefficient** (typically 2–3) this adapter uses — so feeding more often and a
+little more when it is warm, and less when it is cold, is physiologically justified.
+
+**Practical temperature guidance (koi/pond fish):**
+
+* **below ~4–5 °C** – do not feed (use the *Winter pause*).
+* **~4–10 °C** – barely active; feed rarely if at all, easily digestible (wheat-germ) food.
+* **~10–15 °C** – reduced feeding; the immune system is still weak (~12 °C).
+* **~15–25 °C** – optimal growth range, full feeding.
+* **above ~28 °C** – dissolved **oxygen** becomes the limiting factor → the O₂ block is useful here.
+
+**Where to measure, and why a second sensor:** the temperature that matters is the water the fish
+actually occupy (the **feeding zone**), *not* the surface (which can be several degrees off). In a
+pond that is mixed by a running pump, or a shallow pond, one well-placed sensor is enough. Only in a
+**deep, unmixed pond** does the water stratify: above 4 °C the warm water sits on top (colder below);
+below 4 °C it inverts, leaving a ~4 °C refuge near the bottom. There a **second (deep) sensor** adds
+value — for safety (feed by the coldest layer), for a seasonal shallow/deep switch, and to make the
+stratification visible (`status.waterStratification`). For most ponds it is optional.
+
+**Sources / further reading:**
+
+* Volkoff H. & Rønnestad I. (2020): *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> These figures are general guidance for koi/pond fish, not a substitute for observing your own
+> animals. Adjust the reference temperature, Q10, limits and thresholds to your species and setup.
+
 ## Changelog
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### 1.2.0 (2026-07-02)
+* (ssbingo) New optional **second (deep) water-temperature sensor** per switch, with a combine mode for dynamic feeding: *feeding zone (shallow)* [default], *average*, *coldest layer* or *seasonal* (shallow while warm enough, otherwise deep). The temperature block always uses the coldest of the two layers. Only useful for deep, unmixed ponds
+* (ssbingo) New per-switch data points `status.waterTemperatureDeep` and `status.waterStratification` (shallow − deep)
+* (ssbingo) New documentation section **“Dynamic feeding — background & sources”** with the scientific/professional basis (Q10 / metabolism, temperature thresholds, measurement depth, thermal stratification) and references, in all 11 languages
 
 ### 1.1.3 (2026-07-02)
 * (ssbingo) The Nominatim geocoding request now uses a **10-second timeout** (AbortController) instead of possibly hanging indefinitely
@@ -512,9 +563,6 @@ log level (Instances → automatic-feeder.x → log level) to **debug** or **sil
 * (ssbingo) Optional global **oxygen (O₂)** source with a per-switch "block feeding when O₂ is too low" option
 * (ssbingo) New status data points per switch: `dynamicAvgTemperature`, `dynamicRate`, `dynamicIntervalMin`, `dynamicDurationSec`
 * (ssbingo) Documentation overhauled and completed in all 11 languages (feature overview, requirements, oxygen source, all data points, Telegram winter reminders, examples and FAQ)
-
-### 0.5.3 (2026-07-01)
-* (ssbingo) Each switch now exposes a read-only `settings` sub-channel (`switches.<id>.settings.*`) that mirrors its configuration, so the settings can be shown in VIS or used in scripts
 
 ---
 

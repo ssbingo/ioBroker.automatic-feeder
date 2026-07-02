@@ -31,7 +31,7 @@ minutes, le reste explique chaque réglage en détail.
 8. [Notifications Telegram](#8-notifications-telegram)
 9. [Dépannage & FAQ](#9-dépannage--faq)
 10. [Journalisation & recherche d'erreurs](#10-journalisation--recherche-derreurs)
-
+11. [Alimentation dynamique — contexte & sources](#11-alimentation-dynamique--contexte--sources)
 ---
 
 ## 1. Ce que fait l'adaptateur
@@ -220,11 +220,21 @@ bassins/aquariums peuvent utiliser des objets différents :
 * **Température de l'air** — coche la case et sélectionne le point de données contenant la
   température de l'air de cette station.
 * **Température de l'eau** — coche la case et sélectionne le point de données contenant la
-  température de l'eau de cette station.
+  température de l'eau de cette station. C'est le capteur principal de la **zone d'alimentation**
+  (place-le là où les poissons se nourrissent réellement, pas à la surface).
+* **Température de l'eau (profondeur)** — *second capteur optionnel* d'eau (p. ex. près du fond).
+  Affiché uniquement une fois le capteur d'eau principal activé. Avec deux capteurs, tu choisis un
+  **mode de combinaison** pour l'alimentation dynamique : *Zone d'alimentation (peu profonde
+  uniquement)* [par défaut], *Moyenne des deux*, *Couche la plus froide* ou *Saisonnier* (utilise le
+  capteur peu profond tant qu'il est au-dessus ou égal à un seuil, sinon le capteur en profondeur).
+  Le **blocage** par température utilise toujours la **plus froide** des deux couches. Un second
+  capteur n'est utile que dans les **bassins profonds et non brassés** (une pompe en marche brasse
+  l'eau et supprime toute stratification) — voir *Alimentation dynamique — contexte & sources*.
 * **Oxygène (O₂)** — coche la case et sélectionne le point de données contenant l'oxygène dissous.
 
 Seuls les points de données numériques sont pertinents. Les valeurs actuelles sont reflétées dans
-les points de données `status.airTemperature`, `status.waterTemperature` et `status.oxygen` de cet interrupteur. Les
+les points de données `status.airTemperature`, `status.waterTemperature`, `status.waterTemperatureDeep`,
+`status.oxygen` (et `status.waterStratification` = peu profonde − profonde) de cet interrupteur. Les
 seuils se règlent ci-dessous (*Blocage par température*), et les températures alimentent aussi
 l'*Alimentation dynamique*.
 
@@ -264,8 +274,8 @@ source ne bloque pas.)
 
 Optionnel : adapte l'**intervalle et la durée de l'alimentation à la température** via le modèle Q10 (le métabolisme double environ par +10 °C). Nécessite une source de température active ; les heures fixes sont alors remplacées par un intervalle dans la fenêtre.
 
-* **Activer / source** – activez et choisissez la température de l'eau ou de l'air.
-* **Référence / Q10** – l'intervalle et la durée de base s'appliquent à la température de référence (par ex. 20 °C) ; Q10 généralement 2–2,5.
+* **Activer / source** – activez et choisissez la température de l'eau ou de l'air. Lorsqu'un second capteur d'eau (en profondeur) est configuré, la température de l'eau utilisée ici est combinée à partir des deux couches selon le mode de combinaison choisi (voir *Sources de température et d'oxygène*).
+* **Référence / Q10** – l'intervalle et la durée de base s'appliquent à la température de référence (par ex. 20 °C) ; Q10 généralement 2–2,5 (le métabolisme double environ par +10 °C — voir *Alimentation dynamique — contexte & sources*).
 * **Intervalle / durée (base, min, max)** – limites de l'intervalle calculé (minutes) et de la durée (secondes). L'**intervalle de base et l'intervalle maximal doivent être supérieurs à 0**, sinon aucune distribution ne peut être planifiée.
 * **Fenêtre de moyenne / hystérésis** – une moyenne glissante (par ex. 24 h) lisse les pics ; l'hystérésis évite une replanification pour des variations infimes.
 
@@ -368,7 +378,9 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.dynamicIntervalMin` | number (ro) | Intervalle dynamique actuellement calculé (minutes). |
 | `status.dynamicDurationSec` | number (ro) | Durée dynamique actuellement calculée (secondes). |
 | `status.airTemperature` | number (ro) | Valeur de la source de température de l'air propre à cet interrupteur. |
-| `status.waterTemperature` | number (ro) | Valeur de la source de température de l'eau propre à cet interrupteur. |
+| `status.waterTemperature` | number (ro) | Valeur de la source de température de l'eau propre à cet interrupteur (capteur de la zone d'alimentation / peu profond). |
+| `status.waterTemperatureDeep` | number (ro) | Valeur du capteur de température de l'eau en profondeur optionnel de cet interrupteur. |
+| `status.waterStratification` | number (ro) | Écart de température peu profonde − profonde (uniquement avec deux capteurs d'eau). |
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 
@@ -496,6 +508,47 @@ niveau de journal de l'instance (Instances → automatic-feeder.x → Niveau de 
   géocodage, valeurs activation/désactivation, vérification confirmée/délai dépassé).
 * **silly** — traçage très détaillé (chaque minuterie, chaque vérification de blocage, chaque
   changement d'état).
+
+---
+
+## 11. Alimentation dynamique — contexte & sources
+
+Les poissons (koïs, poissons rouges, carpes de bassin) sont **poïkilothermes (ectothermes)** : leur
+métabolisme suit la température de l'eau. En règle générale, le taux métabolique **double environ à
+chaque +10 °C**, ce qui correspond exactement au **coefficient Q10** (généralement 2–3) qu'utilise cet
+adaptateur — nourrir plus souvent et un peu plus quand il fait chaud, et moins quand il fait froid, est
+donc physiologiquement justifié.
+
+**Recommandations pratiques de température (koïs / poissons de bassin) :**
+
+* **en dessous d'environ 4–5 °C** — ne pas nourrir (utilise la *Pause hivernale*).
+* **environ 4–10 °C** — à peine actifs ; nourrir rarement voire pas du tout, avec une nourriture
+  facilement digestible (germe de blé).
+* **environ 10–15 °C** — alimentation réduite ; le système immunitaire est encore faible (~12 °C).
+* **environ 15–25 °C** — plage de croissance optimale, alimentation complète.
+* **au-dessus d'environ 28 °C** — l'**oxygène** dissous devient le facteur limitant → le blocage par O₂
+  est utile ici.
+
+**Où mesurer, et pourquoi un second capteur :** la température qui compte est celle de l'eau que les
+poissons occupent réellement (la **zone d'alimentation**), *pas* celle de la surface (qui peut s'écarter
+de plusieurs degrés). Dans un bassin brassé par une pompe en marche, ou un bassin peu profond, un seul
+capteur bien placé suffit. Ce n'est que dans un **bassin profond et non brassé** que l'eau se stratifie :
+au-dessus de 4 °C, l'eau chaude reste en surface (plus froide en dessous) ; en dessous de 4 °C, cela
+s'inverse, laissant un refuge à environ 4 °C près du fond. Là, un **second capteur (en profondeur)** apporte
+une valeur ajoutée — pour la sécurité (nourrir selon la couche la plus froide), pour une bascule saisonnière
+peu profonde/profonde, et pour rendre la stratification visible (`status.waterStratification`). Pour la
+plupart des bassins, il est optionnel.
+
+**Sources / pour aller plus loin :**
+
+* Volkoff H. & Rønnestad I. (2020) : *Effects of temperature on feeding and digestive processes in fish.* Temperature 7(4):307–320. <https://pubmed.ncbi.nlm.nih.gov/33251280/>
+* K.O.I. – *Water Temperature and Koi.* <https://koiorganisationinternational.org/koi-articles/water-temperature-and-koi>
+* K.O.I. – *The Science behind Cold Water in Koi Ponds.* <https://koiorganisationinternational.org/koi-articles/science-behind-cold-water-koi-ponds>
+* Pond Informer – *Koi feeding guide.* <https://pondinformer.com/koi-feeding-guide/>
+
+> Ces chiffres sont des recommandations générales pour les koïs / poissons de bassin, et ne remplacent pas
+> l'observation de tes propres animaux. Adapte la température de référence, le Q10, les limites et les seuils
+> à ton espèce et à ton installation.
 
 ---
 

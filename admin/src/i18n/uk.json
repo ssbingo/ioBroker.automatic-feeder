@@ -111,5 +111,14 @@
 	"Each switch defines its own location on its tab.": "Кожен перемикач визначає власне розташування на своїй вкладці.",
 	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Вікно слідує за сходом/заходом сонця (астрономічне вікно ввімкнено в розділі «Обмеження»).",
 	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Обмежити годування астрономічним денним вікном (схід/захід + зміщення)",
-	"Location for this switch": "Розташування для цього перемикача"
+	"Location for this switch": "Розташування для цього перемикача",
+	"Water temperature (deep)": "Температура води (глибина)",
+	"Deep water temperature object": "Обʼєкт температури води (глибина)",
+	"Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.": "Два датчики води корисні лише в глибоких, неперемішуваних ставках (насос вимкнено). Блокування завжди використовує найхолодніший шар.",
+	"Water sensor combine mode": "Режим комбінування датчиків води",
+	"Feeding zone (shallow only)": "Зона годування (лише мілко)",
+	"Average of both": "Середнє обох",
+	"Coldest layer": "Найхолодніший шар",
+	"Seasonal (shallow when warm, else deep)": "Сезонно (мілко коли тепло, інакше глибоко)",
+	"Seasonal switch threshold (°C)": "Поріг сезонного перемикання (°C)"
 }

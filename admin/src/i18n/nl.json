@@ -111,5 +111,14 @@
 	"Each switch defines its own location on its tab.": "Elke schakelaar bepaalt zijn eigen locatie op zijn tabblad.",
 	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "Het venster volgt zonsopkomst/zonsondergang (astronomisch venster ingeschakeld onder Beperkingen).",
 	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Voeren beperken tot het astronomische dagvenster (zonsopkomst/zonsondergang + verschuivingen)",
-	"Location for this switch": "Locatie voor deze schakelaar"
+	"Location for this switch": "Locatie voor deze schakelaar",
+	"Water temperature (deep)": "Watertemperatuur (diep)",
+	"Deep water temperature object": "Object voor diepe watertemperatuur",
+	"Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.": "Twee watersensoren helpen alleen in diepe, ongemengde vijvers (geen draaiende pomp). De blokkering gebruikt altijd de koudste laag.",
+	"Water sensor combine mode": "Combinatiemodus watersensoren",
+	"Feeding zone (shallow only)": "Voederzone (alleen ondiep)",
+	"Average of both": "Gemiddelde van beide",
+	"Coldest layer": "Koudste laag",
+	"Seasonal (shallow when warm, else deep)": "Seizoensgebonden (ondiep bij warmte, anders diep)",
+	"Seasonal switch threshold (°C)": "Seizoensomschakeldrempel (°C)"
 }

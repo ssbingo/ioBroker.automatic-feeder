@@ -111,5 +111,14 @@
 	"Each switch defines its own location on its tab.": "Each switch defines its own location on its tab.",
 	"The window follows sunrise/sunset (astronomical window enabled under Restrictions).": "The window follows sunrise/sunset (astronomical window enabled under Restrictions).",
 	"Restrict feeding to the astronomical day window (sunrise/sunset + offsets)": "Restrict feeding to the astronomical day window (sunrise/sunset + offsets)",
-	"Location for this switch": "Location for this switch"
+	"Location for this switch": "Location for this switch",
+	"Water temperature (deep)": "Water temperature (deep)",
+	"Deep water temperature object": "Deep water temperature object",
+	"Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.": "Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.",
+	"Water sensor combine mode": "Water sensor combine mode",
+	"Feeding zone (shallow only)": "Feeding zone (shallow only)",
+	"Average of both": "Average of both",
+	"Coldest layer": "Coldest layer",
+	"Seasonal (shallow when warm, else deep)": "Seasonal (shallow when warm, else deep)",
+	"Seasonal switch threshold (°C)": "Seasonal switch threshold (°C)"
 }

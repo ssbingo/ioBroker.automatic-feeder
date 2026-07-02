@@ -327,6 +327,41 @@ function SwitchTab(props) {
 						<ObjectSelect label={I18n.t('Water temperature object')} value={sw.waterTempObjectId} disabled={!sw.waterTempEnabled} onChange={(v) => onChange({ waterTempObjectId: v })} socket={socket} theme={theme} themeName={themeName} themeType={themeType} filterFunc={TEMPERATURE_FILTER} />
 					</Box>
 				</Box>
+				{sw.waterTempEnabled ? (
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+						<FormControlLabel control={<Checkbox checked={!!sw.waterTemp2Enabled} onChange={(e) => onChange({ waterTemp2Enabled: e.target.checked })} />} label={I18n.t('Water temperature (deep)')} />
+						<Box sx={{ flexGrow: 1 }}>
+							<ObjectSelect label={I18n.t('Deep water temperature object')} value={sw.waterTemp2ObjectId} disabled={!sw.waterTemp2Enabled} onChange={(v) => onChange({ waterTemp2ObjectId: v })} socket={socket} theme={theme} themeName={themeName} themeType={themeType} filterFunc={TEMPERATURE_FILTER} />
+						</Box>
+					</Box>
+				) : null}
+				{sw.waterTempEnabled && sw.waterTemp2Enabled ? (
+					<Box sx={{ mt: 1 }}>
+						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+							{I18n.t('Two water sensors only help in deep, unmixed ponds (no pump running). The block always uses the coldest layer.')}
+						</Typography>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+							<FormControl variant="standard" sx={{ minWidth: 220 }}>
+								<InputLabel>{I18n.t('Water sensor combine mode')}</InputLabel>
+								<Select value={sw.waterCombineMode || 'shallow'} onChange={(e) => onChange({ waterCombineMode: e.target.value })}>
+									<MenuItem value="shallow">{I18n.t('Feeding zone (shallow only)')}</MenuItem>
+									<MenuItem value="average">{I18n.t('Average of both')}</MenuItem>
+									<MenuItem value="coldest">{I18n.t('Coldest layer')}</MenuItem>
+									<MenuItem value="seasonal">{I18n.t('Seasonal (shallow when warm, else deep)')}</MenuItem>
+								</Select>
+							</FormControl>
+							{sw.waterCombineMode === 'seasonal' ? (
+								<TextField
+									variant="standard"
+									type="number"
+									label={I18n.t('Seasonal switch threshold (°C)')}
+									value={sw.waterSeasonalThresholdC ?? 12}
+									onChange={(e) => onChange({ waterSeasonalThresholdC: Number(e.target.value) || 0 })}
+								/>
+							) : null}
+						</Box>
+					</Box>
+				) : null}
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
 					<FormControlLabel control={<Checkbox checked={!!sw.o2Enabled} onChange={(e) => onChange({ o2Enabled: e.target.checked })} />} label={I18n.t('Oxygen (O₂)')} />
 					<Box sx={{ flexGrow: 1 }}>

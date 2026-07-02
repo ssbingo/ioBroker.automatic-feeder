@@ -130,9 +130,21 @@ declare global {
 			/** Per-switch air-temperature source (this feeding station's own sensor). */
 			airTempEnabled: boolean;
 			airTempObjectId: string;
-			/** Per-switch water-temperature source. */
+			/** Per-switch water-temperature source (the primary "feeding zone" / shallow sensor). */
 			waterTempEnabled: boolean;
 			waterTempObjectId: string;
+			/** Optional second water-temperature source (the deep / bottom sensor). */
+			waterTemp2Enabled: boolean;
+			waterTemp2ObjectId: string;
+			/**
+			 * How the two water sensors are combined into the temperature that drives dynamic
+			 * feeding: "shallow" = only the feeding-zone sensor (default), "average" = mean of
+			 * both, "coldest" = the colder layer, "seasonal" = feeding-zone while it is at or
+			 * above waterSeasonalThresholdC, otherwise the deep sensor.
+			 */
+			waterCombineMode: 'shallow' | 'average' | 'coldest' | 'seasonal';
+			/** Threshold (°C) for the "seasonal" combine mode. */
+			waterSeasonalThresholdC: number;
 			/** Per-switch dissolved-oxygen source. */
 			o2Enabled: boolean;
 			o2ObjectId: string;
