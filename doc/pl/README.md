@@ -56,7 +56,13 @@ zakładką konfiguracji nazwaną według przełącznika. Dla każdego przełącz
   opcjonalnie z przypomnieniami Telegram przed jego rozpoczęciem i zakończeniem;
 * **czy dostosować** interwał i porcję do temperatury wody/powietrza automatycznie
   (**karmienie dynamiczne**, model Q10);
-* **czy blokować** karmienie, gdy rozpuszczony **tlen** (O₂) jest zbyt niski.
+* **czy blokować** karmienie, gdy rozpuszczony **tlen** (O₂) jest zbyt niski;
+* **do 3 jednorazowych przerw w karmieniu** (bezwzględne okresy z datą i godziną, np.
+  kwarantanna po dostawie nowych ryb) z wiadomością **Telegram** na początku i na końcu każdej z
+  nich;
+* **główny przełącznik pauzy** (*Wstrzymaj karmienie teraz*), który natychmiast wstrzymuje
+  **całe** karmienie danego przełącznika, dopóki nie wyłączysz go ponownie, z wiadomością
+  **Telegram** przy każdym przełączeniu.
 
 Karmienie możesz w dowolnej chwili wyzwolić **ręcznie** – bezpośrednio na stronie ustawień
 (przycisk z dowolnie wybieranym czasem) lub poprzez punkt danych (np. przycisk w widoku
@@ -274,6 +280,19 @@ Dla każdego przełącznika można zdefiniować cykliczną **przerwę zimową** 
 
 Bieżący stan jest pokazany w punkcie danych `status.winterActive`. Po zakończeniu przerwy karmienie wznawia się automatycznie.
 
+#### Przerwy w karmieniu
+
+**Wstrzymaj karmienie teraz (przełącznik główny).** Na górze tej sekcji pojedynczy **przełącznik wł./wył.** pozwala **natychmiast i bezterminowo** wstrzymać **całe** karmienie danego przełącznika — nadpisuje on czasowe przerwy poniżej **oraz** każdy tryb karmienia (stałe pory, interwał, karmienie dynamiczne, przerwa zimowa). **Wyłącz** go ponownie, a karmienie wznawia się dokładnie tak, jak było skonfigurowane wcześniej; nic więcej nie trzeba zmieniać. Przełączenie go wysyła wiadomość **Telegram** (*wł.* / *wył.*). Typowe zastosowanie: spontaniczna przerwa (leczenie, konserwacja, uzdatnianie wody) bez zmiany jakiegokolwiek harmonogramu. Jest edytowalny ze strony ustawień **oraz z VIS/skryptów** poprzez `settings.pauseNow`, a jego bieżący stan jest pokazany w `status.pauseManual`.
+
+Poniżej przełącznika głównego można zaplanować do **3 jednorazowych przerw w karmieniu** na przełącznik — bezwzględne okresy z datą i godziną, w których karmienie jest **całkowicie wstrzymane** (wyższy priorytet niż każdy tryb karmienia). Typowe zastosowanie: **kwarantanna po dostawie nowych ryb**, gdy nowe ryby przez pewien czas nie powinny być karmione.
+
+* **Przerwa 1 / 2 / 3** – zaznacz, aby włączyć, następnie wybierz **Początek** i **Koniec** (data + godzina, wyświetlane jako `DD.MM.YYYY HH:mm`), np. od `15.07.2026 08:00` do `22.07.2026 18:00`.
+* Karmienie zatrzymuje się, gdy *teraz* mieści się w obrębie włączonej przerwy, i wznawia się automatycznie po jej zakończeniu.
+* Wiadomość **Telegram** jest wysyłana dokładnie na **początku** i na **końcu** każdej przerwy (wymaga instancji Telegram, patrz poniżej). Jeśli adapter zostanie uruchomiony, gdy przerwa jest już aktywna, wysyłana jest tylko wiadomość o *zakończeniu*.
+* Edytowalne ze strony ustawień **oraz z VIS/skryptów** poprzez punkty danych `settings.*` (np. `settings.pause1Start`).
+
+Bieżący stan jest pokazany w `status.pauseActive` i `status.pauseActiveUntil` (przełącznik główny również ustawia `status.pauseActive`).
+
 #### Monitorowanie przełączania
 
 Po przełączeniu adapter może sprawdzić, czy przełącznik **rzeczywiście** osiągnął stan
@@ -357,6 +376,9 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.winterActive` | boolean (ro) | Przerwa zimowa jest aktualnie aktywna. |
 | `status.winterLastStartReminder` | string (ro) | Data ostatnio wysłanego przypomnienia „zima się rozpoczyna". |
 | `status.winterLastEndReminder` | string (ro) | Data ostatnio wysłanego przypomnienia „zima się kończy". |
+| `status.pauseManual` | boolean (ro) | Ręczna pauza główna (*Wstrzymaj karmienie teraz* / `settings.pauseNow`) jest włączona. |
+| `status.pauseActive` | boolean (ro) | Jednorazowa przerwa w karmieniu jest aktualnie aktywna. |
+| `status.pauseActiveUntil` | string (ro) | Koniec aktualnie aktywnej przerwy w karmieniu (puste, jeśli brak). |
 | `status.dynamicAvgTemperature` | number (ro) | Uśredniona temperatura używana przez karmienie dynamiczne. |
 | `status.dynamicRate` | number (ro) | Współczynnik Q10 aktualnie stosowany przez karmienie dynamiczne. |
 | `status.dynamicIntervalMin` | number (ro) | Aktualnie obliczony dynamiczny interwał (minuty). |
@@ -399,6 +421,19 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
   *Koniec zimy* `15.03`, tryb *Wstrzymaj karmienie*.
 * Opcjonalnie zaznacz przypomnienia, aby otrzymać powiadomienie Telegram kilka dni przed
   rozpoczęciem/zakończeniem.
+
+**Kwarantanna po dostawie nowych ryb (przerwa w karmieniu)**
+* W zakładce przełącznika otwórz *Przerwy w karmieniu*, zaznacz *Przerwa 1* i ustaw *Początek*
+  `15.07.2026 08:00`, *Koniec* `22.07.2026 18:00` → w tym oknie nie ma żadnego karmienia, po czym
+  wznawia się ono automatycznie.
+* Przy skonfigurowanej instancji Telegram otrzymasz wiadomość na początku i na końcu przerwy.
+
+**Wstrzymaj karmienie natychmiast (przełącznik główny)**
+* W zakładce przełącznika otwórz *Przerwy w karmieniu* i włącz *Wstrzymaj karmienie teraz* – albo
+  zapisz `true` do `automatic-feeder.0.switches.sw-0.settings.pauseNow` z przełącznika VIS.
+* Całe karmienie zatrzymuje się natychmiast (nadpisując każdy tryb), dopóki nie wyłączysz go
+  ponownie; każde przełączenie wysyła wiadomość Telegram. `status.pauseManual` pokazuje bieżący
+  stan.
 
 **Ręczna dodatkowa porcja przez przycisk VIS**
 * W VIS utwórz przycisk, który zapisuje `true` do `automatic-feeder.0.switches.sw-0.feedNow`.

@@ -54,7 +54,12 @@ pestaña de configuración, denominada según el interruptor. Para cada interrup
   opcionalmente con recordatorios de Telegram antes de que empiece y termine;
 * **si se adapta** el intervalo y la ración a la temperatura del agua/aire automáticamente
   (**alimentación dinámica**, modelo Q10);
-* **si se bloquea** la alimentación cuando el **oxígeno** disuelto (O₂) es demasiado bajo.
+* **si se bloquea** la alimentación cuando el **oxígeno** disuelto (O₂) es demasiado bajo;
+* **hasta 3 pausas de alimentación puntuales** (periodos absolutos de fecha y hora, p. ej. una
+  cuarentena tras un repoblado) con un mensaje de **Telegram** al inicio y al final de cada una;
+* un **interruptor principal de pausa** (*Suspender alimentación ahora*) que suspende al instante
+  **toda** la alimentación de un interruptor hasta que lo vuelvas a apagar, con un mensaje de
+  **Telegram** en cada cambio.
 
 Puedes activar una alimentación **manualmente** en cualquier momento: directamente en la página de
 ajustes (botón con duración de libre elección) o mediante un punto de datos (p. ej. un botón en una
@@ -282,6 +287,36 @@ Para cada interruptor puedes definir una **pausa de invierno** recurrente (estac
 
 El estado actual se muestra en el punto de datos `status.winterActive`. La alimentación se reanuda automáticamente al terminar la pausa.
 
+#### Pausas de alimentación
+
+**Suspender alimentación ahora (interruptor principal).** En la parte superior de esta sección, un
+único **interruptor de encendido/apagado** te permite suspender **toda** la alimentación del
+interruptor **de forma inmediata e indefinida**: anula las pausas temporales de más abajo **y** todos
+los modos de alimentación (horas fijas, intervalo, alimentación dinámica, pausa de invierno). Vuelve a
+**apagarlo** y la alimentación se reanuda exactamente como estaba configurada antes; no hay que cambiar
+nada más. Al cambiarlo se envía un mensaje de **Telegram** (*encendido* / *apagado*). Uso típico: una
+interrupción espontánea (medicación, mantenimiento, tratamiento del agua) sin tocar ningún horario. Se
+puede editar desde la página de ajustes **y desde VIS/scripts** mediante `settings.pauseNow`, y su
+estado en vivo se muestra en `status.pauseManual`.
+
+Por debajo del interruptor principal, hasta **3 pausas de alimentación puntuales** por interruptor te
+permiten planificar periodos absolutos de fecha y hora en los que la alimentación queda **completamente
+suspendida** (mayor prioridad que cualquier modo de alimentación). Uso típico: una **cuarentena tras un
+repoblado**, cuando los peces nuevos no deben alimentarse durante un tiempo.
+
+* **Pausa 1 / 2 / 3** – marca la casilla para activarla y elige un **Inicio** y un **Fin** (fecha +
+  hora, se muestra como `DD.MM.YYYY HH:mm`), p. ej. de `15.07.2026 08:00` a `22.07.2026 18:00`.
+* La alimentación se detiene mientras *ahora* está dentro de una pausa activada y se reanuda
+  automáticamente al terminar.
+* Se envía un mensaje de **Telegram** justo al **inicio** y al **final** de cada pausa (necesita una
+  instancia de Telegram, ver abajo). Si el adaptador se inicia mientras una pausa ya está activa,
+  solo se envía el mensaje de *fin*.
+* Editable desde la página de ajustes **y desde VIS/scripts** mediante los puntos de datos
+  `settings.*` (p. ej. `settings.pause1Start`).
+
+El estado actual se muestra en `status.pauseActive` y `status.pauseActiveUntil` (el interruptor
+principal también actúa sobre `status.pauseActive`).
+
 #### Supervisión de la conmutación
 
 Tras la conmutación, el adaptador puede comprobar si el interruptor ha alcanzado **realmente** el
@@ -364,6 +399,9 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.winterActive` | boolean (ro) | La pausa de invierno está activa actualmente. |
 | `status.winterLastStartReminder` | string (ro) | Fecha del último recordatorio «empieza el invierno» enviado. |
 | `status.winterLastEndReminder` | string (ro) | Fecha del último recordatorio «termina el invierno» enviado. |
+| `status.pauseManual` | boolean (ro) | La pausa principal manual (*Suspender alimentación ahora* / `settings.pauseNow`) está activada. |
+| `status.pauseActive` | boolean (ro) | Una pausa de alimentación puntual está activa actualmente. |
+| `status.pauseActiveUntil` | string (ro) | Fin de la pausa de alimentación activa actualmente (vacío si no hay ninguna). |
 | `status.dynamicAvgTemperature` | number (ro) | Temperatura promediada usada por la alimentación dinámica. |
 | `status.dynamicRate` | number (ro) | Factor de tasa Q10 aplicado actualmente por la alimentación dinámica. |
 | `status.dynamicIntervalMin` | number (ro) | Intervalo dinámico calculado actualmente (minutos). |
@@ -409,6 +447,18 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
   `01.11` y *Fin del invierno* `15.03`, modo *Suspender la alimentación*.
 * Opcionalmente marca los recordatorios para recibir un aviso de Telegram unos días antes del
   inicio/fin.
+
+**Cuarentena tras un repoblado (pausa de alimentación)**
+* En la pestaña del interruptor abre *Pausas de alimentación*, marca *Pausa 1* y establece *Inicio*
+  `15.07.2026 08:00`, *Fin* `22.07.2026 18:00` → no se alimenta en absoluto en esa ventana, luego se
+  reanuda automáticamente.
+* Con una instancia de Telegram configurada recibes un mensaje al inicio y al final de la pausa.
+
+**Suspender la alimentación ahora mismo (interruptor principal)**
+* En la pestaña del interruptor abre *Pausas de alimentación* y activa *Suspender alimentación ahora*
+  – o escribe `true` en `automatic-feeder.0.switches.sw-0.settings.pauseNow` desde un interruptor de VIS.
+* Toda la alimentación se detiene de inmediato (anulando todos los modos) hasta que lo vuelvas a
+  apagar; cada cambio envía un mensaje de Telegram. `status.pauseManual` muestra el estado en vivo.
 
 **Ración extra manual mediante un botón de VIS**
 * Crea en VIS un botón que escriba `true` en `automatic-feeder.0.switches.sw-0.feedNow`.

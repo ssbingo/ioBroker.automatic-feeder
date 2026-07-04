@@ -55,7 +55,11 @@ configuratie-tabblad dat naar de schakelaar is genoemd. Per schakelaar leg je va
   optioneel met Telegram-herinneringen voordat het begint en eindigt;
 * **of het interval en de portie automatisch aan de water-/luchttemperatuur worden aangepast**
   (**dynamisch voeren**, Q10-model);
-* **of het voeren wordt geblokkeerd** wanneer het opgeloste **zuurstof** (O₂) te laag is.
+* **of het voeren wordt geblokkeerd** wanneer het opgeloste **zuurstof** (O₂) te laag is;
+* **tot 3 eenmalige voederpauzes** (absolute datum-tijd-perioden, bijv. een quarantaine na het
+  bijzetten van nieuwe vissen) met een **Telegram**-bericht aan het begin en einde van elke pauze;
+* een **hoofdpauzeschakelaar** (*Voeding nu opschorten*) die meteen **alle** voedering voor een
+  schakelaar opschort totdat je hem weer uitschakelt, met een **Telegram**-bericht bij elke omschakeling.
 
 Je kunt een voedering op elk moment **handmatig** activeren – rechtstreeks op de instellingenpagina
 (knop met vrij te kiezen duur) of via een datapunt (bijv. een knop in een
@@ -266,6 +270,19 @@ Per schakelaar kun je een terugkerende **winterpauze** instellen (seizoensgebond
 
 De huidige status staat in het datapunt `status.winterActive`. Na afloop van de pauze start de voeding automatisch weer.
 
+#### Voederpauzes
+
+**Voeding nu opschorten (hoofdschakelaar).** Bovenaan deze sectie schort een enkele **aan/uit-schakelaar** onmiddellijk en voor onbepaalde tijd **alle** voedering voor de schakelaar op — hij heeft voorrang op de onderstaande tijdgebonden pauzes **en** op elke voedingsmodus (vaste tijden, interval, dynamisch voeren, winterpauze). Zet hem weer **uit** en het voeren wordt precies zo hervat als voorheen ingesteld; er hoeft verder niets te worden gewijzigd. Bij het omschakelen wordt een **Telegram**-bericht verzonden (*aan* / *uit*). Typisch gebruik: een spontane onderbreking (medicatie, onderhoud, waterbehandeling) zonder aan een schema te raken. Hij is bewerkbaar vanaf de instellingenpagina **en vanuit VIS/scripts** via `settings.pauseNow`, en zijn actuele status staat in `status.pauseManual`.
+
+Onder de hoofdschakelaar kun je met tot **3 eenmalige voederpauzes** per schakelaar absolute datum-tijd-perioden plannen waarin het voeren **volledig wordt opgeschort** (hogere prioriteit dan elke voedingsmodus). Typisch gebruik: een **quarantaine na het bijzetten**, wanneer nieuwe vissen een tijdje niet gevoerd mogen worden.
+
+* **Pauze 1 / 2 / 3** – aankruisen om in te schakelen, dan een **Start** en **Einde** kiezen (datum + tijd, weergegeven als `DD.MM.YYYY HH:mm`), bijv. `15.07.2026 08:00` tot `22.07.2026 18:00`.
+* Het voeren stopt zolang *nu* binnen een ingeschakelde pauze valt en start automatisch weer aan het einde ervan.
+* Een **Telegram**-bericht wordt precies aan het **begin** en **einde** van elke pauze verzonden (vereist een Telegram-instantie, zie hieronder). Start de adapter terwijl een pauze al actief is, dan wordt alleen het *einde*-bericht verzonden.
+* Bewerkbaar vanaf de instellingenpagina **en vanuit VIS/scripts** via de `settings.*`-datapunten (bijv. `settings.pause1Start`).
+
+De huidige status staat in `status.pauseActive` en `status.pauseActiveUntil` (de hoofdschakelaar stuurt ook `status.pauseActive` aan).
+
 #### Schakelbewaking
 
 Na het schakelen kan de adapter controleren of de schakelaar de in- en uit-toestand
@@ -346,6 +363,9 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.winterActive` | boolean (ro) | De winterpauze is momenteel actief. |
 | `status.winterLastStartReminder` | string (ro) | Datum van de laatst verzonden „winter begint"-herinnering. |
 | `status.winterLastEndReminder` | string (ro) | Datum van de laatst verzonden „winter eindigt"-herinnering. |
+| `status.pauseManual` | boolean (ro) | De handmatige hoofdpauze (*Voeding nu opschorten* / `settings.pauseNow`) is ingeschakeld. |
+| `status.pauseActive` | boolean (ro) | Er is momenteel een eenmalige voederpauze actief. |
+| `status.pauseActiveUntil` | string (ro) | Einde van de momenteel actieve voederpauze (leeg indien geen). |
 | `status.dynamicAvgTemperature` | number (ro) | Gemiddelde temperatuur die door dynamisch voeren wordt gebruikt. |
 | `status.dynamicRate` | number (ro) | Q10-factor die momenteel door dynamisch voeren wordt toegepast. |
 | `status.dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
@@ -386,6 +406,17 @@ op een dashboard weergeven of bij `status.error = true` een eigen alarm activere
 * In het schakelaar-tabblad *Winterpauze* openen, inschakelen, *Winterbegin* `01.11` en *Wintereinde*
   `15.03` instellen, modus *Voeding onderbreken*.
 * Optioneel de herinneringen aankruisen, zodat je een paar dagen vóór begin/einde een Telegram-bericht krijgt.
+
+**Quarantaine na het bijzetten (voederpauze)**
+* In het schakelaar-tabblad *Voederpauzes* openen, *Pauze 1* aankruisen en *Start* `15.07.2026 08:00`,
+  *Einde* `22.07.2026 18:00` instellen → in dat venster wordt helemaal niet gevoerd, daarna start het automatisch weer.
+* Met een geconfigureerde Telegram-instantie krijg je een bericht aan het begin en het einde van de pauze.
+
+**Nu meteen de voeding opschorten (hoofdschakelaar)**
+* In het schakelaar-tabblad *Voederpauzes* openen en *Voeding nu opschorten* inschakelen – of `true`
+  schrijven naar `automatic-feeder.0.switches.sw-0.settings.pauseNow` vanuit een VIS-schakelaar.
+* Alle voedering stopt onmiddellijk (met voorrang op elke modus) totdat je hem weer uitschakelt; elke
+  omschakeling verzendt een Telegram-bericht. `status.pauseManual` toont de actuele status.
 
 **Handmatige extra portie via VIS-knop**
 * In VIS een knop aanmaken die `true` op `automatic-feeder.0.switches.sw-0.feedNow` schrijft.

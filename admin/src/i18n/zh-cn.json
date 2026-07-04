@@ -120,5 +120,12 @@
 	"Average of both": "两者平均",
 	"Coldest layer": "最冷水层",
 	"Seasonal (shallow when warm, else deep)": "按季节（温暖时用浅层，否则用深层）",
-	"Seasonal switch threshold (°C)": "季节切换阈值（°C）"
+	"Seasonal switch threshold (°C)": "季节切换阈值（°C）",
+	"Feeding pauses": "投喂暂停",
+	"Pause": "暂停",
+	"Start": "开始",
+	"End": "结束",
+	"Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.": "最多 3 个一次性时段，在此期间完全暂停投喂（例如新增鱼后的隔离期）。开始和结束时会发送 Telegram 消息。",
+	"Suspend feeding now": "立即暂停投喂",
+	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "主开关：开启时，此开关的所有投喂将立即无限期暂停，优先于计划的暂停和所有投喂模式。关闭以按配置恢复投喂。切换时会发送 Telegram 消息。"
 }

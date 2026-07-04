@@ -120,5 +120,12 @@
 	"Average of both": "Promedio de ambos",
 	"Coldest layer": "Capa más fría",
 	"Seasonal (shallow when warm, else deep)": "Estacional (superficial cuando cálido, si no profundo)",
-	"Seasonal switch threshold (°C)": "Umbral de cambio estacional (°C)"
+	"Seasonal switch threshold (°C)": "Umbral de cambio estacional (°C)",
+	"Feeding pauses": "Pausas de alimentación",
+	"Pause": "Pausa",
+	"Start": "Inicio",
+	"End": "Fin",
+	"Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.": "Hasta 3 períodos puntuales en los que la alimentación se suspende por completo (p. ej. cuarentena tras una nueva población). Se envía un mensaje de Telegram al inicio y al final.",
+	"Suspend feeding now": "Suspender alimentación ahora",
+	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Interruptor principal: mientras está ENCENDIDO, toda la alimentación de este interruptor se suspende de forma inmediata e indefinida, anulando las pausas programadas y todos los modos de alimentación. Apágalo (APAGADO) para reanudar la alimentación según lo configurado. Al cambiarlo se envía un mensaje de Telegram."
 }

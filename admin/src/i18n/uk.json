@@ -120,5 +120,12 @@
 	"Average of both": "Середнє обох",
 	"Coldest layer": "Найхолодніший шар",
 	"Seasonal (shallow when warm, else deep)": "Сезонно (мілко коли тепло, інакше глибоко)",
-	"Seasonal switch threshold (°C)": "Поріг сезонного перемикання (°C)"
+	"Seasonal switch threshold (°C)": "Поріг сезонного перемикання (°C)",
+	"Feeding pauses": "Паузи годування",
+	"Pause": "Пауза",
+	"Start": "Початок",
+	"End": "Кінець",
+	"Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.": "До 3 разових періодів, коли годування повністю призупиняється (напр. карантин після нового зариблення). На початку та в кінці надсилається повідомлення в Telegram.",
+	"Suspend feeding now": "Призупинити годування зараз",
+	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Головний перемикач: доки УВІМКНЕНО, усе годування цього перемикача негайно й безстроково призупиняється, маючи пріоритет над запланованими паузами та будь-яким режимом годування. ВИМКНІТЬ, щоб відновити годування згідно з налаштуваннями. Під час перемикання надсилається повідомлення Telegram."
 }

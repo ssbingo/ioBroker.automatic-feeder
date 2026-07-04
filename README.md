@@ -70,7 +70,11 @@ configuration tab named after the switch. Per switch you decide:
   Telegram reminders before it starts and ends;
 * **whether to adapt** the interval and the portion to the water/air temperature automatically
   (**dynamic feeding**, Q10 model);
-* **whether to block** feeding when the dissolved **oxygen** (O₂) is too low.
+* **whether to block** feeding when the dissolved **oxygen** (O₂) is too low;
+* **up to 3 one-off feeding pauses** (absolute date-time periods, e.g. a quarantine after
+  restocking) with a **Telegram** message at the start and end of each;
+* a **master pause switch** (*Suspend feeding now*) that instantly suspends **all** feeding
+  for a switch until you turn it off again, with a **Telegram** message on each toggle.
 
 You can also trigger a feeding **manually** at any time – from the adapter's settings page
 (button with a freely selectable duration) or from a data point (e.g. a button in a VIS view).
@@ -275,6 +279,19 @@ Per switch you can define a recurring **winter pause** (seasonal, given as `MM-D
 
 The current state is shown in the `status.winterActive` data point. Feeding resumes automatically when the pause ends.
 
+#### Feeding pauses
+
+**Suspend feeding now (master switch).** At the top of this section a single **on/off switch** lets you suspend **all** feeding for the switch **immediately and indefinitely** — it overrides the time-based pauses below **and** every feeding mode (fixed times, interval, dynamic feeding, winter pause). Turn it **off** again and feeding resumes exactly as configured before; nothing else has to be changed. Toggling it sends a **Telegram** message (*on* / *off*). Typical use: a spontaneous interruption (medication, maintenance, water treatment) without touching any schedule. It is editable from the settings page **and from VIS/scripts** via `settings.pauseNow`, and its live state is shown in `status.pauseManual`.
+
+Below the master switch, up to **3 one-off feeding pauses** per switch let you plan absolute date-time periods in which feeding is **completely suspended** (higher priority than every feeding mode). Typical use: a **quarantine after restocking**, when new fish should not be fed for a while.
+
+* **Pause 1 / 2 / 3** – tick to enable, then pick a **Start** and **End** (date + time, shown as `DD.MM.YYYY HH:mm`), e.g. `15.07.2026 08:00` to `22.07.2026 18:00`.
+* Feeding stops while *now* is within an enabled pause and resumes automatically at its end.
+* A **Telegram** message is sent exactly at the **start** and **end** of each pause (needs a Telegram instance, see below). If the adapter starts while a pause is already active, only the *end* message is sent.
+* Editable from the settings page **and from VIS/scripts** via the `settings.*` states (e.g. `settings.pause1Start`).
+
+The current state is shown in `status.pauseActive` and `status.pauseActiveUntil` (the master switch also drives `status.pauseActive`).
+
 #### Switching supervision
 
 After switching, the adapter can verify that the switch **actually** reached the on and off
@@ -355,6 +372,9 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.winterActive` | boolean (ro) | The winter pause is currently active. |
 | `status.winterLastStartReminder` | string (ro) | Date of the last sent "winter starts" reminder. |
 | `status.winterLastEndReminder` | string (ro) | Date of the last sent "winter ends" reminder. |
+| `status.pauseManual` | boolean (ro) | The manual master pause (*Suspend feeding now* / `settings.pauseNow`) is on. |
+| `status.pauseActive` | boolean (ro) | A one-off feeding pause is currently active. |
+| `status.pauseActiveUntil` | string (ro) | End of the currently active feeding pause (empty if none). |
 | `status.dynamicAvgTemperature` | number (ro) | Averaged temperature used by dynamic feeding. |
 | `status.dynamicRate` | number (ro) | Q10 rate factor currently applied by dynamic feeding. |
 | `status.dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
@@ -395,6 +415,17 @@ dashboard, or react on `status.error = true` to send your own alarm.
 * On the switch tab open *Winter pause*, enable it, set *Winter start* `01.11` and *Winter end*
   `15.03`, mode *Suspend feeding*.
 * Optionally tick the reminders so you get a Telegram note a few days before start/end.
+
+**Quarantine after restocking (feeding pause)**
+* On the switch tab open *Feeding pauses*, tick *Pause 1* and set *Start* `15.07.2026 08:00`,
+  *End* `22.07.2026 18:00` → no feeding at all in that window, then it resumes automatically.
+* With a Telegram instance configured you get a message at the start and the end of the pause.
+
+**Suspend feeding right now (master switch)**
+* On the switch tab open *Feeding pauses* and turn on *Suspend feeding now* – or write `true` to
+  `automatic-feeder.0.switches.sw-0.settings.pauseNow` from a VIS switch.
+* All feeding stops immediately (overriding every mode) until you turn it off again; each toggle
+  sends a Telegram message. `status.pauseManual` shows the live state.
 
 **Manual extra portion from a VIS button**
 * Put a button in VIS that writes `true` to `automatic-feeder.0.switches.sw-0.feedNow`.
@@ -517,6 +548,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.3.0 (2026-07-04)
+* (ssbingo) New per-switch **feeding pauses**. A **master switch** *Suspend feeding now* (`settings.pauseNow`) instantly suspends **all** feeding for a switch until you turn it off again — it overrides every feeding mode (fixed times, interval, dynamic feeding, winter pause) and the date-time pauses. A **Telegram** message is sent on each toggle
+* (ssbingo) In addition, up to **3 one-off date-time feeding pauses** per switch (e.g. a **quarantine after restocking**) fully suspend feeding within an absolute period, with a **Telegram** message at the start and end of each. They have the highest priority over all feeding modes
+* (ssbingo) New per-switch data points `status.pauseManual`, `status.pauseActive` and `status.pauseActiveUntil`; new editable settings `settings.pauseNow` and `settings.pause1..3Enabled/Start/End` (settings page and VIS/scripts)
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.2.3 (2026-07-02)
 * (ssbingo) The local timestamps introduced in 1.2.2 now use a **human-readable format** `DD.MM.YYYY HH:MM:SS` (e.g. `01.07.2026 16:20:00`) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users
 
@@ -553,10 +590,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.0.2 (2026-07-01)
 * (ssbingo) Fix (repository checker E1011): the editable `settings.*` mirror combined read-only state roles (`value` / `value.temperature` / `indicator`) with `write = true`. Writable settings now use the writable roles `level` / `level.temperature` / `switch`; existing objects are corrected automatically on start
-
-### 1.0.1 (2026-07-01)
-* (ssbingo) Fix: switches created by an older version were missing the dynamic-feeding defaults (Q10, base/min/max interval and duration, averaging window, hysteresis), so dynamic feeding computed a 0 interval and never fed. The missing per-switch defaults are now filled in automatically on start
-* (ssbingo) When dynamic feeding is enabled but no valid interval can be computed (base/max interval 0 or an invalid time window), the adapter now logs a warning and shows a hint in `status.blockReason` instead of silently doing nothing
 
 ---
 

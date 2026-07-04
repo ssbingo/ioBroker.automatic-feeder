@@ -99,6 +99,28 @@ declare global {
 			winterEndReminderDays: number;
 			/** Hour of day (0-23, local) at which winter reminders are sent. */
 			winterReminderHour: number;
+			/**
+			 * Manual master pause: while true, ALL feeding for this switch is suspended
+			 * immediately and indefinitely, overriding the time-based pauses and every
+			 * feeding mode. Setting it back to false resumes feeding as configured.
+			 * Toggling it sends a Telegram message.
+			 */
+			pauseNow: boolean;
+			/**
+			 * Up to 3 absolute feeding pauses (e.g. a quarantine window after restocking):
+			 * while "now" is within an enabled pause, feeding is completely suspended
+			 * (highest priority, overrides everything). Start/end are local date-time strings
+			 * "DD.MM.YYYY HH:mm" (empty = unset). A Telegram message is sent at start and end.
+			 */
+			pause1Enabled: boolean;
+			pause1Start: string;
+			pause1End: string;
+			pause2Enabled: boolean;
+			pause2Start: string;
+			pause2End: string;
+			pause3Enabled: boolean;
+			pause3Start: string;
+			pause3End: string;
 			/** Dynamic feeding: adapt interval and duration to temperature (Q10 model). */
 			dynamicEnabled: boolean;
 			/** Which temperature drives the dynamic model. */

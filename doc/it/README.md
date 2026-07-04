@@ -57,6 +57,11 @@ stabilisci:
 * **se adattare** l'intervallo e la porzione alla temperatura dell'acqua/dell'aria
   automaticamente (**alimentazione dinamica**, modello Q10);
 * **se bloccare** la distribuzione quando l'**ossigeno** disciolto (O₂) è troppo basso.
+* **fino a 3 pause di alimentazione una tantum** (periodi assoluti con data e ora, ad es. una
+  quarantena dopo un ripopolamento) con un messaggio **Telegram** all'inizio e alla fine di ciascuna;
+* un **interruttore di pausa principale** (*Sospendi l'alimentazione ora*) che sospende
+  immediatamente **tutta** l'alimentazione di un interruttore finché non lo spegni di nuovo, con un
+  messaggio **Telegram** a ogni commutazione.
 
 Puoi attivare una distribuzione **manualmente** in qualsiasi momento, direttamente dalla pagina
 delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramite un punto dati
@@ -289,6 +294,37 @@ Per ogni interruttore è possibile definire una **pausa invernale** ricorrente (
 
 Lo stato attuale è mostrato nel punto dati `status.winterActive`. L'alimentazione riprende automaticamente al termine della pausa.
 
+#### Pause di alimentazione
+
+**Sospendi l'alimentazione ora (interruttore principale).** In cima a questa sezione un unico
+**interruttore acceso/spento** consente di sospendere **tutta** l'alimentazione dell'interruttore
+**immediatamente e a tempo indeterminato** — prevale sulle pause a tempo qui sotto **e** su ogni
+modalità di alimentazione (orari fissi, intervallo, alimentazione dinamica, pausa invernale).
+Riportalo su **spento** e l'alimentazione riprende esattamente come configurata prima; non serve
+modificare nient'altro. Commutandolo viene inviato un messaggio **Telegram** (*acceso* / *spento*).
+Uso tipico: un'interruzione spontanea (medicazione, manutenzione, trattamento dell'acqua) senza
+toccare alcun programma. È modificabile dalla pagina delle impostazioni **e da VIS/script** tramite
+`settings.pauseNow`, e il suo stato attuale è mostrato in `status.pauseManual`.
+
+Sotto l'interruttore principale, fino a **3 pause di alimentazione una tantum** per interruttore
+consentono di pianificare periodi assoluti con data e ora in cui l'alimentazione è **completamente
+sospesa** (priorità superiore a ogni modalità di alimentazione). Uso tipico: una **quarantena dopo
+un ripopolamento**, quando i nuovi pesci non devono essere alimentati per un po'.
+
+* **Pausa 1 / 2 / 3** – metti il segno di spunta per attivarla, poi scegli un **Inizio** e una
+  **Fine** (data + ora, mostrati come `DD.MM.YYYY HH:mm`), ad es. dal `15.07.2026 08:00` al
+  `22.07.2026 18:00`.
+* L'alimentazione si interrompe finché *adesso* rientra in una pausa attiva e riprende
+  automaticamente al suo termine.
+* Un messaggio **Telegram** viene inviato esattamente all'**inizio** e alla **fine** di ogni pausa
+  (richiede un'istanza Telegram, vedi sotto). Se l'adattatore si avvia quando una pausa è già
+  attiva, viene inviato solo il messaggio di *fine*.
+* Modificabile dalla pagina delle impostazioni **e da VIS/script** tramite i punti dati `settings.*`
+  (ad es. `settings.pause1Start`).
+
+Lo stato attuale è mostrato in `status.pauseActive` e `status.pauseActiveUntil` (anche
+l'interruttore principale pilota `status.pauseActive`).
+
 #### Monitoraggio della commutazione
 
 Dopo la commutazione l'adattatore può verificare se l'interruttore ha **effettivamente**
@@ -372,6 +408,9 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.winterActive` | boolean (ro) | La pausa invernale è attualmente attiva. |
 | `status.winterLastStartReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno inizia" inviato. |
 | `status.winterLastEndReminder` | string (ro) | Data dell'ultimo promemoria „l'inverno finisce" inviato. |
+| `status.pauseManual` | boolean (ro) | La pausa principale manuale (*Sospendi l'alimentazione ora* / `settings.pauseNow`) è attiva. |
+| `status.pauseActive` | boolean (ro) | Una pausa di alimentazione una tantum è attualmente attiva. |
+| `status.pauseActiveUntil` | string (ro) | Fine della pausa di alimentazione attualmente attiva (vuoto se nessuna). |
 | `status.dynamicAvgTemperature` | number (ro) | Temperatura media usata dall'alimentazione dinamica. |
 | `status.dynamicRate` | number (ro) | Fattore di velocità Q10 attualmente applicato dall'alimentazione dinamica. |
 | `status.dynamicIntervalMin` | number (ro) | Intervallo dinamico attualmente calcolato (minuti). |
@@ -417,6 +456,20 @@ mostrare `status.nextFeeding` su una dashboard oppure attivare un allarme person
   e *Fine inverno* `15.03`, modalità *Sospendi l'alimentazione*.
 * Facoltativamente spunta i promemoria così ricevi una nota Telegram alcuni giorni prima
   dell'inizio/della fine.
+
+**Quarantena dopo un ripopolamento (pausa di alimentazione)**
+* Nella scheda dell'interruttore apri *Pause di alimentazione*, spunta *Pausa 1* e imposta *Inizio*
+  `15.07.2026 08:00`, *Fine* `22.07.2026 18:00` → in quella finestra non viene distribuito nulla,
+  poi riprende automaticamente.
+* Con un'istanza Telegram configurata ricevi un messaggio all'inizio e alla fine della pausa.
+
+**Sospendi subito l'alimentazione (interruttore principale)**
+* Nella scheda dell'interruttore apri *Pause di alimentazione* e attiva *Sospendi l'alimentazione
+  ora* – oppure scrivi `true` su `automatic-feeder.0.switches.sw-0.settings.pauseNow` da un
+  interruttore VIS.
+* Tutta l'alimentazione si interrompe immediatamente (prevalendo su ogni modalità) finché non lo
+  spegni di nuovo; ogni commutazione invia un messaggio Telegram. `status.pauseManual` mostra lo
+  stato attuale.
 
 **Porzione extra manuale tramite pulsante VIS**
 * In VIS crea un pulsante che scrive `true` su `automatic-feeder.0.switches.sw-0.feedNow`.

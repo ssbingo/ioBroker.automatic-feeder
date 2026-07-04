@@ -3,6 +3,10 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.0.1 (2026-07-01)
+* (ssbingo) Fix: switches created by an older version were missing the dynamic-feeding defaults (Q10, base/min/max interval and duration, averaging window, hysteresis), so dynamic feeding computed a 0 interval and never fed. The missing per-switch defaults are now filled in automatically on start
+* (ssbingo) When dynamic feeding is enabled but no valid interval can be computed (base/max interval 0 or an invalid time window), the adapter now logs a warning and shows a hint in `status.blockReason` instead of silently doing nothing
+
 ### 1.0.0 (2026-07-01)
 * (ssbingo) First stable release
 * (ssbingo) The per-switch status data points are now grouped in a **`status`** sub-channel (`switches.<id>.status.*`) for a tidier object tree; existing flat status states are migrated automatically on first start

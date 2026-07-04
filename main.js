@@ -27,6 +27,8 @@ const {
 	averageOver,
 	nextSlotInWindow,
 	combineWaterTemp,
+	pauseInfo,
+	nextPauseBoundary,
 } = require('./lib/schedule');
 
 const MAX_SWITCHES = 5;
@@ -55,6 +57,9 @@ const STATUS_STATE_IDS = [
 	'winterActive',
 	'winterLastStartReminder',
 	'winterLastEndReminder',
+	'pauseManual',
+	'pauseActive',
+	'pauseActiveUntil',
 	'dynamicAvgTemperature',
 	'dynamicRate',
 	'dynamicIntervalMin',
@@ -158,6 +163,16 @@ const SWITCH_DEFAULTS = {
 	winterEndReminderEnabled: false,
 	winterEndReminderDays: 7,
 	winterReminderHour: 9,
+	pauseNow: false,
+	pause1Enabled: false,
+	pause1Start: '',
+	pause1End: '',
+	pause2Enabled: false,
+	pause2Start: '',
+	pause2End: '',
+	pause3Enabled: false,
+	pause3Start: '',
+	pause3End: '',
 	dynamicEnabled: false,
 	dynamicSource: 'water',
 	dynamicTRef: 20,
@@ -492,6 +507,40 @@ const SWITCH_SETTINGS = [
 		get: sw => Number(sw.winterReminderHour) || 0,
 	},
 	{
+		id: 'pauseNow',
+		name: 'Suspend feeding now (master pause)',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.pauseNow,
+	},
+	{
+		id: 'pause1Enabled',
+		name: 'Feeding pause 1 enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.pause1Enabled,
+	},
+	{ id: 'pause1Start', name: 'Feeding pause 1 start', type: 'string', role: 'text', get: sw => sw.pause1Start || '' },
+	{ id: 'pause1End', name: 'Feeding pause 1 end', type: 'string', role: 'text', get: sw => sw.pause1End || '' },
+	{
+		id: 'pause2Enabled',
+		name: 'Feeding pause 2 enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.pause2Enabled,
+	},
+	{ id: 'pause2Start', name: 'Feeding pause 2 start', type: 'string', role: 'text', get: sw => sw.pause2Start || '' },
+	{ id: 'pause2End', name: 'Feeding pause 2 end', type: 'string', role: 'text', get: sw => sw.pause2End || '' },
+	{
+		id: 'pause3Enabled',
+		name: 'Feeding pause 3 enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.pause3Enabled,
+	},
+	{ id: 'pause3Start', name: 'Feeding pause 3 start', type: 'string', role: 'text', get: sw => sw.pause3Start || '' },
+	{ id: 'pause3End', name: 'Feeding pause 3 end', type: 'string', role: 'text', get: sw => sw.pause3End || '' },
+	{
 		id: 'dynamicEnabled',
 		name: 'Dynamic feeding enabled',
 		type: 'boolean',
@@ -655,6 +704,10 @@ class AutomaticFeeder extends utils.Adapter {
 		/** debounced settings writes from VIS: switch id -> { key: { val, type } } */
 		this.pendingSettingWrites = new Map();
 		this.settingsWriteTimer = null;
+		/** per-switch timer that fires at the next feeding-pause boundary (start/end) */
+		this.pauseTimers = new Map();
+		/** last known "feeding paused" state per switch id (to detect start/end transitions) */
+		this.pauseActiveState = new Map();
 
 		/** pending switch-state verifications: objectId -> { expected, resolve, timer } */
 		this.verifyWatchers = new Map();
@@ -928,6 +981,10 @@ class AutomaticFeeder extends utils.Adapter {
 			// --- schedule feeding for every enabled switch ---
 			let planned = 0;
 			for (const sw of this.switches) {
+				// seed the pause state so an already-active pause on start does not send a late "start"
+				this.pauseActiveState.set(sw.id, pauseInfo(this.pauseRanges(sw), Date.now()).active);
+				// detect a manual master-pause (pauseNow) toggle done while restarting and notify
+				await this.checkManualPauseTransition(sw);
 				if (sw.enabled && sw.objectId) {
 					this.scheduleSwitch(sw);
 					planned++;
@@ -1261,6 +1318,42 @@ class AutomaticFeeder extends utils.Adapter {
 					read: true,
 					write: false,
 					def: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.pauseManual`, {
+				type: 'state',
+				common: {
+					name: 'Manual master pause (pauseNow) active',
+					type: 'boolean',
+					role: 'indicator',
+					read: true,
+					write: false,
+					def: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.pauseActive`, {
+				type: 'state',
+				common: {
+					name: 'Feeding pause currently active',
+					type: 'boolean',
+					role: 'indicator',
+					read: true,
+					write: false,
+					def: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.pauseActiveUntil`, {
+				type: 'state',
+				common: {
+					name: 'Active feeding pause ends at',
+					type: 'string',
+					role: 'date',
+					read: true,
+					write: false,
+					def: '',
 				},
 				native: {},
 			});
@@ -1777,7 +1870,44 @@ class AutomaticFeeder extends utils.Adapter {
 			this.log.silly(`Cleared existing schedule timer for ${this.swLabel(sw)}.`);
 		}
 
-		const next = this.computeNextFeeding(sw, new Date());
+		// manual master pause (pauseNow) overrides every feeding mode and the time-based
+		// pauses: while it is on, feeding stays fully suspended until the user turns it off.
+		if (sw.pauseNow) {
+			this.setStateAsync(`switches.${sw.id}.status.pauseActive`, { val: true, ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntil`, { val: '', ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
+			this.log.debug(
+				`Switch ${this.swLabel(sw)}: manual master pause (pauseNow) active - all feeding suspended, nothing planned.`,
+			);
+			return;
+		}
+
+		// absolute feeding pauses take precedence over everything else
+		const ranges = this.pauseRanges(sw);
+		const pinfo = pauseInfo(ranges, Date.now());
+		this.setStateAsync(`switches.${sw.id}.status.pauseActive`, { val: pinfo.active, ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntil`, {
+			val: pinfo.active && pinfo.until ? this.localTs(new Date(pinfo.until)) : '',
+			ack: true,
+		});
+		this.armPauseTimer(sw);
+		if (pinfo.active) {
+			const untilStr = pinfo.until ? this.localTs(new Date(pinfo.until)) : '';
+			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
+			this.log.debug(`Switch ${this.swLabel(sw)}: feeding paused until ${untilStr} - nothing planned.`);
+			return;
+		}
+
+		let next = this.computeNextFeeding(sw, new Date());
+		// if the next feeding lands inside a (future) pause, skip to after it
+		let guard = 0;
+		while (next && guard++ < 5) {
+			const p = pauseInfo(ranges, next.getTime());
+			if (!p.active || !p.until) {
+				break;
+			}
+			next = this.computeNextFeeding(sw, new Date(p.until));
+		}
 		if (!next) {
 			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
 			const winterActive = !!sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, new Date());
@@ -1824,6 +1954,195 @@ class AutomaticFeeder extends utils.Adapter {
 		}, delay);
 		this.scheduleTimers.set(sw.id, timer);
 		this.log.silly(`Schedule timer armed for ${this.swLabel(sw)} (delay ${delay}ms).`);
+	}
+
+	// ----------------------------------------------------------------------------
+	// Feeding pauses (absolute date-time windows, e.g. a quarantine after restocking)
+	// ----------------------------------------------------------------------------
+
+	/**
+	 * Parses a local "DD.MM.YYYY HH:mm" (time optional) date-time string to epoch ms,
+	 * or null if empty/invalid.
+	 *
+	 * @param {string} str - the date-time string
+	 * @returns {number | null} epoch milliseconds, or null
+	 */
+	parsePauseDateTime(str) {
+		if (typeof str !== 'string') {
+			return null;
+		}
+		const m = str.trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[ T](\d{1,2}):(\d{2}))?$/);
+		if (!m) {
+			return null;
+		}
+		const day = Number(m[1]);
+		const month = Number(m[2]);
+		const year = Number(m[3]);
+		const hh = m[4] !== undefined ? Number(m[4]) : 0;
+		const mm = m[5] !== undefined ? Number(m[5]) : 0;
+		if (month < 1 || month > 12 || day < 1 || day > 31 || hh > 23 || mm > 59) {
+			return null;
+		}
+		const d = new Date(year, month - 1, day, hh, mm, 0, 0);
+		return isNaN(d.getTime()) ? null : d.getTime();
+	}
+
+	/**
+	 * Returns the valid, enabled feeding pauses of a switch as absolute {start, end}
+	 * epoch-ms ranges (start < end).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {Array<{start: number, end: number}>} the pause ranges (possibly empty)
+	 */
+	pauseRanges(sw) {
+		const ranges = [];
+		for (const i of [1, 2, 3]) {
+			if (!sw[`pause${i}Enabled`]) {
+				continue;
+			}
+			const start = this.parsePauseDateTime(sw[`pause${i}Start`]);
+			const end = this.parsePauseDateTime(sw[`pause${i}End`]);
+			if (start !== null && end !== null && end > start) {
+				ranges.push({ start, end });
+			} else {
+				this.log.silly(
+					`Switch ${this.swLabel(sw)}: pause ${i} ignored (empty/invalid start/end or end <= start).`,
+				);
+			}
+		}
+		return ranges;
+	}
+
+	/**
+	 * Arms a per-switch timer that fires at the next feeding-pause boundary (start or end).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 */
+	armPauseTimer(sw) {
+		const existing = this.pauseTimers.get(sw.id);
+		if (existing) {
+			this.clearTimeout(existing);
+			this.pauseTimers.delete(sw.id);
+		}
+		const nb = nextPauseBoundary(this.pauseRanges(sw), Date.now());
+		if (nb === null) {
+			return;
+		}
+		const delay = Math.min(MAX_TIMEOUT_MS, Math.max(0, nb - Date.now()));
+		const timer = this.setTimeout(() => {
+			this.pauseTimers.delete(sw.id);
+			this.onPauseBoundary(sw).catch(e => this.log.warn(`Pause boundary handling failed: ${e.message}`));
+		}, delay);
+		this.pauseTimers.set(sw.id, timer);
+		this.log.silly(
+			`Switch ${this.swLabel(sw)}: pause boundary timer armed for ${this.localTs(new Date(nb))} (in ${this.humanDelay(delay)}).`,
+		);
+	}
+
+	/**
+	 * Runs at a pause boundary: sends the start/end notification and reschedules the switch.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {Promise<void>}
+	 */
+	async onPauseBoundary(sw) {
+		this.log.debug(`Pause boundary reached for ${this.swLabel(sw)}.`);
+		await this.checkPauseTransitions(sw);
+		// reschedule (also re-arms the pause timer); armPauseTimer as a fallback
+		if (sw.enabled && sw.objectId) {
+			this.scheduleSwitch(sw);
+		} else {
+			this.armPauseTimer(sw);
+		}
+	}
+
+	/**
+	 * Detects a start/end transition of the "feeding paused" state and sends the
+	 * corresponding Telegram message once. The previous state is seeded at startup so a
+	 * pause that is already active on start does not trigger a late "start" message.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {Promise<void>}
+	 */
+	async checkPauseTransitions(sw) {
+		const info = pauseInfo(this.pauseRanges(sw), Date.now());
+		const prev = this.pauseActiveState.get(sw.id);
+		if (prev !== undefined && info.active !== prev) {
+			if (info.active) {
+				const dateStr = info.until ? this.localTs(new Date(info.until)) : '';
+				this.log.info(`Feeding pause started for ${this.swLabel(sw)} (until ${dateStr}).`);
+				this.notifyPause(sw, 'pauseStart', { date: dateStr });
+			} else {
+				this.log.info(`Feeding pause ended for ${this.swLabel(sw)}; feeding resumes.`);
+				this.notifyPause(sw, 'pauseEnd', {});
+			}
+		}
+		this.pauseActiveState.set(sw.id, info.active);
+		await this.setStateAsync(`switches.${sw.id}.status.pauseActive`, { val: info.active, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntil`, {
+			val: info.active && info.until ? this.localTs(new Date(info.until)) : '',
+			ack: true,
+		});
+	}
+
+	/**
+	 * Detects a change of the manual master pause (pauseNow) across a restart by comparing
+	 * the persisted status.pauseManual state against the current config. On a real toggle it
+	 * sends the on/off Telegram message once; it always refreshes the persisted state. The
+	 * pauseNow switch only ever changes via a config/settings write (which restarts the
+	 * adapter), so this startup comparison catches every toggle exactly once.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {Promise<void>}
+	 */
+	async checkManualPauseTransition(sw) {
+		const active = !!sw.pauseNow;
+		let prev = null;
+		try {
+			const st = await this.getStateAsync(`switches.${sw.id}.status.pauseManual`);
+			if (st && typeof st.val === 'boolean') {
+				prev = st.val;
+			}
+		} catch {
+			/* the state may not exist yet on the very first start */
+		}
+		if (prev !== null && prev !== active) {
+			if (active) {
+				this.log.info(`Manual master pause switched ON for ${this.swLabel(sw)}; all feeding suspended.`);
+				this.notifyPause(sw, 'pauseManualOn', {});
+			} else {
+				this.log.info(
+					`Manual master pause switched OFF for ${this.swLabel(sw)}; feeding resumes as configured.`,
+				);
+				this.notifyPause(sw, 'pauseManualOff', {});
+			}
+		}
+		await this.setStateAsync(`switches.${sw.id}.status.pauseManual`, { val: active, ack: true });
+	}
+
+	/**
+	 * Sends a feeding-pause message to the switch's Telegram instance (if configured).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {string} key - message key ("pauseStart" | "pauseEnd" | "pauseManualOn" | "pauseManualOff")
+	 * @param {Record<string, string | number>} [params] - placeholder values
+	 */
+	notifyPause(sw, key, params) {
+		const instance = sw.telegramInstance;
+		if (!instance) {
+			this.log.silly(`No Telegram instance configured for ${this.swLabel(sw)}; skipping "${key}" message.`);
+			return;
+		}
+		const text = `${sw.name || sw.id}: ${this.t(key, params)}`;
+		const payload = sw.telegramUser ? { text, user: sw.telegramUser } : { text };
+		this.log.info(
+			`Sending feeding-pause "${key}" via ${instance} to ${sw.telegramUser || 'all'} for ${this.swLabel(sw)}.`,
+		);
+		try {
+			this.sendTo(instance, payload);
+		} catch (e) {
+			this.log.warn(`Could not send Telegram message via ${instance}: ${e.message}`);
+		}
 	}
 
 	/**
@@ -2588,6 +2907,15 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @returns {{ key: string, params?: Record<string, string | number> } | null} block reason or null
 	 */
 	getBlockReason(sw) {
+		// manual master pause (pauseNow) - suspends all feeding, highest priority of all
+		if (sw.pauseNow) {
+			return { key: 'blockPauseManual' };
+		}
+		// absolute feeding pause (e.g. quarantine after restocking)
+		const pinfo = pauseInfo(this.pauseRanges(sw), Date.now());
+		if (pinfo.active) {
+			return { key: 'blockPause', params: { date: pinfo.until ? this.localTs(new Date(pinfo.until)) : '' } };
+		}
 		// astronomical day window (sunrise/sunset +/- per-switch offsets).
 		// For interval/dynamic modes the window is already enforced by the scheduler
 		// (nextFromInterval only plans slots inside it), so guarding here would only risk a
@@ -2971,6 +3299,10 @@ class AutomaticFeeder extends utils.Adapter {
 				this.clearTimeout(t);
 			}
 			this.scheduleTimers.clear();
+			for (const t of this.pauseTimers.values()) {
+				this.clearTimeout(t);
+			}
+			this.pauseTimers.clear();
 
 			for (const w of this.verifyWatchers.values()) {
 				this.clearTimeout(w.timer);

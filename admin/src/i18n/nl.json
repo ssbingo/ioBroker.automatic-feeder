@@ -120,5 +120,12 @@
 	"Average of both": "Gemiddelde van beide",
 	"Coldest layer": "Koudste laag",
 	"Seasonal (shallow when warm, else deep)": "Seizoensgebonden (ondiep bij warmte, anders diep)",
-	"Seasonal switch threshold (°C)": "Seizoensomschakeldrempel (°C)"
+	"Seasonal switch threshold (°C)": "Seizoensomschakeldrempel (°C)",
+	"Feeding pauses": "Voederpauzes",
+	"Pause": "Pauze",
+	"Start": "Start",
+	"End": "Einde",
+	"Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.": "Maximaal 3 eenmalige periodes waarin het voeren volledig wordt stopgezet (bijv. quarantaine na nieuwe bezetting). Bij begin en einde wordt een Telegram-bericht verzonden.",
+	"Suspend feeding now": "Voeding nu opschorten",
+	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Hoofdschakelaar: terwijl AAN, wordt alle voeding van deze schakelaar onmiddellijk en voor onbepaalde tijd opgeschort, met voorrang op de geplande pauzes en elke voedingsmodus. Zet UIT om de voeding te hervatten zoals ingesteld. Bij het omschakelen wordt een Telegram-bericht verzonden."
 }

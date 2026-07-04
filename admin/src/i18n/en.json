@@ -120,5 +120,12 @@
 	"Average of both": "Average of both",
 	"Coldest layer": "Coldest layer",
 	"Seasonal (shallow when warm, else deep)": "Seasonal (shallow when warm, else deep)",
-	"Seasonal switch threshold (°C)": "Seasonal switch threshold (°C)"
+	"Seasonal switch threshold (°C)": "Seasonal switch threshold (°C)",
+	"Feeding pauses": "Feeding pauses",
+	"Pause": "Pause",
+	"Start": "Start",
+	"End": "End",
+	"Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.": "Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.",
+	"Suspend feeding now": "Suspend feeding now",
+	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it."
 }

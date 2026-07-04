@@ -60,7 +60,13 @@ définis :
   en option avec des rappels Telegram avant son début et sa fin ;
 * **s'il faut adapter** l'intervalle et la portion à la température de l'eau/de l'air
   automatiquement (**alimentation dynamique**, modèle Q10) ;
-* **s'il faut bloquer** la distribution lorsque l'**oxygène** (O₂) dissous est trop bas.
+* **s'il faut bloquer** la distribution lorsque l'**oxygène** (O₂) dissous est trop bas ;
+* **jusqu'à 3 pauses de distribution ponctuelles** (des périodes date-heure absolues, p. ex. une
+  quarantaine après un réapprovisionnement) avec un message **Telegram** au début et à la fin de
+  chacune ;
+* un **interrupteur de pause principal** (*Suspendre la distribution maintenant*) qui suspend
+  instantanément **toute** distribution pour un interrupteur jusqu'à ce que tu le désactives de
+  nouveau, avec un message **Telegram** à chaque basculement.
 
 Tu peux déclencher une distribution **manuellement** à tout moment — directement depuis la page de
 configuration (bouton avec durée librement réglable) ou via un point de données (p. ex. un bouton
@@ -294,6 +300,19 @@ Pour chaque interrupteur, vous pouvez définir une **pause hivernale** récurren
 
 L'état actuel est indiqué dans le point de données `status.winterActive`. L'alimentation reprend automatiquement à la fin de la pause.
 
+#### Pauses de distribution
+
+**Suspendre la distribution maintenant (interrupteur principal).** En haut de cette section, un unique **interrupteur d'activation/désactivation** te permet de suspendre **toute** distribution pour l'interrupteur **immédiatement et indéfiniment** — il prend le pas sur les pauses temporelles ci-dessous **et** sur tous les modes de distribution (heures fixes, intervalle, alimentation dynamique, pause hivernale). **Désactive**-le de nouveau et la distribution reprend exactement comme configurée auparavant ; rien d'autre n'a besoin d'être modifié. Le basculement envoie un message **Telegram** (*activé* / *désactivé*). Usage typique : une interruption spontanée (médicament, entretien, traitement de l'eau) sans toucher au moindre planning. Il est modifiable depuis la page de configuration **et depuis VIS/les scripts** via `settings.pauseNow`, et son état en direct est indiqué dans `status.pauseManual`.
+
+Sous l'interrupteur principal, jusqu'à **3 pauses de distribution ponctuelles** par interrupteur te permettent de planifier des périodes date-heure absolues pendant lesquelles la distribution est **entièrement suspendue** (priorité supérieure à tous les modes de distribution). Usage typique : une **quarantaine après un réapprovisionnement**, lorsqu'il ne faut pas nourrir les nouveaux poissons pendant un certain temps.
+
+* **Pause 1 / 2 / 3** – coche pour activer, puis choisis un **Début** et une **Fin** (date + heure, affichés au format `DD.MM.YYYY HH:mm`), p. ex. de `15.07.2026 08:00` à `22.07.2026 18:00`.
+* La distribution s'arrête tant que *l'instant présent* se trouve dans une pause activée et reprend automatiquement à sa fin.
+* Un message **Telegram** est envoyé exactement au **début** et à la **fin** de chaque pause (nécessite une instance Telegram, voir ci-dessous). Si l'adaptateur démarre alors qu'une pause est déjà active, seul le message de *fin* est envoyé.
+* Modifiable depuis la page de configuration **et depuis VIS/les scripts** via les états `settings.*` (p. ex. `settings.pause1Start`).
+
+L'état actuel est indiqué dans `status.pauseActive` et `status.pauseActiveUntil` (l'interrupteur principal pilote lui aussi `status.pauseActive`).
+
 #### Surveillance de la commutation
 
 Après la commutation, l'adaptateur peut vérifier si l'interrupteur a **réellement** atteint l'état
@@ -375,6 +394,9 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.winterActive` | boolean (ro) | La pause hivernale est actuellement active. |
 | `status.winterLastStartReminder` | string (ro) | Date du dernier rappel « l'hiver commence » envoyé. |
 | `status.winterLastEndReminder` | string (ro) | Date du dernier rappel « l'hiver se termine » envoyé. |
+| `status.pauseManual` | boolean (ro) | La pause principale manuelle (*Suspendre la distribution maintenant* / `settings.pauseNow`) est active. |
+| `status.pauseActive` | boolean (ro) | Une pause de distribution ponctuelle est actuellement active. |
+| `status.pauseActiveUntil` | string (ro) | Fin de la pause de distribution actuellement active (vide s'il n'y en a aucune). |
 | `status.dynamicAvgTemperature` | number (ro) | Température moyenne utilisée par l'alimentation dynamique. |
 | `status.dynamicRate` | number (ro) | Facteur de taux Q10 actuellement appliqué par l'alimentation dynamique. |
 | `status.dynamicIntervalMin` | number (ro) | Intervalle dynamique actuellement calculé (minutes). |
@@ -421,6 +443,20 @@ true`.
   `01.11` et *Fin de l'hiver* `15.03`, mode *Suspendre l'alimentation*.
 * Coche éventuellement les rappels pour recevoir une note Telegram quelques jours avant le début/la
   fin.
+
+**Quarantaine après un réapprovisionnement (pause de distribution)**
+* Dans l'onglet de l'interrupteur, ouvre *Pauses de distribution*, coche *Pause 1* et règle
+  *Début* `15.07.2026 08:00`, *Fin* `22.07.2026 18:00` → aucune distribution dans cette fenêtre,
+  puis elle reprend automatiquement.
+* Avec une instance Telegram configurée, tu reçois un message au début et à la fin de la pause.
+
+**Suspendre la distribution immédiatement (interrupteur principal)**
+* Dans l'onglet de l'interrupteur, ouvre *Pauses de distribution* et active *Suspendre la
+  distribution maintenant* — ou écris `true` sur
+  `automatic-feeder.0.switches.sw-0.settings.pauseNow` depuis un interrupteur VIS.
+* Toute distribution s'arrête immédiatement (prenant le pas sur tous les modes) jusqu'à ce que tu
+  la désactives de nouveau ; chaque basculement envoie un message Telegram. `status.pauseManual`
+  indique l'état en direct.
 
 **Portion supplémentaire manuelle via un bouton VIS**
 * Crée dans VIS un bouton qui écrit `true` sur `automatic-feeder.0.switches.sw-0.feedNow`.

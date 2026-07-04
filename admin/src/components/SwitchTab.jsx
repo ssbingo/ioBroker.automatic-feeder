@@ -9,6 +9,7 @@ import {
 	Radio,
 	TextField,
 	Checkbox,
+	Switch,
 	Button,
 	IconButton,
 	Tooltip,
@@ -23,7 +24,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker, TimePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/de';
@@ -76,6 +77,28 @@ function hhmmToDayjs(hhmm) {
 /** Formats a dayjs time back to the stored "HH:mm" (empty string when null/invalid). */
 function dayjsToHHmm(d) {
 	return d && d.isValid() ? d.format('HH:mm') : '';
+}
+
+/** Parses a stored "DD.MM.YYYY HH:mm" (time optional) into a dayjs date-time, or null. */
+function pauseToDayjs(str) {
+	const m = typeof str === 'string' && str.trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[ T](\d{1,2}):(\d{2}))?$/);
+	if (!m) {
+		return null;
+	}
+	const d = dayjs()
+		.year(Number(m[3]))
+		.month(Number(m[2]) - 1)
+		.date(Number(m[1]))
+		.hour(m[4] !== undefined ? Number(m[4]) : 0)
+		.minute(m[5] !== undefined ? Number(m[5]) : 0)
+		.second(0)
+		.millisecond(0);
+	return d.isValid() ? d : null;
+}
+
+/** Formats a dayjs date-time back to the stored "DD.MM.YYYY HH:mm" (empty when null/invalid). */
+function dayjsToPause(d) {
+	return d && d.isValid() ? d.format('DD.MM.YYYY HH:mm') : '';
 }
 
 function Section({ title, children }) {
@@ -797,6 +820,58 @@ function SwitchTab(props) {
 				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
 					{I18n.t('Reminders need a configured Telegram instance (see below).')}
 				</Typography>
+			</Section>
+
+			{/* Feeding pauses */}
+			<Section title={I18n.t('Feeding pauses')}>
+				<FormControlLabel
+					control={
+						<Switch checked={!!sw.pauseNow} onChange={(e) => onChange({ pauseNow: e.target.checked })} />
+					}
+					label={I18n.t('Suspend feeding now')}
+				/>
+				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 2 }}>
+					{I18n.t(
+						'Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.',
+					)}
+				</Typography>
+				<Divider sx={{ my: 1 }} />
+				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+					{I18n.t(
+						'Up to 3 one-off periods in which feeding is completely suspended (e.g. a quarantine after restocking). A Telegram message is sent at the start and end.',
+					)}
+				</Typography>
+				{[1, 2, 3].map((i) => (
+					<Box key={i} sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', mt: 1 }}>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={!!sw[`pause${i}Enabled`]}
+									onChange={(e) => onChange({ [`pause${i}Enabled`]: e.target.checked })}
+								/>
+							}
+							label={`${I18n.t('Pause')} ${i}`}
+						/>
+						<DateTimePicker
+							label={I18n.t('Start')}
+							ampm={false}
+							format="DD.MM.YYYY HH:mm"
+							disabled={!sw[`pause${i}Enabled`]}
+							value={pauseToDayjs(sw[`pause${i}Start`])}
+							onChange={(v) => onChange({ [`pause${i}Start`]: dayjsToPause(v) })}
+							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 200 } } }}
+						/>
+						<DateTimePicker
+							label={I18n.t('End')}
+							ampm={false}
+							format="DD.MM.YYYY HH:mm"
+							disabled={!sw[`pause${i}Enabled`]}
+							value={pauseToDayjs(sw[`pause${i}End`])}
+							onChange={(v) => onChange({ [`pause${i}End`]: dayjsToPause(v) })}
+							slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 200 } } }}
+						/>
+					</Box>
+				))}
 			</Section>
 
 			{/* Switching supervision */}

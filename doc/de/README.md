@@ -55,7 +55,12 @@ Konfigurations-Tab, der nach dem Schalter benannt ist. Pro Schalter legst du fes
   Telegram-Erinnerungen vor Beginn und Ende;
 * **ob Intervall und Portion automatisch an die Wasser-/Lufttemperatur angepasst** werden
   (**dynamisches Füttern**, Q10-Modell);
-* **ob blockiert** wird, wenn der gelöste **Sauerstoff** (O₂) zu niedrig ist.
+* **ob blockiert** wird, wenn der gelöste **Sauerstoff** (O₂) zu niedrig ist;
+* **bis zu 3 einmalige Fütterungspausen** (absolute Datums-/Uhrzeit-Zeiträume, z. B. eine
+  Quarantäne nach Neubesatz) mit einer **Telegram**-Nachricht zu Beginn und Ende jeder Pause;
+* ein **Hauptschalter zum Pausieren** (*Fütterung jetzt aussetzen*), der **jegliche** Fütterung
+  eines Schalters sofort aussetzt, bis du ihn wieder ausschaltest, mit einer **Telegram**-Nachricht
+  bei jedem Umschalten.
 
 Du kannst eine Fütterung jederzeit **manuell** auslösen – direkt auf der Einstellungsseite
 (Button mit frei wählbarer Dauer) oder über einen Datenpunkt (z. B. ein Button in einer
@@ -270,6 +275,19 @@ Pro Schalter lässt sich eine wiederkehrende **Winterpause** definieren (saisona
 
 Der aktuelle Zustand steht im Datenpunkt `status.winterActive`. Nach Ende der Pause läuft die Fütterung automatisch wieder an.
 
+#### Fütterungspausen
+
+**Fütterung jetzt aussetzen (Hauptschalter).** Ganz oben in diesem Abschnitt setzt ein einzelner **Ein-/Aus-Schalter** **jegliche** Fütterung des Schalters **sofort und unbefristet** aus — er übersteuert die zeitbasierten Pausen weiter unten **und** jeden Fütterungsmodus (feste Zeiten, Intervall, dynamisches Füttern, Winterpause). Schaltest du ihn wieder **aus**, läuft die Fütterung exakt wie zuvor konfiguriert weiter; sonst muss nichts geändert werden. Beim Umschalten wird eine **Telegram**-Nachricht gesendet (*ein* / *aus*). Typischer Einsatz: eine spontane Unterbrechung (Medikamentengabe, Wartung, Wasseraufbereitung), ohne einen Zeitplan anzufassen. Er ist über die Einstellungsseite **und aus VIS/Skripten** über `settings.pauseNow` bearbeitbar, und sein Live-Zustand wird in `status.pauseManual` angezeigt.
+
+Unterhalb des Hauptschalters lassen sich mit bis zu **3 einmaligen Fütterungspausen** pro Schalter absolute Datums-/Uhrzeit-Zeiträume planen, in denen die Fütterung **vollständig ausgesetzt** wird (höhere Priorität als jeder Fütterungsmodus). Typischer Einsatz: eine **Quarantäne nach Neubesatz**, wenn neue Fische eine Weile nicht gefüttert werden sollen.
+
+* **Pause 1 / 2 / 3** – zum Aktivieren ankreuzen, dann **Beginn** und **Ende** wählen (Datum + Uhrzeit, angezeigt als `DD.MM.YYYY HH:mm`), z. B. `15.07.2026 08:00` bis `22.07.2026 18:00`.
+* Die Fütterung stoppt, solange *jetzt* innerhalb einer aktivierten Pause liegt, und läuft an deren Ende automatisch wieder an.
+* Eine **Telegram**-Nachricht wird genau zu **Beginn** und **Ende** jeder Pause gesendet (benötigt eine Telegram-Instanz, siehe unten). Startet der Adapter, während eine Pause bereits aktiv ist, wird nur die *Ende*-Nachricht gesendet.
+* Bearbeitbar über die Einstellungsseite **und aus VIS/Skripten** über die `settings.*`-Datenpunkte (z. B. `settings.pause1Start`).
+
+Der aktuelle Zustand steht in `status.pauseActive` und `status.pauseActiveUntil` (der Hauptschalter steuert ebenfalls `status.pauseActive`).
+
 #### Schaltüberwachung
 
 Nach dem Schalten kann der Adapter prüfen, ob der Schalter den Ein- und Aus-Zustand
@@ -350,6 +368,9 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.winterActive` | boolean (ro) | Die Winterpause ist gerade aktiv. |
 | `status.winterLastStartReminder` | string (ro) | Datum der zuletzt gesendeten „Winter beginnt"-Erinnerung. |
 | `status.winterLastEndReminder` | string (ro) | Datum der zuletzt gesendeten „Winter endet"-Erinnerung. |
+| `status.pauseManual` | boolean (ro) | Die manuelle Hauptpause (*Fütterung jetzt aussetzen* / `settings.pauseNow`) ist aktiv. |
+| `status.pauseActive` | boolean (ro) | Eine einmalige Fütterungspause ist gerade aktiv. |
+| `status.pauseActiveUntil` | string (ro) | Ende der aktuell aktiven Fütterungspause (leer, wenn keine). |
 | `status.dynamicAvgTemperature` | number (ro) | Vom dynamischen Füttern verwendete gemittelte Temperatur. |
 | `status.dynamicRate` | number (ro) | Aktuell vom dynamischen Füttern angewendeter Q10-Ratenfaktor. |
 | `status.dynamicIntervalMin` | number (ro) | Aktuell berechnetes dynamisches Intervall (Minuten). |
@@ -393,6 +414,19 @@ auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm 
   `15.03` setzen, Modus *Fütterung aussetzen*.
 * Optional die Erinnerungen ankreuzen, damit du ein paar Tage vor Beginn/Ende eine
   Telegram-Nachricht bekommst.
+
+**Quarantäne nach Neubesatz (Fütterungspause)**
+* Im Schalter-Tab *Fütterungspausen* öffnen, *Pause 1* ankreuzen und *Beginn* `15.07.2026 08:00`,
+  *Ende* `22.07.2026 18:00` setzen → in diesem Zeitraum wird gar nicht gefüttert, danach läuft es
+  automatisch wieder an.
+* Mit konfigurierter Telegram-Instanz bekommst du zu Beginn und Ende der Pause eine Nachricht.
+
+**Fütterung sofort aussetzen (Hauptschalter)**
+* Im Schalter-Tab *Fütterungspausen* öffnen und *Fütterung jetzt aussetzen* einschalten – oder aus
+  einem VIS-Schalter `true` auf `automatic-feeder.0.switches.sw-0.settings.pauseNow` schreiben.
+* Jegliche Fütterung stoppt sofort (übersteuert jeden Modus), bis du sie wieder ausschaltest; bei
+  jedem Umschalten wird eine Telegram-Nachricht gesendet. `status.pauseManual` zeigt den
+  Live-Zustand.
 
 **Manuelle Extraportion per VIS-Button**
 * In VIS einen Button anlegen, der `true` auf `automatic-feeder.0.switches.sw-0.feedNow` schreibt.
