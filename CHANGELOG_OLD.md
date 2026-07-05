@@ -3,6 +3,13 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.1.0 (2026-07-01)
+* (ssbingo) New per-switch **astronomical feeding window**: restrict feeding to the daytime window (sunrise/sunset with per-switch offsets). For *Interval* and *Dynamic feeding* it becomes the feeding window; for *Fixed times* it acts as a day/night guard. Replaces the former per-switch "do not feed at night"
+* (ssbingo) The **location** can now be taken from the system settings, set once as a shared location, or configured **individually per switch** (feeding stations at different places); the sunrise/sunset offsets moved from the general page to each switch
+* (ssbingo) New per-switch data points `status.sunrise` / `status.sunset`; the global `sunrise` / `sunset` states were removed
+* (ssbingo) Existing configuration is migrated automatically (the former night protection becomes the astronomical window; the global offsets and location move to the switches)
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.0.2 (2026-07-01)
 * (ssbingo) Fix (repository checker E1011): the editable `settings.*` mirror combined read-only state roles (`value` / `value.temperature` / `indicator`) with `write = true`. Writable settings now use the writable roles `level` / `level.temperature` / `switch`; existing objects are corrected automatically on start
 

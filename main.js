@@ -1197,13 +1197,15 @@ class AutomaticFeeder extends utils.Adapter {
 		const wantedIds = new Set(this.switches.map(s => s.id));
 		this.log.silly(`Synchronizing switch objects. Wanted ids: ${[...wantedIds].join(', ') || '(none)'}`);
 
-		// remove channels of switches that no longer exist
+		// remove channels of switches that no longer exist. Only DIRECT children of
+		// "switches." are switch channels - sub-channels like "sw-0.status" must be
+		// skipped, otherwise every start wipes the persisted status values.
 		const all = await this.getAdapterObjectsAsync();
 		const prefix = `${this.namespace}.switches.`;
 		for (const id of Object.keys(all)) {
 			if (id.startsWith(prefix) && all[id].type === 'channel') {
 				const sid = id.substring(prefix.length);
-				if (!wantedIds.has(sid)) {
+				if (!sid.includes('.') && !wantedIds.has(sid)) {
 					await this.delObjectAsync(id, { recursive: true });
 					this.log.info(`Removed obsolete switch objects for "${sid}".`);
 				}

@@ -557,6 +557,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.4.1 (2026-07-05)
+* (ssbingo) Fix: the cleanup of removed switches mistakenly treated the `status` **sub-channel** as an obsolete switch and deleted it on **every adapter start** — the persisted status values (last feeding/result, winter-reminder deduplication, pause state) were lost on each restart (latent since 1.0.0). Only direct children of `switches.` are considered switch channels now; status values survive restarts
+
 ### 1.4.0 (2026-07-05)
 * (ssbingo) Every timestamp data point now has a **numeric twin** ending in `…Ts` (Unix time in **milliseconds**, `0` = none): `status.lastFeedingTs`, `nextFeedingTs`, `pauseActiveUntilTs`, `sunriseTs`, `sunsetTs` — countdowns and time bars in VIS work without any string parsing and independent of the display format
 * (ssbingo) New `status.blockReasonCode`: the block reason as a **stable machine-readable code** (e.g. `blockNight`, `blockWaterBelow`, `blockPauseManual`; empty = not blocked) — language-independent icon/colour logic in VIS next to the localized `status.blockReason`
@@ -595,13 +598,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.1.1 (2026-07-01)
 * (ssbingo) Admin UI: under dynamic feeding the static **Feeding duration** field is now hidden (the duration is computed from temperature there, so the static value only confused); the on/off values stay visible
-
-### 1.1.0 (2026-07-01)
-* (ssbingo) New per-switch **astronomical feeding window**: restrict feeding to the daytime window (sunrise/sunset with per-switch offsets). For *Interval* and *Dynamic feeding* it becomes the feeding window; for *Fixed times* it acts as a day/night guard. Replaces the former per-switch "do not feed at night"
-* (ssbingo) The **location** can now be taken from the system settings, set once as a shared location, or configured **individually per switch** (feeding stations at different places); the sunrise/sunset offsets moved from the general page to each switch
-* (ssbingo) New per-switch data points `status.sunrise` / `status.sunset`; the global `sunrise` / `sunset` states were removed
-* (ssbingo) Existing configuration is migrated automatically (the former night protection becomes the astronomical window; the global offsets and location move to the switches)
-* (ssbingo) Documentation updated in all 11 languages
 
 ---
 
