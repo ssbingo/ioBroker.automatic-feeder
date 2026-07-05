@@ -253,8 +253,8 @@ blokuje.)
     jest ustawiona na *indywidualnie*: wybierz *Użyj ustawień systemowych* lub *Zdefiniuj
     konkretną lokalizację* (wyszukiwanie adresu + mapa) dla tego przełącznika. Obliczone czasy
     pojawiają się w `status.sunrise` / `status.sunset`.
-* **Ręczny wyzwalacz ignoruje wszystkie blokady** – gdy aktywne, przycisk oraz punkt danych
-  `feedNow` karmią również przy aktywnej blokadzie temperaturowej/okna.
+* **Ręczny wyzwalacz ignoruje wszystkie blokady** – gdy aktywne, przycisk oraz punkty danych
+  `feedNow` / `feedFor` karmią również przy aktywnej blokadzie temperaturowej/okna.
 
 #### Karmienie dynamiczne
 
@@ -342,7 +342,7 @@ Pełna konfiguracja znajduje się w sekcji [Powiadomienia Telegram](#8-powiadomi
 
 ## 6. Obiekty / punkty danych
 
-> **Uwaga:** wszystkie punkty danych ze znacznikiem czasu są pokazywane w **lokalnej strefie czasowej systemu** (format `DD.MM.RRRR GG:MM:SS`, np. `01.07.2026 16:20:00`).
+> **Uwaga:** wszystkie punkty danych ze znacznikiem czasu są pokazywane w **lokalnej strefie czasowej systemu** (format `DD.MM.RRRR GG:MM:SS`, np. `01.07.2026 16:20:00`). Dla VIS i skryptów każdy znacznik czasu ma dodatkowo **liczbowego bliźniaka** kończącego się na `…Ts` (czas uniksowy w **milisekundach**, `0` = brak) — idealny do odliczań i pasków czasu bez żadnego parsowania tekstu i niezależny od formatu wyświetlania.
 
 Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 (`automatic-feeder.<instanz>.`).
@@ -366,11 +366,15 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | Punkt danych | Typ | Znaczenie |
 |------------|-----|-----------|
 | `feedNow` | boolean (rw) | Zapisz `true`, aby nakarmić ręcznie. |
+| `feedFor` | number (rw) | Zapisz czas trwania w **sekundach**, aby wyzwolić **jedno karmienie o dokładnie tym czasie trwania** — bez zmiany konfiguracji, bez restartu. Po wykonaniu resetuje się do `0`. |
 | `status.feedingActive` | boolean (ro) | Właśnie trwa karmienie. |
 | `status.lastFeeding` | string (ro) | Moment ostatniego karmienia. |
+| `status.lastFeedingTs` | number (ro) | Ostatnie karmienie jako czas uniksowy w ms (`0` = jeszcze brak). |
 | `status.nextFeeding` | string (ro) | Moment następnego zaplanowanego karmienia. |
+| `status.nextFeedingTs` | number (ro) | Następne zaplanowane karmienie jako czas uniksowy w ms (`0` = nic nie zaplanowano). |
 | `status.blocked` | boolean (ro) | Ostatnia próba była zablokowana. |
-| `status.blockReason` | string (ro) | Powód zablokowania (noc / temperatura / tlen). |
+| `status.blockReason` | string (ro) | Powód zablokowania (noc / temperatura / tlen), w języku systemowym. |
+| `status.blockReasonCode` | string (ro) | Powód blokady jako **stabilny, maszynowo czytelny kod** (np. `blockNight`, `blockWaterBelow`, `blockPauseManual`; pusty = brak blokady) — do logiki ikon/kolorów w VIS, niezależnie od języka. |
 | `status.lastResult` | string (ro) | Tekst wyniku ostatniej próby karmienia. |
 | `status.error` | boolean (ro) | Ostatnia próba miała usterkę przełączania. |
 | `status.winterActive` | boolean (ro) | Przerwa zimowa jest aktualnie aktywna. |
@@ -379,6 +383,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.pauseManual` | boolean (ro) | Ręczna pauza główna (*Wstrzymaj karmienie teraz* / `settings.pauseNow`) jest włączona. |
 | `status.pauseActive` | boolean (ro) | Jednorazowa przerwa w karmieniu jest aktualnie aktywna. |
 | `status.pauseActiveUntil` | string (ro) | Koniec aktualnie aktywnej przerwy w karmieniu (puste, jeśli brak). |
+| `status.pauseActiveUntilTs` | number (ro) | Koniec aktywnej przerwy w karmieniu jako czas uniksowy w ms (`0` = brak). |
 | `status.dynamicAvgTemperature` | number (ro) | Uśredniona temperatura używana przez karmienie dynamiczne. |
 | `status.dynamicRate` | number (ro) | Współczynnik Q10 aktualnie stosowany przez karmienie dynamiczne. |
 | `status.dynamicIntervalMin` | number (ro) | Aktualnie obliczony dynamiczny interwał (minuty). |
@@ -389,6 +394,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.waterStratification` | number (ro) | Różnica temperatur płytki − głęboki (tylko przy dwóch czujnikach wody). |
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | Wschód/zachód słońca jako czas uniksowy w ms — np. dla paska postępu dnia w VIS. |
 
 Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – np. wyświetlić
 `status.nextFeeding` na pulpicie albo wyzwolić własny alarm przy `status.error = true`.
@@ -437,6 +443,9 @@ Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – 
 
 **Ręczna dodatkowa porcja przez przycisk VIS**
 * W VIS utwórz przycisk, który zapisuje `true` do `automatic-feeder.0.switches.sw-0.feedNow`.
+* Albo użyj suwaka/pola liczbowego, które zapisuje **sekundy** do
+  `automatic-feeder.0.switches.sw-0.feedFor` → karmi **raz o dokładnie tym czasie trwania**
+  (bez zmiany konfiguracji, bez restartu; stan resetuje się potem do `0`).
 * Opcjonalnie aktywuj *Ręczny wyzwalacz ignoruje wszystkie blokady*, aby karmienie zawsze
   następowało.
 

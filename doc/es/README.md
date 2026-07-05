@@ -260,8 +260,8 @@ escribe en `status.blockReason`. (Si un valor de temperatura es desconocido, esa
     *individual*: elige *Usar los ajustes del sistema* o *Establecer ubicación específica* (búsqueda
     de direcciones + mapa) para este interruptor. Las horas calculadas aparecen en `status.sunrise`
     / `status.sunset`.
-* **El activador manual ignora todos los bloqueos**: si está activo, el botón y el punto de datos
-  `feedNow` alimentan incluso con un bloqueo por temperatura/ventana activo.
+* **El activador manual ignora todos los bloqueos**: si está activo, el botón y los puntos de datos
+  `feedNow` / `feedFor` alimentan incluso con un bloqueo por temperatura/ventana activo.
 
 #### Alimentación dinámica
 
@@ -364,7 +364,7 @@ La configuración completa se encuentra en [Notificaciones de Telegram](#8-notif
 
 ## 6. Objetos / puntos de datos
 
-> **Nota:** todos los puntos de datos con marca de tiempo se muestran en la **zona horaria local del sistema** (formato `DD.MM.AAAA HH:MM:SS`, p. ej. `01.07.2026 16:20:00`).
+> **Nota:** todos los puntos de datos con marca de tiempo se muestran en la **zona horaria local del sistema** (formato `DD.MM.AAAA HH:MM:SS`, p. ej. `01.07.2026 16:20:00`). Para VIS y scripts, cada marca de tiempo tiene además un **gemelo numérico** que termina en `…Ts` (tiempo Unix en **milisegundos**, `0` = ninguno): ideal para cuentas atrás y barras de tiempo sin analizar cadenas de texto, e independiente del formato de visualización.
 
 El adaptador crea los siguientes puntos de datos en su espacio de nombres
 (`automatic-feeder.<instanz>.`).
@@ -389,11 +389,15 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | Punto de datos | Tipo | Significado |
 |------------|-----|-----------|
 | `feedNow` | boolean (rw) | Escribir `true` para alimentar manualmente. |
+| `feedFor` | number (rw) | Escribir una duración en **segundos** para activar **una alimentación con exactamente esa duración**: sin cambio de configuración, sin reinicio. Se restablece a `0` tras la ejecución. |
 | `status.feedingActive` | boolean (ro) | En este momento hay una alimentación en curso. |
 | `status.lastFeeding` | string (ro) | Momento de la última alimentación. |
+| `status.lastFeedingTs` | number (ro) | Última alimentación como tiempo Unix en ms (`0` = todavía ninguna). |
 | `status.nextFeeding` | string (ro) | Momento de la próxima alimentación planificada. |
+| `status.nextFeedingTs` | number (ro) | Próxima alimentación planificada como tiempo Unix en ms (`0` = nada planificado). |
 | `status.blocked` | boolean (ro) | El último intento estaba bloqueado. |
-| `status.blockReason` | string (ro) | Motivo del bloqueo (noche / temperatura / oxígeno). |
+| `status.blockReason` | string (ro) | Motivo del bloqueo (noche / temperatura / oxígeno), en el idioma del sistema. |
+| `status.blockReasonCode` | string (ro) | El motivo del bloqueo como **código estable legible por máquina** (p. ej. `blockNight`, `blockWaterBelow`, `blockPauseManual`; vacío = no bloqueado): para la lógica de iconos/colores en VIS, independiente del idioma. |
 | `status.lastResult` | string (ro) | Texto del resultado del último intento de alimentación. |
 | `status.error` | boolean (ro) | El último intento tuvo una avería de conmutación. |
 | `status.winterActive` | boolean (ro) | La pausa de invierno está activa actualmente. |
@@ -402,6 +406,7 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.pauseManual` | boolean (ro) | La pausa principal manual (*Suspender alimentación ahora* / `settings.pauseNow`) está activada. |
 | `status.pauseActive` | boolean (ro) | Una pausa de alimentación puntual está activa actualmente. |
 | `status.pauseActiveUntil` | string (ro) | Fin de la pausa de alimentación activa actualmente (vacío si no hay ninguna). |
+| `status.pauseActiveUntilTs` | number (ro) | Fin de la pausa de alimentación activa como tiempo Unix en ms (`0` = ninguna). |
 | `status.dynamicAvgTemperature` | number (ro) | Temperatura promediada usada por la alimentación dinámica. |
 | `status.dynamicRate` | number (ro) | Factor de tasa Q10 aplicado actualmente por la alimentación dinámica. |
 | `status.dynamicIntervalMin` | number (ro) | Intervalo dinámico calculado actualmente (minutos). |
@@ -412,6 +417,7 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.waterStratification` | number (ro) | Diferencia de temperatura superficial − profunda (solo con dos sensores de agua). |
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | Orto/ocaso como tiempo Unix en ms, p. ej. para una barra de progreso del día en VIS. |
 
 Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. ej. mostrar
 `status.nextFeeding` en un panel o activar una alarma propia cuando `status.error = true`.
@@ -462,6 +468,9 @@ Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. 
 
 **Ración extra manual mediante un botón de VIS**
 * Crea en VIS un botón que escriba `true` en `automatic-feeder.0.switches.sw-0.feedNow`.
+* O usa un deslizador/campo numérico que escriba los **segundos** en
+  `automatic-feeder.0.switches.sw-0.feedFor` → alimenta **una vez con exactamente esa duración**
+  (sin cambio de configuración, sin reinicio; el punto de datos se restablece a `0` después).
 * Opcionalmente activa *El activador manual ignora todos los bloqueos* para que siempre se alimente.
 
 ---

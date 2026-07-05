@@ -219,7 +219,7 @@
     *采用系统设置*或*定义具体位置*（地址搜索 + 地图）。计算出的时间会显示在
     `status.sunrise` / `status.sunset` 中。
 * **手动触发器忽略所有阻止**——如果激活，则即使温度/时段阻止处于生效状态，按钮和数据点
-  `feedNow` 也会喂食。
+  `feedNow` / `feedFor` 也会喂食。
 
 #### 动态投喂
 
@@ -302,7 +302,7 @@
 
 ## 6. 对象 / 数据点
 
-> **注意：** 所有带时间戳的数据点均以**系统本地时区**显示（格式 `DD.MM.YYYY HH:MM:SS`，例如 `01.07.2026 16:20:00`）。
+> **注意：** 所有带时间戳的数据点均以**系统本地时区**显示（格式 `DD.MM.YYYY HH:MM:SS`，例如 `01.07.2026 16:20:00`）。对于 VIS 和脚本，每个时间戳还额外拥有一个以 `…Ts` 结尾的**数字孪生数据点**（Unix 时间，单位为**毫秒**，`0` = 无）——非常适合用于倒计时和时间进度条，无需任何字符串解析，且与显示格式无关。
 
 适配器会在其命名空间下创建以下数据点（`automatic-feeder.<instanz>.`）。
 
@@ -322,11 +322,15 @@
 | 数据点 | 类型 | 含义 |
 |------------|-----|-----------|
 | `feedNow` | boolean (rw) | 写入 `true` 以手动喂食。 |
+| `feedFor` | number (rw) | 写入以**秒**为单位的时长，即可触发**一次恰好为该时长的喂食**——无需更改配置、无需重启。执行后重置为 `0`。 |
 | `status.feedingActive` | boolean (ro) | 当前正在进行一次喂食。 |
 | `status.lastFeeding` | string (ro) | 上次喂食的时间点。 |
+| `status.lastFeedingTs` | number (ro) | 上次喂食，以毫秒为单位的 Unix 时间（`0` = 尚无喂食）。 |
 | `status.nextFeeding` | string (ro) | 下一次计划喂食的时间点。 |
+| `status.nextFeedingTs` | number (ro) | 下一次计划喂食，以毫秒为单位的 Unix 时间（`0` = 无计划）。 |
 | `status.blocked` | boolean (ro) | 上次尝试被阻止。 |
-| `status.blockReason` | string (ro) | 阻止的原因（夜间/温度/氧）。 |
+| `status.blockReason` | string (ro) | 阻止的原因（夜间/温度/氧），以系统语言显示。 |
+| `status.blockReasonCode` | string (ro) | 阻止原因的**稳定机器可读代码**（例如 `blockNight`、`blockWaterBelow`、`blockPauseManual`；为空 = 未被阻止）——用于 VIS 中的图标/颜色逻辑，与语言无关。 |
 | `status.lastResult` | string (ro) | 上次喂食尝试的结果文本。 |
 | `status.error` | boolean (ro) | 上次尝试出现了开关故障。 |
 | `status.winterActive` | boolean (ro) | 冬季暂停当前处于生效状态。 |
@@ -335,6 +339,7 @@
 | `status.pauseManual` | boolean (ro) | 手动主暂停（*立即暂停投喂* / `settings.pauseNow`）已开启。 |
 | `status.pauseActive` | boolean (ro) | 当前有一次一次性喂食暂停处于生效状态。 |
 | `status.pauseActiveUntil` | string (ro) | 当前生效的喂食暂停的结束时间（若无则为空）。 |
+| `status.pauseActiveUntilTs` | number (ro) | 当前生效的喂食暂停的结束时间，以毫秒为单位的 Unix 时间（`0` = 无）。 |
 | `status.dynamicAvgTemperature` | number (ro) | 动态投喂所用的平均温度。 |
 | `status.dynamicRate` | number (ro) | 动态投喂当前应用的 Q10 速率因子。 |
 | `status.dynamicIntervalMin` | number (ro) | 当前计算得出的动态间隔（分钟）。 |
@@ -345,6 +350,7 @@
 | `status.waterStratification` | number (ro) | 温度差 浅层 − 深层（仅在有两个水温传感器时）。 |
 | `status.oxygen` | number (ro) | 该开关自身溶解氧来源的值。 |
 | `status.sunrise` / `status.sunset` | string (ro) | 为该开关位置计算出的日出/日落（天文时段）。 |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | 日出/日落，以毫秒为单位的 Unix 时间——例如用于 VIS 中的白昼进度条。 |
 
 这些数据点可在 VIS、脚本或其他适配器中使用——例如在仪表盘上显示 `status.nextFeeding`，
 或在 `status.error = true` 时触发你自己的报警。
@@ -388,6 +394,9 @@
 
 **通过 VIS 按钮手动加餐**
 * 在 VIS 中创建一个按钮，将 `true` 写入 `automatic-feeder.0.switches.sw-0.feedNow`。
+* 或者使用一个滑块/数字输入框，将**秒数**写入
+  `automatic-feeder.0.switches.sw-0.feedFor` → **一次性以恰好该时长喂食**
+  （无需更改配置、无需重启；该数据点之后会重置为 `0`）。
 * 可选地激活*手动触发器忽略所有阻止*，以便始终喂食。
 
 ---

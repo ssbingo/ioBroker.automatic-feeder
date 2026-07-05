@@ -243,8 +243,8 @@ bron niet.)
     *individueel* staat: kies *Systeeminstellingen gebruiken* of *Specifieke locatie vastleggen*
     (adres zoeken + kaart) voor deze schakelaar. De berekende tijden verschijnen in
     `status.sunrise` / `status.sunset`.
-* **Handmatige trigger negeert alle blokkeringen** – wanneer actief, voeren de knop en het
-  datapunt `feedNow` ook bij actieve temperatuur-/vensterblokkering.
+* **Handmatige trigger negeert alle blokkeringen** – wanneer actief, voeren de knop en de
+  datapunten `feedNow` / `feedFor` ook bij actieve temperatuur-/vensterblokkering.
 
 #### Dynamisch voeren
 
@@ -329,7 +329,7 @@ De volledige inrichting staat onder [Telegram-meldingen](#8-telegram-meldingen).
 
 ## 6. Objecten / datapunten
 
-> **Let op:** alle datapunten met tijdstempel worden weergegeven in de **lokale tijdzone van het systeem** (formaat `DD.MM.JJJJ UU:MM:SS`, bijv. `01.07.2026 16:20:00`).
+> **Let op:** alle datapunten met tijdstempel worden weergegeven in de **lokale tijdzone van het systeem** (formaat `DD.MM.JJJJ UU:MM:SS`, bijv. `01.07.2026 16:20:00`). Voor VIS en scripts heeft elk tijdstempel bovendien een **numerieke tweeling** die eindigt op `…Ts` (Unix-tijd in **milliseconden**, `0` = geen) — ideaal voor countdowns en tijdbalken zonder string-parsing, en onafhankelijk van het weergaveformaat.
 
 De adapter legt de volgende datapunten in zijn namespace aan
 (`automatic-feeder.<instanz>.`).
@@ -353,11 +353,15 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | Datapunt | Type | Betekenis |
 |------------|-----|-----------|
 | `feedNow` | boolean (rw) | `true` schrijven om handmatig te voeren. |
+| `feedFor` | number (rw) | Schrijf een duur in **seconden** om **één voedering met precies die duur** te activeren — geen configuratiewijziging, geen herstart. Wordt na uitvoering teruggezet naar `0`. |
 | `status.feedingActive` | boolean (ro) | Er loopt nu een voedering. |
 | `status.lastFeeding` | string (ro) | Tijdstip van de laatste voedering. |
+| `status.lastFeedingTs` | number (ro) | Laatste voedering als Unix-tijd in ms (`0` = nog geen). |
 | `status.nextFeeding` | string (ro) | Tijdstip van de volgende geplande voedering. |
+| `status.nextFeedingTs` | number (ro) | Volgende geplande voedering als Unix-tijd in ms (`0` = niets gepland). |
 | `status.blocked` | boolean (ro) | De laatste poging was geblokkeerd. |
-| `status.blockReason` | string (ro) | Reden van de blokkering (nacht / temperatuur / zuurstof). |
+| `status.blockReason` | string (ro) | Reden van de blokkering (nacht / temperatuur / zuurstof), in de systeemtaal. |
+| `status.blockReasonCode` | string (ro) | De blokkeringsreden als **stabiele machineleesbare code** (bijv. `blockNight`, `blockWaterBelow`, `blockPauseManual`; leeg = niet geblokkeerd) — voor icoon-/kleurlogica in VIS, onafhankelijk van de taal. |
 | `status.lastResult` | string (ro) | Resultaattekst van de laatste voederpoging. |
 | `status.error` | boolean (ro) | De laatste poging had een schakelstoring. |
 | `status.winterActive` | boolean (ro) | De winterpauze is momenteel actief. |
@@ -366,6 +370,7 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.pauseManual` | boolean (ro) | De handmatige hoofdpauze (*Voeding nu opschorten* / `settings.pauseNow`) is ingeschakeld. |
 | `status.pauseActive` | boolean (ro) | Er is momenteel een eenmalige voederpauze actief. |
 | `status.pauseActiveUntil` | string (ro) | Einde van de momenteel actieve voederpauze (leeg indien geen). |
+| `status.pauseActiveUntilTs` | number (ro) | Einde van de actieve voederpauze als Unix-tijd in ms (`0` = geen). |
 | `status.dynamicAvgTemperature` | number (ro) | Gemiddelde temperatuur die door dynamisch voeren wordt gebruikt. |
 | `status.dynamicRate` | number (ro) | Q10-factor die momenteel door dynamisch voeren wordt toegepast. |
 | `status.dynamicIntervalMin` | number (ro) | Momenteel berekend dynamisch interval (minuten). |
@@ -376,6 +381,7 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.waterStratification` | number (ro) | Temperatuurverschil ondiep − diep (alleen met twee watersensoren). |
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | Zonsop-/-ondergang als Unix-tijd in ms — bijv. voor een dagvoortgangsbalk in VIS. |
 
 Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `status.nextFeeding`
 op een dashboard weergeven of bij `status.error = true` een eigen alarm activeren.
@@ -420,6 +426,9 @@ op een dashboard weergeven of bij `status.error = true` een eigen alarm activere
 
 **Handmatige extra portie via VIS-knop**
 * In VIS een knop aanmaken die `true` op `automatic-feeder.0.switches.sw-0.feedNow` schrijft.
+* Of gebruik een schuifregelaar/getalveld dat de **seconden** naar
+  `automatic-feeder.0.switches.sw-0.feedFor` schrijft → voert **één keer met precies die duur**
+  (geen configuratiewijziging, geen herstart; het datapunt wordt daarna teruggezet naar `0`).
 * Optioneel *Handmatige trigger negeert alle blokkeringen* activeren, zodat er altijd wordt gevoerd.
 
 ---

@@ -49,9 +49,12 @@ const GEOCODE_TIMEOUT_MS = 10000;
 const STATUS_STATE_IDS = [
 	'feedingActive',
 	'lastFeeding',
+	'lastFeedingTs',
 	'nextFeeding',
+	'nextFeedingTs',
 	'blocked',
 	'blockReason',
+	'blockReasonCode',
 	'lastResult',
 	'error',
 	'winterActive',
@@ -60,6 +63,7 @@ const STATUS_STATE_IDS = [
 	'pauseManual',
 	'pauseActive',
 	'pauseActiveUntil',
+	'pauseActiveUntilTs',
 	'dynamicAvgTemperature',
 	'dynamicRate',
 	'dynamicIntervalMin',
@@ -70,7 +74,9 @@ const STATUS_STATE_IDS = [
 	'waterStratification',
 	'oxygen',
 	'sunrise',
+	'sunriseTs',
 	'sunset',
+	'sunsetTs',
 ];
 
 /** Settings mirror entries that are composite/derived and stay read-only (not editable from VIS). */
@@ -975,8 +981,9 @@ class AutomaticFeeder extends utils.Adapter {
 
 			// --- subscribe to our own manual trigger + editable settings states ---
 			this.subscribeStates('switches.*.feedNow');
+			this.subscribeStates('switches.*.feedFor');
 			this.subscribeStates('switches.*.settings.*');
-			this.log.silly('Subscribed to switches.*.feedNow and switches.*.settings.*');
+			this.log.silly('Subscribed to switches.*.feedNow, switches.*.feedFor and switches.*.settings.*');
 
 			// --- schedule feeding for every enabled switch ---
 			let planned = 0;
@@ -1121,7 +1128,9 @@ class AutomaticFeeder extends utils.Adapter {
 			const end = new Date(times.sunset.getTime() - evening * 60000);
 			this.switchWindows.set(sw.id, { start, end });
 			this.setStateAsync(`switches.${sw.id}.status.sunrise`, { val: this.localTs(times.sunrise), ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.sunriseTs`, { val: times.sunrise.getTime(), ack: true });
 			this.setStateAsync(`switches.${sw.id}.status.sunset`, { val: this.localTs(times.sunset), ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.sunsetTs`, { val: times.sunset.getTime(), ack: true });
 			this.log.debug(
 				`Sun times ${this.swLabel(sw)}: sunrise=${this.localTs(times.sunrise)}, sunset=${this.localTs(times.sunset)}; ` +
 					`offsets +${morning}/-${evening} min -> window ${this.localTs(start)} ... ${this.localTs(end)}`,
@@ -1251,9 +1260,33 @@ class AutomaticFeeder extends utils.Adapter {
 				common: { name: 'Last feeding', type: 'string', role: 'date', read: true, write: false },
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.lastFeedingTs`, {
+				type: 'state',
+				common: {
+					name: 'Last feeding as Unix timestamp in ms (0 = none)',
+					type: 'number',
+					role: 'value.time',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			});
 			await this.setObjectNotExistsAsync(`${base}.status.nextFeeding`, {
 				type: 'state',
 				common: { name: 'Next feeding', type: 'string', role: 'date', read: true, write: false },
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.nextFeedingTs`, {
+				type: 'state',
+				common: {
+					name: 'Next feeding as Unix timestamp in ms (0 = none planned)',
+					type: 'number',
+					role: 'value.time',
+					read: true,
+					write: false,
+					def: 0,
+				},
 				native: {},
 			});
 			await this.setObjectNotExistsAsync(`${base}.status.blocked`, {
@@ -1271,6 +1304,18 @@ class AutomaticFeeder extends utils.Adapter {
 			await this.setObjectNotExistsAsync(`${base}.status.blockReason`, {
 				type: 'state',
 				common: { name: 'Block reason', type: 'string', role: 'text', read: true, write: false, def: '' },
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.blockReasonCode`, {
+				type: 'state',
+				common: {
+					name: 'Block reason as stable machine-readable code (empty = not blocked)',
+					type: 'string',
+					role: 'text',
+					read: true,
+					write: false,
+					def: '',
+				},
 				native: {},
 			});
 			await this.setObjectNotExistsAsync(`${base}.status.lastResult`, {
@@ -1306,6 +1351,21 @@ class AutomaticFeeder extends utils.Adapter {
 					read: false,
 					write: true,
 					def: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.feedFor`, {
+				type: 'state',
+				common: {
+					name: 'Feed once for N seconds (write the duration; resets to 0)',
+					type: 'number',
+					role: 'level',
+					unit: 's',
+					min: 0,
+					max: MAX_DURATION_SEC,
+					read: true,
+					write: true,
+					def: 0,
 				},
 				native: {},
 			});
@@ -1354,6 +1414,18 @@ class AutomaticFeeder extends utils.Adapter {
 					read: true,
 					write: false,
 					def: '',
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.pauseActiveUntilTs`, {
+				type: 'state',
+				common: {
+					name: 'End of the active feeding pause as Unix timestamp in ms (0 = none)',
+					type: 'number',
+					role: 'value.time',
+					read: true,
+					write: false,
+					def: 0,
 				},
 				native: {},
 			});
@@ -1502,9 +1574,33 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.sunriseTs`, {
+				type: 'state',
+				common: {
+					name: 'Sunrise as Unix timestamp in ms (this switch)',
+					type: 'number',
+					role: 'value.time',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			});
 			await this.setObjectNotExistsAsync(`${base}.status.sunset`, {
 				type: 'state',
 				common: { name: 'Sunset (this switch)', type: 'string', role: 'date.sunset', read: true, write: false },
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.sunsetTs`, {
+				type: 'state',
+				common: {
+					name: 'Sunset as Unix timestamp in ms (this switch)',
+					type: 'number',
+					role: 'value.time',
+					read: true,
+					write: false,
+					def: 0,
+				},
 				native: {},
 			});
 
@@ -1875,7 +1971,9 @@ class AutomaticFeeder extends utils.Adapter {
 		if (sw.pauseNow) {
 			this.setStateAsync(`switches.${sw.id}.status.pauseActive`, { val: true, ack: true });
 			this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntil`, { val: '', ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntilTs`, { val: 0, ack: true });
 			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.nextFeedingTs`, { val: 0, ack: true });
 			this.log.debug(
 				`Switch ${this.swLabel(sw)}: manual master pause (pauseNow) active - all feeding suspended, nothing planned.`,
 			);
@@ -1890,10 +1988,15 @@ class AutomaticFeeder extends utils.Adapter {
 			val: pinfo.active && pinfo.until ? this.localTs(new Date(pinfo.until)) : '',
 			ack: true,
 		});
+		this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntilTs`, {
+			val: pinfo.active && pinfo.until ? pinfo.until : 0,
+			ack: true,
+		});
 		this.armPauseTimer(sw);
 		if (pinfo.active) {
 			const untilStr = pinfo.until ? this.localTs(new Date(pinfo.until)) : '';
 			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.nextFeedingTs`, { val: 0, ack: true });
 			this.log.debug(`Switch ${this.swLabel(sw)}: feeding paused until ${untilStr} - nothing planned.`);
 			return;
 		}
@@ -1910,6 +2013,7 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		if (!next) {
 			this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: '', ack: true });
+			this.setStateAsync(`switches.${sw.id}.status.nextFeedingTs`, { val: 0, ack: true });
 			const winterActive = !!sw.winterEnabled && isInWinterPause(sw.winterStart, sw.winterEnd, new Date());
 			if (sw.dynamicEnabled && !winterActive) {
 				this.log.warn(
@@ -1917,6 +2021,10 @@ class AutomaticFeeder extends utils.Adapter {
 				);
 				this.setStateAsync(`switches.${sw.id}.status.blockReason`, {
 					val: this.t('dynamicNoInterval'),
+					ack: true,
+				});
+				this.setStateAsync(`switches.${sw.id}.status.blockReasonCode`, {
+					val: 'dynamicNoInterval',
 					ack: true,
 				});
 			} else {
@@ -1930,11 +2038,13 @@ class AutomaticFeeder extends utils.Adapter {
 			.then(st => {
 				if (st && st.val === this.t('dynamicNoInterval')) {
 					this.setStateAsync(`switches.${sw.id}.status.blockReason`, { val: '', ack: true });
+					this.setStateAsync(`switches.${sw.id}.status.blockReasonCode`, { val: '', ack: true });
 				}
 			})
 			.catch(() => {});
 
 		this.setStateAsync(`switches.${sw.id}.status.nextFeeding`, { val: this.localTs(next), ack: true });
+		this.setStateAsync(`switches.${sw.id}.status.nextFeedingTs`, { val: next.getTime(), ack: true });
 		const delay = Math.min(MAX_TIMEOUT_MS, Math.max(0, next.getTime() - Date.now()));
 		const windowKind = sw.astroWindowEnabled
 			? 'astro'
@@ -2081,6 +2191,10 @@ class AutomaticFeeder extends utils.Adapter {
 		await this.setStateAsync(`switches.${sw.id}.status.pauseActive`, { val: info.active, ack: true });
 		await this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntil`, {
 			val: info.active && info.until ? this.localTs(new Date(info.until)) : '',
+			ack: true,
+		});
+		await this.setStateAsync(`switches.${sw.id}.status.pauseActiveUntilTs`, {
+			val: info.active && info.until ? info.until : 0,
 			ack: true,
 		});
 	}
@@ -2296,6 +2410,10 @@ class AutomaticFeeder extends utils.Adapter {
 		const reasonText = reason ? this.t(reason.key, reason.params) : '';
 		await this.setStateAsync(`switches.${sw.id}.status.blocked`, { val: blocked, ack: true });
 		await this.setStateAsync(`switches.${sw.id}.status.blockReason`, { val: reasonText, ack: true });
+		await this.setStateAsync(`switches.${sw.id}.status.blockReasonCode`, {
+			val: reason ? reason.key : '',
+			ack: true,
+		});
 		if (reason) {
 			// log in English for consistent, language-independent logs
 			this.log.info(`Feeding of ${this.swLabel(sw)} blocked: ${translate(reason.key, 'en', reason.params)}`);
@@ -2326,6 +2444,7 @@ class AutomaticFeeder extends utils.Adapter {
 				val: this.localTs(new Date()),
 				ack: true,
 			});
+			await this.setStateAsync(`switches.${sw.id}.status.lastFeedingTs`, { val: Date.now(), ack: true });
 
 			if (verify) {
 				const onConfirmed = await this.verifyState(sw, true);
@@ -3044,6 +3163,26 @@ class AutomaticFeeder extends utils.Adapter {
 				this.log.warn(`Manual trigger for unknown switch id "${m[1]}".`);
 			}
 			await this.setStateAsync(id, { val: false, ack: true });
+			return;
+		}
+
+		// manual trigger with a one-off duration in seconds (own state, command => ack === false)
+		const fm = id.match(/switches\.([^.]+)\.feedFor$/);
+		if (fm && state.ack === false) {
+			const sw = this.switches.find(s => s.id === fm[1]);
+			const seconds = Math.min(MAX_DURATION_SEC, Math.max(0, Number(state.val) || 0));
+			if (sw && seconds > 0) {
+				this.log.info(
+					`Manual feeding (feedFor) triggered for ${this.swLabel(sw)} for ${seconds}s (ignoreBlocks=${!!sw.manualIgnoresBlocks}).`,
+				);
+				await this.feed(sw, !!sw.manualIgnoresBlocks, seconds);
+			} else if (!sw) {
+				this.log.warn(`feedFor trigger for unknown switch id "${fm[1]}".`);
+			} else {
+				this.log.debug(`feedFor for ${this.swLabel(sw)} ignored (value ${state.val} -> ${seconds}s).`);
+			}
+			// reset so the state acts like a command and is ready for the next write
+			await this.setStateAsync(id, { val: 0, ack: true });
 			return;
 		}
 

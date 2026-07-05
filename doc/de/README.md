@@ -248,8 +248,8 @@ Quelle nicht.)
     *individuell* gesetzt ist: *Systemeinstellungen übernehmen* oder *Standort spezifisch
     festlegen* (Adresssuche + Karte) für diesen Schalter wählen. Die berechneten Zeiten
     erscheinen in `status.sunrise` / `status.sunset`.
-* **Manueller Auslöser ignoriert alle Sperren** – wenn aktiv, füttern der Button und der
-  Datenpunkt `feedNow` auch bei aktiver Temperatur-/Fenstersperre.
+* **Manueller Auslöser ignoriert alle Sperren** – wenn aktiv, füttern der Button und die
+  Datenpunkte `feedNow` / `feedFor` auch bei aktiver Temperatur-/Fenstersperre.
 
 #### Dynamisches Füttern
 
@@ -334,7 +334,7 @@ Die vollständige Einrichtung steht unter [Telegram-Benachrichtigungen](#8-teleg
 
 ## 6. Objekte / Datenpunkte
 
-> **Hinweis:** Alle Zeitstempel-Datenpunkte werden in der **lokalen Systemzeitzone** angezeigt (Format `TT.MM.JJJJ HH:MM:SS`, z. B. `01.07.2026 16:20:00`).
+> **Hinweis:** Alle Zeitstempel-Datenpunkte werden in der **lokalen Systemzeitzone** angezeigt (Format `TT.MM.JJJJ HH:MM:SS`, z. B. `01.07.2026 16:20:00`). Für VIS und Skripte hat jeder Zeitstempel zusätzlich einen **numerischen Zwilling** mit der Endung `…Ts` (Unix-Zeit in **Millisekunden**, `0` = keiner) — ideal für Countdowns und Zeitbalken ganz ohne String-Parsing und unabhängig vom Anzeigeformat.
 
 Der Adapter legt folgende Datenpunkte in seinem Namespace an
 (`automatic-feeder.<instanz>.`).
@@ -358,11 +358,15 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | Datenpunkt | Typ | Bedeutung |
 |------------|-----|-----------|
 | `feedNow` | boolean (rw) | `true` schreiben, um manuell zu füttern. |
+| `feedFor` | number (rw) | Eine Dauer in **Sekunden** schreiben, um **eine Fütterung mit genau dieser Dauer** auszulösen — keine Konfigurationsänderung, kein Neustart. Wird nach der Ausführung auf `0` zurückgesetzt. |
 | `status.feedingActive` | boolean (ro) | Gerade läuft eine Fütterung. |
 | `status.lastFeeding` | string (ro) | Zeitpunkt der letzten Fütterung. |
+| `status.lastFeedingTs` | number (ro) | Letzte Fütterung als Unix-Zeit in ms (`0` = noch keine). |
 | `status.nextFeeding` | string (ro) | Zeitpunkt der nächsten geplanten Fütterung. |
+| `status.nextFeedingTs` | number (ro) | Nächste geplante Fütterung als Unix-Zeit in ms (`0` = nichts geplant). |
 | `status.blocked` | boolean (ro) | Der letzte Versuch war blockiert. |
-| `status.blockReason` | string (ro) | Grund der Blockierung (Nacht / Temperatur / Sauerstoff). |
+| `status.blockReason` | string (ro) | Grund der Blockierung (Nacht / Temperatur / Sauerstoff), in der Systemsprache. |
+| `status.blockReasonCode` | string (ro) | Der Blockierungsgrund als **stabiler maschinenlesbarer Code** (z. B. `blockNight`, `blockWaterBelow`, `blockPauseManual`; leer = nicht blockiert) — für Icon-/Farb-Logik in VIS, unabhängig von der Sprache. |
 | `status.lastResult` | string (ro) | Ergebnistext des letzten Fütterungsversuchs. |
 | `status.error` | boolean (ro) | Der letzte Versuch hatte eine Schaltstörung. |
 | `status.winterActive` | boolean (ro) | Die Winterpause ist gerade aktiv. |
@@ -371,6 +375,7 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.pauseManual` | boolean (ro) | Die manuelle Hauptpause (*Fütterung jetzt aussetzen* / `settings.pauseNow`) ist aktiv. |
 | `status.pauseActive` | boolean (ro) | Eine einmalige Fütterungspause ist gerade aktiv. |
 | `status.pauseActiveUntil` | string (ro) | Ende der aktuell aktiven Fütterungspause (leer, wenn keine). |
+| `status.pauseActiveUntilTs` | number (ro) | Ende der aktiven Fütterungspause als Unix-Zeit in ms (`0` = keine). |
 | `status.dynamicAvgTemperature` | number (ro) | Vom dynamischen Füttern verwendete gemittelte Temperatur. |
 | `status.dynamicRate` | number (ro) | Aktuell vom dynamischen Füttern angewendeter Q10-Ratenfaktor. |
 | `status.dynamicIntervalMin` | number (ro) | Aktuell berechnetes dynamisches Intervall (Minuten). |
@@ -381,6 +386,7 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.waterStratification` | number (ro) | Temperaturdifferenz flach − tief (nur bei zwei Wassersensoren). |
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sonnenauf-/-untergang als Unix-Zeit in ms — z. B. für einen Tagesverlaufs-Balken in VIS. |
 
 Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `status.nextFeeding`
 auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm auslösen.
@@ -430,6 +436,9 @@ auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm 
 
 **Manuelle Extraportion per VIS-Button**
 * In VIS einen Button anlegen, der `true` auf `automatic-feeder.0.switches.sw-0.feedNow` schreibt.
+* Oder einen Slider / ein Zahlenfeld verwenden, das die **Sekunden** auf
+  `automatic-feeder.0.switches.sw-0.feedFor` schreibt → füttert **einmal mit genau dieser Dauer**
+  (keine Konfigurationsänderung, kein Neustart; der Datenpunkt setzt sich danach auf `0` zurück).
 * Optional *Manueller Auslöser ignoriert alle Sperren* aktivieren, damit immer gefüttert wird.
 
 ---

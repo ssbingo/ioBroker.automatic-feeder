@@ -252,8 +252,8 @@ is written to `status.blockReason`. (If a temperature value is unknown, that sou
   * **Location for this switch** – only shown when the general *Location* is set to *individual*:
     pick *Use system settings* or *Define specific location* (address search + map) for this
     switch. The computed times appear in `status.sunrise` / `status.sunset`.
-* **Manual trigger ignores all blocks** – when on, the manual button and the `feedNow` data
-  point feed even if a temperature/window block is active.
+* **Manual trigger ignores all blocks** – when on, the manual button and the `feedNow` /
+  `feedFor` data points feed even if a temperature/window block is active.
 
 #### Dynamic feeding
 
@@ -338,7 +338,7 @@ See [Telegram notifications](#8-telegram-notifications) for the full setup.
 
 ## 6. Objects / data points
 
-> **Note:** All timestamp data points are shown in the **system's local timezone** (format `DD.MM.YYYY HH:MM:SS`, e.g. `01.07.2026 16:20:00`).
+> **Note:** All timestamp data points are shown in the **system's local timezone** (format `DD.MM.YYYY HH:MM:SS`, e.g. `01.07.2026 16:20:00`). For VIS and scripts every timestamp additionally has a **numeric twin** ending in `…Ts` (Unix time in **milliseconds**, `0` = none) — ideal for countdowns and time bars without any string parsing, and independent of the display format.
 
 The adapter creates the following states under its namespace
 (`automatic-feeder.<instance>.`).
@@ -362,11 +362,15 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | Data point | Type | Meaning |
 |------------|------|---------|
 | `feedNow` | boolean (rw) | Write `true` to trigger a manual feeding. |
+| `feedFor` | number (rw) | Write a duration in **seconds** to trigger **one feeding with exactly that duration** — no configuration change, no restart. Resets to `0` after execution. |
 | `status.feedingActive` | boolean (ro) | A feeding is running right now. |
 | `status.lastFeeding` | string (ro) | Timestamp of the last feeding. |
+| `status.lastFeedingTs` | number (ro) | Last feeding as Unix time in ms (`0` = none yet). |
 | `status.nextFeeding` | string (ro) | Timestamp of the next planned feeding. |
+| `status.nextFeedingTs` | number (ro) | Next planned feeding as Unix time in ms (`0` = nothing planned). |
 | `status.blocked` | boolean (ro) | The last attempt was blocked. |
-| `status.blockReason` | string (ro) | Why it was blocked (night / temperature / oxygen). |
+| `status.blockReason` | string (ro) | Why it was blocked (night / temperature / oxygen), in the system language. |
+| `status.blockReasonCode` | string (ro) | The block reason as a **stable machine-readable code** (e.g. `blockNight`, `blockWaterBelow`, `blockPauseManual`; empty = not blocked) — for icon/colour logic in VIS, independent of the language. |
 | `status.lastResult` | string (ro) | Result text of the last feeding attempt. |
 | `status.error` | boolean (ro) | The last attempt had a switching fault. |
 | `status.winterActive` | boolean (ro) | The winter pause is currently active. |
@@ -375,6 +379,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.pauseManual` | boolean (ro) | The manual master pause (*Suspend feeding now* / `settings.pauseNow`) is on. |
 | `status.pauseActive` | boolean (ro) | A one-off feeding pause is currently active. |
 | `status.pauseActiveUntil` | string (ro) | End of the currently active feeding pause (empty if none). |
+| `status.pauseActiveUntilTs` | number (ro) | End of the active feeding pause as Unix time in ms (`0` = none). |
 | `status.dynamicAvgTemperature` | number (ro) | Averaged temperature used by dynamic feeding. |
 | `status.dynamicRate` | number (ro) | Q10 rate factor currently applied by dynamic feeding. |
 | `status.dynamicIntervalMin` | number (ro) | Currently computed dynamic interval (minutes). |
@@ -385,6 +390,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.waterStratification` | number (ro) | Temperature difference shallow − deep (only with two water sensors). |
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
 
 You can use these in VIS, scripts or other adapters – for example show `status.nextFeeding` on a
 dashboard, or react on `status.error = true` to send your own alarm.
@@ -429,6 +435,9 @@ dashboard, or react on `status.error = true` to send your own alarm.
 
 **Manual extra portion from a VIS button**
 * Put a button in VIS that writes `true` to `automatic-feeder.0.switches.sw-0.feedNow`.
+* Or use a slider/number field that writes the **seconds** to
+  `automatic-feeder.0.switches.sw-0.feedFor` → feeds **once with exactly that duration**
+  (no configuration change, no restart; the state resets to `0` afterwards).
 * Optionally set *Manual trigger ignores all blocks* so it always feeds.
 
 ---
@@ -548,6 +557,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.4.0 (2026-07-05)
+* (ssbingo) Every timestamp data point now has a **numeric twin** ending in `…Ts` (Unix time in **milliseconds**, `0` = none): `status.lastFeedingTs`, `nextFeedingTs`, `pauseActiveUntilTs`, `sunriseTs`, `sunsetTs` — countdowns and time bars in VIS work without any string parsing and independent of the display format
+* (ssbingo) New `status.blockReasonCode`: the block reason as a **stable machine-readable code** (e.g. `blockNight`, `blockWaterBelow`, `blockPauseManual`; empty = not blocked) — language-independent icon/colour logic in VIS next to the localized `status.blockReason`
+* (ssbingo) New per-switch command **`feedFor`**: write a duration in **seconds** to trigger **one feeding with exactly that duration** — no configuration change, **no instance restart** (ideal for a VIS slider). Respects the blocks like the manual button (`manualIgnoresBlocks` applies); resets to `0` after execution
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.3.0 (2026-07-04)
 * (ssbingo) New per-switch **feeding pauses**. A **master switch** *Suspend feeding now* (`settings.pauseNow`) instantly suspends **all** feeding for a switch until you turn it off again — it overrides every feeding mode (fixed times, interval, dynamic feeding, winter pause) and the date-time pauses. A **Telegram** message is sent on each toggle
 * (ssbingo) In addition, up to **3 one-off date-time feeding pauses** per switch (e.g. a **quarantine after restocking**) fully suspend feeding within an absolute period, with a **Telegram** message at the start and end of each. They have the highest priority over all feeding modes
@@ -587,9 +602,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) New per-switch data points `status.sunrise` / `status.sunset`; the global `sunrise` / `sunset` states were removed
 * (ssbingo) Existing configuration is migrated automatically (the former night protection becomes the astronomical window; the global offsets and location move to the switches)
 * (ssbingo) Documentation updated in all 11 languages
-
-### 1.0.2 (2026-07-01)
-* (ssbingo) Fix (repository checker E1011): the editable `settings.*` mirror combined read-only state roles (`value` / `value.temperature` / `indicator`) with `write = true`. Writable settings now use the writable roles `level` / `level.temperature` / `switch`; existing objects are corrected automatically on start
 
 ---
 

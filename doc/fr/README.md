@@ -273,8 +273,8 @@ source ne bloque pas.)
     réglé sur *individuel* : choisis *Utiliser les paramètres système* ou *Définir un emplacement
     spécifique* (recherche d'adresse + carte) pour cet interrupteur. Les heures calculées
     apparaissent dans `status.sunrise` / `status.sunset`.
-* **Le déclencheur manuel ignore tous les blocages** — si activé, le bouton et le point de données
-  `feedNow` distribuent même en cas de blocage par température/fenêtre actif.
+* **Le déclencheur manuel ignore tous les blocages** — si activé, le bouton et les points de données
+  `feedNow` / `feedFor` distribuent même en cas de blocage par température/fenêtre actif.
 
 #### Alimentation dynamique
 
@@ -360,7 +360,7 @@ La configuration complète est décrite sous [Notifications Telegram](#8-notific
 
 ## 6. Objets / Points de données
 
-> **Remarque :** tous les points de données horodatés sont affichés dans le **fuseau horaire local du système** (format `JJ.MM.AAAA HH:MM:SS`, p. ex. `01.07.2026 16:20:00`).
+> **Remarque :** tous les points de données horodatés sont affichés dans le **fuseau horaire local du système** (format `JJ.MM.AAAA HH:MM:SS`, p. ex. `01.07.2026 16:20:00`). Pour VIS et les scripts, chaque horodatage dispose en plus d'un **jumeau numérique** se terminant par `…Ts` (temps Unix en **millisecondes**, `0` = aucun) — idéal pour les comptes à rebours et les barres de temps sans aucune analyse de chaîne, et indépendant du format d'affichage.
 
 L'adaptateur crée les points de données suivants dans son espace de noms
 (`automatic-feeder.<instanz>.`).
@@ -384,11 +384,15 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | Point de données | Type | Signification |
 |------------|-----|-----------|
 | `feedNow` | boolean (rw) | Écrire `true` pour distribuer manuellement. |
+| `feedFor` | number (rw) | Écris une durée en **secondes** pour déclencher **une distribution avec exactement cette durée** — sans modification de la configuration, sans redémarrage. Se réinitialise à `0` après l'exécution. |
 | `status.feedingActive` | boolean (ro) | Une distribution est en cours. |
 | `status.lastFeeding` | string (ro) | Horodatage de la dernière distribution. |
+| `status.lastFeedingTs` | number (ro) | Dernière distribution en temps Unix en ms (`0` = encore aucune). |
 | `status.nextFeeding` | string (ro) | Horodatage de la prochaine distribution planifiée. |
+| `status.nextFeedingTs` | number (ro) | Prochaine distribution planifiée en temps Unix en ms (`0` = rien de planifié). |
 | `status.blocked` | boolean (ro) | La dernière tentative a été bloquée. |
-| `status.blockReason` | string (ro) | Raison du blocage (nuit / température / oxygène). |
+| `status.blockReason` | string (ro) | Raison du blocage (nuit / température / oxygène), dans la langue du système. |
+| `status.blockReasonCode` | string (ro) | La raison du blocage sous forme de **code stable lisible par machine** (p. ex. `blockNight`, `blockWaterBelow`, `blockPauseManual` ; vide = pas de blocage) — pour la logique d'icônes/de couleurs dans VIS, indépendamment de la langue. |
 | `status.lastResult` | string (ro) | Texte du résultat de la dernière tentative de distribution. |
 | `status.error` | boolean (ro) | La dernière tentative a connu une anomalie de commutation. |
 | `status.winterActive` | boolean (ro) | La pause hivernale est actuellement active. |
@@ -397,6 +401,7 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.pauseManual` | boolean (ro) | La pause principale manuelle (*Suspendre la distribution maintenant* / `settings.pauseNow`) est active. |
 | `status.pauseActive` | boolean (ro) | Une pause de distribution ponctuelle est actuellement active. |
 | `status.pauseActiveUntil` | string (ro) | Fin de la pause de distribution actuellement active (vide s'il n'y en a aucune). |
+| `status.pauseActiveUntilTs` | number (ro) | Fin de la pause de distribution active en temps Unix en ms (`0` = aucune). |
 | `status.dynamicAvgTemperature` | number (ro) | Température moyenne utilisée par l'alimentation dynamique. |
 | `status.dynamicRate` | number (ro) | Facteur de taux Q10 actuellement appliqué par l'alimentation dynamique. |
 | `status.dynamicIntervalMin` | number (ro) | Intervalle dynamique actuellement calculé (minutes). |
@@ -407,6 +412,7 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.waterStratification` | number (ro) | Écart de température peu profonde − profonde (uniquement avec deux capteurs d'eau). |
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
+| `status.sunriseTs` / `status.sunsetTs` | number (ro) | Lever/coucher du soleil en temps Unix en ms — p. ex. pour une barre de progression du jour dans VIS. |
 
 Ces points de données peuvent être utilisés dans VIS, des scripts ou d'autres adaptateurs — p. ex.
 afficher `status.nextFeeding` sur un tableau de bord ou déclencher ta propre alarme lorsque `status.error =
@@ -460,6 +466,9 @@ true`.
 
 **Portion supplémentaire manuelle via un bouton VIS**
 * Crée dans VIS un bouton qui écrit `true` sur `automatic-feeder.0.switches.sw-0.feedNow`.
+* Ou utilise un curseur/champ numérique qui écrit les **secondes** sur
+  `automatic-feeder.0.switches.sw-0.feedFor` → distribue **une fois avec exactement cette durée**
+  (sans modification de la configuration, sans redémarrage ; l'état se réinitialise ensuite à `0`).
 * Active éventuellement *Le déclencheur manuel ignore tous les blocages*, afin que la distribution
   ait toujours lieu.
 
