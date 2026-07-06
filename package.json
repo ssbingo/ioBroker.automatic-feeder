@@ -43,7 +43,7 @@
     "@iobroker/dev-server": "^0.8.0",
     "@iobroker/eslint-config": "^2.3.4",
     "@iobroker/testing": "^5.2.2",
-    "@mui/x-date-pickers": "^7.29.4",
+    "@mui/x-date-pickers": "^9.7.0",
     "@tsconfig/node22": "^22.0.5",
     "@types/iobroker": "npm:@iobroker/types@^7.2.2",
     "@types/leaflet": "^1.9.21",
