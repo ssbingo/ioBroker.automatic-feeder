@@ -360,6 +360,7 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `feedNow` | boolean (rw) | `true` schreiben, um manuell zu füttern. |
 | `feedFor` | number (rw) | Eine Dauer in **Sekunden** schreiben, um **eine Fütterung mit genau dieser Dauer** auszulösen — keine Konfigurationsänderung, kein Neustart. Wird nach der Ausführung auf `0` zurückgesetzt. |
 | `status.feedingActive` | boolean (ro) | Gerade läuft eine Fütterung. |
+| `status.feedingEndsTs` | number (ro) | Ende der **laufenden** Fütterung als Unix-Zeit in ms (`0` = keine Fütterung) — für einen Live-Countdown der Restlaufzeit (z. B. 15 → 0 s) in VIS. |
 | `status.lastFeeding` | string (ro) | Zeitpunkt der letzten Fütterung. |
 | `status.lastFeedingTs` | number (ro) | Letzte Fütterung als Unix-Zeit in ms (`0` = noch keine). |
 | `status.nextFeeding` | string (ro) | Zeitpunkt der nächsten geplanten Fütterung. |

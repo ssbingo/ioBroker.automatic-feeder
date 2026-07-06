@@ -391,6 +391,7 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `feedNow` | boolean (rw) | Escribir `true` para alimentar manualmente. |
 | `feedFor` | number (rw) | Escribir una duración en **segundos** para activar **una alimentación con exactamente esa duración**: sin cambio de configuración, sin reinicio. Se restablece a `0` tras la ejecución. |
 | `status.feedingActive` | boolean (ro) | En este momento hay una alimentación en curso. |
+| `status.feedingEndsTs` | number (ro) | Fin de la alimentación **en curso** como tiempo Unix en ms (`0` = sin alimentar) — para una cuenta atrás del tiempo de ejecución en vivo (p. ej. 15 → 0 s) en VIS. |
 | `status.lastFeeding` | string (ro) | Momento de la última alimentación. |
 | `status.lastFeedingTs` | number (ro) | Última alimentación como tiempo Unix en ms (`0` = todavía ninguna). |
 | `status.nextFeeding` | string (ro) | Momento de la próxima alimentación planificada. |

@@ -355,6 +355,7 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `feedNow` | boolean (rw) | `true` schrijven om handmatig te voeren. |
 | `feedFor` | number (rw) | Schrijf een duur in **seconden** om **één voedering met precies die duur** te activeren — geen configuratiewijziging, geen herstart. Wordt na uitvoering teruggezet naar `0`. |
 | `status.feedingActive` | boolean (ro) | Er loopt nu een voedering. |
+| `status.feedingEndsTs` | number (ro) | Einde van de **lopende** voedering als Unix-tijd in ms (`0` = niet aan het voeren) — voor een live looptijd-aftelling (bijv. 15 → 0 s) in VIS. |
 | `status.lastFeeding` | string (ro) | Tijdstip van de laatste voedering. |
 | `status.lastFeedingTs` | number (ro) | Laatste voedering als Unix-tijd in ms (`0` = nog geen). |
 | `status.nextFeeding` | string (ro) | Tijdstip van de volgende geplande voedering. |

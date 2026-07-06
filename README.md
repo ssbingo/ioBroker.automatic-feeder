@@ -364,6 +364,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `feedNow` | boolean (rw) | Write `true` to trigger a manual feeding. |
 | `feedFor` | number (rw) | Write a duration in **seconds** to trigger **one feeding with exactly that duration** — no configuration change, no restart. Resets to `0` after execution. |
 | `status.feedingActive` | boolean (ro) | A feeding is running right now. |
+| `status.feedingEndsTs` | number (ro) | End of the **running** feeding as Unix time in ms (`0` = not feeding) — for a live runtime countdown (e.g. 15 → 0 s) in VIS. |
 | `status.lastFeeding` | string (ro) | Timestamp of the last feeding. |
 | `status.lastFeedingTs` | number (ro) | Last feeding as Unix time in ms (`0` = none yet). |
 | `status.nextFeeding` | string (ro) | Timestamp of the next planned feeding. |
@@ -557,6 +558,10 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.5.0 (2026-07-05)
+* (ssbingo) New per-switch data point `status.feedingEndsTs` (Unix time in ms, `0` = not feeding): the end time of the **currently running** feeding, so a VIS widget can show a **live runtime countdown** (e.g. 15 → 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.4.1 (2026-07-05)
 * (ssbingo) Fix: the cleanup of removed switches mistakenly treated the `status` **sub-channel** as an obsolete switch and deleted it on **every adapter start** — the persisted status values (last feeding/result, winter-reminder deduplication, pause state) were lost on each restart (latent since 1.0.0). Only direct children of `switches.` are considered switch channels now; status values survive restarts
 
@@ -595,9 +600,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.1.2 (2026-07-01)
 * (ssbingo) More detailed **debug/silly logging** for troubleshooting: a readable per-switch configuration summary on start, the next feeding with local time and remaining time, the source of the feeding duration (winter/dynamic/static), the per-switch source assignments, and dynamic re-plan/hysteresis details. No behaviour change; the normal info-level output stays unchanged
-
-### 1.1.1 (2026-07-01)
-* (ssbingo) Admin UI: under dynamic feeding the static **Feeding duration** field is now hidden (the duration is computed from temperature there, so the static value only confused); the on/off values stay visible
 
 ---
 

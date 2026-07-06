@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.1.1 (2026-07-01)
+* (ssbingo) Admin UI: under dynamic feeding the static **Feeding duration** field is now hidden (the duration is computed from temperature there, so the static value only confused); the on/off values stay visible
+
 ### 1.1.0 (2026-07-01)
 * (ssbingo) New per-switch **astronomical feeding window**: restrict feeding to the daytime window (sunrise/sunset with per-switch offsets). For *Interval* and *Dynamic feeding* it becomes the feeding window; for *Fixed times* it acts as a day/night guard. Replaces the former per-switch "do not feed at night"
 * (ssbingo) The **location** can now be taken from the system settings, set once as a shared location, or configured **individually per switch** (feeding stations at different places); the sunrise/sunset offsets moved from the general page to each switch

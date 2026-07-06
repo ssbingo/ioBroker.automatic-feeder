@@ -48,6 +48,7 @@ const GEOCODE_TIMEOUT_MS = 10000;
 /** Read-only status states that live under `switches.<id>.status.*` (used for cleanup of legacy flat states). */
 const STATUS_STATE_IDS = [
 	'feedingActive',
+	'feedingEndsTs',
 	'lastFeeding',
 	'lastFeedingTs',
 	'nextFeeding',
@@ -1257,6 +1258,18 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedingEndsTs`, {
+				type: 'state',
+				common: {
+					name: 'End of the running feeding as Unix timestamp in ms (0 = not feeding)',
+					type: 'number',
+					role: 'value.time',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			});
 			await this.setObjectNotExistsAsync(`${base}.status.lastFeeding`, {
 				type: 'state',
 				common: { name: 'Last feeding', type: 'string', role: 'date', read: true, write: false },
@@ -2447,6 +2460,11 @@ class AutomaticFeeder extends utils.Adapter {
 				ack: true,
 			});
 			await this.setStateAsync(`switches.${sw.id}.status.lastFeedingTs`, { val: Date.now(), ack: true });
+			// end time of this feeding (for a live runtime countdown in VIS); cleared in finally
+			await this.setStateAsync(`switches.${sw.id}.status.feedingEndsTs`, {
+				val: Date.now() + seconds * 1000,
+				ack: true,
+			});
 
 			if (verify) {
 				const onConfirmed = await this.verifyState(sw, true);
@@ -2507,6 +2525,8 @@ class AutomaticFeeder extends utils.Adapter {
 			this.log.info(`${this.swLabel(sw)}: ${translate('feedSuccess', 'en', { seconds })}`);
 		} finally {
 			this.feedingBusy.delete(sw.id);
+			// clear the runtime countdown end time whichever way the feeding ended
+			await this.setStateAsync(`switches.${sw.id}.status.feedingEndsTs`, { val: 0, ack: true });
 		}
 	}
 
