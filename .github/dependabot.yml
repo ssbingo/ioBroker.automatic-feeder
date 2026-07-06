@@ -32,6 +32,10 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@mui/icons-material"
         update-types: ["version-update:semver-major"]
+      # @mui/x-date-pickers >= 8 requires @mui/material >= 7 (we are pinned to MUI 6),
+      # so keep it on the 7.x line until adapter-react-v5 moves to MUI 7 / React 19
+      - dependency-name: "@mui/x-date-pickers"
+        update-types: ["version-update:semver-major"]
       - dependency-name: "react-leaflet"
         update-types: ["version-update:semver-major"]
       # keep TypeScript on 5.x for toolchain (eslint-config / adapter-dev) compatibility
