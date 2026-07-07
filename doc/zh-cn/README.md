@@ -325,6 +325,7 @@
 | `feedFor` | number (rw) | 写入以**秒**为单位的时长，即可触发**一次恰好为该时长的喂食**——无需更改配置、无需重启。执行后重置为 `0`。 |
 | `status.feedingActive` | boolean (ro) | 当前正在进行一次喂食。 |
 | `status.feedingEndsTs` | number (ro) | **正在进行**的喂食的结束时间，以毫秒为单位的 Unix 时间（`0` = 未在喂食）——用于在 VIS 中实现实时运行倒计时（例如 15 → 0 秒）。 |
+| `status.feedingDurationSec` | number (ro) | **正在进行的**投喂的总时长（秒，`0` = 未投喂）——让 VIS 控件可以在倒计时旁边绘制精确的进度环。 |
 | `status.lastFeeding` | string (ro) | 上次喂食的时间点。 |
 | `status.lastFeedingTs` | number (ro) | 上次喂食，以毫秒为单位的 Unix 时间（`0` = 尚无喂食）。 |
 | `status.nextFeeding` | string (ro) | 下一次计划喂食的时间点。 |

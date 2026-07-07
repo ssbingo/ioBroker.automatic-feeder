@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.5.0",
+		"version": "1.6.0",
 		"news": {
-			"1.5.0": {
-				"en": "New per-switch data point status.feedingEndsTs (Unix time in ms, 0 = not feeding): the end time of the currently running feeding, so a VIS widget can show a live runtime countdown (e.g. 15 to 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends.",
-				"de": "Neuer Datenpunkt status.feedingEndsTs je Schalter (Unix-Zeit in ms, 0 = keine Fütterung): der Endzeitpunkt der aktuell laufenden Fütterung, damit ein VIS-Widget einen Live-Countdown der Laufzeit (z. B. 15 auf 0 s) anzeigen kann, während der Automat läuft. Wird beim Einschalten gesetzt und am Ende der Fütterung gelöscht.",
-				"ru": "Новая точка данных status.feedingEndsTs для каждого переключателя (Unix-время в мс, 0 = кормления нет): время окончания текущего кормления, чтобы виджет VIS мог показывать обратный отсчёт длительности (напр. с 15 до 0 с), пока работает кормушка. Устанавливается при включении и сбрасывается по окончании.",
-				"pt": "Novo ponto de dados status.feedingEndsTs por interruptor (tempo Unix em ms, 0 = sem alimentação): a hora de término da alimentação em curso, para que um widget VIS possa mostrar uma contagem decrescente do tempo de execução (por ex. de 15 a 0 s) enquanto o alimentador funciona. Definido ao ligar e limpo no final.",
-				"nl": "Nieuw datapunt status.feedingEndsTs per schakelaar (Unix-tijd in ms, 0 = geen voeding): de eindtijd van de lopende voeding, zodat een VIS-widget een live aftelling van de looptijd (bijv. 15 naar 0 s) kan tonen terwijl de voederautomaat draait. Ingesteld bij inschakelen, gewist aan het einde.",
-				"fr": "Nouveau point de données status.feedingEndsTs par interrupteur (temps Unix en ms, 0 = pas de distribution) : l'heure de fin de la distribution en cours, afin qu'un widget VIS puisse afficher un compte à rebours en direct (p. ex. de 15 à 0 s) pendant le fonctionnement. Défini à l'allumage, effacé à la fin.",
-				"it": "Nuovo punto dati status.feedingEndsTs per interruttore (tempo Unix in ms, 0 = nessuna alimentazione): l'ora di fine dell'alimentazione in corso, così un widget VIS può mostrare un conto alla rovescia in tempo reale (es. da 15 a 0 s) mentre l'alimentatore funziona. Impostato all'accensione, azzerato alla fine.",
-				"es": "Nuevo punto de datos status.feedingEndsTs por interruptor (tiempo Unix en ms, 0 = sin alimentación): la hora de fin de la alimentación en curso, para que un widget de VIS pueda mostrar una cuenta atrás en vivo (p. ej. de 15 a 0 s) mientras funciona el comedero. Se establece al encender y se borra al terminar.",
-				"pl": "Nowy punkt danych status.feedingEndsTs dla każdego przełącznika (czas Unix w ms, 0 = brak karmienia): czas zakończenia trwającego karmienia, aby widżet VIS mógł pokazać odliczanie czasu na żywo (np. od 15 do 0 s) podczas pracy karmnika. Ustawiany przy włączeniu, czyszczony na końcu.",
-				"uk": "Нова точка даних status.feedingEndsTs для кожного перемикача (Unix-час у мс, 0 = без годування): час завершення поточного годування, щоб віджет VIS міг показувати зворотний відлік тривалості (напр. з 15 до 0 с), поки годівниця працює. Встановлюється під час увімкнення, скидається наприкінці.",
-				"zh-cn": "每个开关新增数据点 status.feedingEndsTs（Unix 时间，毫秒，0 = 未投喂）：当前正在进行的投喂的结束时间，以便 VIS 小部件在喂食器运行时显示实时倒计时（例如从 15 到 0 秒）。开启时设置，投喂结束时清零。"
+			"1.6.0": {
+				"en": "New per-switch data point status.feedingDurationSec (seconds, 0 = not feeding): the total duration of the currently running feeding, so a VIS widget can draw an exact progress ring next to the runtime countdown.",
+				"de": "Neuer Datenpunkt status.feedingDurationSec je Schalter (Sekunden, 0 = keine Fütterung): die Gesamtdauer der aktuell laufenden Fütterung, damit ein VIS-Widget einen exakten Fortschrittsring neben dem Laufzeit-Countdown zeichnen kann.",
+				"ru": "Новая точка данных status.feedingDurationSec для каждого переключателя (секунды, 0 = кормление не идёт): полная длительность текущего кормления, чтобы виджет VIS мог нарисовать точное кольцо прогресса рядом с обратным отсчётом.",
+				"pt": "Novo ponto de dados status.feedingDurationSec por interruptor (segundos, 0 = sem alimentação): a duração total da alimentação em curso, para que um widget VIS possa desenhar um anel de progresso exato ao lado da contagem regressiva.",
+				"nl": "Nieuw datapunt status.feedingDurationSec per schakelaar (seconden, 0 = geen voedering): de totale duur van de lopende voedering, zodat een VIS-widget een exacte voortgangsring naast de aftelling kan tekenen.",
+				"fr": "Nouveau point de données status.feedingDurationSec par interrupteur (secondes, 0 = aucune distribution) : la durée totale de la distribution en cours, afin qu'un widget VIS puisse dessiner un anneau de progression exact à côté du compte à rebours.",
+				"it": "Nuovo datapoint status.feedingDurationSec per ogni interruttore (secondi, 0 = nessuna alimentazione): la durata totale dell'alimentazione in corso, così un widget VIS può disegnare un anello di avanzamento esatto accanto al conto alla rovescia.",
+				"es": "Nuevo punto de datos status.feedingDurationSec por interruptor (segundos, 0 = sin alimentación): la duración total de la alimentación en curso, para que un widget VIS pueda dibujar un anillo de progreso exacto junto a la cuenta atrás.",
+				"pl": "Nowy punkt danych status.feedingDurationSec dla każdego przełącznika (sekundy, 0 = brak karmienia): całkowity czas trwającego karmienia, aby widżet VIS mógł narysować dokładny pierścień postępu obok odliczania.",
+				"uk": "Нова точка даних status.feedingDurationSec для кожного перемикача (секунди, 0 = годування не триває): загальна тривалість поточного годування, щоб віджет VIS міг намалювати точне кільце прогресу поряд зі зворотним відліком.",
+				"zh-cn": "每个开关新增数据点 status.feedingDurationSec（秒，0 = 未投喂）：正在进行的投喂的总时长，让 VIS 控件可以在运行倒计时旁边绘制精确的进度环。"
 			}
 		},
 		"titleLang": {

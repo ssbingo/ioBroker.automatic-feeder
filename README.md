@@ -365,6 +365,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `feedFor` | number (rw) | Write a duration in **seconds** to trigger **one feeding with exactly that duration** — no configuration change, no restart. Resets to `0` after execution. |
 | `status.feedingActive` | boolean (ro) | A feeding is running right now. |
 | `status.feedingEndsTs` | number (ro) | End of the **running** feeding as Unix time in ms (`0` = not feeding) — for a live runtime countdown (e.g. 15 → 0 s) in VIS. |
+| `status.feedingDurationSec` | number (ro) | Total duration of the **running** feeding in seconds (`0` = not feeding) — lets a VIS widget draw an exact progress ring next to the countdown. |
 | `status.lastFeeding` | string (ro) | Timestamp of the last feeding. |
 | `status.lastFeedingTs` | number (ro) | Last feeding as Unix time in ms (`0` = none yet). |
 | `status.nextFeeding` | string (ro) | Timestamp of the next planned feeding. |
@@ -558,6 +559,11 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.6.0 (2026-07-07)
+* (ssbingo) New per-switch data point `status.feedingDurationSec` (seconds, `0` = not feeding): the total duration of the **currently running** feeding, so a VIS widget can draw an **exact progress ring** next to the runtime countdown. Set at switch-on, cleared when the feeding ends
+* (ssbingo) New adapter icon (stylized feeder on a light grey tile)
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.5.0 (2026-07-05)
 * (ssbingo) New per-switch data point `status.feedingEndsTs` (Unix time in ms, `0` = not feeding): the end time of the **currently running** feeding, so a VIS widget can show a **live runtime countdown** (e.g. 15 → 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends
 * (ssbingo) Documentation updated in all 11 languages
@@ -597,9 +603,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) Log messages are now always in **English** (three lines that embedded the localized result/reminder text were fixed); the localized text still goes to the data points and Telegram
 * (ssbingo) Temperature/oxygen **source values are accepted regardless of the ack flag** (so script / `0_userdata.0` sources keep working); the ack flag is logged and a persistently un-acknowledged source is noted once. The strict ack=true rule stays on the switch on/off verification
 * (ssbingo) Housekeeping: removed 6 unused admin translation keys and some dead code (the winter-reminder check reuses a shared helper)
-
-### 1.1.2 (2026-07-01)
-* (ssbingo) More detailed **debug/silly logging** for troubleshooting: a readable per-switch configuration summary on start, the next feeding with local time and remaining time, the source of the feeding duration (winter/dynamic/static), the per-switch source assignments, and dynamic re-plan/hysteresis details. No behaviour change; the normal info-level output stays unchanged
 
 ---
 

@@ -401,6 +401,7 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `feedFor` | number (rw) | Scrivi una durata in **secondi** per attivare **una distribuzione esattamente con quella durata** — nessuna modifica alla configurazione, nessun riavvio. Si reimposta su `0` dopo l'esecuzione. |
 | `status.feedingActive` | boolean (ro) | È in corso una distribuzione. |
 | `status.feedingEndsTs` | number (ro) | Fine della distribuzione **in corso** come tempo Unix in ms (`0` = nessuna distribuzione) — per un conto alla rovescia della durata in tempo reale (ad es. 15 → 0 s) in VIS. |
+| `status.feedingDurationSec` | number (ro) | Durata totale dell'alimentazione **in corso** in secondi (`0` = nessuna alimentazione) — consente a un widget VIS di disegnare un anello di avanzamento esatto accanto al conto alla rovescia. |
 | `status.lastFeeding` | string (ro) | Momento dell'ultima distribuzione. |
 | `status.lastFeedingTs` | number (ro) | Ultima distribuzione come tempo Unix in ms (`0` = ancora nessuna). |
 | `status.nextFeeding` | string (ro) | Momento della prossima distribuzione programmata. |

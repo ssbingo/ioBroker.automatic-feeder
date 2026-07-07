@@ -369,6 +369,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `feedFor` | number (rw) | Zapisz czas trwania w **sekundach**, aby wyzwolić **jedno karmienie o dokładnie tym czasie trwania** — bez zmiany konfiguracji, bez restartu. Po wykonaniu resetuje się do `0`. |
 | `status.feedingActive` | boolean (ro) | Właśnie trwa karmienie. |
 | `status.feedingEndsTs` | number (ro) | Koniec **trwającego** karmienia jako czas uniksowy w ms (`0` = brak karmienia) — do bieżącego odliczania czasu działania (np. 15 → 0 s) w VIS. |
+| `status.feedingDurationSec` | number (ro) | Całkowity czas **trwającego** karmienia w sekundach (`0` = brak karmienia) — pozwala widżetowi VIS narysować dokładny pierścień postępu obok odliczania. |
 | `status.lastFeeding` | string (ro) | Moment ostatniego karmienia. |
 | `status.lastFeedingTs` | number (ro) | Ostatnie karmienie jako czas uniksowy w ms (`0` = jeszcze brak). |
 | `status.nextFeeding` | string (ro) | Moment następnego zaplanowanego karmienia. |

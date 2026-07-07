@@ -355,6 +355,7 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `feedFor` | number (rw) | Gravar uma duração em **segundos** para acionar **uma alimentação exatamente com essa duração** — sem alteração da configuração, sem reinício. Volta a `0` após a execução. |
 | `status.feedingActive` | boolean (ro) | Uma alimentação está em andamento no momento. |
 | `status.feedingEndsTs` | number (ro) | Fim da alimentação **em andamento** como tempo Unix em ms (`0` = sem alimentação) — para uma contagem decrescente ao vivo do tempo de execução (p. ex. 15 → 0 s) no VIS. |
+| `status.feedingDurationSec` | number (ro) | Duração total da alimentação **em curso** em segundos (`0` = sem alimentação) — permite que um widget VIS desenhe um anel de progresso exato ao lado da contagem regressiva. |
 | `status.lastFeeding` | string (ro) | Momento da última alimentação. |
 | `status.lastFeedingTs` | number (ro) | Última alimentação como tempo Unix em ms (`0` = ainda nenhuma). |
 | `status.nextFeeding` | string (ro) | Momento da próxima alimentação planejada. |

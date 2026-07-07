@@ -387,6 +387,7 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `feedFor` | number (rw) | Écris une durée en **secondes** pour déclencher **une distribution avec exactement cette durée** — sans modification de la configuration, sans redémarrage. Se réinitialise à `0` après l'exécution. |
 | `status.feedingActive` | boolean (ro) | Une distribution est en cours. |
 | `status.feedingEndsTs` | number (ro) | Fin de la distribution **en cours** en temps Unix en ms (`0` = aucune distribution en cours) — pour un compte à rebours en direct de la durée (p. ex. 15 → 0 s) dans VIS. |
+| `status.feedingDurationSec` | number (ro) | Durée totale de la distribution **en cours** en secondes (`0` = aucune distribution) — permet à un widget VIS de dessiner un anneau de progression exact à côté du compte à rebours. |
 | `status.lastFeeding` | string (ro) | Horodatage de la dernière distribution. |
 | `status.lastFeedingTs` | number (ro) | Dernière distribution en temps Unix en ms (`0` = encore aucune). |
 | `status.nextFeeding` | string (ro) | Horodatage de la prochaine distribution planifiée. |

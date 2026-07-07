@@ -49,6 +49,7 @@ const GEOCODE_TIMEOUT_MS = 10000;
 const STATUS_STATE_IDS = [
 	'feedingActive',
 	'feedingEndsTs',
+	'feedingDurationSec',
 	'lastFeeding',
 	'lastFeedingTs',
 	'nextFeeding',
@@ -1270,6 +1271,19 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedingDurationSec`, {
+				type: 'state',
+				common: {
+					name: 'Total duration of the running feeding in seconds (0 = not feeding)',
+					type: 'number',
+					role: 'value',
+					unit: 's',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			});
 			await this.setObjectNotExistsAsync(`${base}.status.lastFeeding`, {
 				type: 'state',
 				common: { name: 'Last feeding', type: 'string', role: 'date', read: true, write: false },
@@ -2460,9 +2474,14 @@ class AutomaticFeeder extends utils.Adapter {
 				ack: true,
 			});
 			await this.setStateAsync(`switches.${sw.id}.status.lastFeedingTs`, { val: Date.now(), ack: true });
-			// end time of this feeding (for a live runtime countdown in VIS); cleared in finally
+			// end time and total duration of this feeding (for a live runtime countdown
+			// and a progress ring in VIS); both are cleared in finally
 			await this.setStateAsync(`switches.${sw.id}.status.feedingEndsTs`, {
 				val: Date.now() + seconds * 1000,
+				ack: true,
+			});
+			await this.setStateAsync(`switches.${sw.id}.status.feedingDurationSec`, {
+				val: seconds,
 				ack: true,
 			});
 
@@ -2525,8 +2544,9 @@ class AutomaticFeeder extends utils.Adapter {
 			this.log.info(`${this.swLabel(sw)}: ${translate('feedSuccess', 'en', { seconds })}`);
 		} finally {
 			this.feedingBusy.delete(sw.id);
-			// clear the runtime countdown end time whichever way the feeding ended
+			// clear the runtime countdown end time and duration whichever way the feeding ended
 			await this.setStateAsync(`switches.${sw.id}.status.feedingEndsTs`, { val: 0, ack: true });
+			await this.setStateAsync(`switches.${sw.id}.status.feedingDurationSec`, { val: 0, ack: true });
 		}
 	}
 
