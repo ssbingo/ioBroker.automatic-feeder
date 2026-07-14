@@ -44,6 +44,13 @@ const MAX_VERIFY_TIMEOUT_SEC = 300;
 const MAX_INTERVAL_MIN = 1440;
 /** Timeout for the Nominatim geocoding request (milliseconds). */
 const GEOCODE_TIMEOUT_MS = 10000;
+/** Timeout for a single HTTP request to an Automatic-Feeder relay board (milliseconds). */
+const RELAY_TIMEOUT_MS = 5000;
+/** How often the relay boards are polled for their connection status (milliseconds). */
+const RELAY_POLL_MS = 60000;
+/** Lower/upper bound for a relay-board button feeding time (seconds); enforced by the board too. */
+const RELAY_TIME_MIN_SEC = 1;
+const RELAY_TIME_MAX_SEC = 600;
 
 /** Read-only status states that live under `switches.<id>.status.*` (used for cleanup of legacy flat states). */
 const STATUS_STATE_IDS = [
@@ -714,6 +721,8 @@ class AutomaticFeeder extends utils.Adapter {
 		this.settingsWriteTimer = null;
 		/** per-switch timer that fires at the next feeding-pause boundary (start/end) */
 		this.pauseTimers = new Map();
+		/** self-rescheduling timer that polls the relay boards for their connection status */
+		this.relayTimer = null;
 		/** last known "feeding paused" state per switch id (to detect start/end transitions) */
 		this.pauseActiveState = new Map();
 
@@ -1007,6 +1016,12 @@ class AutomaticFeeder extends utils.Adapter {
 			// --- winter-pause reminders (initial check + hourly tick) ---
 			await this.checkWinterReminders();
 			this.scheduleReminderTick();
+
+			// --- relay boards: poll their connection status (only when enabled) ---
+			if (this.config.relayEnabled) {
+				await this.pollRelays();
+				this.scheduleRelayPoll();
+			}
 
 			await this.setStateAsync('info.connection', { val: true, ack: true });
 			this.log.info(`Started. ${this.switches.length} switch(es) configured, ${planned} scheduled.`);
@@ -1632,6 +1647,72 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+
+			// --- relay board status (only when the global relay integration is enabled) ---
+			if (this.config.relayEnabled) {
+				await this.setObjectNotExistsAsync(`${base}.relay`, {
+					type: 'channel',
+					common: { name: 'Relay board' },
+					native: {},
+				});
+				await this.setObjectNotExistsAsync(`${base}.relay.connected`, {
+					type: 'state',
+					common: {
+						name: 'Relay board reachable',
+						type: 'boolean',
+						role: 'indicator.connected',
+						read: true,
+						write: false,
+						def: false,
+					},
+					native: {},
+				});
+				await this.setObjectNotExistsAsync(`${base}.relay.info`, {
+					type: 'state',
+					common: {
+						name: 'Relay board info (host / IP / firmware)',
+						type: 'string',
+						role: 'text',
+						read: true,
+						write: false,
+					},
+					native: {},
+				});
+				await this.setObjectNotExistsAsync(`${base}.relay.active`, {
+					type: 'state',
+					common: {
+						name: 'Relay board timer running',
+						type: 'boolean',
+						role: 'indicator.working',
+						read: true,
+						write: false,
+						def: false,
+					},
+					native: {},
+				});
+				await this.setObjectNotExistsAsync(`${base}.relay.remaining`, {
+					type: 'state',
+					common: {
+						name: 'Relay board timer remaining',
+						type: 'number',
+						role: 'value',
+						unit: 's',
+						read: true,
+						write: false,
+						def: 0,
+					},
+					native: {},
+				});
+			} else {
+				// integration disabled -> remove the relay channel and its states
+				const relayObj = await this.getObjectAsync(`${base}.relay`);
+				if (relayObj) {
+					await this.delObjectAsync(`${base}.relay`, { recursive: true });
+					this.log.debug(
+						`Removed relay objects for switch ${this.swLabel(sw)} (relay integration disabled).`,
+					);
+				}
+			}
 
 			// --- read-only mirror of the configuration (visible in the object tree / VIS) ---
 			await this.setObjectNotExistsAsync(`${base}.settings`, {
@@ -3367,6 +3448,119 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 	}
 
+	// ----------------------------------------------------------------------------
+	// Relay board (Automatic-Feeder-Relais, ESP32)
+	// ----------------------------------------------------------------------------
+
+	/**
+	 * Performs a single HTTP request against an Automatic-Feeder relay board and returns
+	 * the parsed JSON body. Throws on missing host, timeout, non-2xx status or invalid JSON.
+	 *
+	 * @param {string} host - board IP or mDNS host, optionally "host:port" (default port 80)
+	 * @param {string} path - request path incl. leading slash and query string
+	 * @param {'GET' | 'POST'} [method] - HTTP method (default "GET")
+	 * @returns {Promise<unknown>} the parsed JSON response
+	 */
+	async relayFetch(host, path, method = 'GET') {
+		const authority = String(host || '')
+			.trim()
+			.replace(/^https?:\/\//i, '')
+			.replace(/\/+$/, '');
+		if (!authority) {
+			throw new Error('No board address configured');
+		}
+		const url = `http://${authority}${path}`;
+		const controller = new AbortController();
+		const timer = this.setTimeout(() => controller.abort(), RELAY_TIMEOUT_MS);
+		try {
+			this.log.silly(`Relay request ${method} ${url}`);
+			const res = await fetch(url, { method, signal: controller.signal });
+			if (!res.ok) {
+				throw new Error(`HTTP ${res.status}`);
+			}
+			return await res.json();
+		} catch (e) {
+			if (e.name === 'AbortError') {
+				throw new Error(`timeout after ${RELAY_TIMEOUT_MS}ms`);
+			}
+			throw e;
+		} finally {
+			this.clearTimeout(timer);
+		}
+	}
+
+	/**
+	 * Normalizes a relay board's /api/status (or /api/config) response into the shape the
+	 * admin UI and the status datapoints consume. Called only after a successful fetch, so
+	 * "connected" is always true here.
+	 *
+	 * @param {unknown} raw - the raw JSON returned by the board
+	 * @returns {{ok: boolean, connected: boolean, host: string, ip: string, fw: string, wifi: string, times: number[], active: boolean, remaining: number, relay: boolean}} normalized status
+	 */
+	normalizeRelayStatus(raw) {
+		const d = raw && typeof raw === 'object' ? raw : {};
+		const str = v => (typeof v === 'string' ? v : '');
+		const times = Array.isArray(d['times']) ? d['times'].map(n => Number(n) || 0) : [];
+		return {
+			ok: true,
+			connected: true,
+			host: str(d['host']),
+			ip: str(d['ip']),
+			fw: str(d['fw']),
+			wifi: str(d['wifi']),
+			times,
+			active: !!d['active'],
+			remaining: Number(d['remaining']) || 0,
+			relay: !!d['relay'],
+		};
+	}
+
+	/**
+	 * Polls every switch's relay board once and mirrors the result into the
+	 * `switches.<id>.relay.*` status datapoints. Best effort: a switch without a host or an
+	 * unreachable board is reported as not connected.
+	 */
+	async pollRelays() {
+		for (const sw of this.switches) {
+			const base = `switches.${sw.id}.relay`;
+			const host = sw.relayHost;
+			if (!host || !String(host).trim()) {
+				await this.setStateAsync(`${base}.connected`, { val: false, ack: true }).catch(() => {});
+				continue;
+			}
+			try {
+				const st = this.normalizeRelayStatus(await this.relayFetch(host, '/api/status', 'GET'));
+				const info = [st.host && `host=${st.host}`, st.ip && `ip=${st.ip}`, st.fw && `fw=${st.fw}`]
+					.filter(Boolean)
+					.join(' ');
+				await this.setStateAsync(`${base}.connected`, { val: true, ack: true }).catch(() => {});
+				await this.setStateAsync(`${base}.info`, { val: info, ack: true }).catch(() => {});
+				await this.setStateAsync(`${base}.active`, { val: st.active, ack: true }).catch(() => {});
+				await this.setStateAsync(`${base}.remaining`, { val: st.remaining, ack: true }).catch(() => {});
+				this.log.silly(`Relay ${this.swLabel(sw)} reachable at ${host} (${info}).`);
+			} catch (e) {
+				await this.setStateAsync(`${base}.connected`, { val: false, ack: true }).catch(() => {});
+				await this.setStateAsync(`${base}.active`, { val: false, ack: true }).catch(() => {});
+				this.log.debug(`Relay ${this.swLabel(sw)} not reachable at ${host}: ${e.message}`);
+			}
+		}
+	}
+
+	/** Schedules the next relay-board status poll (self-rescheduling, cleared in onUnload). */
+	scheduleRelayPoll() {
+		if (this.terminating) {
+			return;
+		}
+		this.relayTimer = this.setTimeout(async () => {
+			try {
+				await this.pollRelays();
+			} catch (e) {
+				this.log.debug(`Relay poll failed: ${e.message}`);
+			}
+			this.scheduleRelayPoll();
+		}, RELAY_POLL_MS);
+	}
+
 	/**
 	 * Handles "geocode" requests from the admin UI (address -> coordinates via Nominatim).
 	 *
@@ -3400,6 +3594,56 @@ class AutomaticFeeder extends utils.Adapter {
 			);
 			if (obj.callback) {
 				this.sendTo(obj.from, obj.command, { ok: true }, obj.callback);
+			}
+			return;
+		}
+		if (obj.command === 'relayGet') {
+			const host = obj.message && obj.message.host;
+			try {
+				const data = await this.relayFetch(host, '/api/status', 'GET');
+				const st = this.normalizeRelayStatus(data);
+				this.log.debug(`Relay status fetched from "${host}": times=${JSON.stringify(st.times)}.`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, st, obj.callback);
+				}
+			} catch (e) {
+				const msg = `Relay board not reachable: ${e.message}`;
+				this.log.warn(`${msg} (host="${host}")`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);
+				}
+			}
+			return;
+		}
+		if (obj.command === 'relaySet') {
+			const host = obj.message && obj.message.host;
+			const clamp = v => Math.min(RELAY_TIME_MAX_SEC, Math.max(RELAY_TIME_MIN_SEC, Math.round(Number(v))));
+			const params = [];
+			for (const key of ['time1', 'time2', 'time3']) {
+				const raw = obj.message && obj.message[key];
+				if (raw !== undefined && raw !== null && raw !== '' && Number.isFinite(Number(raw))) {
+					params.push(`${key}=${clamp(raw)}`);
+				}
+			}
+			if (!params.length) {
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { error: 'No valid times to set' }, obj.callback);
+				}
+				return;
+			}
+			try {
+				const data = await this.relayFetch(host, `/api/config?${params.join('&')}`, 'POST');
+				const st = this.normalizeRelayStatus(data);
+				this.log.info(`Relay button times written to "${host}": ${params.join(', ')}.`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, st, obj.callback);
+				}
+			} catch (e) {
+				const msg = `Writing to the relay board failed: ${e.message}`;
+				this.log.warn(`${msg} (host="${host}")`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);
+				}
 			}
 			return;
 		}
@@ -3475,6 +3719,10 @@ class AutomaticFeeder extends utils.Adapter {
 			if (this.settingsWriteTimer) {
 				this.clearTimeout(this.settingsWriteTimer);
 				this.settingsWriteTimer = null;
+			}
+			if (this.relayTimer) {
+				this.clearTimeout(this.relayTimer);
+				this.relayTimer = null;
 			}
 			for (const t of this.scheduleTimers.values()) {
 				this.clearTimeout(t);

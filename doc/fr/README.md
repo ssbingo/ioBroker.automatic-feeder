@@ -72,6 +72,12 @@ Tu peux déclencher une distribution **manuellement** à tout moment — directe
 configuration (bouton avec durée librement réglable) ou via un point de données (p. ex. un bouton
 dans une vue VIS).
 
+En option, l'adaptateur intègre la **carte relais Automatic-Feeder** (un ESP32 doté de trois
+boutons de minuterie et de sa propre interface web). Lorsque tu l'actives dans les réglages de
+base, chaque interrupteur reçoit un onglet **Relais** dans lequel tu définis l'adresse réseau de la
+carte, testes la connexion et configures ses trois durées de distribution des boutons (S1–S3)
+directement depuis l'adaptateur.
+
 > Important : l'adaptateur ne crée pas l'interrupteur lui-même. Il **pilote un objet déjà
 > existant** dans ton ioBroker. Cet objet, tu le sélectionnes dans la configuration.
 
@@ -179,6 +185,11 @@ La liste des distributeurs de nourriture (jusqu'à 5). Pour chaque entrée :
 
 Avec **Ajouter un interrupteur**, tu en crées un de plus (max. 5) ; avec l'icône de corbeille, tu
 en supprimes un. Lors de la suppression, ses points de données sont également effacés.
+
+* **Utiliser la carte relais Automatic-Feeder (ajoute un onglet relais par interrupteur)**
+  (bascule) — active ceci uniquement si tu possèdes la carte relais Automatic-Feeder (ESP32)
+  optionnelle. Lorsqu'elle est activée, chaque interrupteur reçoit un onglet **Relais**
+  supplémentaire (voir section 5.3).
 
 ### 5.2 Onglets d'interrupteur
 
@@ -356,6 +367,30 @@ même instance Telegram, indépendamment de ces cases à cocher de surveillance.
 
 La configuration complète est décrite sous [Notifications Telegram](#8-notifications-telegram).
 
+### 5.3 Onglet de la carte relais (optionnel)
+
+Cet onglet n'apparaît que lorsque l'option **Utiliser la carte relais Automatic-Feeder (ajoute un
+onglet relais par interrupteur)** est activée dans les réglages de base (voir section 5.1). Une
+carte relais correspond à un interrupteur (station de distribution). La carte est un ESP32 doté de
+trois boutons de minuterie (S1–S3) et de sa propre interface web, accessible sur ton réseau via le
+**port 80**. L'adaptateur se contente de **configurer** la carte et d'**afficher son état** — il ne
+déclenche pas la distribution via la carte (les boutons s'actionnent sur la carte elle-même).
+
+* **Adresse de la carte (IP ou hôte mDNS)** — p. ex. `192.168.1.50` ou `feeder.local`. Une IP fixe
+  est la plus fiable ; le mDNS (`.local`) ne fonctionne que si ton système hôte parvient à le
+  résoudre. Un suffixe `:port` est autorisé mais généralement inutile (par défaut `80`).
+* **Tester la connexion et récupérer les durées** — contacte la carte une fois. Une pastille verte
+  *Connecté* ainsi que l'hôte/l'IP/le firmware de la carte confirment une connexion opérationnelle ;
+  les trois durées de distribution des boutons sont alors lues depuis la carte et reportées dans les
+  champs ci-dessous. Une pastille rouge *Non connecté* affiche l'erreur.
+* **Durées de distribution des boutons (secondes)** — la durée de distribution de chaque bouton
+  **S1**, **S2** et **S3** (1–600 s). Comme celles-ci sont **également modifiables sur l'interface
+  web de la carte elle-même**, commence toujours par les *récupérer*, puis ajuste-les.
+* **Enregistrer les durées sur la carte** — écrit les trois valeurs sur la carte.
+
+La connexion est également reflétée dans l'arborescence des objets et actualisée toutes les 60 s —
+voir les points de données `relay.*` à la section 6.
+
 ---
 
 ## 6. Objets / Points de données
@@ -380,6 +415,9 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
   cet interrupteur. Écrire une nouvelle valeur ici (depuis VIS ou un script) modifie la configuration et
   redémarre l'instance pour que le changement prenne effet. Quelques champs dérivés sont en lecture seule
   (p. ex. `winterWindow`).
+* **`relay`** (`switches.<id>.relay.*`) – présent uniquement lorsque l'intégration de la carte
+  relais est activée ; les points de données d'état de la carte relais en lecture seule, listés à la
+  fin du tableau.
 
 | Point de données | Type | Signification |
 |------------|-----|-----------|
@@ -415,6 +453,10 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Lever/coucher du soleil en temps Unix en ms — p. ex. pour une barre de progression du jour dans VIS. |
+| `relay.connected` | boolean (ro) | La carte relais configurée pour cet interrupteur est joignable (uniquement lorsque l'intégration de la carte relais est activée). |
+| `relay.info` | string (ro) | Identité de la carte relais (hôte / IP / firmware) issue de la dernière interrogation réussie. |
+| `relay.active` | boolean (ro) | La minuterie de la carte relais est actuellement en cours d'exécution. |
+| `relay.remaining` | number (ro) | Secondes restantes sur la minuterie en cours de la carte relais. |
 
 Ces points de données peuvent être utilisés dans VIS, des scripts ou d'autres adaptateurs — p. ex.
 afficher `status.nextFeeding` sur un tableau de bord ou déclencher ta propre alarme lorsque `status.error =

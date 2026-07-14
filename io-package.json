@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.6.0",
+		"version": "1.7.0",
 		"news": {
-			"1.6.0": {
-				"en": "New per-switch data point status.feedingDurationSec (seconds, 0 = not feeding): the total duration of the currently running feeding, so a VIS widget can draw an exact progress ring next to the runtime countdown.",
-				"de": "Neuer Datenpunkt status.feedingDurationSec je Schalter (Sekunden, 0 = keine Fütterung): die Gesamtdauer der aktuell laufenden Fütterung, damit ein VIS-Widget einen exakten Fortschrittsring neben dem Laufzeit-Countdown zeichnen kann.",
-				"ru": "Новая точка данных status.feedingDurationSec для каждого переключателя (секунды, 0 = кормление не идёт): полная длительность текущего кормления, чтобы виджет VIS мог нарисовать точное кольцо прогресса рядом с обратным отсчётом.",
-				"pt": "Novo ponto de dados status.feedingDurationSec por interruptor (segundos, 0 = sem alimentação): a duração total da alimentação em curso, para que um widget VIS possa desenhar um anel de progresso exato ao lado da contagem regressiva.",
-				"nl": "Nieuw datapunt status.feedingDurationSec per schakelaar (seconden, 0 = geen voedering): de totale duur van de lopende voedering, zodat een VIS-widget een exacte voortgangsring naast de aftelling kan tekenen.",
-				"fr": "Nouveau point de données status.feedingDurationSec par interrupteur (secondes, 0 = aucune distribution) : la durée totale de la distribution en cours, afin qu'un widget VIS puisse dessiner un anneau de progression exact à côté du compte à rebours.",
-				"it": "Nuovo datapoint status.feedingDurationSec per ogni interruttore (secondi, 0 = nessuna alimentazione): la durata totale dell'alimentazione in corso, così un widget VIS può disegnare un anello di avanzamento esatto accanto al conto alla rovescia.",
-				"es": "Nuevo punto de datos status.feedingDurationSec por interruptor (segundos, 0 = sin alimentación): la duración total de la alimentación en curso, para que un widget VIS pueda dibujar un anillo de progreso exacto junto a la cuenta atrás.",
-				"pl": "Nowy punkt danych status.feedingDurationSec dla każdego przełącznika (sekundy, 0 = brak karmienia): całkowity czas trwającego karmienia, aby widżet VIS mógł narysować dokładny pierścień postępu obok odliczania.",
-				"uk": "Нова точка даних status.feedingDurationSec для кожного перемикача (секунди, 0 = годування не триває): загальна тривалість поточного годування, щоб віджет VIS міг намалювати точне кільце прогресу поряд зі зворотним відліком.",
-				"zh-cn": "每个开关新增数据点 status.feedingDurationSec（秒，0 = 未投喂）：正在进行的投喂的总时长，让 VIS 控件可以在运行倒计时旁边绘制精确的进度环。"
+			"1.7.0": {
+				"en": "New optional Automatic-Feeder relay board integration (ESP32 with three timer buttons): enable it in the general settings, then per switch set the board address, test the connection and read/write its S1-S3 button feeding times. New per-switch status data points relay.connected/info/active/remaining.",
+				"de": "Neue optionale Anbindung der Automatic-Feeder-Relaisplatine (ESP32 mit drei Timer-Tasten): in den Grundeinstellungen aktivieren, dann je Schalter die Platinen-Adresse festlegen, die Verbindung testen und die S1-S3-Tasten-Fütterungszeiten lesen/schreiben. Neue Status-Datenpunkte je Schalter relay.connected/info/active/remaining.",
+				"ru": "Новая опциональная интеграция релейной платы Automatic-Feeder (ESP32 с тремя кнопками таймера): включите её в общих настройках, затем для каждого переключателя задайте адрес платы, проверьте соединение и считывайте/записывайте время кормления кнопок S1-S3. Новые точки данных для каждого переключателя relay.connected/info/active/remaining.",
+				"pt": "Nova integração opcional da placa de relé Automatic-Feeder (ESP32 com três botões de temporizador): ative-a nas definições gerais, depois defina por interruptor o endereço da placa, teste a ligação e leia/escreva os tempos de alimentação dos botões S1-S3. Novos pontos de dados por interruptor relay.connected/info/active/remaining.",
+				"nl": "Nieuwe optionele integratie van de Automatic-Feeder relaisprint (ESP32 met drie timerknoppen): schakel deze in bij de algemene instellingen, stel dan per schakelaar het printadres in, test de verbinding en lees/schrijf de S1-S3-knopvoedertijden. Nieuwe datapunten per schakelaar relay.connected/info/active/remaining.",
+				"fr": "Nouvelle intégration optionnelle de la carte relais Automatic-Feeder (ESP32 avec trois boutons de minuterie) : activez-la dans les réglages généraux, puis définissez par interrupteur l'adresse de la carte, testez la connexion et lisez/écrivez les durées des boutons S1-S3. Nouveaux points de données par interrupteur relay.connected/info/active/remaining.",
+				"it": "Nuova integrazione opzionale della scheda relè Automatic-Feeder (ESP32 con tre pulsanti timer): attivala nelle impostazioni generali, poi per ogni interruttore imposta l'indirizzo della scheda, prova la connessione e leggi/scrivi i tempi dei pulsanti S1-S3. Nuovi datapoint per interruttore relay.connected/info/active/remaining.",
+				"es": "Nueva integración opcional de la placa de relé Automatic-Feeder (ESP32 con tres botones de temporizador): actívala en los ajustes generales, luego por interruptor define la dirección de la placa, prueba la conexión y lee/escribe los tiempos de los botones S1-S3. Nuevos puntos de datos por interruptor relay.connected/info/active/remaining.",
+				"pl": "Nowa opcjonalna integracja płytki przekaźnikowej Automatic-Feeder (ESP32 z trzema przyciskami timera): włącz ją w ustawieniach ogólnych, następnie dla każdego przełącznika ustaw adres płytki, przetestuj połączenie i odczytaj/zapisz czasy karmienia przycisków S1-S3. Nowe punkty danych dla każdego przełącznika relay.connected/info/active/remaining.",
+				"uk": "Нова опціональна інтеграція релейної плати Automatic-Feeder (ESP32 з трьома кнопками таймера): увімкніть її в загальних налаштуваннях, потім для кожного перемикача задайте адресу плати, перевірте з'єднання та читайте/записуйте час годування кнопок S1-S3. Нові точки даних для кожного перемикача relay.connected/info/active/remaining.",
+				"zh-cn": "新增可选的 Automatic-Feeder 继电器板集成（带三个定时按键的 ESP32）：在常规设置中启用后，为每个开关设置继电器板地址、测试连接并读写 S1-S3 按键投喂时长。每个开关新增状态数据点 relay.connected/info/active/remaining。"
 			}
 		},
 		"titleLang": {
@@ -100,6 +100,7 @@
 		"o2ObjectId": "",
 		"sourcesMigratedToSwitches": false,
 		"phase4Migrated": false,
+		"relayEnabled": false,
 		"switches": []
 	},
 	"objects": [],

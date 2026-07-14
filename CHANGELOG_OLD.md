@@ -3,6 +3,13 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.1.3 (2026-07-02)
+* (ssbingo) The Nominatim geocoding request now uses a **10-second timeout** (AbortController) instead of possibly hanging indefinitely
+* (ssbingo) User-configurable durations, intervals and the verification timeout are now **clamped to safe absolute maximums in code** (also when written via the `settings.*` states), so they can no longer misbehave
+* (ssbingo) Log messages are now always in **English** (three lines that embedded the localized result/reminder text were fixed); the localized text still goes to the data points and Telegram
+* (ssbingo) Temperature/oxygen **source values are accepted regardless of the ack flag** (so script / `0_userdata.0` sources keep working); the ack flag is logged and a persistently un-acknowledged source is noted once. The strict ack=true rule stays on the switch on/off verification
+* (ssbingo) Housekeeping: removed 6 unused admin translation keys and some dead code (the winter-reminder check reuses a shared helper)
+
 ### 1.1.2 (2026-07-01)
 * (ssbingo) More detailed **debug/silly logging** for troubleshooting: a readable per-switch configuration summary on start, the next feeding with local time and remaining time, the source of the feeding duration (winter/dynamic/static), the per-switch source assignments, and dynamic re-plan/hysteresis details. No behaviour change; the normal info-level output stays unchanged
 

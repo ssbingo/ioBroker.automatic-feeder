@@ -67,6 +67,12 @@ Puoi attivare una distribuzione **manualmente** in qualsiasi momento, direttamen
 delle impostazioni (pulsante con durata liberamente selezionabile) oppure tramite un punto dati
 (ad es. un pulsante in una vista VIS).
 
+Facoltativamente, l'adattatore integra la **scheda relè Automatic-Feeder** (un ESP32 con tre
+pulsanti a tempo e una propria interfaccia web). Quando la attivi nelle impostazioni di base, ogni
+interruttore ottiene una scheda **Relè** in cui imposti l'indirizzo di rete della scheda, provi la
+connessione e configuri i suoi tre tempi di alimentazione dei pulsanti (S1–S3) direttamente
+dall'adattatore.
+
 > Importante: l'adattatore non crea l'interruttore da solo. **Comanda un oggetto già esistente**
 > nel tuo ioBroker. Questo oggetto lo scegli tu nella configurazione.
 
@@ -172,6 +178,10 @@ L'elenco dei distributori di mangime (fino a 5). Per ogni voce:
 
 Con **Aggiungi interruttore** ne crei un altro (max. 5), con l'icona del cestino ne rimuovi uno.
 Alla rimozione vengono cancellati anche i relativi punti dati.
+
+* **Usa la scheda relè Automatic-Feeder** (interruttore acceso/spento) – attivala solo se possiedi
+  la scheda relè Automatic-Feeder opzionale (ESP32). Quando è attiva, ogni interruttore ottiene una
+  scheda **Relè** aggiuntiva (vedi sezione 5.3).
 
 ### 5.2 Schede degli interruttori
 
@@ -370,6 +380,30 @@ stessa istanza Telegram, indipendentemente da queste caselle di controllo del mo
 
 La configurazione completa è descritta in [Notifiche Telegram](#8-notifiche-telegram).
 
+### 5.3 Scheda Relè (opzionale)
+
+Questa scheda compare solo quando **Usa la scheda relè Automatic-Feeder** è attivo nelle
+impostazioni di base (vedi sezione 5.1). Una scheda relè appartiene a un solo interruttore
+(stazione di alimentazione). La scheda è un ESP32 con tre pulsanti a tempo (S1–S3) e una propria
+interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore si limita a
+**configurare** la scheda e a **mostrarne lo stato** – non attiva l'alimentazione tramite la scheda
+(i pulsanti si azionano sulla scheda stessa).
+
+* **Indirizzo della scheda (IP o host mDNS)** – ad es. `192.168.1.50` oppure `feeder.local`. Un IP
+  fisso è il più affidabile; l'mDNS (`.local`) funziona solo se il tuo sistema host è in grado di
+  risolverlo. È ammesso un suffisso `:port`, ma di solito non serve (predefinito `80`).
+* **Prova connessione e recupera tempi** – contatta la scheda una volta. Un chip verde *Connesso* e
+  l'host/IP/firmware della scheda confermano una connessione funzionante; i tre tempi di
+  alimentazione dei pulsanti vengono quindi letti dalla scheda nei campi sottostanti. Un chip rosso
+  *Non connesso* mostra l'errore.
+* **Tempi di alimentazione dei pulsanti (secondi)** – il tempo di alimentazione di ciascun pulsante
+  **S1**, **S2** e **S3** (1–600 s). Poiché questi sono **modificabili anche sull'interfaccia web
+  della scheda stessa**, *recuperali* sempre prima, poi modificali.
+* **Salva tempi sulla scheda** – scrive i tre valori sulla scheda.
+
+La connessione viene inoltre rispecchiata nell'albero degli oggetti e aggiornata ogni 60 s – vedi i
+punti dati `relay.*` nella sezione 6.
+
 ---
 
 ## 6. Oggetti / Punti dati
@@ -394,6 +428,8 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
   questo interruttore. Scrivendovi un nuovo valore (da VIS o da uno script) si modifica la
   configurazione e si riavvia l'istanza affinché la modifica abbia effetto. Alcuni campi derivati
   sono di sola lettura (ad es. `winterWindow`).
+* **`relay`** (`switches.<id>.relay.*`) – presente solo quando l'integrazione della scheda relè è
+  attiva; i punti dati di stato della scheda relè di sola lettura elencati in fondo alla tabella.
 
 | Punto dati | Tipo | Significato |
 |------------|-----|-----------|
@@ -429,6 +465,10 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
 | `status.sunrise` / `status.sunset` | string (ro) | Alba/tramonto calcolati per la posizione di questo interruttore (finestra astronomica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Alba/tramonto come tempo Unix in ms — ad es. per una barra di avanzamento del giorno in VIS. |
+| `relay.connected` | boolean (ro) | La scheda relè configurata per questo interruttore è raggiungibile (solo quando l'integrazione della scheda relè è attiva). |
+| `relay.info` | string (ro) | Identità della scheda relè (host / IP / firmware) dall'ultimo polling riuscito. |
+| `relay.active` | boolean (ro) | Il timer della scheda relè è attualmente in funzione. |
+| `relay.remaining` | number (ro) | Secondi rimanenti sul timer in funzione della scheda relè. |
 
 Questi punti dati possono essere usati in VIS, negli script o in altri adattatori – ad es.
 mostrare `status.nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando

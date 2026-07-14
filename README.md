@@ -79,6 +79,11 @@ configuration tab named after the switch. Per switch you decide:
 You can also trigger a feeding **manually** at any time – from the adapter's settings page
 (button with a freely selectable duration) or from a data point (e.g. a button in a VIS view).
 
+Optionally, the adapter integrates the **Automatic-Feeder relay board** (an ESP32 with three
+timer buttons and its own web interface). When you enable it in the general settings, every
+switch gains a **Relay** tab where you set the board's network address, test the connection and
+configure its three button feeding times (S1–S3) directly from the adapter.
+
 > Important: the adapter never creates the switch itself. It **controls an object that already
 > exists** in your ioBroker system. You select that object in the configuration.
 
@@ -174,6 +179,10 @@ The list of feeders (up to 5). For each entry:
 
 Use **Add switch** to create another (max. 5) and the trash icon to remove one. Removing a
 switch also deletes its data points.
+
+* **Use the Automatic-Feeder relay board** (toggle) – enable this only if you own the optional
+  Automatic-Feeder relay board (ESP32). When on, every switch gets an additional **Relay** tab
+  (see [5.3](#53-relay-board-tab-optional)).
 
 ### 5.2 Switch tabs
 
@@ -334,6 +343,28 @@ instance, independently of these supervision checkboxes.
 
 See [Telegram notifications](#8-telegram-notifications) for the full setup.
 
+### 5.3 Relay board tab (optional)
+
+This tab only appears when **Use the Automatic-Feeder relay board** is enabled in the general
+settings (see [5.1](#switches)). One relay board belongs to one switch (feeding station). The
+board is an ESP32 with three timer buttons (S1–S3) and its own web interface, reached over your
+network on **port 80**. The adapter only **configures** the board and **shows its status** – it
+does not trigger feeding through the board (the buttons are operated on the board itself).
+
+* **Board address (IP or mDNS host)** – e.g. `192.168.1.50` or `feeder.local`. A fixed IP is the
+  most reliable; mDNS (`.local`) only works if your host system can resolve it. A `:port` suffix
+  is allowed but usually not needed (default `80`).
+* **Test connection & fetch times** – contacts the board once. A green *Connected* chip and the
+  board's host/IP/firmware confirm a working connection; the three button feeding times are then
+  read from the board into the fields below. A red *Not connected* chip shows the error.
+* **Button feeding times (seconds)** – the feeding time of each button **S1**, **S2** and **S3**
+  (1–600 s). Because these are **also editable on the board's own web interface**, always
+  *fetch* them first, then adjust them.
+* **Save times to board** – writes the three values to the board.
+
+The connection is also mirrored into the object tree and refreshed every 60 s – see the
+`relay.*` data points in [section 6](#6-objects--data-points).
+
 ---
 
 ## 6. Objects / data points
@@ -358,6 +389,8 @@ Directly under the switch there is the manual trigger and two sub-channels:
   configuration. Writing a new value there (from VIS or a script) changes the configuration and
   restarts the instance so the change takes effect. A few derived fields are read-only
   (e.g. `winterWindow`).
+* **`relay`** (`switches.<id>.relay.*`) – present only when the relay board integration is
+  enabled; the read-only relay-board status data points listed at the end of the table.
 
 | Data point | Type | Meaning |
 |------------|------|---------|
@@ -393,6 +426,10 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
+| `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when the relay board integration is enabled). |
+| `relay.info` | string (ro) | Relay board identity (host / IP / firmware) from the last successful poll. |
+| `relay.active` | boolean (ro) | The relay board's timer is currently running. |
+| `relay.remaining` | number (ro) | Seconds remaining on the relay board's running timer. |
 
 You can use these in VIS, scripts or other adapters – for example show `status.nextFeeding` on a
 dashboard, or react on `status.error = true` to send your own alarm.
@@ -559,6 +596,11 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.7.0 (2026-07-14)
+* (ssbingo) New optional **Automatic-Feeder relay board** integration (an ESP32 with three timer buttons). Enable it in the general settings; each switch then gets a **Relay** tab to set the board's address (IP or mDNS host, port 80), **test the connection**, and read/write the three button feeding times **S1–S3** (fetched from the board first, then saved back). The adapter only configures the board and shows its status — it does not trigger feeding through it
+* (ssbingo) New per-switch data points `relay.connected`, `relay.info`, `relay.active` and `relay.remaining` (present only when the relay board integration is enabled), polled every 60 s
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.6.0 (2026-07-07)
 * (ssbingo) New per-switch data point `status.feedingDurationSec` (seconds, `0` = not feeding): the total duration of the **currently running** feeding, so a VIS widget can draw an **exact progress ring** next to the runtime countdown. Set at switch-on, cleared when the feeding ends
 * (ssbingo) New adapter icon (stylized feeder on a light grey tile)
@@ -596,13 +638,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) New optional **second (deep) water-temperature sensor** per switch, with a combine mode for dynamic feeding: *feeding zone (shallow)* [default], *average*, *coldest layer* or *seasonal* (shallow while warm enough, otherwise deep). The temperature block always uses the coldest of the two layers. Only useful for deep, unmixed ponds
 * (ssbingo) New per-switch data points `status.waterTemperatureDeep` and `status.waterStratification` (shallow − deep)
 * (ssbingo) New documentation section **“Dynamic feeding — background & sources”** with the scientific/professional basis (Q10 / metabolism, temperature thresholds, measurement depth, thermal stratification) and references, in all 11 languages
-
-### 1.1.3 (2026-07-02)
-* (ssbingo) The Nominatim geocoding request now uses a **10-second timeout** (AbortController) instead of possibly hanging indefinitely
-* (ssbingo) User-configurable durations, intervals and the verification timeout are now **clamped to safe absolute maximums in code** (also when written via the `settings.*` states), so they can no longer misbehave
-* (ssbingo) Log messages are now always in **English** (three lines that embedded the localized result/reminder text were fixed); the localized text still goes to the data points and Telegram
-* (ssbingo) Temperature/oxygen **source values are accepted regardless of the ack flag** (so script / `0_userdata.0` sources keep working); the ack flag is logged and a persistently un-acknowledged source is noted once. The strict ack=true rule stays on the switch on/off verification
-* (ssbingo) Housekeeping: removed 6 unused admin translation keys and some dead code (the winter-reminder check reuses a shared helper)
 
 ---
 

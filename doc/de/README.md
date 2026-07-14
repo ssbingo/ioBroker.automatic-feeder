@@ -66,6 +66,12 @@ Du kannst eine Fütterung jederzeit **manuell** auslösen – direkt auf der Ein
 (Button mit frei wählbarer Dauer) oder über einen Datenpunkt (z. B. ein Button in einer
 VIS-Ansicht).
 
+Optional bindet der Adapter die **Automatic-Feeder-Relaisplatine** ein (ein ESP32 mit drei
+Timer-Tasten und eigener Weboberfläche). Wenn du sie in den Grundeinstellungen aktivierst, erhält
+jeder Schalter einen **Relais**-Tab, auf dem du die Netzwerkadresse der Platine einstellst, die
+Verbindung testest und ihre drei Tasten-Fütterungszeiten (S1–S3) direkt aus dem Adapter
+konfigurierst.
+
 > Wichtig: Der Adapter legt den Schalter nicht selbst an. Er **steuert ein bereits vorhandenes
 > Objekt** in deinem ioBroker. Dieses Objekt wählst du in der Konfiguration aus.
 
@@ -166,6 +172,10 @@ Die Liste der Futterautomaten (bis zu 5). Pro Eintrag:
 
 Mit **Schalter hinzufügen** legst du einen weiteren an (max. 5), mit dem Papierkorb-Symbol
 entfernst du einen. Beim Entfernen werden auch dessen Datenpunkte gelöscht.
+
+* **Automatic-Feeder-Relaisplatine verwenden (fügt je Schalter einen Relais-Tab hinzu)**
+  (Umschalter) – nur aktivieren, wenn du die optionale Automatic-Feeder-Relaisplatine (ESP32)
+  besitzt. Wenn aktiv, erhält jeder Schalter einen zusätzlichen **Relais**-Tab (siehe Abschnitt 5.3).
 
 ### 5.2 Schalter-Tabs
 
@@ -330,6 +340,30 @@ Telegram-Instanz gesendet, unabhängig von diesen Überwachungs-Checkboxen.
 
 Die vollständige Einrichtung steht unter [Telegram-Benachrichtigungen](#8-telegram-benachrichtigungen).
 
+### 5.3 Relaisplatinen-Tab (optional)
+
+Dieser Tab erscheint nur, wenn in den Grundeinstellungen **Automatic-Feeder-Relaisplatine
+verwenden (fügt je Schalter einen Relais-Tab hinzu)** aktiviert ist (siehe Abschnitt 5.1). Eine
+Relaisplatine gehört zu genau einem Schalter (einer Futterstation). Die Platine ist ein ESP32 mit
+drei Timer-Tasten (S1–S3) und eigener Weboberfläche, die über dein Netzwerk auf **Port 80**
+erreichbar ist. Der Adapter **konfiguriert** die Platine nur und **zeigt ihren Status an** – er
+löst über die Platine keine Fütterung aus (die Tasten werden an der Platine selbst bedient).
+
+* **Platinen-Adresse (IP oder mDNS-Host)** – z. B. `192.168.1.50` oder `feeder.local`. Eine feste
+  IP ist am zuverlässigsten; mDNS (`.local`) funktioniert nur, wenn dein Host-System sie auflösen
+  kann. Ein Suffix `:port` ist erlaubt, aber meist nicht nötig (Standard `80`).
+* **Verbindung testen & Zeiten abrufen** – kontaktiert die Platine einmalig. Ein grüner
+  *Verbunden*-Chip sowie Host/IP/Firmware der Platine bestätigen eine funktionierende Verbindung;
+  die drei Tasten-Fütterungszeiten werden dann von der Platine in die Felder darunter eingelesen.
+  Ein roter *Nicht verbunden*-Chip zeigt den Fehler an.
+* **Tasten-Fütterungszeiten (Sekunden)** – die Fütterungszeit jeder Taste **S1**, **S2** und
+  **S3** (1–600 s). Da diese **auch an der eigenen Weboberfläche der Platine bearbeitbar** sind,
+  immer erst *abrufen* und dann anpassen.
+* **Zeiten auf Platine speichern** – schreibt die drei Werte auf die Platine.
+
+Die Verbindung wird außerdem in den Objektbaum gespiegelt und alle 60 s aktualisiert – siehe die
+`relay.*`-Datenpunkte in Abschnitt 6.
+
 ---
 
 ## 6. Objekte / Datenpunkte
@@ -354,6 +388,9 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
   Schalters. Wird dort ein neuer Wert geschrieben (aus VIS oder einem Skript), ändert das die Konfiguration
   und startet die Instanz neu, damit die Änderung wirksam wird. Einige abgeleitete Felder sind
   schreibgeschützt (z. B. `winterWindow`).
+* **`relay`** (`switches.<id>.relay.*`) – nur vorhanden, wenn die Relaisplatinen-Integration
+  aktiviert ist; die schreibgeschützten Relaisplatinen-Status-Datenpunkte, die am Ende der Tabelle
+  aufgeführt sind.
 
 | Datenpunkt | Typ | Bedeutung |
 |------------|-----|-----------|
@@ -389,6 +426,10 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sonnenauf-/-untergang als Unix-Zeit in ms — z. B. für einen Tagesverlaufs-Balken in VIS. |
+| `relay.connected` | boolean (ro) | Die für diesen Schalter konfigurierte Relaisplatine ist erreichbar (nur wenn die Relaisplatinen-Integration aktiviert ist). |
+| `relay.info` | string (ro) | Kennung der Relaisplatine (Host / IP / Firmware) vom letzten erfolgreichen Abruf. |
+| `relay.active` | boolean (ro) | Der Timer der Relaisplatine läuft gerade. |
+| `relay.remaining` | number (ro) | Verbleibende Sekunden des laufenden Timers der Relaisplatine. |
 
 Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `status.nextFeeding`
 auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm auslösen.

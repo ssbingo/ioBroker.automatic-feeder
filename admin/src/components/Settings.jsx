@@ -5,6 +5,7 @@ import { I18n } from '@iobroker/adapter-react-v5';
 
 import GeneralTab from './GeneralTab';
 import SwitchTab from './SwitchTab';
+import RelayTab from './RelayTab';
 
 const MAX_SWITCHES = 5;
 
@@ -100,6 +101,10 @@ function createSwitch(switches) {
 		waterSeasonalThresholdC: 12,
 		o2Enabled: false,
 		o2ObjectId: '',
+		relayHost: '',
+		relayS1: 5,
+		relayS2: 5,
+		relayS3: 5,
 	};
 }
 
@@ -146,29 +151,52 @@ function Settings(props) {
 	const removeSwitch = (index) => {
 		const next = switches.filter((_, i) => i !== index);
 		onChange('switches', next);
-		// clamp active tab into the new range (general tab + one per switch)
-		setTab((current) => Math.min(current, next.length));
+		// go back to the general tab; the interleaved tab list changes length and the
+		// render below clamps the active tab into the new range anyway
+		setTab(0);
 	};
 
-	const activeSwitchIndex = tab - 1;
-	const activeSwitch = activeSwitchIndex >= 0 ? switches[activeSwitchIndex] : null;
+	// Tab layout: [general] then, per switch, its config tab and (when the relay board
+	// integration is enabled) an additional relay tab right after it, so a switch and
+	// its board stay next to each other.
+	const relayEnabled = !!native.relayEnabled;
+	const tabDefs = [{ type: 'general' }];
+	switches.forEach((sw, index) => {
+		tabDefs.push({ type: 'switch', index });
+		if (relayEnabled) {
+			tabDefs.push({ type: 'relay', index });
+		}
+	});
+	const current = Math.min(tab, tabDefs.length - 1);
+	const currentDef = tabDefs[current];
+
+	const switchLabel = (sw, index) =>
+		sw.name && sw.name.trim() ? sw.name : `${I18n.t('Switch')} ${index + 1}`;
 
 	return (
 		<Box sx={{ p: 2, pb: 10 }}>
 			<Tabs
-				value={Math.min(tab, switches.length)}
+				value={current}
 				onChange={(_e, v) => setTab(v)}
 				variant="scrollable"
 				scrollButtons="auto"
 				sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
 			>
-				<Tab label={I18n.t('General settings')} />
-				{switches.map((sw, index) => (
-					<Tab key={sw.id || index} label={sw.name && sw.name.trim() ? sw.name : `${I18n.t('Switch')} ${index + 1}`} />
-				))}
+				{tabDefs.map((def, i) => {
+					if (def.type === 'general') {
+						return <Tab key="general" label={I18n.t('General settings')} />;
+					}
+					const sw = switches[def.index];
+					const key = `${sw.id || def.index}-${def.type}`;
+					const label =
+						def.type === 'relay'
+							? `${switchLabel(sw, def.index)} · ${I18n.t('Relay')}`
+							: switchLabel(sw, def.index);
+					return <Tab key={key} label={label} />;
+				})}
 			</Tabs>
 
-			{tab === 0 ? (
+			{currentDef && currentDef.type === 'general' ? (
 				<GeneralTab
 					native={native}
 					onChange={onChange}
@@ -183,17 +211,26 @@ function Settings(props) {
 				/>
 			) : null}
 
-			{activeSwitch ? (
+			{currentDef && currentDef.type === 'switch' ? (
 				<SwitchTab
-					sw={activeSwitch}
+					sw={switches[currentDef.index]}
 					native={native}
-					onChange={(patch) => updateSwitch(activeSwitchIndex, patch)}
+					onChange={(patch) => updateSwitch(currentDef.index, patch)}
 					socket={socket}
 					instanceId={instanceId}
 					telegramInstances={telegramInstances}
 					theme={theme}
 					themeName={themeName}
 					themeType={themeType}
+				/>
+			) : null}
+
+			{currentDef && currentDef.type === 'relay' ? (
+				<RelayTab
+					sw={switches[currentDef.index]}
+					onChange={(patch) => updateSwitch(currentDef.index, patch)}
+					socket={socket}
+					instanceId={instanceId}
 				/>
 			) : null}
 		</Box>

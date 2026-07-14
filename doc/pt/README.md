@@ -66,6 +66,12 @@ Você pode acionar uma alimentação **manualmente** a qualquer momento – dire
 configurações (botão com duração livremente selecionável) ou através de um ponto de dados (p. ex. um
 botão numa visualização VIS).
 
+Opcionalmente, o adaptador integra a **placa de relé Automatic-Feeder** (um ESP32 com três
+botões de temporizador e a sua própria interface web). Quando você a ativa nas configurações
+básicas, cada interruptor recebe uma aba **Relé** onde você define o endereço de rede da placa,
+testa a ligação e configura os seus três tempos de alimentação dos botões (S1–S3) diretamente a
+partir do adaptador.
+
 > Importante: O adaptador não cria o interruptor por conta própria. Ele **controla um objeto já
 > existente** no seu ioBroker. Esse objeto você seleciona na configuração.
 
@@ -165,6 +171,10 @@ A lista dos alimentadores automáticos (até 5). Por entrada:
 
 Com **Adicionar interruptor** você cria mais um (máx. 5), com o ícone da lixeira você
 remove um. Ao remover, também são excluídos os pontos de dados dele.
+
+* **Usar a placa de relé Automatic-Feeder** (alternância) – ative isto apenas se você possuir a
+  placa de relé Automatic-Feeder (ESP32) opcional. Quando ativo, cada interruptor recebe uma aba
+  **Relé** adicional (ver seção 5.3).
 
 ### 5.2 Abas dos interruptores
 
@@ -324,6 +334,28 @@ instância do Telegram, independentemente dessas caixas de seleção do monitora
 
 A configuração completa consta em [Notificações do Telegram](#8-notificações-do-telegram).
 
+### 5.3 Aba da placa de relé (opcional)
+
+Esta aba só aparece quando **Usar a placa de relé Automatic-Feeder** está ativado nas configurações
+básicas (ver seção 5.1). Uma placa de relé pertence a um interruptor (estação de alimentação). A
+placa é um ESP32 com três botões de temporizador (S1–S3) e a sua própria interface web, acessível
+na sua rede pela **porta 80**. O adaptador apenas **configura** a placa e **mostra o seu estado** –
+ele não aciona a alimentação através da placa (os botões são operados na própria placa).
+
+* **Endereço da placa (IP ou host mDNS)** – p. ex. `192.168.1.50` ou `feeder.local`. Um IP fixo é o
+  mais fiável; o mDNS (`.local`) só funciona se o seu sistema host conseguir resolvê-lo. Um sufixo
+  `:port` é permitido, mas normalmente não é necessário (padrão `80`).
+* **Testar ligação e obter tempos** – contacta a placa uma vez. Um chip verde *Ligado* e o
+  host/IP/firmware da placa confirmam uma ligação a funcionar; os três tempos de alimentação dos
+  botões são então lidos da placa para os campos abaixo. Um chip vermelho *Não ligado* mostra o erro.
+* **Tempos de alimentação dos botões (segundos)** – o tempo de alimentação de cada botão **S1**,
+  **S2** e **S3** (1–600 s). Como estes são **também editáveis na própria interface web da placa**,
+  *obtenha*-os sempre primeiro e depois ajuste-os.
+* **Guardar tempos na placa** – escreve os três valores na placa.
+
+A ligação também é espelhada na árvore de objetos e atualizada a cada 60 s – veja os pontos de dados
+`relay.*` na seção 6.
+
 ---
 
 ## 6. Objetos / Pontos de dados
@@ -348,6 +380,8 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
   interruptor. Gravar um novo valor ali (a partir do VIS ou de um script) altera a configuração e
   reinicia a instância para que a mudança tenha efeito. Alguns campos derivados são somente leitura
   (p. ex. `winterWindow`).
+* **`relay`** (`switches.<id>.relay.*`) – presente apenas quando a integração da placa de relé está
+  ativada; os pontos de dados de status somente leitura da placa de relé listados no fim da tabela.
 
 | Ponto de dados | Tipo | Significado |
 |------------|-----|-----------|
@@ -383,6 +417,10 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `status.oxygen` | number (ro) | Valor da fonte de oxigénio dissolvido própria deste interruptor. |
 | `status.sunrise` / `status.sunset` | string (ro) | Nascer/pôr do sol calculado para a localização deste interruptor (janela astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Nascer/pôr do sol como tempo Unix em ms — p. ex. para uma barra de progresso do dia no VIS. |
+| `relay.connected` | boolean (ro) | A placa de relé configurada para este interruptor está acessível (apenas quando a integração da placa de relé está ativada). |
+| `relay.info` | string (ro) | Identidade da placa de relé (host / IP / firmware) da última consulta bem-sucedida. |
+| `relay.active` | boolean (ro) | O temporizador da placa de relé está atualmente em execução. |
+| `relay.remaining` | number (ro) | Segundos restantes no temporizador em execução da placa de relé. |
 
 Esses pontos de dados podem ser usados em VIS, scripts ou outros adaptadores – p. ex. exibir `status.nextFeeding`
 num dashboard ou acionar um alarme próprio quando `status.error = true`.
