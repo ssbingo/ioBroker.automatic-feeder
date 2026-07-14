@@ -370,6 +370,13 @@ karmienia przez płytkę (przyciski obsługuje się na samej płytce).
   **S3** (1–600 s). Ponieważ **można je edytować także we własnym interfejsie WWW płytki**, zawsze
   najpierw je *pobierz*, a dopiero potem dostosuj.
 * **Zapisz czasy na płytce** – zapisuje trzy wartości na płytce.
+* **Uruchom ponownie płytkę** – ponownie uruchamia ESP32 poprzez jego API (`POST /api/reboot`). Po
+  potwierdzeniu w oknie dialogowym płytka uruchamia się ponownie i przez kilka sekund jest
+  niedostępna, po czym automatycznie wraca do działania.
+
+Na dole zakładki **Przegląd systemu** pokazuje bieżące dane systemowe płytki po pomyślnym teście
+połączenia (przycisk *Testuj połączenie i pobierz czasy*): wersję firmware, nazwę hosta, adres IP,
+sieć Wi-Fi, siłę sygnału (dBm), adres MAC, czas działania, wolną pamięć oraz ostatni powód resetu.
 
 Połączenie jest także odzwierciedlane w drzewie obiektów i odświeżane co 60 s – zobacz punkty
 danych `relay.*` w sekcji 6.

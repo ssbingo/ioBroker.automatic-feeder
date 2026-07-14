@@ -3495,11 +3495,12 @@ class AutomaticFeeder extends utils.Adapter {
 	 * "connected" is always true here.
 	 *
 	 * @param {unknown} raw - the raw JSON returned by the board
-	 * @returns {{ok: boolean, connected: boolean, host: string, ip: string, fw: string, wifi: string, times: number[], active: boolean, remaining: number, relay: boolean}} normalized status
+	 * @returns {{ok: boolean, connected: boolean, host: string, ip: string, fw: string, wifi: string, ssid: string, rssi: (number|null), mac: string, ap: string, uptime: (number|null), heap: (number|null), reset: string, times: number[], active: boolean, remaining: number, relay: boolean}} normalized status
 	 */
 	normalizeRelayStatus(raw) {
 		const d = raw && typeof raw === 'object' ? raw : {};
 		const str = v => (typeof v === 'string' ? v : '');
+		const num = v => (Number.isFinite(Number(v)) && v !== null && v !== '' ? Number(v) : null);
 		const times = Array.isArray(d['times']) ? d['times'].map(n => Number(n) || 0) : [];
 		return {
 			ok: true,
@@ -3508,6 +3509,13 @@ class AutomaticFeeder extends utils.Adapter {
 			ip: str(d['ip']),
 			fw: str(d['fw']),
 			wifi: str(d['wifi']),
+			ssid: str(d['ssid']),
+			rssi: num(d['rssi']),
+			mac: str(d['mac']),
+			ap: str(d['ap']),
+			uptime: num(d['uptime']),
+			heap: num(d['heap']),
+			reset: str(d['reset']),
 			times,
 			active: !!d['active'],
 			remaining: Number(d['remaining']) || 0,
@@ -3643,6 +3651,23 @@ class AutomaticFeeder extends utils.Adapter {
 				}
 			} catch (e) {
 				const msg = `Writing to the relay board failed: ${e.message}`;
+				this.log.warn(`${msg} (host="${host}")`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);
+				}
+			}
+			return;
+		}
+		if (obj.command === 'relayReboot') {
+			const host = obj.message && obj.message.host;
+			try {
+				await this.relayFetch(host, '/api/reboot', 'POST');
+				this.log.info(`Relay board reboot requested at "${host}".`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { ok: true }, obj.callback);
+				}
+			} catch (e) {
+				const msg = `Relay board reboot failed: ${e.message}`;
 				this.log.warn(`${msg} (host="${host}")`);
 				if (obj.callback) {
 					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);

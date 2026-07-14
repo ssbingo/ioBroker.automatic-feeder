@@ -148,5 +148,19 @@
 	"Save times to board": "Zeiten auf Platine speichern",
 	"Saved to the board.": "Auf der Platine gespeichert.",
 	"Saving to the board failed": "Speichern auf der Platine fehlgeschlagen",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Dieser Schalter nutzt die Automatic-Feeder-Relaisplatine (fügt einen Relais-Tab hinzu)"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Dieser Schalter nutzt die Automatic-Feeder-Relaisplatine (fügt einen Relais-Tab hinzu)",
+	"Restart board": "Platine neu starten",
+	"Restart the relay board now? It will be offline for a moment.": "Die Relaisplatine jetzt neu starten? Sie ist für einen Moment nicht erreichbar.",
+	"Restart triggered — the board will reboot shortly.": "Neustart ausgelöst – die Platine startet in Kürze neu.",
+	"Restart failed": "Neustart fehlgeschlagen",
+	"System overview": "Systemübersicht",
+	"Test the connection to load the board’s system data.": "Testen Sie die Verbindung, um die Systemdaten der Platine zu laden.",
+	"Host name": "Hostname",
+	"IP address": "IP-Adresse",
+	"WiFi network": "WLAN-Netzwerk",
+	"Signal strength": "Signalstärke",
+	"MAC address": "MAC-Adresse",
+	"Uptime": "Betriebszeit",
+	"Free memory": "Freier Speicher",
+	"Last reset reason": "Letzter Neustartgrund"
 }

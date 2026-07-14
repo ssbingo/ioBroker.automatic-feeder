@@ -391,6 +391,14 @@ alimentación a través de la placa (los botones se accionan en la propia placa)
   **S1**, **S2** y **S3** (1–600 s). Como estos **también se pueden editar en la propia interfaz web
   de la placa**, primero *obtenlos* siempre y luego ajústalos.
 * **Guardar tiempos en la placa** – escribe los tres valores en la placa.
+* **Reiniciar placa** – reinicia el ESP32 a través de su API (`POST /api/reboot`). Tras una
+  solicitud de confirmación, la placa se reinicia y queda fuera de línea durante unos segundos, tras
+  lo cual vuelve automáticamente.
+
+En la parte inferior de la pestaña, un **Resumen del sistema** muestra los datos del sistema en
+tiempo real de la placa tras una prueba de conexión correcta (el botón *Probar conexión y obtener
+tiempos*): versión del firmware, nombre del host, dirección IP, red Wi-Fi, intensidad de la señal
+(dBm), dirección MAC, tiempo de actividad, memoria libre y el último motivo de reinicio.
 
 La conexión también se refleja en el árbol de objetos y se actualiza cada 60 s – consulta los puntos
 de datos `relay.*` en la sección 6.

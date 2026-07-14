@@ -5,6 +5,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import SaveIcon from '@mui/icons-material/Save';
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { I18n } from '@iobroker/adapter-react-v5';
 
 function Section({ title, children }) {
@@ -32,16 +33,64 @@ function clampSeconds(value) {
 	return Math.min(600, Math.max(1, n));
 }
 
+/** Formats an uptime in seconds as a compact "Xd Yh Zm Ws" string (null when unknown). */
+function formatUptime(sec) {
+	if (!Number.isFinite(sec) || sec < 0) {
+		return null;
+	}
+	const d = Math.floor(sec / 86400);
+	const h = Math.floor((sec % 86400) / 3600);
+	const m = Math.floor((sec % 3600) / 60);
+	const s = Math.floor(sec % 60);
+	const parts = [];
+	if (d) {
+		parts.push(`${d}d`);
+	}
+	if (h || d) {
+		parts.push(`${h}h`);
+	}
+	if (m || h || d) {
+		parts.push(`${m}m`);
+	}
+	parts.push(`${s}s`);
+	return parts.join(' ');
+}
+
+/** Formats a byte count as B / KB / MB (null when unknown). */
+function formatBytes(n) {
+	if (!Number.isFinite(n) || n < 0) {
+		return null;
+	}
+	if (n >= 1024 * 1024) {
+		return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+	}
+	if (n >= 1024) {
+		return `${(n / 1024).toFixed(1)} KB`;
+	}
+	return `${n} B`;
+}
+
 function RelayTab(props) {
 	const { sw, onChange, socket, instanceId } = props;
 
 	const host = sw.relayHost || '';
 
-	const [busy, setBusy] = useState(false); // "test" | "save" | false
-	const [status, setStatus] = useState(null); // { connected, host, ip, fw, wifi } | null
+	const [busy, setBusy] = useState(false); // "test" | "save" | "reboot" | false
+	const [status, setStatus] = useState(null); // full normalized status | { connected: false } | null
 	const [msg, setMsg] = useState(null); // { severity, text }
 
-	// pull the current S1-S3 times from the board and copy them into the config
+	// copy the S1-S3 times returned by the board into the configuration
+	const applyTimes = (res) => {
+		if (Array.isArray(res.times) && res.times.length >= 3) {
+			onChange({
+				relayS1: clampSeconds(res.times[0]),
+				relayS2: clampSeconds(res.times[1]),
+				relayS3: clampSeconds(res.times[2]),
+			});
+		}
+	};
+
+	// pull the current status + S1-S3 times from the board
 	const testAndFetch = async () => {
 		if (!host.trim()) {
 			setMsg({ severity: 'warning', text: I18n.t('Enter the board address first.') });
@@ -55,14 +104,8 @@ function RelayTab(props) {
 				setStatus({ connected: false });
 				setMsg({ severity: 'error', text: (res && res.error) || I18n.t('Connection failed') });
 			} else {
-				setStatus({ connected: !!res.connected, host: res.host, ip: res.ip, fw: res.fw, wifi: res.wifi });
-				if (Array.isArray(res.times) && res.times.length >= 3) {
-					onChange({
-						relayS1: clampSeconds(res.times[0]),
-						relayS2: clampSeconds(res.times[1]),
-						relayS3: clampSeconds(res.times[2]),
-					});
-				}
+				setStatus(res);
+				applyTimes(res);
 				setMsg({ severity: 'success', text: I18n.t('Connected — button times fetched from the board.') });
 			}
 		} catch (e) {
@@ -90,18 +133,38 @@ function RelayTab(props) {
 			if (!res || res.error) {
 				setMsg({ severity: 'error', text: (res && res.error) || I18n.t('Saving to the board failed') });
 			} else {
-				setStatus({ connected: !!res.connected, host: res.host, ip: res.ip, fw: res.fw, wifi: res.wifi });
-				if (Array.isArray(res.times) && res.times.length >= 3) {
-					onChange({
-						relayS1: clampSeconds(res.times[0]),
-						relayS2: clampSeconds(res.times[1]),
-						relayS3: clampSeconds(res.times[2]),
-					});
-				}
+				setStatus(res);
+				applyTimes(res);
 				setMsg({ severity: 'success', text: I18n.t('Saved to the board.') });
 			}
 		} catch (e) {
 			setMsg({ severity: 'error', text: `${I18n.t('Saving to the board failed')}: ${e}` });
+		}
+		setBusy(false);
+	};
+
+	// restart the ESP32 via its API (POST /api/reboot)
+	const rebootBoard = async () => {
+		if (!host.trim()) {
+			setMsg({ severity: 'warning', text: I18n.t('Enter the board address first.') });
+			return;
+		}
+		// eslint-disable-next-line no-alert
+		if (!window.confirm(I18n.t('Restart the relay board now? It will be offline for a moment.'))) {
+			return;
+		}
+		setBusy('reboot');
+		setMsg(null);
+		try {
+			const res = await socket.sendTo(instanceId, 'relayReboot', { host });
+			if (!res || res.error) {
+				setMsg({ severity: 'error', text: (res && res.error) || I18n.t('Restart failed') });
+			} else {
+				setStatus({ connected: false });
+				setMsg({ severity: 'success', text: I18n.t('Restart triggered — the board will reboot shortly.') });
+			}
+		} catch (e) {
+			setMsg({ severity: 'error', text: `${I18n.t('Restart failed')}: ${e}` });
 		}
 		setBusy(false);
 	};
@@ -117,6 +180,25 @@ function RelayTab(props) {
 			onChange={(e) => onChange({ [key]: e.target.value === '' ? '' : Number(e.target.value) })}
 		/>
 	);
+
+	// build the system-overview rows from the last status, keeping only present values
+	const overviewRows = [];
+	if (status && status.connected) {
+		const add = (label, value) => {
+			if (value !== null && value !== undefined && value !== '') {
+				overviewRows.push({ label, value });
+			}
+		};
+		add(I18n.t('Firmware'), status.fw);
+		add(I18n.t('Host name'), status.host);
+		add(I18n.t('IP address'), status.ip);
+		add(I18n.t('WiFi network'), status.ssid);
+		add(I18n.t('Signal strength'), Number.isFinite(status.rssi) ? `${status.rssi} dBm` : null);
+		add(I18n.t('MAC address'), status.mac);
+		add(I18n.t('Uptime'), formatUptime(status.uptime));
+		add(I18n.t('Free memory'), formatBytes(status.heap));
+		add(I18n.t('Last reset reason'), status.reset);
+	}
 
 	return (
 		<Box>
@@ -143,6 +225,15 @@ function RelayTab(props) {
 					>
 						{I18n.t('Test connection & fetch times')}
 					</Button>
+					<Button
+						variant="outlined"
+						color="warning"
+						startIcon={busy === 'reboot' ? <CircularProgress size={20} color="inherit" /> : <RestartAltIcon />}
+						disabled={!!busy || !host.trim()}
+						onClick={rebootBoard}
+					>
+						{I18n.t('Restart board')}
+					</Button>
 					{status ? (
 						<Chip
 							icon={status.connected ? <WifiIcon /> : <WifiOffIcon />}
@@ -152,17 +243,6 @@ function RelayTab(props) {
 						/>
 					) : null}
 				</Box>
-				{status && status.connected ? (
-					<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
-						{[
-							status.host ? `${I18n.t('Board')}: ${status.host}` : null,
-							status.ip ? `IP: ${status.ip}` : null,
-							status.fw ? `${I18n.t('Firmware')}: ${status.fw}` : null,
-						]
-							.filter(Boolean)
-							.join('  ·  ')}
-					</Typography>
-				) : null}
 				{msg ? (
 					<Alert severity={msg.severity} sx={{ mt: 1 }} onClose={() => setMsg(null)}>
 						{msg.text}
@@ -191,6 +271,34 @@ function RelayTab(props) {
 				>
 					{I18n.t('Save times to board')}
 				</Button>
+			</Section>
+
+			<Section title={I18n.t('System overview')}>
+				{overviewRows.length ? (
+					<Box
+						sx={{
+							display: 'grid',
+							gridTemplateColumns: { xs: '1fr', sm: 'max-content 1fr' },
+							columnGap: 3,
+							rowGap: 0.75,
+						}}
+					>
+						{overviewRows.map((r) => (
+							<React.Fragment key={r.label}>
+								<Typography variant="body2" color="textSecondary">
+									{r.label}
+								</Typography>
+								<Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+									{r.value}
+								</Typography>
+							</React.Fragment>
+						))}
+					</Box>
+				) : (
+					<Typography variant="body2" color="textSecondary">
+						{I18n.t('Test the connection to load the board’s system data.')}
+					</Typography>
+				)}
 			</Section>
 		</Box>
 	);

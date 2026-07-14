@@ -363,6 +363,13 @@ does not trigger feeding through the board (the buttons are operated on the boar
   (1–600 s). Because these are **also editable on the board's own web interface**, always
   *fetch* them first, then adjust them.
 * **Save times to board** – writes the three values to the board.
+* **Restart board** – restarts the ESP32 via its API (`POST /api/reboot`). After a confirmation
+  prompt the board reboots and is offline for a few seconds, then comes back automatically.
+
+At the bottom of the tab, a **System overview** shows the board's live system data after a
+successful connection test (the *Test connection & fetch times* button): firmware version, host
+name, IP address, Wi-Fi network, signal strength (dBm), MAC address, uptime, free memory and the
+last reset reason.
 
 The connection is also mirrored into the object tree and refreshed every 60 s – see the
 `relay.*` data points in [section 6](#6-objects--data-points).
@@ -598,6 +605,11 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.8.0 (2026-07-14)
+* (ssbingo) Each relay tab now has a **Restart board** button that restarts the ESP32 via its API (`POST /api/reboot`, with a confirmation prompt)
+* (ssbingo) New **System overview** at the bottom of each relay tab showing the board's live system data after a connection test: firmware, host name, IP address, Wi-Fi network, signal strength, MAC address, uptime, free memory and the last reset reason
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.7.1 (2026-07-14)
 * (ssbingo) The decision whether a switch uses the Automatic-Feeder relay board is now made **per switch** (a toggle in the Switches list on the general-settings tab) instead of one global switch. Only the switches you enable get a **Relay** tab and are polled; the `relay.*` data points exist only for those switches
 * (ssbingo) Documentation updated in all 11 languages
@@ -636,9 +648,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.2.2 (2026-07-02)
 * (ssbingo) All timestamp data points (`status.nextFeeding`, `status.lastFeeding`, `status.sunrise`, `status.sunset`) and the times in the log/debug output are now shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`) instead of UTC — no more mental conversion, and still a correct/sortable/parseable date string
-
-### 1.2.1 (2026-07-02)
-* (ssbingo) Admin UI: the OpenStreetMap location map is no longer stretched across the full screen width — it is capped (≈ a third/half) on wider screens and stays full width on small screens (responsive)
 
 ---
 

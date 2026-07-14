@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.7.1",
+		"version": "1.8.0",
 		"news": {
-			"1.7.1": {
-				"en": "The decision whether a switch uses the Automatic-Feeder relay board is now made per switch (a toggle in the Switches list) instead of globally. Only the switches you enable get a Relay tab, are polled, and have relay.* data points.",
-				"de": "Die Entscheidung, ob ein Schalter die Automatic-Feeder-Relaisplatine nutzt, wird jetzt je Schalter getroffen (ein Schalter in der Schalterliste) statt global. Nur die aktivierten Schalter erhalten einen Relais-Tab, werden abgefragt und haben relay.*-Datenpunkte.",
-				"ru": "Решение о том, использует ли переключатель релейную плату Automatic-Feeder, теперь принимается для каждого переключателя (переключатель в списке переключателей), а не глобально. Только включённые переключатели получают вкладку реле, опрашиваются и имеют точки данных relay.*.",
-				"pt": "A decisão sobre se um interruptor usa a placa de relé Automatic-Feeder é agora tomada por interruptor (um botão na lista de interruptores) em vez de globalmente. Apenas os interruptores que ativar recebem uma aba de relé, são consultados e têm pontos de dados relay.*.",
-				"nl": "De beslissing of een schakelaar de Automatic-Feeder relaisprint gebruikt, wordt nu per schakelaar genomen (een schakelaar in de schakelaarlijst) in plaats van globaal. Alleen de ingeschakelde schakelaars krijgen een relaistabblad, worden gepolld en hebben relay.*-datapunten.",
-				"fr": "Le choix d'utiliser la carte relais Automatic-Feeder pour un interrupteur se fait désormais par interrupteur (un commutateur dans la liste des interrupteurs) et non plus globalement. Seuls les interrupteurs activés obtiennent un onglet relais, sont interrogés et disposent des points de données relay.*.",
-				"it": "La decisione se un interruttore usa la scheda relè Automatic-Feeder viene ora presa per ogni interruttore (un interruttore nell'elenco interruttori) anziché globalmente. Solo gli interruttori abilitati ottengono una scheda relè, vengono interrogati e hanno i datapoint relay.*.",
-				"es": "La decisión de si un interruptor usa la placa de relé Automatic-Feeder se toma ahora por interruptor (un conmutador en la lista de interruptores) en lugar de globalmente. Solo los interruptores habilitados obtienen una pestaña de relé, se consultan y tienen puntos de datos relay.*.",
-				"pl": "Decyzja, czy przełącznik używa płytki przekaźnikowej Automatic-Feeder, jest teraz podejmowana dla każdego przełącznika (przełącznik na liście przełączników) zamiast globalnie. Tylko włączone przełączniki otrzymują zakładkę przekaźnika, są odpytywane i mają punkty danych relay.*.",
-				"uk": "Рішення про те, чи використовує перемикач релейну плату Automatic-Feeder, тепер приймається для кожного перемикача (перемикач у списку перемикачів), а не глобально. Лише увімкнені перемикачі отримують вкладку реле, опитуються та мають точки даних relay.*.",
-				"zh-cn": "现在按每个开关（开关列表中的开关）决定该开关是否使用 Automatic-Feeder 继电器板，而不再是全局设置。只有启用的开关才会获得继电器选项卡、被轮询并拥有 relay.* 数据点。"
+			"1.8.0": {
+				"en": "Each relay tab now has a 'Restart board' button (restarts the ESP32 via its API) and a System overview at the bottom showing the board's firmware, IP, Wi-Fi network, signal, MAC, uptime, free memory and last reset reason.",
+				"de": "Jeder Relais-Tab hat jetzt einen Button 'Platine neu starten' (startet den ESP32 über seine API neu) und unten eine Systemübersicht mit Firmware, IP, WLAN-Netz, Signal, MAC, Betriebszeit, freiem Speicher und letztem Neustartgrund der Platine.",
+				"ru": "На каждой вкладке реле теперь есть кнопка «Перезагрузить плату» (перезапускает ESP32 через его API) и внизу обзор системы с прошивкой, IP, сетью Wi-Fi, сигналом, MAC, временем работы, свободной памятью и причиной последнего сброса платы.",
+				"pt": "Cada aba de relé tem agora um botão 'Reiniciar placa' (reinicia o ESP32 via API) e, no fundo, uma visão geral do sistema com firmware, IP, rede Wi-Fi, sinal, MAC, tempo de atividade, memória livre e motivo do último reinício da placa.",
+				"nl": "Elk relaistabblad heeft nu een knop 'Print herstarten' (herstart de ESP32 via zijn API) en onderaan een systeemoverzicht met firmware, IP, wifi-netwerk, signaal, MAC, bedrijfstijd, vrij geheugen en de reden van de laatste herstart van de print.",
+				"fr": "Chaque onglet relais dispose maintenant d'un bouton 'Redémarrer la carte' (redémarre l'ESP32 via son API) et, en bas, d'un aperçu du système avec firmware, IP, réseau Wi-Fi, signal, MAC, temps de fonctionnement, mémoire libre et motif du dernier redémarrage de la carte.",
+				"it": "Ogni scheda relè ha ora un pulsante 'Riavvia scheda' (riavvia l'ESP32 tramite la sua API) e in basso una panoramica del sistema con firmware, IP, rete Wi-Fi, segnale, MAC, tempo di attività, memoria libera e motivo dell'ultimo riavvio della scheda.",
+				"es": "Cada pestaña de relé tiene ahora un botón 'Reiniciar placa' (reinicia el ESP32 mediante su API) y, abajo, un resumen del sistema con firmware, IP, red Wi-Fi, señal, MAC, tiempo de actividad, memoria libre y el motivo del último reinicio de la placa.",
+				"pl": "Każda zakładka przekaźnika ma teraz przycisk „Uruchom ponownie płytkę” (restartuje ESP32 przez jego API) oraz na dole przegląd systemu z firmware, IP, siecią Wi-Fi, sygnałem, MAC, czasem działania, wolną pamięcią i powodem ostatniego resetu płytki.",
+				"uk": "Кожна вкладка реле тепер має кнопку «Перезавантажити плату» (перезапускає ESP32 через його API) та внизу огляд системи з прошивкою, IP, мережею Wi-Fi, сигналом, MAC, часом роботи, вільною пам'яттю та причиною останнього перезапуску плати.",
+				"zh-cn": "现在每个继电器选项卡都有“重启继电器板”按钮（通过 API 重启 ESP32），底部还有系统概览，显示继电器板的固件、IP、Wi-Fi 网络、信号、MAC、运行时间、可用内存和上次复位原因。"
 			}
 		},
 		"titleLang": {

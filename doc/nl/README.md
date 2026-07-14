@@ -357,6 +357,14 @@ de print (de knoppen worden op de print zelf bediend).
   Omdat deze **ook bewerkbaar zijn op de eigen webinterface van de print**, haal ze altijd eerst
   *op* en pas ze daarna aan.
 * **Tijden opslaan naar print** – schrijft de drie waarden naar de print.
+* **Print herstarten** – herstart de ESP32 via zijn API (`POST /api/reboot`). Na een
+  bevestigingsvraag start de print opnieuw op en is enkele seconden offline, waarna hij
+  automatisch weer terugkomt.
+
+Onderaan het tabblad toont een **Systeemoverzicht** na een geslaagde verbindingstest (de knop
+*Verbinding testen & tijden ophalen*) de live systeemgegevens van de print: firmwareversie,
+hostnaam, IP-adres, wifi-netwerk, signaalsterkte (dBm), MAC-adres, uptime, vrij geheugen en de
+laatste resetreden.
 
 De verbinding wordt ook in de objectboom gespiegeld en elke 60 s ververst – zie de
 `relay.*`-datapunten in sectie 6.

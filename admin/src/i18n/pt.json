@@ -148,5 +148,19 @@
 	"Save times to board": "Guardar tempos na placa",
 	"Saved to the board.": "Guardado na placa.",
 	"Saving to the board failed": "Falha ao guardar na placa",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Este interruptor usa a placa de relé Automatic-Feeder (adiciona uma aba de relé)"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Este interruptor usa a placa de relé Automatic-Feeder (adiciona uma aba de relé)",
+	"Restart board": "Reiniciar placa",
+	"Restart the relay board now? It will be offline for a moment.": "Reiniciar a placa de relé agora? Ficará offline por um momento.",
+	"Restart triggered — the board will reboot shortly.": "Reinício acionado — a placa vai reiniciar em breve.",
+	"Restart failed": "Falha ao reiniciar",
+	"System overview": "Visão geral do sistema",
+	"Test the connection to load the board’s system data.": "Teste a ligação para carregar os dados de sistema da placa.",
+	"Host name": "Nome do host",
+	"IP address": "Endereço IP",
+	"WiFi network": "Rede Wi-Fi",
+	"Signal strength": "Intensidade do sinal",
+	"MAC address": "Endereço MAC",
+	"Uptime": "Tempo de atividade",
+	"Free memory": "Memória livre",
+	"Last reset reason": "Motivo do último reinício"
 }

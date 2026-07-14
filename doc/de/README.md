@@ -363,6 +363,14 @@ löst über die Platine keine Fütterung aus (die Tasten werden an der Platine s
   **S3** (1–600 s). Da diese **auch an der eigenen Weboberfläche der Platine bearbeitbar** sind,
   immer erst *abrufen* und dann anpassen.
 * **Zeiten auf Platine speichern** – schreibt die drei Werte auf die Platine.
+* **Platine neu starten** – startet den ESP32 über seine API (`POST /api/reboot`) neu. Nach einer
+  Sicherheitsabfrage startet die Platine neu und ist für einige Sekunden offline, kommt dann aber
+  automatisch wieder zurück.
+
+Ganz unten im Tab zeigt eine **Systemübersicht** nach einem erfolgreichen Verbindungstest (der Taste
+*Verbindung testen & Zeiten abrufen*) die Live-Systemdaten der Platine: Firmware-Version, Hostname,
+IP-Adresse, WLAN-Netzwerk, Signalstärke (dBm), MAC-Adresse, Uptime, freien Speicher und den letzten
+Reset-Grund.
 
 Die Verbindung wird außerdem in den Objektbaum gespiegelt und alle 60 s aktualisiert – siehe die
 `relay.*`-Datenpunkte in Abschnitt 6.

@@ -402,6 +402,14 @@ interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore s
   **S1**, **S2** e **S3** (1–600 s). Poiché questi sono **modificabili anche sull'interfaccia web
   della scheda stessa**, *recuperali* sempre prima, poi modificali.
 * **Salva tempi sulla scheda** – scrive i tre valori sulla scheda.
+* **Riavvia scheda** – riavvia l'ESP32 tramite la sua API (`POST /api/reboot`). Dopo una richiesta
+  di conferma la scheda si riavvia e resta offline per alcuni secondi, poi torna disponibile
+  automaticamente.
+
+In fondo alla scheda, una **Panoramica del sistema** mostra i dati di sistema in tempo reale della
+scheda dopo una prova di connessione riuscita (il pulsante *Prova connessione e recupera tempi*):
+versione del firmware, nome host, indirizzo IP, rete Wi-Fi, potenza del segnale (dBm), indirizzo
+MAC, tempo di attività, memoria libera e il motivo dell'ultimo reset.
 
 La connessione viene inoltre rispecchiata nell'albero degli oggetti e aggiornata ogni 60 s – vedi i
 punti dati `relay.*` nella sezione 6.

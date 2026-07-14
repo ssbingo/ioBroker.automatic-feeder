@@ -148,5 +148,19 @@
 	"Save times to board": "Zapisz czasy na płytce",
 	"Saved to the board.": "Zapisano na płytce.",
 	"Saving to the board failed": "Zapis na płytce nie powiódł się",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder (dodaje zakładkę przekaźnika)"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder (dodaje zakładkę przekaźnika)",
+	"Restart board": "Uruchom ponownie płytkę",
+	"Restart the relay board now? It will be offline for a moment.": "Uruchomić ponownie płytkę przekaźnikową teraz? Przez chwilę będzie niedostępna.",
+	"Restart triggered — the board will reboot shortly.": "Uruchomiono ponowne uruchomienie — płytka wkrótce się zrestartuje.",
+	"Restart failed": "Ponowne uruchomienie nie powiodło się",
+	"System overview": "Przegląd systemu",
+	"Test the connection to load the board’s system data.": "Przetestuj połączenie, aby wczytać dane systemowe płytki.",
+	"Host name": "Nazwa hosta",
+	"IP address": "Adres IP",
+	"WiFi network": "Sieć Wi-Fi",
+	"Signal strength": "Siła sygnału",
+	"MAC address": "Adres MAC",
+	"Uptime": "Czas działania",
+	"Free memory": "Wolna pamięć",
+	"Last reset reason": "Powód ostatniego resetu"
 }

@@ -148,5 +148,19 @@
 	"Save times to board": "Зберегти час на плату",
 	"Saved to the board.": "Збережено на платі.",
 	"Saving to the board failed": "Не вдалося зберегти на плату",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Цей перемикач використовує релейну плату Automatic-Feeder (додає вкладку реле)"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Цей перемикач використовує релейну плату Automatic-Feeder (додає вкладку реле)",
+	"Restart board": "Перезавантажити плату",
+	"Restart the relay board now? It will be offline for a moment.": "Перезавантажити релейну плату зараз? Вона буде недоступна деякий час.",
+	"Restart triggered — the board will reboot shortly.": "Перезавантаження запущено — плата невдовзі перезапуститься.",
+	"Restart failed": "Не вдалося перезавантажити",
+	"System overview": "Огляд системи",
+	"Test the connection to load the board’s system data.": "Перевірте з’єднання, щоб завантажити системні дані плати.",
+	"Host name": "Ім'я хоста",
+	"IP address": "IP-адреса",
+	"WiFi network": "Мережа Wi-Fi",
+	"Signal strength": "Рівень сигналу",
+	"MAC address": "MAC-адреса",
+	"Uptime": "Час роботи",
+	"Free memory": "Вільна пам'ять",
+	"Last reset reason": "Причина останнього перезапуску"
 }

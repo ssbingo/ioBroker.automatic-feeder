@@ -148,5 +148,19 @@
 	"Save times to board": "Save times to board",
 	"Saved to the board.": "Saved to the board.",
 	"Saving to the board failed": "Saving to the board failed",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "This switch uses the Automatic-Feeder relay board (adds a relay tab)"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "This switch uses the Automatic-Feeder relay board (adds a relay tab)",
+	"Restart board": "Restart board",
+	"Restart the relay board now? It will be offline for a moment.": "Restart the relay board now? It will be offline for a moment.",
+	"Restart triggered — the board will reboot shortly.": "Restart triggered — the board will reboot shortly.",
+	"Restart failed": "Restart failed",
+	"System overview": "System overview",
+	"Test the connection to load the board’s system data.": "Test the connection to load the board’s system data.",
+	"Host name": "Host name",
+	"IP address": "IP address",
+	"WiFi network": "WiFi network",
+	"Signal strength": "Signal strength",
+	"MAC address": "MAC address",
+	"Uptime": "Uptime",
+	"Free memory": "Free memory",
+	"Last reset reason": "Last reset reason"
 }

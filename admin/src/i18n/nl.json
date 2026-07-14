@@ -148,5 +148,19 @@
 	"Save times to board": "Tijden opslaan naar print",
 	"Saved to the board.": "Opgeslagen op de print.",
 	"Saving to the board failed": "Opslaan naar de print mislukt",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Deze schakelaar gebruikt de Automatic-Feeder relaisprint (voegt een relaistabblad toe)"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Deze schakelaar gebruikt de Automatic-Feeder relaisprint (voegt een relaistabblad toe)",
+	"Restart board": "Print herstarten",
+	"Restart the relay board now? It will be offline for a moment.": "De relaisprint nu herstarten? Deze is even niet bereikbaar.",
+	"Restart triggered — the board will reboot shortly.": "Herstart geactiveerd — de print start binnenkort opnieuw op.",
+	"Restart failed": "Herstart mislukt",
+	"System overview": "Systeemoverzicht",
+	"Test the connection to load the board’s system data.": "Test de verbinding om de systeemgegevens van de print te laden.",
+	"Host name": "Hostnaam",
+	"IP address": "IP-adres",
+	"WiFi network": "wifi-netwerk",
+	"Signal strength": "Signaalsterkte",
+	"MAC address": "MAC-adres",
+	"Uptime": "Bedrijfstijd",
+	"Free memory": "Vrij geheugen",
+	"Last reset reason": "Reden laatste herstart"
 }

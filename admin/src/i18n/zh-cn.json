@@ -148,5 +148,19 @@
 	"Save times to board": "将时长保存到继电器板",
 	"Saved to the board.": "已保存到继电器板。",
 	"Saving to the board failed": "保存到继电器板失败",
-	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "此开关使用 Automatic-Feeder 继电器板（添加一个继电器选项卡）"
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "此开关使用 Automatic-Feeder 继电器板（添加一个继电器选项卡）",
+	"Restart board": "重启继电器板",
+	"Restart the relay board now? It will be offline for a moment.": "现在重启继电器板吗？它会短暂离线。",
+	"Restart triggered — the board will reboot shortly.": "已触发重启——继电器板将很快重新启动。",
+	"Restart failed": "重启失败",
+	"System overview": "系统概览",
+	"Test the connection to load the board’s system data.": "测试连接以加载继电器板的系统数据。",
+	"Host name": "主机名",
+	"IP address": "IP 地址",
+	"WiFi network": "Wi-Fi 网络",
+	"Signal strength": "信号强度",
+	"MAC address": "MAC 地址",
+	"Uptime": "运行时间",
+	"Free memory": "可用内存",
+	"Last reset reason": "上次复位原因"
 }
