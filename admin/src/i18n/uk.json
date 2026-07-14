@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Призупинити годування зараз",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Головний перемикач: доки УВІМКНЕНО, усе годування цього перемикача негайно й безстроково призупиняється, маючи пріоритет над запланованими паузами та будь-яким режимом годування. ВИМКНІТЬ, щоб відновити годування згідно з налаштуваннями. Під час перемикання надсилається повідомлення Telegram.",
 	"Relay": "Реле",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Використовувати релейну плату Automatic-Feeder (додає вкладку реле для кожного перемикача)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Увімкніть, якщо ви використовуєте релейну плату Automatic-Feeder (ESP32). Кожен перемикач тоді отримає додаткову вкладку для налаштування адреси плати та часу годування кнопок S1-S3.",
 	"Relay board": "Релейна плата",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "Релейна плата Automatic-Feeder (ESP32) доступна у вашій мережі на порту 80. Введіть її IP-адресу або хост mDNS і перевірте з'єднання.",
 	"Board address (IP or mDNS host)": "Адреса плати (IP або хост mDNS)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Кнопка 3 (S3)",
 	"Save times to board": "Зберегти час на плату",
 	"Saved to the board.": "Збережено на платі.",
-	"Saving to the board failed": "Не вдалося зберегти на плату"
+	"Saving to the board failed": "Не вдалося зберегти на плату",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Цей перемикач використовує релейну плату Automatic-Feeder (додає вкладку реле)"
 }

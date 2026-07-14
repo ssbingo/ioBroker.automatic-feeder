@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Suspender alimentación ahora",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Interruptor principal: mientras está ENCENDIDO, toda la alimentación de este interruptor se suspende de forma inmediata e indefinida, anulando las pausas programadas y todos los modos de alimentación. Apágalo (APAGADO) para reanudar la alimentación según lo configurado. Al cambiarlo se envía un mensaje de Telegram.",
 	"Relay": "Relé",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Usar la placa de relé Automatic-Feeder (añade una pestaña de relé por interruptor)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Actívalo si usas la placa de relé Automatic-Feeder (ESP32). Cada interruptor obtiene entonces una pestaña adicional para configurar la dirección de la placa y los tiempos de alimentación de los botones S1-S3.",
 	"Relay board": "Placa de relé",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "La placa de relé Automatic-Feeder (ESP32) es accesible en tu red por el puerto 80. Introduce su dirección IP o host mDNS y prueba la conexión.",
 	"Board address (IP or mDNS host)": "Dirección de la placa (IP o host mDNS)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Botón 3 (S3)",
 	"Save times to board": "Guardar tiempos en la placa",
 	"Saved to the board.": "Guardado en la placa.",
-	"Saving to the board failed": "Error al guardar en la placa"
+	"Saving to the board failed": "Error al guardar en la placa",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Este interruptor usa la placa de relé Automatic-Feeder (añade una pestaña de relé)"
 }

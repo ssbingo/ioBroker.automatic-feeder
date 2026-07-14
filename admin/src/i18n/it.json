@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Sospendi l'alimentazione ora",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Interruttore principale: mentre è ACCESO, tutta l'alimentazione di questo interruttore viene sospesa immediatamente e a tempo indeterminato, prevalendo sulle pause programmate e su ogni modalità di alimentazione. SPEGNILO per riprendere l'alimentazione come configurato. Quando lo commuti viene inviato un messaggio Telegram.",
 	"Relay": "Relè",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Usa la scheda relè Automatic-Feeder (aggiunge una scheda relè per ogni interruttore)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Attiva questa opzione se usi la scheda relè Automatic-Feeder (ESP32). Ogni interruttore riceve quindi una scheda aggiuntiva per impostare l'indirizzo della scheda e i tempi di alimentazione dei pulsanti S1-S3.",
 	"Relay board": "Scheda relè",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "La scheda relè Automatic-Feeder (ESP32) è raggiungibile sulla tua rete sulla porta 80. Inserisci il suo indirizzo IP o host mDNS e prova la connessione.",
 	"Board address (IP or mDNS host)": "Indirizzo della scheda (IP o host mDNS)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Pulsante 3 (S3)",
 	"Save times to board": "Salva tempi sulla scheda",
 	"Saved to the board.": "Salvato sulla scheda.",
-	"Saving to the board failed": "Salvataggio sulla scheda non riuscito"
+	"Saving to the board failed": "Salvataggio sulla scheda non riuscito",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Questo interruttore usa la scheda relè Automatic-Feeder (aggiunge una scheda relè)"
 }

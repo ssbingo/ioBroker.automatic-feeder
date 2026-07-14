@@ -66,9 +66,10 @@ Je kunt een voedering op elk moment **handmatig** activeren – rechtstreeks op 
 VIS-weergave).
 
 Optioneel integreert de adapter de **Automatic-Feeder relaisprint** (een ESP32 met drie
-timerknoppen en een eigen webinterface). Wanneer je deze in de algemene instellingen inschakelt,
-krijgt elke schakelaar een **Relais**-tabblad waar je het netwerkadres van de print instelt, de
-verbinding test en de drie knopvoedertijden (S1–S3) rechtstreeks vanuit de adapter configureert.
+timerknoppen en een eigen webinterface). Je bepaalt **per schakelaar** of deze zo'n print gebruikt;
+schakel je dit voor een schakelaar in de algemene instellingen in, dan krijgt díe schakelaar een
+**Relais**-tabblad waar je het netwerkadres van de print instelt, de verbinding test en de drie
+knopvoedertijden (S1–S3) rechtstreeks vanuit de adapter configureert.
 
 > Belangrijk: De adapter legt de schakelaar niet zelf aan. Hij **stuurt een reeds aanwezig
 > object** in jouw ioBroker aan. Dit object kies je in de configuratie.
@@ -169,10 +170,10 @@ De lijst met voederautomaten (tot 5). Per item:
 Met **Schakelaar toevoegen** maak je er nog een aan (max. 5), met het prullenbak-symbool
 verwijder je er een. Bij het verwijderen worden ook diens datapunten gewist.
 
-* **De Automatic-Feeder relaisprint gebruiken (voegt per schakelaar een relaistabblad toe)**
-  (aan/uit-schakelaar) – schakel dit alleen in als je de optionele Automatic-Feeder relaisprint
-  (ESP32) bezit. Wanneer ingeschakeld krijgt elke schakelaar een extra **Relais**-tabblad (zie
-  sectie 5.3).
+* **Deze schakelaar gebruikt de Automatic-Feeder relaisprint (voegt een relaistabblad toe)**
+  (aan/uit-schakelaar) – schakel dit alleen in voor een schakelaar waarvan het voederstation de
+  optionele Automatic-Feeder relaisprint (ESP32) gebruikt. Wanneer ingeschakeld krijgt díe
+  schakelaar een extra **Relais**-tabblad (zie sectie 5.3).
 
 ### 5.2 Schakelaar-tabbladen
 
@@ -337,8 +338,9 @@ De volledige inrichting staat onder [Telegram-meldingen](#8-telegram-meldingen).
 
 ### 5.3 Relaisprint-tabblad (optioneel)
 
-Dit tabblad verschijnt alleen wanneer **De Automatic-Feeder relaisprint gebruiken (voegt per
-schakelaar een relaistabblad toe)** in de algemene instellingen is ingeschakeld (zie sectie 5.1).
+Dit tabblad verschijnt alleen wanneer de per-schakelaar-optie **Deze schakelaar gebruikt de
+Automatic-Feeder relaisprint …** van deze schakelaar in de algemene instellingen is ingeschakeld
+(zie sectie 5.1).
 Eén relaisprint hoort bij één schakelaar (voederstation). De print is een ESP32 met drie
 timerknoppen (S1–S3) en een eigen webinterface, bereikbaar via je netwerk op **poort 80**. De
 adapter **configureert** de print alleen en **toont zijn status** – hij triggert geen voedering via
@@ -383,8 +385,8 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
   van deze schakelaar. Als je daar een nieuwe waarde schrijft (vanuit VIS of een script), wijzig
   je de configuratie en wordt de instantie opnieuw gestart zodat de wijziging van kracht wordt.
   Enkele afgeleide velden zijn alleen-lezen (bijv. `winterWindow`).
-* **`relay`** (`switches.<id>.relay.*`) – alleen aanwezig wanneer de relaisprint-integratie is
-  ingeschakeld; de alleen-lezen statusdatapunten van de relaisprint die aan het einde van de tabel
+* **`relay`** (`switches.<id>.relay.*`) – alleen aanwezig wanneer deze schakelaar een relaisprint
+  gebruikt; de alleen-lezen statusdatapunten van de relaisprint die aan het einde van de tabel
   staan.
 
 | Datapunt | Type | Betekenis |
@@ -421,7 +423,7 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Zonsop-/-ondergang als Unix-tijd in ms — bijv. voor een dagvoortgangsbalk in VIS. |
-| `relay.connected` | boolean (ro) | De voor deze schakelaar geconfigureerde relaisprint is bereikbaar (alleen wanneer de relaisprint-integratie is ingeschakeld). |
+| `relay.connected` | boolean (ro) | De voor deze schakelaar geconfigureerde relaisprint is bereikbaar (alleen wanneer deze schakelaar een relaisprint gebruikt). |
 | `relay.info` | string (ro) | Identiteit van de relaisprint (host / IP / firmware) uit de laatste geslaagde peiling. |
 | `relay.active` | boolean (ro) | De timer van de relaisprint loopt momenteel. |
 | `relay.remaining` | number (ro) | Resterende seconden op de lopende timer van de relaisprint. |

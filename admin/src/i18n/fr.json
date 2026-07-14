@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Suspendre la distribution maintenant",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Interrupteur principal : tant qu'il est ACTIVÉ, toute distribution de cet interrupteur est suspendue immédiatement et indéfiniment, prioritaire sur les pauses programmées et tous les modes de distribution. DÉSACTIVEZ-le pour reprendre la distribution comme configuré. Un message Telegram est envoyé lors du basculement.",
 	"Relay": "Relais",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Utiliser la carte relais Automatic-Feeder (ajoute un onglet relais par interrupteur)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Activez ceci si vous utilisez la carte relais Automatic-Feeder (ESP32). Chaque interrupteur obtient alors un onglet supplémentaire pour définir l'adresse de la carte et les durées de distribution des boutons S1-S3.",
 	"Relay board": "Carte relais",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "La carte relais Automatic-Feeder (ESP32) est accessible sur votre réseau via le port 80. Saisissez son adresse IP ou son hôte mDNS et testez la connexion.",
 	"Board address (IP or mDNS host)": "Adresse de la carte (IP ou hôte mDNS)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Bouton 3 (S3)",
 	"Save times to board": "Enregistrer les durées sur la carte",
 	"Saved to the board.": "Enregistré sur la carte.",
-	"Saving to the board failed": "Échec de l'enregistrement sur la carte"
+	"Saving to the board failed": "Échec de l'enregistrement sur la carte",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Cet interrupteur utilise la carte relais Automatic-Feeder (ajoute un onglet relais)"
 }

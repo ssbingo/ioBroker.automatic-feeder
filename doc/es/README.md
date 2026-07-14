@@ -66,9 +66,10 @@ ajustes (botón con duración de libre elección) o mediante un punto de datos (
 vista de VIS).
 
 Opcionalmente, el adaptador integra la **placa de relé Automatic-Feeder** (un ESP32 con tres botones
-temporizadores y su propia interfaz web). Cuando la activas en los ajustes generales, cada interruptor
-recibe una pestaña **Relé** en la que estableces la dirección de red de la placa, pruebas la conexión
-y configuras sus tres tiempos de alimentación de los botones (S1–S3) directamente desde el adaptador.
+temporizadores y su propia interfaz web). Tú decides **por interruptor** si este usa una placa de este
+tipo; cuando la activas para un interruptor en los ajustes generales, ese interruptor recibe una pestaña
+**Relé** en la que estableces la dirección de red de la placa, pruebas la conexión y configuras sus tres
+tiempos de alimentación de los botones (S1–S3) directamente desde el adaptador.
 
 > Importante: el adaptador no crea el interruptor por sí mismo. **Controla un objeto ya existente**
 > en tu ioBroker. Ese objeto lo seleccionas en la configuración.
@@ -177,9 +178,10 @@ La lista de comederos automáticos (hasta 5). Por cada entrada:
 Con **Añadir interruptor** creas uno más (máx. 5); con el icono de la papelera eliminas uno. Al
 eliminarlo también se borran sus puntos de datos.
 
-* **Usar la placa de relé Automatic-Feeder (añade una pestaña de relé por interruptor)** (conmutador)
-  – actívalo solo si posees la placa de relé Automatic-Feeder opcional (ESP32). Cuando está activado,
-  cada interruptor recibe una pestaña **Relé** adicional (consulta la sección 5.3).
+* **Este interruptor usa la placa de relé Automatic-Feeder (añade una pestaña de relé)** (conmutador)
+  – actívalo solo para un interruptor cuya estación de alimentación use la placa de relé Automatic-Feeder
+  opcional (ESP32). Cuando está activado, ese interruptor recibe una pestaña **Relé** adicional (consulta
+  la sección 5.3).
 
 ### 5.2 Pestañas de interruptor
 
@@ -371,8 +373,8 @@ La configuración completa se encuentra en [Notificaciones de Telegram](#8-notif
 
 ### 5.3 Pestaña de la placa de relé (opcional)
 
-Esta pestaña solo aparece cuando la opción **Usar la placa de relé Automatic-Feeder (añade una
-pestaña de relé por interruptor)** está activada en los ajustes generales (consulta la sección 5.1).
+Esta pestaña solo aparece cuando el conmutador por interruptor **Este interruptor usa la placa de relé
+Automatic-Feeder …** de este interruptor está activado en los ajustes generales (consulta la sección 5.1).
 Cada placa de relé pertenece a un interruptor (estación de alimentación). La placa es un ESP32 con
 tres botones temporizadores (S1–S3) y su propia interfaz web, accesible a través de tu red en el
 **puerto 80**. El adaptador solo **configura** la placa y **muestra su estado**; no activa la
@@ -418,9 +420,9 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
   este interruptor. Al escribir un nuevo valor ahí (desde VIS o un script) se cambia la
   configuración y se reinicia la instancia para que el cambio surta efecto. Unos pocos campos
   derivados son de solo lectura (p. ej. `winterWindow`).
-* **`relay`** (`switches.<id>.relay.*`) – presente solo cuando la integración de la placa de relé
-  está activada; los puntos de datos de estado de la placa de relé, de solo lectura, que se enumeran
-  al final de la tabla.
+* **`relay`** (`switches.<id>.relay.*`) – presente solo cuando este interruptor usa una placa de relé;
+  los puntos de datos de estado de la placa de relé, de solo lectura, que se enumeran al final de la
+  tabla.
 
 | Punto de datos | Tipo | Significado |
 |------------|-----|-----------|
@@ -456,7 +458,7 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Orto/ocaso como tiempo Unix en ms, p. ej. para una barra de progreso del día en VIS. |
-| `relay.connected` | boolean (ro) | La placa de relé configurada para este interruptor es accesible (solo cuando la integración de la placa de relé está activada). |
+| `relay.connected` | boolean (ro) | La placa de relé configurada para este interruptor es accesible (solo cuando este interruptor usa una placa de relé). |
 | `relay.info` | string (ro) | Identidad de la placa de relé (host / IP / firmware) del último sondeo correcto. |
 | `relay.active` | boolean (ro) | El temporizador de la placa de relé está en marcha actualmente. |
 | `relay.remaining` | number (ro) | Segundos restantes del temporizador en marcha de la placa de relé. |

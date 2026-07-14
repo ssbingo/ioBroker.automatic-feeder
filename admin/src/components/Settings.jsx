@@ -101,6 +101,7 @@ function createSwitch(switches) {
 		waterSeasonalThresholdC: 12,
 		o2Enabled: false,
 		o2ObjectId: '',
+		relayEnabled: false,
 		relayHost: '',
 		relayS1: 5,
 		relayS2: 5,
@@ -156,14 +157,13 @@ function Settings(props) {
 		setTab(0);
 	};
 
-	// Tab layout: [general] then, per switch, its config tab and (when the relay board
-	// integration is enabled) an additional relay tab right after it, so a switch and
-	// its board stay next to each other.
-	const relayEnabled = !!native.relayEnabled;
+	// Tab layout: [general] then, per switch, its config tab and — only for switches
+	// that use a relay board (decided per switch) — an additional relay tab right after
+	// it, so a switch and its board stay next to each other.
 	const tabDefs = [{ type: 'general' }];
 	switches.forEach((sw, index) => {
 		tabDefs.push({ type: 'switch', index });
-		if (relayEnabled) {
+		if (sw.relayEnabled) {
 			tabDefs.push({ type: 'relay', index });
 		}
 	});

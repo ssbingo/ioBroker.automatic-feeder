@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Suspend feeding now",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.",
 	"Relay": "Relay",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Use the Automatic-Feeder relay board (adds a relay tab per switch)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.",
 	"Relay board": "Relay board",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.",
 	"Board address (IP or mDNS host)": "Board address (IP or mDNS host)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Button 3 (S3)",
 	"Save times to board": "Save times to board",
 	"Saved to the board.": "Saved to the board.",
-	"Saving to the board failed": "Saving to the board failed"
+	"Saving to the board failed": "Saving to the board failed",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "This switch uses the Automatic-Feeder relay board (adds a relay tab)"
 }

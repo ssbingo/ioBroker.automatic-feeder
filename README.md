@@ -80,9 +80,10 @@ You can also trigger a feeding **manually** at any time – from the adapter's s
 (button with a freely selectable duration) or from a data point (e.g. a button in a VIS view).
 
 Optionally, the adapter integrates the **Automatic-Feeder relay board** (an ESP32 with three
-timer buttons and its own web interface). When you enable it in the general settings, every
-switch gains a **Relay** tab where you set the board's network address, test the connection and
-configure its three button feeding times (S1–S3) directly from the adapter.
+timer buttons and its own web interface). You decide **per switch** whether it uses such a board;
+when you enable it for a switch in the general settings, that switch gains a **Relay** tab where
+you set the board's network address, test the connection and configure its three button feeding
+times (S1–S3) directly from the adapter.
 
 > Important: the adapter never creates the switch itself. It **controls an object that already
 > exists** in your ioBroker system. You select that object in the configuration.
@@ -180,9 +181,9 @@ The list of feeders (up to 5). For each entry:
 Use **Add switch** to create another (max. 5) and the trash icon to remove one. Removing a
 switch also deletes its data points.
 
-* **Use the Automatic-Feeder relay board** (toggle) – enable this only if you own the optional
-  Automatic-Feeder relay board (ESP32). When on, every switch gets an additional **Relay** tab
-  (see [5.3](#53-relay-board-tab-optional)).
+* **This switch uses the Automatic-Feeder relay board** (per-switch toggle) – turn this on only
+  for a switch whose feeding station uses the optional Automatic-Feeder relay board (ESP32). When
+  on, that switch gets an additional **Relay** tab (see [5.3](#53-relay-board-tab-optional)).
 
 ### 5.2 Switch tabs
 
@@ -345,8 +346,9 @@ See [Telegram notifications](#8-telegram-notifications) for the full setup.
 
 ### 5.3 Relay board tab (optional)
 
-This tab only appears when **Use the Automatic-Feeder relay board** is enabled in the general
-settings (see [5.1](#switches)). One relay board belongs to one switch (feeding station). The
+This tab only appears when the switch's **This switch uses the Automatic-Feeder relay board**
+toggle is enabled in the general settings (see [5.1](#switches)). One relay board belongs to one
+switch (feeding station). The
 board is an ESP32 with three timer buttons (S1–S3) and its own web interface, reached over your
 network on **port 80**. The adapter only **configures** the board and **shows its status** – it
 does not trigger feeding through the board (the buttons are operated on the board itself).
@@ -389,8 +391,8 @@ Directly under the switch there is the manual trigger and two sub-channels:
   configuration. Writing a new value there (from VIS or a script) changes the configuration and
   restarts the instance so the change takes effect. A few derived fields are read-only
   (e.g. `winterWindow`).
-* **`relay`** (`switches.<id>.relay.*`) – present only when the relay board integration is
-  enabled; the read-only relay-board status data points listed at the end of the table.
+* **`relay`** (`switches.<id>.relay.*`) – present only when this switch uses a relay board; the
+  read-only relay-board status data points listed at the end of the table.
 
 | Data point | Type | Meaning |
 |------------|------|---------|
@@ -426,7 +428,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
-| `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when the relay board integration is enabled). |
+| `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when this switch uses a relay board). |
 | `relay.info` | string (ro) | Relay board identity (host / IP / firmware) from the last successful poll. |
 | `relay.active` | boolean (ro) | The relay board's timer is currently running. |
 | `relay.remaining` | number (ro) | Seconds remaining on the relay board's running timer. |
@@ -596,6 +598,10 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.7.1 (2026-07-14)
+* (ssbingo) The decision whether a switch uses the Automatic-Feeder relay board is now made **per switch** (a toggle in the Switches list on the general-settings tab) instead of one global switch. Only the switches you enable get a **Relay** tab and are polled; the `relay.*` data points exist only for those switches
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.7.0 (2026-07-14)
 * (ssbingo) New optional **Automatic-Feeder relay board** integration (an ESP32 with three timer buttons). Enable it in the general settings; each switch then gets a **Relay** tab to set the board's address (IP or mDNS host, port 80), **test the connection**, and read/write the three button feeding times **S1–S3** (fetched from the board first, then saved back). The adapter only configures the board and shows its status — it does not trigger feeding through it
 * (ssbingo) New per-switch data points `relay.connected`, `relay.info`, `relay.active` and `relay.remaining` (present only when the relay board integration is enabled), polled every 60 s
@@ -633,11 +639,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.2.1 (2026-07-02)
 * (ssbingo) Admin UI: the OpenStreetMap location map is no longer stretched across the full screen width — it is capped (≈ a third/half) on wider screens and stays full width on small screens (responsive)
-
-### 1.2.0 (2026-07-02)
-* (ssbingo) New optional **second (deep) water-temperature sensor** per switch, with a combine mode for dynamic feeding: *feeding zone (shallow)* [default], *average*, *coldest layer* or *seasonal* (shallow while warm enough, otherwise deep). The temperature block always uses the coldest of the two layers. Only useful for deep, unmixed ponds
-* (ssbingo) New per-switch data points `status.waterTemperatureDeep` and `status.waterStratification` (shallow − deep)
-* (ssbingo) New documentation section **“Dynamic feeding — background & sources”** with the scientific/professional basis (Q10 / metabolism, temperature thresholds, measurement depth, thermal stratification) and references, in all 11 languages
 
 ---
 

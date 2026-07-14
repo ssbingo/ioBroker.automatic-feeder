@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Suspender alimentação agora",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Interruptor principal: enquanto LIGADO, toda a alimentação deste interruptor é suspensa imediata e indefinidamente, substituindo as pausas agendadas e todos os modos de alimentação. Desligue (DESLIGADO) para retomar a alimentação conforme configurado. Uma mensagem do Telegram é enviada ao alternar.",
 	"Relay": "Relé",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Usar a placa de relé Automatic-Feeder (adiciona uma aba de relé por interruptor)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Ative isto se usar a placa de relé Automatic-Feeder (ESP32). Cada interruptor recebe então uma aba adicional para definir o endereço da placa e os tempos de alimentação dos botões S1-S3.",
 	"Relay board": "Placa de relé",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "A placa de relé Automatic-Feeder (ESP32) é acessível na sua rede na porta 80. Introduza o seu endereço IP ou host mDNS e teste a ligação.",
 	"Board address (IP or mDNS host)": "Endereço da placa (IP ou host mDNS)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Botão 3 (S3)",
 	"Save times to board": "Guardar tempos na placa",
 	"Saved to the board.": "Guardado na placa.",
-	"Saving to the board failed": "Falha ao guardar na placa"
+	"Saving to the board failed": "Falha ao guardar na placa",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Este interruptor usa a placa de relé Automatic-Feeder (adiciona uma aba de relé)"
 }

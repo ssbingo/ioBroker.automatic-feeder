@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Fütterung jetzt aussetzen",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Hauptschalter: Solange EIN, wird jegliche Fütterung dieses Schalters sofort und unbefristet ausgesetzt und übersteuert die geplanten Pausen sowie jeden Fütterungsmodus. AUS schalten, um die Fütterung wie konfiguriert fortzusetzen. Beim Umschalten wird eine Telegram-Nachricht gesendet.",
 	"Relay": "Relais",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "Automatic-Feeder-Relaisplatine verwenden (fügt je Schalter einen Relais-Tab hinzu)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Aktivieren, wenn Sie die Automatic-Feeder-Relaisplatine (ESP32) verwenden. Jeder Schalter erhält dann einen zusätzlichen Tab, um die Adresse der Platine und ihre S1-S3-Tasten-Fütterungszeiten festzulegen.",
 	"Relay board": "Relaisplatine",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "Die Automatic-Feeder-Relaisplatine (ESP32) wird über Ihr Netzwerk auf Port 80 erreicht. Geben Sie ihre IP-Adresse oder ihren mDNS-Hostnamen ein und testen Sie die Verbindung.",
 	"Board address (IP or mDNS host)": "Platinen-Adresse (IP oder mDNS-Host)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Taste 3 (S3)",
 	"Save times to board": "Zeiten auf Platine speichern",
 	"Saved to the board.": "Auf der Platine gespeichert.",
-	"Saving to the board failed": "Speichern auf der Platine fehlgeschlagen"
+	"Saving to the board failed": "Speichern auf der Platine fehlgeschlagen",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Dieser Schalter nutzt die Automatic-Feeder-Relaisplatine (fügt einen Relais-Tab hinzu)"
 }

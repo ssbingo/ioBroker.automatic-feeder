@@ -129,8 +129,6 @@
 	"Suspend feeding now": "Voeding nu opschorten",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "Hoofdschakelaar: terwijl AAN, wordt alle voeding van deze schakelaar onmiddellijk en voor onbepaalde tijd opgeschort, met voorrang op de geplande pauzes en elke voedingsmodus. Zet UIT om de voeding te hervatten zoals ingesteld. Bij het omschakelen wordt een Telegram-bericht verzonden.",
 	"Relay": "Relais",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "De Automatic-Feeder relaisprint gebruiken (voegt per schakelaar een relaistabblad toe)",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "Schakel dit in als u de Automatic-Feeder relaisprint (ESP32) gebruikt. Elke schakelaar krijgt dan een extra tabblad om het adres van de print en de S1-S3-knopvoedertijden in te stellen.",
 	"Relay board": "Relaisprint",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "De Automatic-Feeder relaisprint (ESP32) is bereikbaar via uw netwerk op poort 80. Voer het IP-adres of de mDNS-host in en test de verbinding.",
 	"Board address (IP or mDNS host)": "Printadres (IP of mDNS-host)",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "Knop 3 (S3)",
 	"Save times to board": "Tijden opslaan naar print",
 	"Saved to the board.": "Opgeslagen op de print.",
-	"Saving to the board failed": "Opslaan naar de print mislukt"
+	"Saving to the board failed": "Opslaan naar de print mislukt",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "Deze schakelaar gebruikt de Automatic-Feeder relaisprint (voegt een relaistabblad toe)"
 }

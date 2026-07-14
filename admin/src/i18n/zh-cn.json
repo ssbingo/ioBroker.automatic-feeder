@@ -129,8 +129,6 @@
 	"Suspend feeding now": "立即暂停投喂",
 	"Master switch: while ON, ALL feeding for this switch is suspended immediately and indefinitely, overriding the scheduled pauses and every feeding mode. Turn it OFF to resume feeding as configured. A Telegram message is sent when you toggle it.": "主开关：开启时，此开关的所有投喂将立即无限期暂停，优先于计划的暂停和所有投喂模式。关闭以按配置恢复投喂。切换时会发送 Telegram 消息。",
 	"Relay": "继电器",
-	"Use the Automatic-Feeder relay board (adds a relay tab per switch)": "使用 Automatic-Feeder 继电器板（为每个开关添加一个继电器选项卡）",
-	"Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.": "如果您使用 Automatic-Feeder 继电器板（ESP32），请启用此项。届时每个开关都会获得一个额外的选项卡，用于设置继电器板地址及其 S1-S3 按键投喂时长。",
 	"Relay board": "继电器板",
 	"The Automatic-Feeder relay board (ESP32) is reached over your network on port 80. Enter its IP address or mDNS host and test the connection.": "Automatic-Feeder 继电器板（ESP32）通过您的网络 80 端口访问。请输入其 IP 地址或 mDNS 主机名并测试连接。",
 	"Board address (IP or mDNS host)": "继电器板地址（IP 或 mDNS 主机名）",
@@ -149,5 +147,6 @@
 	"Button 3 (S3)": "按键 3 (S3)",
 	"Save times to board": "将时长保存到继电器板",
 	"Saved to the board.": "已保存到继电器板。",
-	"Saving to the board failed": "保存到继电器板失败"
+	"Saving to the board failed": "保存到继电器板失败",
+	"This switch uses the Automatic-Feeder relay board (adds a relay tab)": "此开关使用 Automatic-Feeder 继电器板（添加一个继电器选项卡）"
 }

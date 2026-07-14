@@ -171,9 +171,14 @@ declare global {
 			o2Enabled: boolean;
 			o2ObjectId: string;
 			/**
+			 * Use the Automatic-Feeder relay board for THIS switch. Decided per switch:
+			 * when on, this switch gets a "Relay" tab and its board is configured/polled.
+			 */
+			relayEnabled: boolean;
+			/**
 			 * Automatic-Feeder relay board: IP address or mDNS host (e.g. "192.168.1.50"
 			 * or "feeder.local"), optionally with a ":port" suffix (default port 80).
-			 * Only used when the global relayEnabled toggle is on.
+			 * Only used when this switch's relayEnabled is on.
 			 */
 			relayHost: string;
 			/** Relay board button S1 feeding time in seconds (1..600). */
@@ -214,12 +219,6 @@ declare global {
 			sourcesMigratedToSwitches: boolean;
 			/** Set to true once the Phase-4 location/astro-window migration has run. */
 			phase4Migrated: boolean;
-			/**
-			 * Enable the Automatic-Feeder relay board integration. When on, each switch
-			 * gets an additional "Relay" tab to configure its board (address, connection
-			 * test, S1-S3 button feeding times).
-			 */
-			relayEnabled: boolean;
 			switches: AutomaticFeederSwitchConfig[];
 		}
 	}

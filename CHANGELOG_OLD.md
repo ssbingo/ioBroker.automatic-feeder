@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.2.0 (2026-07-02)
+* (ssbingo) New optional **second (deep) water-temperature sensor** per switch, with a combine mode for dynamic feeding: *feeding zone (shallow)* [default], *average*, *coldest layer* or *seasonal* (shallow while warm enough, otherwise deep). The temperature block always uses the coldest of the two layers. Only useful for deep, unmixed ponds
+* (ssbingo) New per-switch data points `status.waterTemperatureDeep` and `status.waterStratification` (shallow − deep)
+* (ssbingo) New documentation section **“Dynamic feeding — background & sources”** with the scientific/professional basis (Q10 / metabolism, temperature thresholds, measurement depth, thermal stratification) and references, in all 11 languages
+
 ### 1.1.3 (2026-07-02)
 * (ssbingo) The Nominatim geocoding request now uses a **10-second timeout** (AbortController) instead of possibly hanging indefinitely
 * (ssbingo) User-configurable durations, intervals and the verification timeout are now **clamped to safe absolute maximums in code** (also when written via the `settings.*` states), so they can no longer misbehave

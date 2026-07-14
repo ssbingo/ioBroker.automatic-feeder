@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.7.0",
+		"version": "1.7.1",
 		"news": {
-			"1.7.0": {
-				"en": "New optional Automatic-Feeder relay board integration (ESP32 with three timer buttons): enable it in the general settings, then per switch set the board address, test the connection and read/write its S1-S3 button feeding times. New per-switch status data points relay.connected/info/active/remaining.",
-				"de": "Neue optionale Anbindung der Automatic-Feeder-Relaisplatine (ESP32 mit drei Timer-Tasten): in den Grundeinstellungen aktivieren, dann je Schalter die Platinen-Adresse festlegen, die Verbindung testen und die S1-S3-Tasten-Fütterungszeiten lesen/schreiben. Neue Status-Datenpunkte je Schalter relay.connected/info/active/remaining.",
-				"ru": "Новая опциональная интеграция релейной платы Automatic-Feeder (ESP32 с тремя кнопками таймера): включите её в общих настройках, затем для каждого переключателя задайте адрес платы, проверьте соединение и считывайте/записывайте время кормления кнопок S1-S3. Новые точки данных для каждого переключателя relay.connected/info/active/remaining.",
-				"pt": "Nova integração opcional da placa de relé Automatic-Feeder (ESP32 com três botões de temporizador): ative-a nas definições gerais, depois defina por interruptor o endereço da placa, teste a ligação e leia/escreva os tempos de alimentação dos botões S1-S3. Novos pontos de dados por interruptor relay.connected/info/active/remaining.",
-				"nl": "Nieuwe optionele integratie van de Automatic-Feeder relaisprint (ESP32 met drie timerknoppen): schakel deze in bij de algemene instellingen, stel dan per schakelaar het printadres in, test de verbinding en lees/schrijf de S1-S3-knopvoedertijden. Nieuwe datapunten per schakelaar relay.connected/info/active/remaining.",
-				"fr": "Nouvelle intégration optionnelle de la carte relais Automatic-Feeder (ESP32 avec trois boutons de minuterie) : activez-la dans les réglages généraux, puis définissez par interrupteur l'adresse de la carte, testez la connexion et lisez/écrivez les durées des boutons S1-S3. Nouveaux points de données par interrupteur relay.connected/info/active/remaining.",
-				"it": "Nuova integrazione opzionale della scheda relè Automatic-Feeder (ESP32 con tre pulsanti timer): attivala nelle impostazioni generali, poi per ogni interruttore imposta l'indirizzo della scheda, prova la connessione e leggi/scrivi i tempi dei pulsanti S1-S3. Nuovi datapoint per interruttore relay.connected/info/active/remaining.",
-				"es": "Nueva integración opcional de la placa de relé Automatic-Feeder (ESP32 con tres botones de temporizador): actívala en los ajustes generales, luego por interruptor define la dirección de la placa, prueba la conexión y lee/escribe los tiempos de los botones S1-S3. Nuevos puntos de datos por interruptor relay.connected/info/active/remaining.",
-				"pl": "Nowa opcjonalna integracja płytki przekaźnikowej Automatic-Feeder (ESP32 z trzema przyciskami timera): włącz ją w ustawieniach ogólnych, następnie dla każdego przełącznika ustaw adres płytki, przetestuj połączenie i odczytaj/zapisz czasy karmienia przycisków S1-S3. Nowe punkty danych dla każdego przełącznika relay.connected/info/active/remaining.",
-				"uk": "Нова опціональна інтеграція релейної плати Automatic-Feeder (ESP32 з трьома кнопками таймера): увімкніть її в загальних налаштуваннях, потім для кожного перемикача задайте адресу плати, перевірте з'єднання та читайте/записуйте час годування кнопок S1-S3. Нові точки даних для кожного перемикача relay.connected/info/active/remaining.",
-				"zh-cn": "新增可选的 Automatic-Feeder 继电器板集成（带三个定时按键的 ESP32）：在常规设置中启用后，为每个开关设置继电器板地址、测试连接并读写 S1-S3 按键投喂时长。每个开关新增状态数据点 relay.connected/info/active/remaining。"
+			"1.7.1": {
+				"en": "The decision whether a switch uses the Automatic-Feeder relay board is now made per switch (a toggle in the Switches list) instead of globally. Only the switches you enable get a Relay tab, are polled, and have relay.* data points.",
+				"de": "Die Entscheidung, ob ein Schalter die Automatic-Feeder-Relaisplatine nutzt, wird jetzt je Schalter getroffen (ein Schalter in der Schalterliste) statt global. Nur die aktivierten Schalter erhalten einen Relais-Tab, werden abgefragt und haben relay.*-Datenpunkte.",
+				"ru": "Решение о том, использует ли переключатель релейную плату Automatic-Feeder, теперь принимается для каждого переключателя (переключатель в списке переключателей), а не глобально. Только включённые переключатели получают вкладку реле, опрашиваются и имеют точки данных relay.*.",
+				"pt": "A decisão sobre se um interruptor usa a placa de relé Automatic-Feeder é agora tomada por interruptor (um botão na lista de interruptores) em vez de globalmente. Apenas os interruptores que ativar recebem uma aba de relé, são consultados e têm pontos de dados relay.*.",
+				"nl": "De beslissing of een schakelaar de Automatic-Feeder relaisprint gebruikt, wordt nu per schakelaar genomen (een schakelaar in de schakelaarlijst) in plaats van globaal. Alleen de ingeschakelde schakelaars krijgen een relaistabblad, worden gepolld en hebben relay.*-datapunten.",
+				"fr": "Le choix d'utiliser la carte relais Automatic-Feeder pour un interrupteur se fait désormais par interrupteur (un commutateur dans la liste des interrupteurs) et non plus globalement. Seuls les interrupteurs activés obtiennent un onglet relais, sont interrogés et disposent des points de données relay.*.",
+				"it": "La decisione se un interruttore usa la scheda relè Automatic-Feeder viene ora presa per ogni interruttore (un interruttore nell'elenco interruttori) anziché globalmente. Solo gli interruttori abilitati ottengono una scheda relè, vengono interrogati e hanno i datapoint relay.*.",
+				"es": "La decisión de si un interruptor usa la placa de relé Automatic-Feeder se toma ahora por interruptor (un conmutador en la lista de interruptores) en lugar de globalmente. Solo los interruptores habilitados obtienen una pestaña de relé, se consultan y tienen puntos de datos relay.*.",
+				"pl": "Decyzja, czy przełącznik używa płytki przekaźnikowej Automatic-Feeder, jest teraz podejmowana dla każdego przełącznika (przełącznik na liście przełączników) zamiast globalnie. Tylko włączone przełączniki otrzymują zakładkę przekaźnika, są odpytywane i mają punkty danych relay.*.",
+				"uk": "Рішення про те, чи використовує перемикач релейну плату Automatic-Feeder, тепер приймається для кожного перемикача (перемикач у списку перемикачів), а не глобально. Лише увімкнені перемикачі отримують вкладку реле, опитуються та мають точки даних relay.*.",
+				"zh-cn": "现在按每个开关（开关列表中的开关）决定该开关是否使用 Automatic-Feeder 继电器板，而不再是全局设置。只有启用的开关才会获得继电器选项卡、被轮询并拥有 relay.* 数据点。"
 			}
 		},
 		"titleLang": {
@@ -100,7 +100,6 @@
 		"o2ObjectId": "",
 		"sourcesMigratedToSwitches": false,
 		"phase4Migrated": false,
-		"relayEnabled": false,
 		"switches": []
 	},
 	"objects": [],

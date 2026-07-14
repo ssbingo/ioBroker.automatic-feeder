@@ -1017,8 +1017,8 @@ class AutomaticFeeder extends utils.Adapter {
 			await this.checkWinterReminders();
 			this.scheduleReminderTick();
 
-			// --- relay boards: poll their connection status (only when enabled) ---
-			if (this.config.relayEnabled) {
+			// --- relay boards: poll their connection status (only if any switch uses one) ---
+			if (this.switches.some(s => s.relayEnabled)) {
 				await this.pollRelays();
 				this.scheduleRelayPoll();
 			}
@@ -1648,8 +1648,8 @@ class AutomaticFeeder extends utils.Adapter {
 				native: {},
 			});
 
-			// --- relay board status (only when the global relay integration is enabled) ---
-			if (this.config.relayEnabled) {
+			// --- relay board status (only for switches that use a relay board) ---
+			if (sw.relayEnabled) {
 				await this.setObjectNotExistsAsync(`${base}.relay`, {
 					type: 'channel',
 					common: { name: 'Relay board' },
@@ -1704,12 +1704,12 @@ class AutomaticFeeder extends utils.Adapter {
 					native: {},
 				});
 			} else {
-				// integration disabled -> remove the relay channel and its states
+				// this switch does not use a relay board -> remove the relay channel and its states
 				const relayObj = await this.getObjectAsync(`${base}.relay`);
 				if (relayObj) {
 					await this.delObjectAsync(`${base}.relay`, { recursive: true });
 					this.log.debug(
-						`Removed relay objects for switch ${this.swLabel(sw)} (relay integration disabled).`,
+						`Removed relay objects for switch ${this.swLabel(sw)} (relay board disabled for this switch).`,
 					);
 				}
 			}
@@ -3522,6 +3522,9 @@ class AutomaticFeeder extends utils.Adapter {
 	 */
 	async pollRelays() {
 		for (const sw of this.switches) {
+			if (!sw.relayEnabled) {
+				continue;
+			}
 			const base = `switches.${sw.id}.relay`;
 			const host = sw.relayHost;
 			if (!host || !String(host).trim()) {

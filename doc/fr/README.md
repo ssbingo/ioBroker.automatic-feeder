@@ -73,10 +73,11 @@ configuration (bouton avec durée librement réglable) ou via un point de donné
 dans une vue VIS).
 
 En option, l'adaptateur intègre la **carte relais Automatic-Feeder** (un ESP32 doté de trois
-boutons de minuterie et de sa propre interface web). Lorsque tu l'actives dans les réglages de
-base, chaque interrupteur reçoit un onglet **Relais** dans lequel tu définis l'adresse réseau de la
-carte, testes la connexion et configures ses trois durées de distribution des boutons (S1–S3)
-directement depuis l'adaptateur.
+boutons de minuterie et de sa propre interface web). Tu décides **pour chaque interrupteur** s'il
+utilise une telle carte ; lorsque tu l'actives pour un interrupteur dans les réglages de base, cet
+interrupteur reçoit un onglet **Relais** dans lequel tu définis l'adresse réseau de la carte,
+testes la connexion et configures ses trois durées de distribution des boutons (S1–S3) directement
+depuis l'adaptateur.
 
 > Important : l'adaptateur ne crée pas l'interrupteur lui-même. Il **pilote un objet déjà
 > existant** dans ton ioBroker. Cet objet, tu le sélectionnes dans la configuration.
@@ -186,10 +187,10 @@ La liste des distributeurs de nourriture (jusqu'à 5). Pour chaque entrée :
 Avec **Ajouter un interrupteur**, tu en crées un de plus (max. 5) ; avec l'icône de corbeille, tu
 en supprimes un. Lors de la suppression, ses points de données sont également effacés.
 
-* **Utiliser la carte relais Automatic-Feeder (ajoute un onglet relais par interrupteur)**
-  (bascule) — active ceci uniquement si tu possèdes la carte relais Automatic-Feeder (ESP32)
-  optionnelle. Lorsqu'elle est activée, chaque interrupteur reçoit un onglet **Relais**
-  supplémentaire (voir section 5.3).
+* **Cet interrupteur utilise la carte relais Automatic-Feeder (ajoute un onglet relais)**
+  (bascule) — active ceci uniquement pour un interrupteur dont la station de distribution utilise
+  la carte relais Automatic-Feeder (ESP32) optionnelle. Lorsqu'elle est activée, cet interrupteur
+  reçoit un onglet **Relais** supplémentaire (voir section 5.3).
 
 ### 5.2 Onglets d'interrupteur
 
@@ -369,8 +370,8 @@ La configuration complète est décrite sous [Notifications Telegram](#8-notific
 
 ### 5.3 Onglet de la carte relais (optionnel)
 
-Cet onglet n'apparaît que lorsque l'option **Utiliser la carte relais Automatic-Feeder (ajoute un
-onglet relais par interrupteur)** est activée dans les réglages de base (voir section 5.1). Une
+Cet onglet n'apparaît que lorsque la bascule propre à cet interrupteur (**Cet interrupteur utilise
+la carte relais Automatic-Feeder …**) est activée dans les réglages de base (voir section 5.1). Une
 carte relais correspond à un interrupteur (station de distribution). La carte est un ESP32 doté de
 trois boutons de minuterie (S1–S3) et de sa propre interface web, accessible sur ton réseau via le
 **port 80**. L'adaptateur se contente de **configurer** la carte et d'**afficher son état** — il ne
@@ -415,8 +416,8 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
   cet interrupteur. Écrire une nouvelle valeur ici (depuis VIS ou un script) modifie la configuration et
   redémarre l'instance pour que le changement prenne effet. Quelques champs dérivés sont en lecture seule
   (p. ex. `winterWindow`).
-* **`relay`** (`switches.<id>.relay.*`) – présent uniquement lorsque l'intégration de la carte
-  relais est activée ; les points de données d'état de la carte relais en lecture seule, listés à la
+* **`relay`** (`switches.<id>.relay.*`) – présent uniquement lorsque cet interrupteur utilise une
+  carte relais ; les points de données d'état de la carte relais en lecture seule, listés à la
   fin du tableau.
 
 | Point de données | Type | Signification |
@@ -453,7 +454,7 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Lever/coucher du soleil en temps Unix en ms — p. ex. pour une barre de progression du jour dans VIS. |
-| `relay.connected` | boolean (ro) | La carte relais configurée pour cet interrupteur est joignable (uniquement lorsque l'intégration de la carte relais est activée). |
+| `relay.connected` | boolean (ro) | La carte relais configurée pour cet interrupteur est joignable (uniquement lorsque cet interrupteur utilise une carte relais). |
 | `relay.info` | string (ro) | Identité de la carte relais (hôte / IP / firmware) issue de la dernière interrogation réussie. |
 | `relay.active` | boolean (ro) | La minuterie de la carte relais est actuellement en cours d'exécution. |
 | `relay.remaining` | number (ro) | Secondes restantes sur la minuterie en cours de la carte relais. |

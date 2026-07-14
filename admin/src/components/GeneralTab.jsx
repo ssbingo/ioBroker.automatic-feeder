@@ -142,23 +142,6 @@ function GeneralTab(props) {
 
 			{/* Switches roster */}
 			<Section title={`${I18n.t('Switches')} (${switches.length}/${MAX_SWITCHES})`}>
-				<Box sx={{ mb: 1 }}>
-					<FormControlLabel
-						control={
-							<Switch
-								checked={!!native.relayEnabled}
-								onChange={(e) => onChange('relayEnabled', e.target.checked)}
-							/>
-						}
-						label={I18n.t('Use the Automatic-Feeder relay board (adds a relay tab per switch)')}
-					/>
-					<Typography variant="body2" color="textSecondary">
-						{I18n.t(
-							'Enable this if you use the Automatic-Feeder relay board (ESP32). Each switch then gets an additional tab to set the board address and its S1-S3 button feeding times.',
-						)}
-					</Typography>
-				</Box>
-				<Divider sx={{ mb: 1 }} />
 				{switches.length === 0 ? (
 					<Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
 						{I18n.t('No switches configured yet. Add one to create its own tab.')}
@@ -198,6 +181,17 @@ function GeneralTab(props) {
 								</IconButton>
 							</Tooltip>
 						</Box>
+						<FormControlLabel
+							sx={{ ml: 4 }}
+							control={
+								<Switch
+									size="small"
+									checked={!!sw.relayEnabled}
+									onChange={(e) => updateSwitch(index, { relayEnabled: e.target.checked })}
+								/>
+							}
+							label={I18n.t('This switch uses the Automatic-Feeder relay board (adds a relay tab)')}
+						/>
 					</Box>
 				))}
 				<Button

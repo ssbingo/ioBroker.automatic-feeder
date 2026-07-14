@@ -69,8 +69,9 @@ Karmienie możesz w dowolnej chwili wyzwolić **ręcznie** – bezpośrednio na 
 VIS).
 
 Opcjonalnie adapter integruje **płytkę przekaźnikową Automatic-Feeder** (ESP32 z trzema
-przyciskami czasowymi i własnym interfejsem WWW). Gdy włączysz ją w ustawieniach podstawowych,
-każdy przełącznik zyskuje zakładkę **Przekaźnik**, w której ustawiasz adres sieciowy płytki,
+przyciskami czasowymi i własnym interfejsem WWW). Dla każdego przełącznika osobno decydujesz, czy
+korzysta on z takiej płytki; gdy włączysz ją dla danego przełącznika w ustawieniach podstawowych,
+ten przełącznik zyskuje zakładkę **Przekaźnik**, w której ustawiasz adres sieciowy płytki,
 testujesz połączenie i konfigurujesz jej trzy czasy karmienia przycisków (S1–S3) bezpośrednio z
 poziomu adaptera.
 
@@ -177,10 +178,10 @@ Lista automatów do karmienia (maksymalnie 5). Dla każdego wpisu:
 Za pomocą **Dodaj przełącznik** tworzysz kolejny (maks. 5), za pomocą ikony kosza usuwasz jeden.
 Przy usuwaniu kasowane są także jego punkty danych.
 
-* **Użyj płytki przekaźnikowej Automatic-Feeder (dodaje zakładkę przekaźnika dla każdego
-  przełącznika)** (przełącznik wł./wył.) – włącz to tylko wtedy, gdy posiadasz opcjonalną płytkę
-  przekaźnikową Automatic-Feeder (ESP32). Gdy włączone, każdy przełącznik otrzymuje dodatkową
-  zakładkę **Przekaźnik** (zobacz sekcję 5.3).
+* **Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder (dodaje zakładkę przekaźnika)**
+  (przełącznik wł./wył.) – włącz to tylko dla przełącznika, którego stacja karmienia korzysta z
+  opcjonalnej płytki przekaźnikowej Automatic-Feeder (ESP32). Gdy włączone, ten przełącznik
+  otrzymuje dodatkową zakładkę **Przekaźnik** (zobacz sekcję 5.3).
 
 ### 5.2 Zakładki przełączników
 
@@ -351,9 +352,9 @@ Pełna konfiguracja znajduje się w sekcji [Powiadomienia Telegram](#8-powiadomi
 
 ### 5.3 Zakładka przekaźnika (opcjonalnie)
 
-Ta zakładka pojawia się tylko wtedy, gdy w ustawieniach podstawowych włączono opcję **Użyj płytki
-przekaźnikowej Automatic-Feeder (dodaje zakładkę przekaźnika dla każdego przełącznika)** (zobacz
-sekcję 5.1). Jedna płytka przekaźnikowa należy do jednego przełącznika (stacji karmienia). Płytka
+Ta zakładka pojawia się tylko wtedy, gdy w ustawieniach podstawowych włączono dla tego przełącznika
+opcję **Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder …** (zobacz sekcję 5.1).
+Jedna płytka przekaźnikowa należy do jednego przełącznika (stacji karmienia). Płytka
 to ESP32 z trzema przyciskami czasowymi (S1–S3) i własnym interfejsem WWW, dostępnym w Twojej sieci
 przez **port 80**. Adapter tylko **konfiguruje** płytkę i **pokazuje jej stan** – nie wyzwala
 karmienia przez płytkę (przyciski obsługuje się na samej płytce).
@@ -397,7 +398,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
   przełącznika. Zapisanie tam nowej wartości (z VIS lub ze skryptu) zmienia konfigurację i
   restartuje instancję, aby zmiana zaczęła obowiązywać. Kilka pól pochodnych jest tylko do odczytu
   (np. `winterWindow`).
-* **`relay`** (`switches.<id>.relay.*`) – obecny tylko wtedy, gdy włączona jest integracja płytki
+* **`relay`** (`switches.<id>.relay.*`) – obecny tylko wtedy, gdy ten przełącznik używa płytki
   przekaźnikowej; punkty danych stanu płytki przekaźnikowej tylko do odczytu, wymienione na końcu
   tabeli.
 
@@ -435,7 +436,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Wschód/zachód słońca jako czas uniksowy w ms — np. dla paska postępu dnia w VIS. |
-| `relay.connected` | boolean (ro) | Płytka przekaźnikowa skonfigurowana dla tego przełącznika jest osiągalna (tylko gdy włączona jest integracja płytki przekaźnikowej). |
+| `relay.connected` | boolean (ro) | Płytka przekaźnikowa skonfigurowana dla tego przełącznika jest osiągalna (tylko gdy ten przełącznik używa płytki przekaźnikowej). |
 | `relay.info` | string (ro) | Tożsamość płytki przekaźnikowej (host / IP / firmware) z ostatniego udanego odpytania. |
 | `relay.active` | boolean (ro) | Timer płytki przekaźnikowej jest aktualnie uruchomiony. |
 | `relay.remaining` | number (ro) | Pozostałe sekundy na uruchomionym timerze płytki przekaźnikowej. |
