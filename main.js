@@ -2876,7 +2876,8 @@ class AutomaticFeeder extends utils.Adapter {
 			);
 			return;
 		}
-		const text = `${sw.name || sw.id}: ${this.tSw(sw, 'announce')}`;
+		const minutes = Number(sw.announceLeadMin) || 0;
+		const text = `${sw.name || sw.id}: ${this.tSw(sw, 'announce', { minutes })}`;
 		if (sw.announceViaTelegram && sw.telegramInstance) {
 			this.sendTelegram(sw, text, 'announce');
 		}

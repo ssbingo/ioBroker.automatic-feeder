@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.2.3 (2026-07-02)
+* (ssbingo) The local timestamps introduced in 1.2.2 now use a **human-readable format** `DD.MM.YYYY HH:MM:SS` (e.g. `01.07.2026 16:20:00`) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users
+
 ### 1.2.2 (2026-07-02)
 * (ssbingo) All timestamp data points (`status.nextFeeding`, `status.lastFeeding`, `status.sunrise`, `status.sunset`) and the times in the log/debug output are now shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`) instead of UTC — no more mental conversion, and still a correct/sortable/parseable date string
 

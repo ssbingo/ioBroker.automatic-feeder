@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.0",
+		"version": "1.9.1",
 		"news": {
-			"1.9.0": {
-				"en": "New optional Sayit (text-to-speech) notifications per switch (instance dropdown, volume, the same three messages as Telegram) plus a feeding announcement some minutes before the feeding via Telegram and/or Sayit, and a per-switch message language (system language or a specific one).",
-				"de": "Neue optionale Sayit-Benachrichtigungen (Sprachausgabe) je Schalter (Instanz-Dropdown, Lautstärke, dieselben drei Meldungen wie bei Telegram) plus eine Fütterungsansage einige Minuten vor der Fütterung per Telegram und/oder Sayit sowie eine Nachrichtensprache je Schalter (Systemsprache oder eine bestimmte).",
-				"ru": "Новые опциональные уведомления Sayit (синтез речи) для каждого переключателя (выбор экземпляра, громкость, те же три сообщения, что и в Telegram), плюс объявление о кормлении за несколько минут до него через Telegram и/или Sayit, а также язык сообщений для каждого переключателя (системный или конкретный).",
-				"pt": "Novas notificações Sayit (voz) opcionais por interruptor (seleção de instância, volume, as mesmas três mensagens do Telegram) mais um anúncio de alimentação alguns minutos antes, via Telegram e/ou Sayit, e um idioma de mensagens por interruptor (idioma do sistema ou específico).",
-				"nl": "Nieuwe optionele Sayit-meldingen (spraak) per schakelaar (instantiekeuze, volume, dezelfde drie berichten als Telegram) plus een voederaankondiging enkele minuten vooraf via Telegram en/of Sayit, en een berichttaal per schakelaar (systeemtaal of een specifieke).",
-				"fr": "Nouvelles notifications Sayit (synthèse vocale) optionnelles par interrupteur (choix d'instance, volume, les mêmes trois messages que Telegram) plus une annonce de distribution quelques minutes avant, via Telegram et/ou Sayit, et une langue des messages par interrupteur (langue du système ou spécifique).",
-				"it": "Nuove notifiche Sayit (sintesi vocale) opzionali per interruttore (scelta istanza, volume, gli stessi tre messaggi di Telegram) più un annuncio dell'alimentazione alcuni minuti prima, tramite Telegram e/o Sayit, e una lingua dei messaggi per interruttore (lingua di sistema o specifica).",
-				"es": "Nuevas notificaciones Sayit (voz) opcionales por interruptor (selección de instancia, volumen, los mismos tres mensajes que Telegram) más un anuncio de alimentación unos minutos antes, por Telegram o Sayit, y un idioma de mensajes por interruptor (idioma del sistema o específico).",
-				"pl": "Nowe opcjonalne powiadomienia Sayit (mowa) dla każdego przełącznika (wybór instancji, głośność, te same trzy komunikaty co Telegram) oraz zapowiedź karmienia kilka minut wcześniej przez Telegram i/lub Sayit, a także język komunikatów dla każdego przełącznika (język systemu lub konkretny).",
-				"uk": "Нові опціональні сповіщення Sayit (синтез мовлення) для кожного перемикача (вибір екземпляра, гучність, ті самі три повідомлення, що й у Telegram), а також оголошення про годування за кілька хвилин до нього через Telegram та/або Sayit і мова повідомлень для кожного перемикача (системна або конкретна).",
-				"zh-cn": "为每个开关新增可选的 Sayit（语音播报）通知（实例下拉、音量、与 Telegram 相同的三条消息），以及在投喂前几分钟通过 Telegram 和/或 Sayit 发出的投喂预告，并可为每个开关设置消息语言（系统语言或指定语言）。"
+			"1.9.1": {
+				"en": "The feeding announcement now uses the final text 'The next feeding starts in X minutes' (localized in the selected message language; X = the configured lead time).",
+				"de": "Die Fütterungsansage verwendet jetzt den finalen Text 'Achtung! Die nächste Fütterung beginnt in X Minuten' (in der gewählten Nachrichtensprache; X = die eingestellte Vorlaufzeit).",
+				"ru": "Объявление о кормлении теперь использует окончательный текст «Следующее кормление начнётся через X минут» (на выбранном языке сообщений; X = заданное время упреждения).",
+				"pt": "O anúncio de alimentação usa agora o texto final 'A próxima alimentação começa em X minutos' (no idioma de mensagens escolhido; X = a antecedência configurada).",
+				"nl": "De voederaankondiging gebruikt nu de definitieve tekst 'De volgende voedering begint over X minuten' (in de gekozen berichttaal; X = de ingestelde voorlooptijd).",
+				"fr": "L'annonce de distribution utilise maintenant le texte final « La prochaine distribution commence dans X minutes » (dans la langue des messages choisie ; X = le délai configuré).",
+				"it": "L'annuncio di alimentazione usa ora il testo finale 'La prossima alimentazione inizia tra X minuti' (nella lingua dei messaggi scelta; X = l'anticipo impostato).",
+				"es": "El anuncio de alimentación usa ahora el texto final 'La próxima alimentación comienza en X minutos' (en el idioma de mensajes elegido; X = la antelación configurada).",
+				"pl": "Zapowiedź karmienia używa teraz ostatecznego tekstu „Następne karmienie rozpocznie się za X minut” (w wybranym języku komunikatów; X = ustawione wyprzedzenie).",
+				"uk": "Оголошення про годування тепер використовує остаточний текст «Наступне годування почнеться через X хвилин» (обраною мовою повідомлень; X = встановлений час випередження).",
+				"zh-cn": "投喂预告现在使用最终文本“下一次投喂将在 X 分钟后开始”（以所选消息语言显示；X = 设置的提前时间）。"
 			}
 		},
 		"titleLang": {

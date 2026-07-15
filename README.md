@@ -636,6 +636,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.1 (2026-07-15)
+* (ssbingo) The feeding announcement now uses the final text **"The next feeding starts in X minutes"** (localized in the switch's selected message language; `X` = the configured lead time)
+
 ### 1.9.0 (2026-07-15)
 * (ssbingo) New optional **Sayit (text-to-speech) notifications** per switch: pick an installed `sayit.*` instance, an optional volume, and the **same three messages** as Telegram (successful feeding / could-not-feed / switch-off fault) — selected separately, so Telegram and Sayit can run in parallel
 * (ssbingo) New **feeding announcement**: announce an upcoming feeding a configurable number of minutes in advance, via **Telegram and/or Sayit**. The announcement is skipped when the feeding would currently be blocked or paused. (Placeholder announcement text for now; the final wording follows later)
@@ -679,9 +682,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) In addition, up to **3 one-off date-time feeding pauses** per switch (e.g. a **quarantine after restocking**) fully suspend feeding within an absolute period, with a **Telegram** message at the start and end of each. They have the highest priority over all feeding modes
 * (ssbingo) New per-switch data points `status.pauseManual`, `status.pauseActive` and `status.pauseActiveUntil`; new editable settings `settings.pauseNow` and `settings.pause1..3Enabled/Start/End` (settings page and VIS/scripts)
 * (ssbingo) Documentation updated in all 11 languages
-
-### 1.2.3 (2026-07-02)
-* (ssbingo) The local timestamps introduced in 1.2.2 now use a **human-readable format** `DD.MM.YYYY HH:MM:SS` (e.g. `01.07.2026 16:20:00`) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users
 
 ---
 
