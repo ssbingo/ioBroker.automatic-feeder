@@ -44,6 +44,21 @@ import LocationPicker from './LocationPicker';
 
 const TEMPERATURE_FILTER = (obj) => !!obj.common && obj.common.type === 'number';
 
+// Languages the adapter can output notification texts in (matches lib/messages.js).
+const LANG_OPTIONS = [
+	{ code: 'en', name: 'English' },
+	{ code: 'de', name: 'Deutsch' },
+	{ code: 'ru', name: 'Русский' },
+	{ code: 'pt', name: 'Português' },
+	{ code: 'nl', name: 'Nederlands' },
+	{ code: 'fr', name: 'Français' },
+	{ code: 'it', name: 'Italiano' },
+	{ code: 'es', name: 'Español' },
+	{ code: 'pl', name: 'Polski' },
+	{ code: 'uk', name: 'Українська' },
+	{ code: 'zh-cn', name: '简体中文' },
+];
+
 // leap year so 29.02. is selectable; only day+month are stored (recurring MM-DD)
 const WINTER_REF_YEAR = 2024;
 
@@ -127,7 +142,8 @@ function toNumberOrNull(value) {
 }
 
 function SwitchTab(props) {
-	const { sw, onChange, native, socket, instanceId, telegramInstances, theme, themeName, themeType } = props;
+	const { sw, onChange, native, socket, instanceId, telegramInstances, sayitInstances, theme, themeName, themeType } =
+		props;
 
 	const mode = sw.mode || 'times';
 	const times = Array.isArray(sw.times) ? sw.times : [];
@@ -137,6 +153,12 @@ function SwitchTab(props) {
 	const telegramOptions = Array.isArray(telegramInstances) ? [...telegramInstances] : [];
 	if (sw.telegramInstance && !telegramOptions.includes(sw.telegramInstance)) {
 		telegramOptions.push(sw.telegramInstance);
+	}
+
+	// dropdown options for the sayit instance (keep a configured-but-missing one visible)
+	const sayitOptions = Array.isArray(sayitInstances) ? [...sayitInstances] : [];
+	if (sw.sayitInstance && !sayitOptions.includes(sw.sayitInstance)) {
+		sayitOptions.push(sw.sayitInstance);
 	}
 
 	const [feedBusy, setFeedBusy] = useState(false);
@@ -915,6 +937,27 @@ function SwitchTab(props) {
 
 			{/* Telegram notifications */}
 			<Section title={I18n.t('Telegram notifications')}>
+				<Box sx={{ mb: 2 }}>
+					<FormControl variant="standard" sx={{ minWidth: 260 }}>
+						<InputLabel>{I18n.t('Message language')}</InputLabel>
+						<Select
+							value={sw.notifyLang || 'system'}
+							onChange={(e) => onChange({ notifyLang: e.target.value })}
+						>
+							<MenuItem value="system">
+								<em>{I18n.t('System language')}</em>
+							</MenuItem>
+							{LANG_OPTIONS.map((l) => (
+								<MenuItem key={l.code} value={l.code}>
+									{l.name}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+					<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 0.5 }}>
+						{I18n.t('Language of the outgoing texts (Telegram, Sayit and the announcement).')}
+					</Typography>
+				</Box>
 				<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 1 }}>
 					<FormControl variant="standard" sx={{ minWidth: 220 }}>
 						<InputLabel>{I18n.t('Telegram instance')}</InputLabel>
@@ -978,6 +1021,129 @@ function SwitchTab(props) {
 					label={I18n.t('Notify on switch-off fault')}
 				/>
 			</Section>
+
+			<Section title={I18n.t('Sayit notifications')}>
+				<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 1 }}>
+					<FormControl variant="standard" sx={{ minWidth: 220 }}>
+						<InputLabel>{I18n.t('Sayit instance')}</InputLabel>
+						<Select value={sw.sayitInstance || ''} onChange={(e) => onChange({ sayitInstance: e.target.value })}>
+							<MenuItem value="">
+								<em>{I18n.t('None (disabled)')}</em>
+							</MenuItem>
+							{sayitOptions.map((id) => (
+								<MenuItem key={id} value={id}>
+									{id}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+					<TextField
+						variant="standard"
+						type="number"
+						label={I18n.t('Volume (0-100, optional)')}
+						value={sw.sayitVolume ?? ''}
+						inputProps={{ min: 0, max: 100 }}
+						disabled={!sw.sayitInstance}
+						onChange={(e) => onChange({ sayitVolume: e.target.value === '' ? null : Number(e.target.value) })}
+						sx={{ width: 180 }}
+					/>
+				</Box>
+				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+					{sayitOptions.length === 0
+						? I18n.t('No Sayit instance installed.')
+						: I18n.t('Leave the instance empty to disable Sayit for this switch.')}
+				</Typography>
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={!!sw.sayitNotifySuccess}
+							disabled={!sw.sayitInstance}
+							onChange={(e) => onChange({ sayitNotifySuccess: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Notify on successful feeding')}
+				/>
+				<br />
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={!!sw.sayitNotifyOnFail}
+							disabled={!sw.sayitInstance}
+							onChange={(e) => onChange({ sayitNotifyOnFail: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Notify if feeding could not be performed')}
+				/>
+				<br />
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={!!sw.sayitNotifyOffFail}
+							disabled={!sw.sayitInstance}
+							onChange={(e) => onChange({ sayitNotifyOffFail: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Notify on switch-off fault')}
+				/>
+			</Section>
+
+			<Section title={I18n.t('Feeding announcement')}>
+				<Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+					{I18n.t(
+						'Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.',
+					)}
+				</Typography>
+				<FormControlLabel
+					control={
+						<Switch
+							checked={!!sw.announceEnabled}
+							onChange={(e) => onChange({ announceEnabled: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Announce feeding in advance')}
+				/>
+				{sw.announceEnabled ? (
+					<Box sx={{ mt: 1 }}>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Lead time (minutes)')}
+							value={sw.announceLeadMin ?? 5}
+							inputProps={{ min: 1 }}
+							onChange={(e) => onChange({ announceLeadMin: Number(e.target.value) || 0 })}
+							sx={{ width: 180 }}
+						/>
+						<Box sx={{ mt: 1 }}>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={!!sw.announceViaTelegram}
+										disabled={!sw.telegramInstance}
+										onChange={(e) => onChange({ announceViaTelegram: e.target.checked })}
+									/>
+								}
+								label={I18n.t('Announce via Telegram')}
+							/>
+							<br />
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={!!sw.announceViaSayit}
+										disabled={!sw.sayitInstance}
+										onChange={(e) => onChange({ announceViaSayit: e.target.checked })}
+									/>
+								}
+								label={I18n.t('Announce via Sayit')}
+							/>
+						</Box>
+						{!sw.telegramInstance && !sw.sayitInstance ? (
+							<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+								{I18n.t('Configure a Telegram or Sayit instance above to receive the announcement.')}
+							</Typography>
+						) : null}
+					</Box>
+				) : null}
+			</Section>
 		</Box>
 		</LocalizationProvider>
 	);
@@ -990,6 +1156,7 @@ SwitchTab.propTypes = {
 	socket: PropTypes.object.isRequired,
 	instanceId: PropTypes.string.isRequired,
 	telegramInstances: PropTypes.array,
+	sayitInstances: PropTypes.array,
 	theme: PropTypes.object,
 	themeName: PropTypes.string,
 	themeType: PropTypes.string,

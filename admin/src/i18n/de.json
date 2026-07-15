@@ -162,5 +162,20 @@
 	"MAC address": "MAC-Adresse",
 	"Uptime": "Betriebszeit",
 	"Free memory": "Freier Speicher",
-	"Last reset reason": "Letzter Neustartgrund"
+	"Last reset reason": "Letzter Neustartgrund",
+	"Message language": "Nachrichtensprache",
+	"System language": "Systemsprache",
+	"Language of the outgoing texts (Telegram, Sayit and the announcement).": "Sprache der ausgehenden Texte (Telegram, Sayit und die Ansage).",
+	"Sayit notifications": "Sayit-Benachrichtigungen",
+	"Sayit instance": "Sayit-Instanz",
+	"Volume (0-100, optional)": "Lautstärke (0-100, optional)",
+	"No Sayit instance installed.": "Keine Sayit-Instanz installiert.",
+	"Leave the instance empty to disable Sayit for this switch.": "Instanz leer lassen, um Sayit für diesen Schalter zu deaktivieren.",
+	"Feeding announcement": "Fütterungsansage",
+	"Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.": "Kündigt die bevorstehende Fütterung eine einstellbare Zeit im Voraus an, per Telegram und/oder Sayit. Wird übersprungen, wenn die Fütterung derzeit gesperrt oder pausiert wäre.",
+	"Announce feeding in advance": "Fütterung im Voraus ankündigen",
+	"Lead time (minutes)": "Vorlaufzeit (Minuten)",
+	"Announce via Telegram": "Per Telegram ankündigen",
+	"Announce via Sayit": "Per Sayit ankündigen",
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Konfigurieren Sie oben eine Telegram- oder Sayit-Instanz, um die Ansage zu erhalten."
 }

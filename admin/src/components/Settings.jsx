@@ -49,11 +49,21 @@ function createSwitch(switches) {
 		verifyEnabled: true,
 		verifyTimeoutSec: 5,
 		verifyRetries: 3,
+		notifyLang: 'system',
 		telegramInstance: '',
 		telegramUser: '',
 		notifySuccess: false,
 		notifyOnFail: true,
 		notifyOffFail: true,
+		sayitInstance: '',
+		sayitVolume: null,
+		sayitNotifySuccess: false,
+		sayitNotifyOnFail: false,
+		sayitNotifyOffFail: false,
+		announceEnabled: false,
+		announceLeadMin: 5,
+		announceViaTelegram: false,
+		announceViaSayit: false,
 		manualDurationSec: 5,
 		winterEnabled: false,
 		winterStart: '11-01',
@@ -113,6 +123,7 @@ function Settings(props) {
 	const { native, onChange, socket, theme, themeName, themeType, instanceId } = props;
 	const [tab, setTab] = useState(0);
 	const [telegramInstances, setTelegramInstances] = useState([]);
+	const [sayitInstances, setSayitInstances] = useState([]);
 
 	// read the installed telegram instances once, so switches can pick one from a list
 	useEffect(() => {
@@ -126,6 +137,24 @@ function Settings(props) {
 			})
 			.catch(() => {
 				/* telegram not installed -> empty list */
+			});
+		return () => {
+			active = false;
+		};
+	}, [socket]);
+
+	// read the installed sayit (TTS) instances once, so switches can pick one from a list
+	useEffect(() => {
+		let active = true;
+		socket
+			.getAdapterInstances('sayit')
+			.then((list) => {
+				if (active) {
+					setSayitInstances((list || []).map((o) => o._id.replace('system.adapter.', '')));
+				}
+			})
+			.catch(() => {
+				/* sayit not installed -> empty list */
 			});
 		return () => {
 			active = false;
@@ -219,6 +248,7 @@ function Settings(props) {
 					socket={socket}
 					instanceId={instanceId}
 					telegramInstances={telegramInstances}
+					sayitInstances={sayitInstances}
 					theme={theme}
 					themeName={themeName}
 					themeType={themeType}

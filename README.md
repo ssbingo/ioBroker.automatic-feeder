@@ -332,6 +332,9 @@ can react to it (e.g. trigger a notification of your own).
 
 Send the supervision messages to Telegram – configured **per switch**:
 
+* **Message language** – the language of all outgoing texts for this switch (Telegram, Sayit and
+  the feeding announcement): *System language* (the ioBroker system language) or a specific
+  language. The status data points are not affected.
 * **Telegram instance** – pick one of the installed `telegram.*` instances (or *None* to
   disable Telegram for this switch). If none is installed, the field tells you so.
 * **Telegram recipient (optional)** – a specific user/chat name as configured in the telegram
@@ -343,6 +346,34 @@ The **winter-pause reminders** (if enabled, see *Winter pause*) are sent to the 
 instance, independently of these supervision checkboxes.
 
 See [Telegram notifications](#8-telegram-notifications) for the full setup.
+
+#### Sayit notifications
+
+Speak the same supervision messages through a **Sayit (text-to-speech)** instance – configured
+**per switch**, independently of Telegram (both can be active at the same time):
+
+* **Sayit instance** – pick one of the installed `sayit.*` instances (or *None* to disable Sayit
+  for this switch). If none is installed, the field tells you so.
+* **Volume (0–100, optional)** – the speaking volume for this switch; leave it empty to use the
+  Sayit instance's own default.
+* **Checkboxes** – choose which messages to speak: successful feeding, could-not-feed, and/or
+  switch-off fault (the same three as Telegram, but selected separately here).
+
+The spoken text uses the **Message language** selected in the Telegram section above.
+
+#### Feeding announcement
+
+Announce an upcoming feeding a configurable time in advance, via Telegram and/or Sayit:
+
+* **Announce feeding in advance** – turns the announcement on.
+* **Lead time (minutes)** – how long before the feeding the announcement is sent (e.g. `5`).
+* **Announce via Telegram** / **Announce via Sayit** – the channel(s) used for the announcement
+  (each needs its instance configured above).
+
+The announcement is planned together with each feeding. If, at the announcement time, the feeding
+would be **blocked or paused** (night, temperature, oxygen or a feeding pause), the announcement
+is skipped, so it never promises a feeding that will not happen. Manual feedings (the *Feed now*
+button / `feedFor`) have no lead time and are not announced.
 
 ### 5.3 Relay board tab (optional)
 
@@ -605,6 +636,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.0 (2026-07-15)
+* (ssbingo) New optional **Sayit (text-to-speech) notifications** per switch: pick an installed `sayit.*` instance, an optional volume, and the **same three messages** as Telegram (successful feeding / could-not-feed / switch-off fault) — selected separately, so Telegram and Sayit can run in parallel
+* (ssbingo) New **feeding announcement**: announce an upcoming feeding a configurable number of minutes in advance, via **Telegram and/or Sayit**. The announcement is skipped when the feeding would currently be blocked or paused. (Placeholder announcement text for now; the final wording follows later)
+* (ssbingo) New per-switch **Message language** for the outgoing texts (Telegram, Sayit and the announcement): the ioBroker system language or a specific one; the status data points are unaffected
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.8.0 (2026-07-14)
 * (ssbingo) Each relay tab now has a **Restart board** button that restarts the ESP32 via its API (`POST /api/reboot`, with a confirmation prompt)
 * (ssbingo) New **System overview** at the bottom of each relay tab showing the board's live system data after a connection test: firmware, host name, IP address, Wi-Fi network, signal strength, MAC address, uptime, free memory and the last reset reason
@@ -645,9 +682,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.2.3 (2026-07-02)
 * (ssbingo) The local timestamps introduced in 1.2.2 now use a **human-readable format** `DD.MM.YYYY HH:MM:SS` (e.g. `01.07.2026 16:20:00`) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users
-
-### 1.2.2 (2026-07-02)
-* (ssbingo) All timestamp data points (`status.nextFeeding`, `status.lastFeeding`, `status.sunrise`, `status.sunset`) and the times in the log/debug output are now shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`) instead of UTC — no more mental conversion, and still a correct/sortable/parseable date string
 
 ---
 

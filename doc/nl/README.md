@@ -324,6 +324,9 @@ zodat je erop kunt reageren (bijv. een eigen melding activeren).
 
 Verzendt de meldingen van de schakelbewaking naar Telegram – **per schakelaar** geconfigureerd:
 
+* **Berichttaal** – de taal van alle uitgaande teksten voor deze schakelaar (Telegram, Sayit en
+  de voederaankondiging): *Systeemtaal* (de ioBroker-systeemtaal) of een specifieke taal. De
+  status-datapunten worden hierdoor niet beïnvloed.
 * **Telegram-instantie** – een van de geïnstalleerde `telegram.*`-instanties kiezen (of *Geen*, om
   Telegram voor deze schakelaar uit te schakelen). Is er geen geïnstalleerd, dan wijst het veld erop.
 * **Telegram-ontvanger (optioneel)** – een bepaalde gebruikers-/chat-naam, zoals in de telegram-adapter
@@ -335,6 +338,36 @@ De **winterpauze-herinneringen** (indien ingeschakeld, zie *Winterpauze*) worden
 Telegram-instantie verzonden, onafhankelijk van deze bewakings-selectievakjes.
 
 De volledige inrichting staat onder [Telegram-meldingen](#8-telegram-meldingen).
+
+#### Sayit-meldingen
+
+Spreekt dezelfde meldingen van de schakelbewaking uit via een **Sayit (tekst-naar-spraak)**-instantie
+– **per schakelaar** geconfigureerd, onafhankelijk van Telegram (beide kunnen tegelijk actief zijn):
+
+* **Sayit-instantie** – een van de geïnstalleerde `sayit.*`-instanties kiezen (of *Geen*, om Sayit
+  voor deze schakelaar uit te schakelen). Is er geen geïnstalleerd, dan wijst het veld erop.
+* **Volume (0-100, optioneel)** – het spreekvolume voor deze schakelaar; leeg laten om de eigen
+  standaard van de Sayit-instantie te gebruiken.
+* **Selectievakjes** – kiezen welke meldingen worden uitgesproken: succesvolle voedering, niet
+  uitvoerbaar en/of storing van het uitschakelen (dezelfde drie als bij Telegram, maar hier apart
+  gekozen).
+
+De uitgesproken tekst gebruikt de **Berichttaal** die hierboven in de Telegram-sectie is gekozen.
+
+#### Voederaankondiging
+
+Kondigt een aanstaande voedering een instelbare tijd van tevoren aan, via Telegram en/of Sayit:
+
+* **Voeding vooraf aankondigen** – schakelt de aankondiging in.
+* **Voorlooptijd (minuten)** – hoe lang vóór de voedering de aankondiging wordt verzonden (bijv. `5`).
+* **Aankondigen via Telegram** / **Aankondigen via Sayit** – het kanaal of de kanalen die voor de
+  aankondiging worden gebruikt (elk vereist dat de bijbehorende instantie hierboven is geconfigureerd).
+
+De aankondiging wordt samen met elke voedering ingepland. Als de voedering op het moment van de
+aankondiging **geblokkeerd of gepauzeerd** zou zijn (nacht, temperatuur, zuurstof of een voederpauze),
+wordt de aankondiging overgeslagen, zodat er nooit een voedering wordt beloofd die niet plaatsvindt.
+Handmatige voederingen (de knop *Nu voeren* / `feedFor`) hebben geen voorlooptijd en worden niet
+aangekondigd.
 
 ### 5.3 Relaisprint-tabblad (optioneel)
 

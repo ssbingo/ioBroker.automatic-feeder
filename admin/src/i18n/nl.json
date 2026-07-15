@@ -162,5 +162,20 @@
 	"MAC address": "MAC-adres",
 	"Uptime": "Bedrijfstijd",
 	"Free memory": "Vrij geheugen",
-	"Last reset reason": "Reden laatste herstart"
+	"Last reset reason": "Reden laatste herstart",
+	"Message language": "Berichttaal",
+	"System language": "Systeemtaal",
+	"Language of the outgoing texts (Telegram, Sayit and the announcement).": "Taal van de uitgaande teksten (Telegram, Sayit en de aankondiging).",
+	"Sayit notifications": "Sayit-meldingen",
+	"Sayit instance": "Sayit-instantie",
+	"Volume (0-100, optional)": "Volume (0-100, optioneel)",
+	"No Sayit instance installed.": "Geen Sayit-instantie geïnstalleerd.",
+	"Leave the instance empty to disable Sayit for this switch.": "Laat de instantie leeg om Sayit voor deze schakelaar uit te schakelen.",
+	"Feeding announcement": "Voederaankondiging",
+	"Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.": "Kondigt de aanstaande voeding een instelbare tijd van tevoren aan, via Telegram en/of Sayit. Wordt overgeslagen als de voeding op dat moment geblokkeerd of gepauzeerd zou zijn.",
+	"Announce feeding in advance": "Voeding vooraf aankondigen",
+	"Lead time (minutes)": "Voorlooptijd (minuten)",
+	"Announce via Telegram": "Aankondigen via Telegram",
+	"Announce via Sayit": "Aankondigen via Sayit",
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configureer hierboven een Telegram- of Sayit-instantie om de aankondiging te ontvangen."
 }

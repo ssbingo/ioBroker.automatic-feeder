@@ -162,5 +162,20 @@
 	"MAC address": "MAC address",
 	"Uptime": "Uptime",
 	"Free memory": "Free memory",
-	"Last reset reason": "Last reset reason"
+	"Last reset reason": "Last reset reason",
+	"Message language": "Message language",
+	"System language": "System language",
+	"Language of the outgoing texts (Telegram, Sayit and the announcement).": "Language of the outgoing texts (Telegram, Sayit and the announcement).",
+	"Sayit notifications": "Sayit notifications",
+	"Sayit instance": "Sayit instance",
+	"Volume (0-100, optional)": "Volume (0-100, optional)",
+	"No Sayit instance installed.": "No Sayit instance installed.",
+	"Leave the instance empty to disable Sayit for this switch.": "Leave the instance empty to disable Sayit for this switch.",
+	"Feeding announcement": "Feeding announcement",
+	"Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.": "Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.",
+	"Announce feeding in advance": "Announce feeding in advance",
+	"Lead time (minutes)": "Lead time (minutes)",
+	"Announce via Telegram": "Announce via Telegram",
+	"Announce via Sayit": "Announce via Sayit",
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configure a Telegram or Sayit instance above to receive the announcement."
 }

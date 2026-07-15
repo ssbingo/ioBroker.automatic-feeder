@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.8.0",
+		"version": "1.9.0",
 		"news": {
-			"1.8.0": {
-				"en": "Each relay tab now has a 'Restart board' button (restarts the ESP32 via its API) and a System overview at the bottom showing the board's firmware, IP, Wi-Fi network, signal, MAC, uptime, free memory and last reset reason.",
-				"de": "Jeder Relais-Tab hat jetzt einen Button 'Platine neu starten' (startet den ESP32 über seine API neu) und unten eine Systemübersicht mit Firmware, IP, WLAN-Netz, Signal, MAC, Betriebszeit, freiem Speicher und letztem Neustartgrund der Platine.",
-				"ru": "На каждой вкладке реле теперь есть кнопка «Перезагрузить плату» (перезапускает ESP32 через его API) и внизу обзор системы с прошивкой, IP, сетью Wi-Fi, сигналом, MAC, временем работы, свободной памятью и причиной последнего сброса платы.",
-				"pt": "Cada aba de relé tem agora um botão 'Reiniciar placa' (reinicia o ESP32 via API) e, no fundo, uma visão geral do sistema com firmware, IP, rede Wi-Fi, sinal, MAC, tempo de atividade, memória livre e motivo do último reinício da placa.",
-				"nl": "Elk relaistabblad heeft nu een knop 'Print herstarten' (herstart de ESP32 via zijn API) en onderaan een systeemoverzicht met firmware, IP, wifi-netwerk, signaal, MAC, bedrijfstijd, vrij geheugen en de reden van de laatste herstart van de print.",
-				"fr": "Chaque onglet relais dispose maintenant d'un bouton 'Redémarrer la carte' (redémarre l'ESP32 via son API) et, en bas, d'un aperçu du système avec firmware, IP, réseau Wi-Fi, signal, MAC, temps de fonctionnement, mémoire libre et motif du dernier redémarrage de la carte.",
-				"it": "Ogni scheda relè ha ora un pulsante 'Riavvia scheda' (riavvia l'ESP32 tramite la sua API) e in basso una panoramica del sistema con firmware, IP, rete Wi-Fi, segnale, MAC, tempo di attività, memoria libera e motivo dell'ultimo riavvio della scheda.",
-				"es": "Cada pestaña de relé tiene ahora un botón 'Reiniciar placa' (reinicia el ESP32 mediante su API) y, abajo, un resumen del sistema con firmware, IP, red Wi-Fi, señal, MAC, tiempo de actividad, memoria libre y el motivo del último reinicio de la placa.",
-				"pl": "Każda zakładka przekaźnika ma teraz przycisk „Uruchom ponownie płytkę” (restartuje ESP32 przez jego API) oraz na dole przegląd systemu z firmware, IP, siecią Wi-Fi, sygnałem, MAC, czasem działania, wolną pamięcią i powodem ostatniego resetu płytki.",
-				"uk": "Кожна вкладка реле тепер має кнопку «Перезавантажити плату» (перезапускає ESP32 через його API) та внизу огляд системи з прошивкою, IP, мережею Wi-Fi, сигналом, MAC, часом роботи, вільною пам'яттю та причиною останнього перезапуску плати.",
-				"zh-cn": "现在每个继电器选项卡都有“重启继电器板”按钮（通过 API 重启 ESP32），底部还有系统概览，显示继电器板的固件、IP、Wi-Fi 网络、信号、MAC、运行时间、可用内存和上次复位原因。"
+			"1.9.0": {
+				"en": "New optional Sayit (text-to-speech) notifications per switch (instance dropdown, volume, the same three messages as Telegram) plus a feeding announcement some minutes before the feeding via Telegram and/or Sayit, and a per-switch message language (system language or a specific one).",
+				"de": "Neue optionale Sayit-Benachrichtigungen (Sprachausgabe) je Schalter (Instanz-Dropdown, Lautstärke, dieselben drei Meldungen wie bei Telegram) plus eine Fütterungsansage einige Minuten vor der Fütterung per Telegram und/oder Sayit sowie eine Nachrichtensprache je Schalter (Systemsprache oder eine bestimmte).",
+				"ru": "Новые опциональные уведомления Sayit (синтез речи) для каждого переключателя (выбор экземпляра, громкость, те же три сообщения, что и в Telegram), плюс объявление о кормлении за несколько минут до него через Telegram и/или Sayit, а также язык сообщений для каждого переключателя (системный или конкретный).",
+				"pt": "Novas notificações Sayit (voz) opcionais por interruptor (seleção de instância, volume, as mesmas três mensagens do Telegram) mais um anúncio de alimentação alguns minutos antes, via Telegram e/ou Sayit, e um idioma de mensagens por interruptor (idioma do sistema ou específico).",
+				"nl": "Nieuwe optionele Sayit-meldingen (spraak) per schakelaar (instantiekeuze, volume, dezelfde drie berichten als Telegram) plus een voederaankondiging enkele minuten vooraf via Telegram en/of Sayit, en een berichttaal per schakelaar (systeemtaal of een specifieke).",
+				"fr": "Nouvelles notifications Sayit (synthèse vocale) optionnelles par interrupteur (choix d'instance, volume, les mêmes trois messages que Telegram) plus une annonce de distribution quelques minutes avant, via Telegram et/ou Sayit, et une langue des messages par interrupteur (langue du système ou spécifique).",
+				"it": "Nuove notifiche Sayit (sintesi vocale) opzionali per interruttore (scelta istanza, volume, gli stessi tre messaggi di Telegram) più un annuncio dell'alimentazione alcuni minuti prima, tramite Telegram e/o Sayit, e una lingua dei messaggi per interruttore (lingua di sistema o specifica).",
+				"es": "Nuevas notificaciones Sayit (voz) opcionales por interruptor (selección de instancia, volumen, los mismos tres mensajes que Telegram) más un anuncio de alimentación unos minutos antes, por Telegram o Sayit, y un idioma de mensajes por interruptor (idioma del sistema o específico).",
+				"pl": "Nowe opcjonalne powiadomienia Sayit (mowa) dla każdego przełącznika (wybór instancji, głośność, te same trzy komunikaty co Telegram) oraz zapowiedź karmienia kilka minut wcześniej przez Telegram i/lub Sayit, a także język komunikatów dla każdego przełącznika (język systemu lub konkretny).",
+				"uk": "Нові опціональні сповіщення Sayit (синтез мовлення) для кожного перемикача (вибір екземпляра, гучність, ті самі три повідомлення, що й у Telegram), а також оголошення про годування за кілька хвилин до нього через Telegram та/або Sayit і мова повідомлень для кожного перемикача (системна або конкретна).",
+				"zh-cn": "为每个开关新增可选的 Sayit（语音播报）通知（实例下拉、音量、与 Telegram 相同的三条消息），以及在投喂前几分钟通过 Telegram 和/或 Sayit 发出的投喂预告，并可为每个开关设置消息语言（系统语言或指定语言）。"
 			}
 		},
 		"titleLang": {

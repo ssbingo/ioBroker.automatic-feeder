@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.2.2 (2026-07-02)
+* (ssbingo) All timestamp data points (`status.nextFeeding`, `status.lastFeeding`, `status.sunrise`, `status.sunset`) and the times in the log/debug output are now shown in the **system's local timezone** (ISO 8601 with offset, e.g. `2026-07-01T16:20:00+02:00`) instead of UTC — no more mental conversion, and still a correct/sortable/parseable date string
+
 ### 1.2.1 (2026-07-02)
 * (ssbingo) Admin UI: the OpenStreetMap location map is no longer stretched across the full screen width — it is capped (≈ a third/half) on wider screens and stays full width on small screens (responsive)
 

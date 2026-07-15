@@ -337,6 +337,9 @@ dzięki czemu możesz na niego reagować (np. wyzwolić własne powiadomienie).
 Wysyła komunikaty monitorowania przełączania do Telegrama – konfigurowane **dla każdego
 przełącznika**:
 
+* **Język komunikatów** – język wszystkich wychodzących tekstów tego przełącznika (Telegram,
+  Sayit oraz zapowiedź karmienia): *Język systemu* (język systemowy ioBroker) lub konkretny
+  język. Punkty danych stanu nie są przez to zmieniane.
 * **Instancja Telegram** – wybierz jedną z zainstalowanych instancji `telegram.*` (lub *Brak*, aby
   wyłączyć Telegram dla tego przełącznika). Jeśli żadna nie jest zainstalowana, pole o tym
   informuje.
@@ -349,6 +352,36 @@ przełącznika**:
 samej instancji Telegram, niezależnie od tych pól wyboru monitorowania.
 
 Pełna konfiguracja znajduje się w sekcji [Powiadomienia Telegram](#8-powiadomienia-telegram).
+
+#### Powiadomienia Sayit
+
+Wypowiada te same komunikaty monitorowania przełączania przez instancję **Sayit (zamiana tekstu
+na mowę)** – konfigurowaną **dla każdego przełącznika**, niezależnie od Telegrama (oba kanały
+mogą być aktywne jednocześnie):
+
+* **Instancja Sayit** – wybierz jedną z zainstalowanych instancji `sayit.*` (lub *Brak*, aby
+  wyłączyć Sayit dla tego przełącznika). Jeśli żadna nie jest zainstalowana, pole o tym informuje.
+* **Głośność (0-100, opcjonalnie)** – głośność mowy dla tego przełącznika; pozostaw puste, aby
+  użyć domyślnej wartości samej instancji Sayit.
+* **Pola wyboru** – wybierz, które komunikaty są wypowiadane: udane karmienie, niewykonalne
+  i/lub usterka wyłączenia (te same trzy co w Telegramie, ale wybierane tutaj osobno).
+
+Wypowiadany tekst używa ustawienia **Język komunikatów** z sekcji Telegram powyżej.
+
+#### Zapowiedź karmienia
+
+Zapowiada nadchodzące karmienie z konfigurowalnym wyprzedzeniem, przez Telegram i/lub Sayit:
+
+* **Zapowiadaj karmienie z wyprzedzeniem** – włącza zapowiedź.
+* **Wyprzedzenie (minuty)** – z jakim wyprzedzeniem przed karmieniem wysyłana jest zapowiedź
+  (np. `5`).
+* **Zapowiadaj przez Telegram** / **Zapowiadaj przez Sayit** – kanał(y) używane do zapowiedzi
+  (każdy wymaga skonfigurowanej powyżej instancji).
+
+Zapowiedź jest planowana razem z każdym karmieniem. Jeśli w momencie zapowiedzi karmienie byłoby
+**zablokowane lub wstrzymane** (noc, temperatura, tlen lub przerwa w karmieniu), zapowiedź jest
+pomijana, dzięki czemu nigdy nie obiecuje karmienia, które się nie odbędzie. Karmienia ręczne
+(przycisk *Nakarm teraz* / `feedFor`) nie mają wyprzedzenia i nie są zapowiadane.
 
 ### 5.3 Zakładka przekaźnika (opcjonalnie)
 

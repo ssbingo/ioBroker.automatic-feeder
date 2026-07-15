@@ -368,6 +368,9 @@ così puoi reagire di conseguenza (ad es. attivare una notifica personalizzata).
 Invia i messaggi del monitoraggio della commutazione a Telegram – configurato **per ciascun
 interruttore**:
 
+* **Lingua dei messaggi** – la lingua di tutti i testi in uscita per questo interruttore
+  (Telegram, Sayit e l'annuncio di alimentazione): *Lingua di sistema* (la lingua di sistema di
+  ioBroker) oppure una lingua specifica. I punti dati di stato non ne sono influenzati.
 * **Istanza Telegram** – scegli una delle istanze `telegram.*` installate (oppure *Nessuna* per
   disattivare Telegram per questo interruttore). Se non ne è installata nessuna, il campo lo
   segnala.
@@ -380,6 +383,38 @@ I **promemoria della pausa invernale** (se attivi, vedi *Pausa invernale*) vengo
 stessa istanza Telegram, indipendentemente da queste caselle di controllo del monitoraggio.
 
 La configurazione completa è descritta in [Notifiche Telegram](#8-notifiche-telegram).
+
+#### Notifiche Sayit
+
+Pronuncia gli stessi messaggi del monitoraggio della commutazione tramite un'istanza **Sayit
+(sintesi vocale)** – configurato **per ciascun interruttore**, indipendentemente da Telegram
+(entrambi possono essere attivi contemporaneamente):
+
+* **Istanza Sayit** – scegli una delle istanze `sayit.*` installate (oppure *Nessuna* per
+  disattivare Sayit per questo interruttore). Se non ne è installata nessuna, il campo lo segnala.
+* **Volume (0-100, opzionale)** – il volume di riproduzione per questo interruttore; lascia vuoto
+  per usare il valore predefinito dell'istanza Sayit.
+* **Caselle di controllo** – seleziona quali messaggi vengono pronunciati: distribuzione riuscita,
+  non effettuabile e/o guasto dello spegnimento (gli stessi tre di Telegram, ma selezionati
+  separatamente qui).
+
+Il testo pronunciato usa la **Lingua dei messaggi** selezionata nella sezione Telegram qui sopra.
+
+#### Annuncio di alimentazione
+
+Annuncia una distribuzione imminente con un anticipo configurabile, tramite Telegram e/o Sayit:
+
+* **Annunciare l'alimentazione in anticipo** – attiva l'annuncio.
+* **Anticipo (minuti)** – quanto tempo prima della distribuzione viene inviato l'annuncio (ad es.
+  `5`).
+* **Annuncia tramite Telegram** / **Annuncia tramite Sayit** – il canale (o i canali) usato per
+  l'annuncio (ciascuno richiede la propria istanza configurata qui sopra).
+
+L'annuncio viene pianificato insieme a ciascuna distribuzione. Se, al momento dell'annuncio, la
+distribuzione risultasse **bloccata o in pausa** (notte, temperatura, ossigeno o una pausa di
+alimentazione), l'annuncio viene saltato, così non promette mai una distribuzione che non avverrà.
+Le distribuzioni manuali (il pulsante *Distribuisci ora* / `feedFor`) non hanno anticipo e non
+vengono annunciate.
 
 ### 5.3 Scheda Relè (opzionale)
 

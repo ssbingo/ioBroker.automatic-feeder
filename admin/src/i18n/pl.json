@@ -162,5 +162,20 @@
 	"MAC address": "Adres MAC",
 	"Uptime": "Czas działania",
 	"Free memory": "Wolna pamięć",
-	"Last reset reason": "Powód ostatniego resetu"
+	"Last reset reason": "Powód ostatniego resetu",
+	"Message language": "Język komunikatów",
+	"System language": "Język systemu",
+	"Language of the outgoing texts (Telegram, Sayit and the announcement).": "Język wysyłanych tekstów (Telegram, Sayit i zapowiedź).",
+	"Sayit notifications": "Powiadomienia Sayit",
+	"Sayit instance": "Instancja Sayit",
+	"Volume (0-100, optional)": "Głośność (0-100, opcjonalnie)",
+	"No Sayit instance installed.": "Nie zainstalowano instancji Sayit.",
+	"Leave the instance empty to disable Sayit for this switch.": "Pozostaw instancję pustą, aby wyłączyć Sayit dla tego przełącznika.",
+	"Feeding announcement": "Zapowiedź karmienia",
+	"Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.": "Zapowiada nadchodzące karmienie z ustawionym wyprzedzeniem, przez Telegram i/lub Sayit. Pomijane, gdy karmienie byłoby aktualnie zablokowane lub wstrzymane.",
+	"Announce feeding in advance": "Zapowiadaj karmienie z wyprzedzeniem",
+	"Lead time (minutes)": "Wyprzedzenie (minuty)",
+	"Announce via Telegram": "Zapowiadaj przez Telegram",
+	"Announce via Sayit": "Zapowiadaj przez Sayit",
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Skonfiguruj powyżej instancję Telegram lub Sayit, aby otrzymać zapowiedź."
 }

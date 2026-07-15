@@ -356,6 +356,9 @@ ce qui te permet d'y réagir (p. ex. déclencher ta propre notification).
 Envoie les messages de la surveillance de commutation vers Telegram — configuré **par
 interrupteur** :
 
+* **Langue des messages** — la langue de tous les textes sortants pour cet interrupteur (Telegram,
+  Sayit et l'annonce de distribution) : *Langue du système* (la langue système d'ioBroker) ou une
+  langue spécifique. Les points de données d'état ne sont pas concernés.
 * **Instance Telegram** — choisis l'une des instances `telegram.*` installées (ou *Aucune*, pour
   désactiver Telegram pour cet interrupteur). Si aucune n'est installée, le champ le signale.
 * **Destinataire Telegram (optionnel)** — un utilisateur/nom de chat précis, tel que configuré dans
@@ -367,6 +370,37 @@ Les **rappels de pause hivernale** (s'ils sont activés, voir *Pause hivernale*)
 même instance Telegram, indépendamment de ces cases à cocher de surveillance.
 
 La configuration complète est décrite sous [Notifications Telegram](#8-notifications-telegram).
+
+#### Notifications Sayit
+
+Énonce les mêmes messages de la surveillance de commutation via une instance **Sayit (synthèse
+vocale)** — configurée **par interrupteur**, indépendamment de Telegram (les deux peuvent être
+actifs en même temps) :
+
+* **Instance Sayit** — choisis l'une des instances `sayit.*` installées (ou *Aucune*, pour
+  désactiver Sayit pour cet interrupteur). Si aucune n'est installée, le champ le signale.
+* **Volume (0-100, facultatif)** — le volume de la voix pour cet interrupteur ; laisse vide pour
+  utiliser la valeur par défaut de l'instance Sayit elle-même.
+* **Cases à cocher** — sélectionne quels messages sont énoncés : distribution réussie, distribution
+  impossible et/ou anomalie de désactivation (les trois mêmes que pour Telegram, mais sélectionnées
+  séparément ici).
+
+Le texte énoncé utilise la **Langue des messages** sélectionnée dans la section Telegram ci-dessus.
+
+#### Annonce de distribution
+
+Annonce une distribution à venir un délai configurable à l'avance, via Telegram et/ou Sayit :
+
+* **Annoncer la distribution à l'avance** — active l'annonce.
+* **Délai (minutes)** — combien de temps avant la distribution l'annonce est envoyée (p. ex. `5`).
+* **Annoncer via Telegram** / **Annoncer via Sayit** — le(s) canal/canaux utilisé(s) pour
+  l'annonce (chacun nécessite que son instance soit configurée ci-dessus).
+
+L'annonce est planifiée en même temps que chaque distribution. Si, au moment de l'annonce, la
+distribution devait être **bloquée ou en pause** (nuit, température, oxygène ou une pause de
+distribution), l'annonce est ignorée, de sorte qu'elle ne promet jamais une distribution qui n'aura
+pas lieu. Les distributions manuelles (le bouton *Distribuer maintenant* / `feedFor`) n'ont pas de
+délai et ne sont pas annoncées.
 
 ### 5.3 Onglet de la carte relais (optionnel)
 

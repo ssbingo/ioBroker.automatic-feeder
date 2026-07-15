@@ -330,6 +330,9 @@ sodass du darauf reagieren kannst (z. B. eine eigene Benachrichtigung auslösen)
 
 Sendet die Meldungen der Schaltüberwachung an Telegram – **pro Schalter** konfiguriert:
 
+* **Nachrichtensprache** – die Sprache aller ausgehenden Texte dieses Schalters (Telegram,
+  Sayit und die Fütterungsansage): *Systemsprache* (die ioBroker-Systemsprache) oder eine
+  bestimmte Sprache. Die Status-Datenpunkte sind davon nicht betroffen.
 * **Telegram-Instanz** – eine der installierten `telegram.*`-Instanzen wählen (oder *Keine*, um
   Telegram für diesen Schalter zu deaktivieren). Ist keine installiert, weist das Feld darauf hin.
 * **Telegram-Empfänger (optional)** – ein bestimmter Benutzer/Chat-Name, wie im telegram-Adapter
@@ -341,6 +344,38 @@ Die **Winterpause-Erinnerungen** (falls aktiviert, siehe *Winterpause*) werden a
 Telegram-Instanz gesendet, unabhängig von diesen Überwachungs-Checkboxen.
 
 Die vollständige Einrichtung steht unter [Telegram-Benachrichtigungen](#8-telegram-benachrichtigungen).
+
+#### Sayit-Benachrichtigungen
+
+Spricht dieselben Meldungen der Schaltüberwachung über eine **Sayit-Instanz (Text-to-Speech)**
+aus – **pro Schalter** konfiguriert, unabhängig von Telegram (beide können gleichzeitig aktiv
+sein):
+
+* **Sayit-Instanz** – eine der installierten `sayit.*`-Instanzen wählen (oder *Keine*, um Sayit
+  für diesen Schalter zu deaktivieren). Ist keine installiert, weist das Feld darauf hin.
+* **Lautstärke (0-100, optional)** – die Sprechlautstärke für diesen Schalter; leer lassen, um
+  den eigenen Standard der Sayit-Instanz zu verwenden.
+* **Checkboxen** – auswählen, welche Meldungen gesprochen werden: erfolgreiche Fütterung, nicht
+  durchführbar und/oder Störung der Abschaltung (dieselben drei wie bei Telegram, hier aber
+  getrennt gewählt).
+
+Der gesprochene Text nutzt die im Telegram-Abschnitt oben gewählte **Nachrichtensprache**.
+
+#### Fütterungsansage
+
+Kündigt eine bevorstehende Fütterung eine einstellbare Zeit im Voraus an, per Telegram
+und/oder Sayit:
+
+* **Fütterung im Voraus ankündigen** – schaltet die Ansage ein.
+* **Vorlaufzeit (Minuten)** – wie lange vor der Fütterung die Ansage gesendet wird (z. B. `5`).
+* **Per Telegram ankündigen** / **Per Sayit ankündigen** – der/die für die Ansage genutzte(n)
+  Kanal/Kanäle (jeweils muss die zugehörige Instanz oben konfiguriert sein).
+
+Die Ansage wird zusammen mit jeder Fütterung geplant. Wäre die Fütterung zum Ansage-Zeitpunkt
+**gesperrt oder pausiert** (Nacht, Temperatur, Sauerstoff oder eine Fütterungspause), wird die
+Ansage übersprungen, sodass sie nie eine Fütterung ankündigt, die gar nicht stattfindet. Manuelle
+Fütterungen (der Button *Jetzt füttern* / `feedFor`) haben keine Vorlaufzeit und werden nicht
+angekündigt.
 
 ### 5.3 Relaisplatinen-Tab (optional)
 

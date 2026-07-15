@@ -323,6 +323,9 @@ de modo que você possa reagir a ele (p. ex. acionar uma notificação própria)
 
 Envia as mensagens do monitoramento de comutação para o Telegram – configurado **por interruptor**:
 
+* **Idioma das mensagens** – o idioma de todos os textos enviados deste interruptor (Telegram, Sayit
+  e o anúncio de alimentação): *Idioma do sistema* (o idioma do sistema ioBroker) ou um idioma
+  específico. Os pontos de dados de status não são afetados.
 * **Instância do Telegram** – escolher uma das instâncias `telegram.*` instaladas (ou *Nenhuma*, para
   desativar o Telegram para esse interruptor). Se nenhuma estiver instalada, o campo indica isso.
 * **Destinatário do Telegram (opcional)** – um determinado nome de usuário/chat, conforme configurado
@@ -334,6 +337,36 @@ Os **lembretes da pausa de inverno** (se ativados, ver *Pausa de inverno*) são 
 instância do Telegram, independentemente dessas caixas de seleção do monitoramento.
 
 A configuração completa consta em [Notificações do Telegram](#8-notificações-do-telegram).
+
+#### Notificações Sayit
+
+Fala as mesmas mensagens do monitoramento de comutação através de uma instância **Sayit (texto para
+voz)** – configurado **por interruptor**, independentemente do Telegram (ambos podem estar ativos ao
+mesmo tempo):
+
+* **Instância Sayit** – escolher uma das instâncias `sayit.*` instaladas (ou *Nenhuma*, para
+  desativar o Sayit para esse interruptor). Se nenhuma estiver instalada, o campo indica isso.
+* **Volume (0-100, opcional)** – o volume de fala para este interruptor; deixar vazio para usar o
+  padrão da própria instância Sayit.
+* **Caixas de seleção** – selecionar quais mensagens são faladas: alimentação bem-sucedida, não
+  executável e/ou falha de desligamento (as mesmas três do Telegram, mas selecionadas separadamente
+  aqui).
+
+O texto falado usa o **Idioma das mensagens** selecionado na seção do Telegram acima.
+
+#### Anúncio de alimentação
+
+Anuncia uma alimentação futura com uma antecedência configurável, via Telegram e/ou Sayit:
+
+* **Anunciar a alimentação com antecedência** – ativa o anúncio.
+* **Antecedência (minutos)** – com quanto tempo antes da alimentação o anúncio é enviado (p. ex. `5`).
+* **Anunciar via Telegram** / **Anunciar via Sayit** – o(s) canal(is) usado(s) para o anúncio (cada
+  um precisa da sua instância configurada acima).
+
+O anúncio é planejado junto com cada alimentação. Se, no momento do anúncio, a alimentação estiver
+**bloqueada ou em pausa** (noite, temperatura, oxigénio ou uma pausa de alimentação), o anúncio é
+ignorado, de modo que ele nunca promete uma alimentação que não vai acontecer. As alimentações
+manuais (o botão *Alimentar agora* / `feedFor`) não têm antecedência e não são anunciadas.
 
 ### 5.3 Aba da placa de relé (opcional)
 

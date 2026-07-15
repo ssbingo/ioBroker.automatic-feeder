@@ -721,6 +721,8 @@ class AutomaticFeeder extends utils.Adapter {
 		this.settingsWriteTimer = null;
 		/** per-switch timer that fires at the next feeding-pause boundary (start/end) */
 		this.pauseTimers = new Map();
+		/** per-switch timer that fires the "feeding in X min" announcement before a feeding */
+		this.announceTimers = new Map();
 		/** self-rescheduling timer that polls the relay boards for their connection status */
 		this.relayTimer = null;
 		/** last known "feeding paused" state per switch id (to detect start/end transitions) */
@@ -911,6 +913,30 @@ class AutomaticFeeder extends utils.Adapter {
 	 */
 	t(key, params) {
 		return translate(key, this.lang, params);
+	}
+
+	/**
+	 * Resolves the output language for a switch's user texts: the switch's own
+	 * `notifyLang` when it is a specific supported language, otherwise the system language.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {string} the effective language code
+	 */
+	notifyLangFor(sw) {
+		const l = sw.notifyLang;
+		return l && l !== 'system' && SUPPORTED_LANGUAGES.includes(l) ? l : this.lang;
+	}
+
+	/**
+	 * Localizes a message in a switch's own notification language (see {@link notifyLangFor}).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {string} key - message key from lib/messages
+	 * @param {Record<string, string | number>} [params] - placeholder values
+	 * @returns {string} the localized message
+	 */
+	tSw(sw, key, params) {
+		return translate(key, this.notifyLangFor(sw), params);
 	}
 
 	/**
@@ -2075,6 +2101,8 @@ class AutomaticFeeder extends utils.Adapter {
 			this.scheduleTimers.delete(sw.id);
 			this.log.silly(`Cleared existing schedule timer for ${this.swLabel(sw)}.`);
 		}
+		// clear any pending announcement timer; it is re-armed once a new feeding is planned
+		this.armAnnounceTimer(sw, null);
 
 		// manual master pause (pauseNow) overrides every feeding mode and the time-based
 		// pauses: while it is on, feeding stays fully suspended until the user turns it off.
@@ -2174,6 +2202,9 @@ class AutomaticFeeder extends utils.Adapter {
 		}, delay);
 		this.scheduleTimers.set(sw.id, timer);
 		this.log.silly(`Schedule timer armed for ${this.swLabel(sw)} (delay ${delay}ms).`);
+
+		// arm the "feeding in X min" announcement relative to this planned feeding
+		this.armAnnounceTimer(sw, next);
 	}
 
 	// ----------------------------------------------------------------------------
@@ -2580,7 +2611,7 @@ class AutomaticFeeder extends utils.Adapter {
 					);
 					const failMsg = this.t('feedOnFail');
 					await this.reportResult(sw, true, failMsg);
-					this.notify(sw, 'onFail', failMsg);
+					this.notify(sw, 'onFail', 'feedOnFail');
 					return;
 				}
 				this.log.debug(`${this.swLabel(sw)}: ON confirmed by target.`);
@@ -2611,7 +2642,7 @@ class AutomaticFeeder extends utils.Adapter {
 					);
 					const offFailMsg = this.t('feedOffFail');
 					await this.reportResult(sw, true, offFailMsg);
-					this.notify(sw, 'offFail', offFailMsg);
+					this.notify(sw, 'offFail', 'feedOffFail');
 					return;
 				}
 				this.log.debug(`${this.swLabel(sw)}: OFF confirmed by target.`);
@@ -2620,7 +2651,7 @@ class AutomaticFeeder extends utils.Adapter {
 			// --- Scenario 1: everything worked ---
 			const okMsg = this.t('feedSuccess', { seconds });
 			await this.reportResult(sw, false, okMsg);
-			this.notify(sw, 'success', okMsg);
+			this.notify(sw, 'success', 'feedSuccess', { seconds });
 			// log in English (language-independent); the localized text goes to the datapoint/Telegram
 			this.log.info(`${this.swLabel(sw)}: ${translate('feedSuccess', 'en', { seconds })}`);
 		} finally {
@@ -2755,35 +2786,145 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * Sends a supervision message to the switch's configured Telegram instance,
-	 * if a recipient is configured and the message type is enabled for this switch.
+	 * Sends a supervision message for a switch to every channel enabled for that message
+	 * type: Telegram (if an instance + the Telegram checkbox are set) and/or Sayit (if an
+	 * instance + the Sayit checkbox are set). The text is localized in the switch's own
+	 * notification language.
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {'success' | 'onFail' | 'offFail'} type - message category
-	 * @param {string} message - the text to send
+	 * @param {string} key - message key from lib/messages
+	 * @param {Record<string, string | number>} [params] - placeholder values
 	 */
-	notify(sw, type, message) {
+	notify(sw, type, key, params) {
+		const text = `${sw.name || sw.id}: ${this.tSw(sw, key, params)}`;
+		const wantTg = type === 'success' ? sw.notifySuccess : type === 'onFail' ? sw.notifyOnFail : sw.notifyOffFail;
+		if (sw.telegramInstance && wantTg) {
+			this.sendTelegram(sw, text, type);
+		}
+		const wantSay =
+			type === 'success'
+				? sw.sayitNotifySuccess
+				: type === 'onFail'
+					? sw.sayitNotifyOnFail
+					: sw.sayitNotifyOffFail;
+		if (sw.sayitInstance && wantSay) {
+			this.speakSayit(sw, text, type);
+		}
+	}
+
+	/**
+	 * Sends a text to the switch's configured Telegram instance (best effort).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {string} text - the fully composed message
+	 * @param {string} label - short category label for the log line
+	 */
+	sendTelegram(sw, text, label) {
 		const instance = sw.telegramInstance;
 		if (!instance) {
-			this.log.silly(`No Telegram instance configured for ${this.swLabel(sw)}; skipping "${type}" notification.`);
 			return;
 		}
-		const want = type === 'success' ? sw.notifySuccess : type === 'onFail' ? sw.notifyOnFail : sw.notifyOffFail;
-		if (!want) {
-			this.log.silly(`Notification "${type}" for ${this.swLabel(sw)} is disabled.`);
-			return;
-		}
-		const text = `${sw.name || sw.id}: ${message}`;
 		const payload = sw.telegramUser ? { text, user: sw.telegramUser } : { text };
-		// English log line; the message body itself (text) is localized for the recipient
 		this.log.debug(
-			`Sending Telegram "${type}" notification via ${instance} to ${sw.telegramUser || 'all'} for ${this.swLabel(sw)}.`,
+			`Sending Telegram "${label}" via ${instance} to ${sw.telegramUser || 'all'} for ${this.swLabel(sw)}.`,
 		);
 		try {
 			this.sendTo(instance, payload);
 		} catch (e) {
 			this.log.warn(`Could not send Telegram message via ${instance}: ${e.message}`);
 		}
+	}
+
+	/**
+	 * Speaks a text via the switch's configured Sayit (TTS) instance by writing to its
+	 * `<instance>.tts.text` state. An optional per-switch volume is passed as the sayit
+	 * "<volume>;text" prefix. Best effort.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {string} text - the fully composed message
+	 * @param {string} label - short category label for the log line
+	 */
+	speakSayit(sw, text, label) {
+		const instance = sw.sayitInstance;
+		if (!instance) {
+			return;
+		}
+		const vol = sw.sayitVolume;
+		const hasVol = vol !== null && vol !== undefined && Number.isFinite(Number(vol));
+		const payload = hasVol ? `${Math.min(100, Math.max(0, Math.round(Number(vol))))};${text}` : text;
+		this.log.debug(
+			`Speaking "${label}" via ${instance}${hasVol ? ` (volume ${vol})` : ''} for ${this.swLabel(sw)}.`,
+		);
+		this.setForeignStateAsync(`${instance}.tts.text`, { val: payload, ack: false }).catch(e =>
+			this.log.warn(`Could not send Sayit message via ${instance}: ${e.message}`),
+		);
+	}
+
+	/**
+	 * Sends the "feeding is coming up" announcement via the channels selected for this
+	 * switch. Skipped when the feeding would currently be blocked or paused, so no
+	 * announcement is made for a feeding that will not actually happen.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 */
+	sendAnnouncement(sw) {
+		const reason = this.getBlockReason(sw);
+		if (reason) {
+			this.log.debug(
+				`Announcement for ${this.swLabel(sw)} skipped - feeding currently blocked/paused (${reason.key}).`,
+			);
+			return;
+		}
+		const text = `${sw.name || sw.id}: ${this.tSw(sw, 'announce')}`;
+		if (sw.announceViaTelegram && sw.telegramInstance) {
+			this.sendTelegram(sw, text, 'announce');
+		}
+		if (sw.announceViaSayit && sw.sayitInstance) {
+			this.speakSayit(sw, text, 'announce');
+		}
+	}
+
+	/**
+	 * Arms the pre-feeding announcement timer for a switch, aligned to the given next
+	 * feeding time. Clears any previous announcement timer first. Does nothing when the
+	 * announcement is disabled, no channel is active, or its lead time already passed.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {Date | null} next - the next planned feeding time (null only clears)
+	 */
+	armAnnounceTimer(sw, next) {
+		const existing = this.announceTimers.get(sw.id);
+		if (existing) {
+			this.clearTimeout(existing);
+			this.announceTimers.delete(sw.id);
+		}
+		if (!sw.announceEnabled || !next) {
+			return;
+		}
+		const anyChannel = (sw.announceViaTelegram && sw.telegramInstance) || (sw.announceViaSayit && sw.sayitInstance);
+		if (!anyChannel) {
+			return;
+		}
+		const leadMs = (Number(sw.announceLeadMin) || 0) * 60000;
+		const at = next.getTime() - leadMs;
+		const delay = at - Date.now();
+		if (delay <= 0) {
+			this.log.silly(`Announcement for ${this.swLabel(sw)} not armed - lead time already passed.`);
+			return;
+		}
+		const timer = this.setTimeout(
+			() => {
+				this.announceTimers.delete(sw.id);
+				this.sendAnnouncement(sw);
+			},
+			Math.min(MAX_TIMEOUT_MS, delay),
+		);
+		this.announceTimers.set(sw.id, timer);
+		this.log.debug(
+			`Announcement for ${this.swLabel(sw)} armed at ${this.localTs(new Date(at))} ` +
+				`(${Number(sw.announceLeadMin) || 0} min before feeding).`,
+		);
 	}
 
 	// ----------------------------------------------------------------------------
@@ -3760,6 +3901,10 @@ class AutomaticFeeder extends utils.Adapter {
 				this.clearTimeout(t);
 			}
 			this.pauseTimers.clear();
+			for (const t of this.announceTimers.values()) {
+				this.clearTimeout(t);
+			}
+			this.announceTimers.clear();
 
 			for (const w of this.verifyWatchers.values()) {
 				this.clearTimeout(w.timer);

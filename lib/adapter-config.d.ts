@@ -63,6 +63,30 @@ declare global {
 			verifyTimeoutSec: number;
 			/** Number of staggered re-checks before a switching fault is reported (default 3). */
 			verifyRetries: number;
+			/**
+			 * Language for this switch's outgoing user texts (Telegram supervision, Sayit and
+			 * the feeding announcement): "system" = the ioBroker system language, or a specific
+			 * supported language code (e.g. "de"). Does not affect the status datapoints.
+			 */
+			notifyLang: 'system' | 'en' | 'de' | 'ru' | 'pt' | 'nl' | 'fr' | 'it' | 'es' | 'pl' | 'uk' | 'zh-cn';
+			/** Sayit (TTS) instance id used for this switch, e.g. "sayit.0" (empty = off). */
+			sayitInstance: string;
+			/** Optional Sayit speaking volume 0..100 for this switch (null = the instance default). */
+			sayitVolume: number | null;
+			/** Speak a message via Sayit when a feeding completed successfully. */
+			sayitNotifySuccess: boolean;
+			/** Speak a message via Sayit when feeding could not be performed (no ON). */
+			sayitNotifyOnFail: boolean;
+			/** Speak a message via Sayit when the switch did not turn OFF again. */
+			sayitNotifyOffFail: boolean;
+			/** Announce the upcoming feeding a configurable time in advance. */
+			announceEnabled: boolean;
+			/** How many minutes before the feeding the announcement is sent. */
+			announceLeadMin: number;
+			/** Deliver the feeding announcement via the configured Telegram instance. */
+			announceViaTelegram: boolean;
+			/** Deliver the feeding announcement via the configured Sayit instance. */
+			announceViaSayit: boolean;
 			/** Telegram instance id used for this switch, e.g. "telegram.0" (empty = off). */
 			telegramInstance: string;
 			/** Optional Telegram recipient (user/chat name) for this switch; empty = all. */

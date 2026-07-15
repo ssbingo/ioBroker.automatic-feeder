@@ -162,5 +162,20 @@
 	"MAC address": "MAC-адреса",
 	"Uptime": "Час роботи",
 	"Free memory": "Вільна пам'ять",
-	"Last reset reason": "Причина останнього перезапуску"
+	"Last reset reason": "Причина останнього перезапуску",
+	"Message language": "Мова повідомлень",
+	"System language": "Системна мова",
+	"Language of the outgoing texts (Telegram, Sayit and the announcement).": "Мова вихідних текстів (Telegram, Sayit та оголошення).",
+	"Sayit notifications": "Сповіщення Sayit",
+	"Sayit instance": "Екземпляр Sayit",
+	"Volume (0-100, optional)": "Гучність (0-100, необов'язково)",
+	"No Sayit instance installed.": "Екземпляр Sayit не встановлено.",
+	"Leave the instance empty to disable Sayit for this switch.": "Залиште екземпляр порожнім, щоб вимкнути Sayit для цього перемикача.",
+	"Feeding announcement": "Оголошення про годування",
+	"Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.": "Заздалегідь оголошує про майбутнє годування за встановлений час через Telegram та/або Sayit. Пропускається, якщо годування наразі заблоковане або призупинене.",
+	"Announce feeding in advance": "Оголошувати про годування заздалегідь",
+	"Lead time (minutes)": "Час випередження (хвилини)",
+	"Announce via Telegram": "Оголошувати через Telegram",
+	"Announce via Sayit": "Оголошувати через Sayit",
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Налаштуйте вище екземпляр Telegram або Sayit, щоб отримувати оголошення."
 }

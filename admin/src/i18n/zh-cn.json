@@ -162,5 +162,20 @@
 	"MAC address": "MAC 地址",
 	"Uptime": "运行时间",
 	"Free memory": "可用内存",
-	"Last reset reason": "上次复位原因"
+	"Last reset reason": "上次复位原因",
+	"Message language": "消息语言",
+	"System language": "系统语言",
+	"Language of the outgoing texts (Telegram, Sayit and the announcement).": "外发文本的语言（Telegram、Sayit 和预告）。",
+	"Sayit notifications": "Sayit 通知",
+	"Sayit instance": "Sayit 实例",
+	"Volume (0-100, optional)": "音量（0-100，可选）",
+	"No Sayit instance installed.": "未安装 Sayit 实例。",
+	"Leave the instance empty to disable Sayit for this switch.": "将实例留空可为该开关禁用 Sayit。",
+	"Feeding announcement": "投喂预告",
+	"Announce the upcoming feeding a set time in advance, via Telegram and/or Sayit. Skipped when the feeding would currently be blocked or paused.": "在设定的提前时间通过 Telegram 和/或 Sayit 预告即将到来的投喂。当投喂当前会被阻止或暂停时则跳过。",
+	"Announce feeding in advance": "提前预告投喂",
+	"Lead time (minutes)": "提前时间（分钟）",
+	"Announce via Telegram": "通过 Telegram 预告",
+	"Announce via Sayit": "通过 Sayit 预告",
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "请在上方配置 Telegram 或 Sayit 实例以接收预告。"
 }
