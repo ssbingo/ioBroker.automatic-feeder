@@ -16,7 +16,7 @@
 
 const utils = require('@iobroker/adapter-core');
 const SunCalc = require('suncalc');
-const { translate, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
+const { translate, minuteUnit, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
 const {
 	isInWinterPause,
 	reminderDue,
@@ -2837,9 +2837,22 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * Speaks a text via the switch's configured Sayit (TTS) instance by writing to its
-	 * `<instance>.tts.text` state. An optional per-switch volume is passed as the sayit
-	 * "<volume>;text" prefix. Best effort.
+	 * Writes a text to a Sayit (TTS) instance's `<instance>.tts.text` state so it is spoken.
+	 * An optional volume 0..100 is passed as the sayit "<volume>;text" prefix.
+	 *
+	 * @param {string} instance - sayit instance id, e.g. "sayit.0"
+	 * @param {string} text - the fully composed message
+	 * @param {unknown} volume - optional volume 0..100 (null/empty = instance default)
+	 * @returns {Promise<void>} resolves when the state was written
+	 */
+	async writeSayit(instance, text, volume) {
+		const hasVol = volume !== null && volume !== undefined && volume !== '' && Number.isFinite(Number(volume));
+		const payload = hasVol ? `${Math.min(100, Math.max(0, Math.round(Number(volume))))};${text}` : text;
+		await this.setForeignStateAsync(`${instance}.tts.text`, { val: payload, ack: false });
+	}
+
+	/**
+	 * Speaks a text via the switch's configured Sayit (TTS) instance (best effort).
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @param {string} text - the fully composed message
@@ -2850,13 +2863,8 @@ class AutomaticFeeder extends utils.Adapter {
 		if (!instance) {
 			return;
 		}
-		const vol = sw.sayitVolume;
-		const hasVol = vol !== null && vol !== undefined && Number.isFinite(Number(vol));
-		const payload = hasVol ? `${Math.min(100, Math.max(0, Math.round(Number(vol))))};${text}` : text;
-		this.log.debug(
-			`Speaking "${label}" via ${instance}${hasVol ? ` (volume ${vol})` : ''} for ${this.swLabel(sw)}.`,
-		);
-		this.setForeignStateAsync(`${instance}.tts.text`, { val: payload, ack: false }).catch(e =>
+		this.log.debug(`Speaking "${label}" via ${instance} for ${this.swLabel(sw)}.`);
+		this.writeSayit(instance, text, sw.sayitVolume).catch(e =>
 			this.log.warn(`Could not send Sayit message via ${instance}: ${e.message}`),
 		);
 	}
@@ -2877,7 +2885,8 @@ class AutomaticFeeder extends utils.Adapter {
 			return;
 		}
 		const minutes = Number(sw.announceLeadMin) || 0;
-		const text = `${sw.name || sw.id}: ${this.tSw(sw, 'announce', { minutes })}`;
+		const lang = this.notifyLangFor(sw);
+		const text = `${sw.name || sw.id}: ${translate('announce', lang, { minutes, unit: minuteUnit(lang, minutes) })}`;
 		if (sw.announceViaTelegram && sw.telegramInstance) {
 			this.sendTelegram(sw, text, 'announce');
 		}
@@ -3811,6 +3820,33 @@ class AutomaticFeeder extends utils.Adapter {
 			} catch (e) {
 				const msg = `Relay board reboot failed: ${e.message}`;
 				this.log.warn(`${msg} (host="${host}")`);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);
+				}
+			}
+			return;
+		}
+		if (obj.command === 'sayitTest') {
+			const instance = obj.message && obj.message.instance;
+			const volume = obj.message && obj.message.volume;
+			const langRaw = obj.message && obj.message.lang;
+			if (!instance) {
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { error: 'No Sayit instance configured' }, obj.callback);
+				}
+				return;
+			}
+			const lang = langRaw && langRaw !== 'system' && SUPPORTED_LANGUAGES.includes(langRaw) ? langRaw : this.lang;
+			const text = translate('announceTest', lang);
+			this.log.info(`Sayit test announcement via "${instance}" (language ${lang}).`);
+			try {
+				await this.writeSayit(instance, text, volume);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { ok: true }, obj.callback);
+				}
+			} catch (e) {
+				const msg = `Sayit test failed: ${e.message}`;
+				this.log.warn(`${msg} (instance="${instance}")`);
 				if (obj.callback) {
 					this.sendTo(obj.from, obj.command, { error: msg }, obj.callback);
 				}

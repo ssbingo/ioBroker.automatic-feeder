@@ -177,5 +177,8 @@
 	"Lead time (minutes)": "Час випередження (хвилини)",
 	"Announce via Telegram": "Оголошувати через Telegram",
 	"Announce via Sayit": "Оголошувати через Sayit",
-	"Configure a Telegram or Sayit instance above to receive the announcement.": "Налаштуйте вище екземпляр Telegram або Sayit, щоб отримувати оголошення."
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Налаштуйте вище екземпляр Telegram або Sayit, щоб отримувати оголошення.",
+	"Test announcement": "Перевірити оголошення",
+	"Test announcement sent.": "Тестове оголошення надіслано.",
+	"Test failed": "Тест не вдався"
 }

@@ -177,5 +177,8 @@
 	"Lead time (minutes)": "Antelación (minutos)",
 	"Announce via Telegram": "Anunciar por Telegram",
 	"Announce via Sayit": "Anunciar por Sayit",
-	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configura arriba una instancia de Telegram o Sayit para recibir el anuncio."
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configura arriba una instancia de Telegram o Sayit para recibir el anuncio.",
+	"Test announcement": "Probar anuncio",
+	"Test announcement sent.": "Anuncio de prueba enviado.",
+	"Test failed": "Error en la prueba"
 }

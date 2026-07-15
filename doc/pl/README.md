@@ -363,6 +363,8 @@ mogą być aktywne jednocześnie):
   wyłączyć Sayit dla tego przełącznika). Jeśli żadna nie jest zainstalowana, pole o tym informuje.
 * **Głośność (0-100, opcjonalnie)** – głośność mowy dla tego przełącznika; pozostaw puste, aby
   użyć domyślnej wartości samej instancji Sayit.
+* **Testuj zapowiedź** – obok wyboru instancji: wypowiada krótki tekst testowy przez wybraną
+  instancję, dzięki czemu od razu sprawdzisz wyjście audio, bez czekania na karmienie.
 * **Pola wyboru** – wybierz, które komunikaty są wypowiadane: udane karmienie, niewykonalne
   i/lub usterka wyłączenia (te same trzy co w Telegramie, ale wybierane tutaj osobno).
 

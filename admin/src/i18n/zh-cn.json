@@ -177,5 +177,8 @@
 	"Lead time (minutes)": "提前时间（分钟）",
 	"Announce via Telegram": "通过 Telegram 预告",
 	"Announce via Sayit": "通过 Sayit 预告",
-	"Configure a Telegram or Sayit instance above to receive the announcement.": "请在上方配置 Telegram 或 Sayit 实例以接收预告。"
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "请在上方配置 Telegram 或 Sayit 实例以接收预告。",
+	"Test announcement": "测试预告",
+	"Test announcement sent.": "已发送测试预告。",
+	"Test failed": "测试失败"
 }

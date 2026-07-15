@@ -348,6 +348,9 @@ Spreekt dezelfde meldingen van de schakelbewaking uit via een **Sayit (tekst-naa
   voor deze schakelaar uit te schakelen). Is er geen geïnstalleerd, dan wijst het veld erop.
 * **Volume (0-100, optioneel)** – het spreekvolume voor deze schakelaar; leeg laten om de eigen
   standaard van de Sayit-instantie te gebruiken.
+* **Aankondiging testen** – naast de instantiekeuze: spreekt een korte testtekst uit via de
+  gekozen instantie, zodat je de audio-uitvoer meteen kunt controleren, zonder op een
+  voedering te wachten.
 * **Selectievakjes** – kiezen welke meldingen worden uitgesproken: succesvolle voedering, niet
   uitvoerbaar en/of storing van het uitschakelen (dezelfde drie als bij Telegram, maar hier apart
   gekozen).

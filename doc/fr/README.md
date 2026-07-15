@@ -381,6 +381,9 @@ actifs en même temps) :
   désactiver Sayit pour cet interrupteur). Si aucune n'est installée, le champ le signale.
 * **Volume (0-100, facultatif)** — le volume de la voix pour cet interrupteur ; laisse vide pour
   utiliser la valeur par défaut de l'instance Sayit elle-même.
+* **Tester l'annonce** — à côté de la sélection de l'instance : énonce un court texte de test via
+  l'instance sélectionnée, pour que tu puisses vérifier tout de suite la sortie audio, sans attendre
+  une distribution.
 * **Cases à cocher** — sélectionne quels messages sont énoncés : distribution réussie, distribution
   impossible et/ou anomalie de désactivation (les trois mêmes que pour Telegram, mais sélectionnées
   séparément ici).

@@ -394,6 +394,9 @@ Pronuncia gli stessi messaggi del monitoraggio della commutazione tramite un'ist
   disattivare Sayit per questo interruttore). Se non ne è installata nessuna, il campo lo segnala.
 * **Volume (0-100, opzionale)** – il volume di riproduzione per questo interruttore; lascia vuoto
   per usare il valore predefinito dell'istanza Sayit.
+* **Prova annuncio** – accanto alla selezione dell'istanza: pronuncia un breve testo di prova
+  tramite l'istanza selezionata, così puoi verificare subito l'uscita audio, senza attendere una
+  distribuzione.
 * **Caselle di controllo** – seleziona quali messaggi vengono pronunciati: distribuzione riuscita,
   non effettuabile e/o guasto dello spegnimento (gli stessi tre di Telegram, ma selezionati
   separatamente qui).

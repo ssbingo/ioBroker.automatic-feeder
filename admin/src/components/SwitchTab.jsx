@@ -24,6 +24,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { LocalizationProvider, DatePicker, TimePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -163,6 +164,8 @@ function SwitchTab(props) {
 
 	const [feedBusy, setFeedBusy] = useState(false);
 	const [feedMsg, setFeedMsg] = useState(null); // { severity, text }
+	const [sayitBusy, setSayitBusy] = useState(false);
+	const [sayitMsg, setSayitMsg] = useState(null); // { severity, text }
 
 	const updateTime = (index, value) => {
 		const next = times.slice();
@@ -189,6 +192,26 @@ function SwitchTab(props) {
 			setFeedMsg({ severity: 'error', text: `${I18n.t('Could not start feeding')}: ${e}` });
 		}
 		setFeedBusy(false);
+	};
+
+	const sayitTest = async () => {
+		setSayitBusy(true);
+		setSayitMsg(null);
+		try {
+			const res = await socket.sendTo(instanceId, 'sayitTest', {
+				instance: sw.sayitInstance,
+				volume: sw.sayitVolume,
+				lang: sw.notifyLang || 'system',
+			});
+			if (res && res.error) {
+				setSayitMsg({ severity: 'error', text: res.error });
+			} else {
+				setSayitMsg({ severity: 'success', text: I18n.t('Test announcement sent.') });
+			}
+		} catch (e) {
+			setSayitMsg({ severity: 'error', text: `${I18n.t('Test failed')}: ${e}` });
+		}
+		setSayitBusy(false);
 	};
 
 	return (
@@ -1047,12 +1070,26 @@ function SwitchTab(props) {
 						onChange={(e) => onChange({ sayitVolume: e.target.value === '' ? null : Number(e.target.value) })}
 						sx={{ width: 180 }}
 					/>
+					<Button
+						variant="outlined"
+						startIcon={sayitBusy ? <CircularProgress size={18} color="inherit" /> : <VolumeUpIcon />}
+						disabled={sayitBusy || !sw.sayitInstance}
+						onClick={sayitTest}
+						sx={{ alignSelf: 'center' }}
+					>
+						{I18n.t('Test announcement')}
+					</Button>
 				</Box>
 				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
 					{sayitOptions.length === 0
 						? I18n.t('No Sayit instance installed.')
 						: I18n.t('Leave the instance empty to disable Sayit for this switch.')}
 				</Typography>
+				{sayitMsg ? (
+					<Alert severity={sayitMsg.severity} sx={{ mb: 1 }} onClose={() => setSayitMsg(null)}>
+						{sayitMsg.text}
+					</Alert>
+				) : null}
 				<FormControlLabel
 					control={
 						<Checkbox

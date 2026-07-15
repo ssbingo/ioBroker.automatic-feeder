@@ -177,5 +177,8 @@
 	"Lead time (minutes)": "Время упреждения (минуты)",
 	"Announce via Telegram": "Объявлять через Telegram",
 	"Announce via Sayit": "Объявлять через Sayit",
-	"Configure a Telegram or Sayit instance above to receive the announcement.": "Настройте выше экземпляр Telegram или Sayit, чтобы получать объявление."
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Настройте выше экземпляр Telegram или Sayit, чтобы получать объявление.",
+	"Test announcement": "Проверить объявление",
+	"Test announcement sent.": "Тестовое объявление отправлено.",
+	"Test failed": "Не удалось выполнить тест"
 }

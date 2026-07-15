@@ -348,6 +348,9 @@ mesmo tempo):
   desativar o Sayit para esse interruptor). Se nenhuma estiver instalada, o campo indica isso.
 * **Volume (0-100, opcional)** – o volume de fala para este interruptor; deixar vazio para usar o
   padrão da própria instância Sayit.
+* **Testar anúncio** – ao lado da seleção da instância: fala um curto texto de teste através da
+  instância selecionada, para que você possa verificar imediatamente a saída de áudio, sem
+  esperar por uma alimentação.
 * **Caixas de seleção** – selecionar quais mensagens são faladas: alimentação bem-sucedida, não
   executável e/ou falha de desligamento (as mesmas três do Telegram, mas selecionadas separadamente
   aqui).

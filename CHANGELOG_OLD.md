@@ -3,6 +3,12 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.3.0 (2026-07-04)
+* (ssbingo) New per-switch **feeding pauses**. A **master switch** *Suspend feeding now* (`settings.pauseNow`) instantly suspends **all** feeding for a switch until you turn it off again — it overrides every feeding mode (fixed times, interval, dynamic feeding, winter pause) and the date-time pauses. A **Telegram** message is sent on each toggle
+* (ssbingo) In addition, up to **3 one-off date-time feeding pauses** per switch (e.g. a **quarantine after restocking**) fully suspend feeding within an absolute period, with a **Telegram** message at the start and end of each. They have the highest priority over all feeding modes
+* (ssbingo) New per-switch data points `status.pauseManual`, `status.pauseActive` and `status.pauseActiveUntil`; new editable settings `settings.pauseNow` and `settings.pause1..3Enabled/Start/End` (settings page and VIS/scripts)
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.2.3 (2026-07-02)
 * (ssbingo) The local timestamps introduced in 1.2.2 now use a **human-readable format** `DD.MM.YYYY HH:MM:SS` (e.g. `01.07.2026 16:20:00`) instead of local ISO 8601 — consistent with the other date displays and the clearest option for all users
 

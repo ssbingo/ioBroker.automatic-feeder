@@ -177,5 +177,8 @@
 	"Lead time (minutes)": "Wyprzedzenie (minuty)",
 	"Announce via Telegram": "Zapowiadaj przez Telegram",
 	"Announce via Sayit": "Zapowiadaj przez Sayit",
-	"Configure a Telegram or Sayit instance above to receive the announcement.": "Skonfiguruj powyżej instancję Telegram lub Sayit, aby otrzymać zapowiedź."
+	"Configure a Telegram or Sayit instance above to receive the announcement.": "Skonfiguruj powyżej instancję Telegram lub Sayit, aby otrzymać zapowiedź.",
+	"Test announcement": "Testuj zapowiedź",
+	"Test announcement sent.": "Wysłano testową zapowiedź.",
+	"Test failed": "Test nie powiódł się"
 }

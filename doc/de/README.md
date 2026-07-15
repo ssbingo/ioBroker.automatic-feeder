@@ -355,6 +355,9 @@ sein):
   für diesen Schalter zu deaktivieren). Ist keine installiert, weist das Feld darauf hin.
 * **Lautstärke (0-100, optional)** – die Sprechlautstärke für diesen Schalter; leer lassen, um
   den eigenen Standard der Sayit-Instanz zu verwenden.
+* **Ansage testen** – neben der Instanzauswahl: spricht einen kurzen Testtext über die
+  gewählte Instanz, sodass du die Audioausgabe sofort prüfen kannst, ohne auf eine Fütterung
+  warten zu müssen.
 * **Checkboxen** – auswählen, welche Meldungen gesprochen werden: erfolgreiche Fütterung, nicht
   durchführbar und/oder Störung der Abschaltung (dieselben drei wie bei Telegram, hier aber
   getrennt gewählt).

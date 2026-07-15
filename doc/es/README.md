@@ -384,6 +384,9 @@ pueden estar activos a la vez):
   desactivar Sayit en ese interruptor). Si no hay ninguna instalada, el campo lo indica.
 * **Volumen (0-100, opcional)** – el volumen de voz de este interruptor; déjalo vacío para usar el
   valor predeterminado de la propia instancia de Sayit.
+* **Probar anuncio** – junto a la selección de instancia: pronuncia un breve texto de prueba a
+  través de la instancia seleccionada para que puedas comprobar la salida de audio de inmediato,
+  sin esperar a una alimentación.
 * **Casillas de verificación** – selecciona qué mensajes se pronuncian: alimentación exitosa, no
   realizable o avería del apagado (las mismas tres que en Telegram, pero aquí se seleccionan por
   separado).
