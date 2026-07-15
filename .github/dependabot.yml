@@ -59,3 +59,8 @@ updates:
       - ssbingo
     cooldown:
       default-days: 7
+    ignore:
+      # the ioBroker testing actions are referenced by their floating major tag (@v1 / @v2)
+      # on purpose; the repochecker (S3044) recommends major-only pins, so do NOT let
+      # Dependabot pin them to an exact patch version.
+      - dependency-name: "ioBroker/testing-action-*"
