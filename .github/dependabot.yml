@@ -41,6 +41,11 @@ updates:
       # keep TypeScript on 5.x for toolchain (eslint-config / adapter-dev) compatibility
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # pdfmake is only a build-time tool for the German PDF handbook (tools/build-handbook.js).
+      # Pin to 0.2.x: 0.3.x has a reworked, incompatible server-side API (async
+      # createPdfKitDocument + broken urlResolver) that does not work here.
+      - dependency-name: "pdfmake"
+        versions: [">=0.3.0"]
 
   - package-ecosystem: github-actions
     directory: "/"
