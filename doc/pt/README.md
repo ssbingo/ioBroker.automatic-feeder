@@ -379,6 +379,11 @@ placa é um ESP32 com três botões de temporizador (S1–S3) e a sua própria i
 na sua rede pela **porta 80**. O adaptador apenas **configura** a placa e **mostra o seu estado** –
 ele não aciona a alimentação através da placa (os botões são operados na própria placa).
 
+> **Nota:** A placa de relé Automatic-Feeder é desenvolvida em paralelo como um **projeto
+> separado**. O adaptador funciona totalmente sem ela – a placa é um complemento opcional e
+> prático. Como evolui de forma independente, alguns dos seus detalhes podem mudar
+> independentemente do adaptador.
+
 * **Endereço da placa (IP ou host mDNS)** – p. ex. `192.168.1.50` ou `feeder.local`. Um IP fixo é o
   mais fiável; o mDNS (`.local`) só funciona se o seu sistema host conseguir resolvê-lo. Um sufixo
   `:port` é permitido, mas normalmente não é necessário (padrão `80`).

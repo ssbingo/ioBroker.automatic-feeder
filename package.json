@@ -1,6 +1,6 @@
 {
   "name": "iobroker.automatic-feeder",
-  "version": "1.9.4",
+  "version": "1.9.5",
   "description": "Scheduled automatic feeder for ioBroker: switches an existing state for a set duration, with temperature and day/night limits.",
   "author": {
     "name": "ssbingo",
@@ -50,6 +50,7 @@
     "@types/node": "^22.20.0",
     "dayjs": "^1.11.21",
     "leaflet": "^1.9.4",
+    "pdfmake": "^0.2.23",
     "typescript": "~6.0.3"
   },
   "main": "main.js",
@@ -77,6 +78,7 @@
     "test": "npm run test:js && npm run test:package",
     "check": "tsc --noEmit -p tsconfig.check.json",
     "lint": "eslint -c eslint.config.mjs .",
+    "doc:handbook": "node tools/build-handbook.js",
     "translate": "translate-adapter",
     "release": "release-script",
     "dev-server": "dev-server"

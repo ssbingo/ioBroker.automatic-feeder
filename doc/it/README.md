@@ -429,6 +429,11 @@ interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore s
 **configurare** la scheda e a **mostrarne lo stato** – non attiva l'alimentazione tramite la scheda
 (i pulsanti si azionano sulla scheda stessa).
 
+> **Nota:** la scheda relè Automatic-Feeder è sviluppata in parallelo come **progetto separato**.
+> L'adattatore funziona pienamente senza di essa – la scheda è un'aggiunta opzionale e comoda.
+> Poiché evolve in modo autonomo, alcuni dei suoi dettagli possono cambiare
+> indipendentemente dall'adattatore.
+
 * **Indirizzo della scheda (IP o host mDNS)** – ad es. `192.168.1.50` oppure `feeder.local`. Un IP
   fisso è il più affidabile; l'mDNS (`.local`) funziona solo se il tuo sistema host è in grado di
   risolverlo. È ammesso un suffisso `:port`, ma di solito non serve (predefinito `80`).

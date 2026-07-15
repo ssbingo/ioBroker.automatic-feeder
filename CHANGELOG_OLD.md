@@ -3,6 +3,10 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.5.0 (2026-07-05)
+* (ssbingo) New per-switch data point `status.feedingEndsTs` (Unix time in ms, `0` = not feeding): the end time of the **currently running** feeding, so a VIS widget can show a **live runtime countdown** (e.g. 15 → 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.4.1 (2026-07-05)
 * (ssbingo) Fix: the cleanup of removed switches mistakenly treated the `status` **sub-channel** as an obsolete switch and deleted it on **every adapter start** — the persisted status values (last feeding/result, winter-reminder deduplication, pause state) were lost on each restart (latent since 1.0.0). Only direct children of `switches.` are considered switch channels now; status values survive restarts
 

@@ -382,6 +382,11 @@ timerknoppen (S1–S3) en een eigen webinterface, bereikbaar via je netwerk op *
 adapter **configureert** de print alleen en **toont zijn status** – hij triggert geen voedering via
 de print (de knoppen worden op de print zelf bediend).
 
+> **Let op:** De Automatic-Feeder relaisprint wordt parallel als een **apart project**
+> ontwikkeld. De adapter werkt volledig zonder deze print – de print is een optionele,
+> handige uitbreiding. Omdat hij zich zelfstandig ontwikkelt, kunnen sommige details ervan
+> onafhankelijk van de adapter wijzigen.
+
 * **Printadres (IP of mDNS-host)** – bijv. `192.168.1.50` of `feeder.local`. Een vast IP is het
   betrouwbaarst; mDNS (`.local`) werkt alleen als je hostsysteem het kan omzetten. Een
   `:port`-achtervoegsel is toegestaan maar meestal niet nodig (standaard `80`).

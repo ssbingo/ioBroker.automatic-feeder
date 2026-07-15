@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.4",
+		"version": "1.9.5",
 		"news": {
-			"1.9.4": {
-				"en": "The feeding announcement now also states the approximate feeding duration, e.g. 'The feeding will take about 8 seconds' (localized, correct singular/plural). The Sayit volume is now written and applied shortly before the text so it takes effect on that announcement.",
-				"de": "Die Fütterungsansage nennt jetzt auch die ungefähre Fütterungsdauer, z. B. 'Die Fütterung wird ca. 8 Sekunden dauern' (lokalisiert, korrekter Singular/Plural). Die Sayit-Lautstärke wird nun kurz vor dem Text gesetzt, damit sie für diese Ansage wirkt.",
-				"ru": "Объявление о кормлении теперь также называет примерную длительность кормления, например «Кормление продлится примерно 8 секунд» (локализовано, правильные формы числа). Громкость Sayit теперь устанавливается непосредственно перед текстом, чтобы применяться к этому объявлению.",
-				"pt": "O anúncio de alimentação passa a indicar também a duração aproximada, por ex. 'A alimentação vai durar cerca de 8 segundos' (localizado, singular/plural correto). O volume do Sayit é agora definido pouco antes do texto para ter efeito nesse anúncio.",
-				"nl": "De voederaankondiging vermeldt nu ook de geschatte voederduur, bijv. 'De voedering duurt ongeveer 8 seconden' (gelokaliseerd, correct enkelvoud/meervoud). Het Sayit-volume wordt nu vlak voor de tekst ingesteld zodat het voor die aankondiging werkt.",
-				"fr": "L'annonce de distribution indique désormais aussi la durée approximative, p. ex. « La distribution durera environ 8 secondes » (localisé, singulier/pluriel correct). Le volume Sayit est maintenant défini juste avant le texte pour s'appliquer à cette annonce.",
-				"it": "L'annuncio di alimentazione indica ora anche la durata approssimativa, es. 'L'alimentazione durerà circa 8 secondi' (localizzato, singolare/plurale corretto). Il volume di Sayit viene ora impostato poco prima del testo così da avere effetto su quell'annuncio.",
-				"es": "El anuncio de alimentación indica ahora también la duración aproximada, p. ej. 'La alimentación durará unos 8 segundos' (localizado, singular/plural correcto). El volumen de Sayit se establece ahora justo antes del texto para que surta efecto en ese anuncio.",
-				"pl": "Zapowiedź karmienia podaje teraz także przybliżony czas karmienia, np. „Karmienie potrwa około 8 sekund” (zlokalizowane, poprawna liczba). Głośność Sayit jest teraz ustawiana tuż przed tekstem, aby zadziałała dla tej zapowiedzi.",
-				"uk": "Оголошення про годування тепер також називає приблизну тривалість, напр. «Годування триватиме приблизно 8 секунд» (локалізовано, правильні форми числа). Гучність Sayit тепер встановлюється безпосередньо перед текстом, щоб діяти для цього оголошення.",
-				"zh-cn": "投喂预告现在还会说明大致的投喂时长，例如“投喂大约持续 8 秒”（本地化，正确单复数）。Sayit 音量现在会在文本之前稍作设置，以便对该预告生效。"
+			"1.9.5": {
+				"en": "New comprehensive German PDF handbook (doc/de/Handbuch.pdf) with a modern, colourful design, generated via 'npm run doc:handbook' and linked from the German documentation. Added a note (all 11 languages) that the Automatic-Feeder relay board is developed in parallel as a separate project.",
+				"de": "Neues umfangreiches deutsches PDF-Handbuch (doc/de/Handbuch.pdf) in modernem, farbigem Design, erzeugt mit 'npm run doc:handbook' und in der deutschen Doku verlinkt. Hinweis ergänzt (in allen 11 Sprachen), dass die Automatic-Feeder-Relaisplatine parallel als eigenständiges Projekt entsteht.",
+				"ru": "Новое подробное немецкое PDF-руководство (doc/de/Handbuch.pdf) в современном цветном дизайне, создаётся командой 'npm run doc:handbook' и связано с немецкой документацией. Добавлено примечание (на всех 11 языках), что релейная плата Automatic-Feeder разрабатывается параллельно как отдельный проект.",
+				"pt": "Novo manual PDF alemão abrangente (doc/de/Handbuch.pdf) com design moderno e colorido, gerado com 'npm run doc:handbook' e ligado à documentação alemã. Adicionada uma nota (nos 11 idiomas) de que a placa de relé Automatic-Feeder é desenvolvida em paralelo como um projeto separado.",
+				"nl": "Nieuw uitgebreid Duits PDF-handboek (doc/de/Handbuch.pdf) met een modern, kleurrijk ontwerp, gegenereerd met 'npm run doc:handbook' en gelinkt vanuit de Duitse documentatie. Opmerking toegevoegd (in alle 11 talen) dat de Automatic-Feeder relaisprint parallel als apart project wordt ontwikkeld.",
+				"fr": "Nouveau manuel PDF allemand complet (doc/de/Handbuch.pdf) au design moderne et coloré, généré via 'npm run doc:handbook' et lié depuis la documentation allemande. Ajout d'une note (dans les 11 langues) indiquant que la carte relais Automatic-Feeder est développée en parallèle comme projet distinct.",
+				"it": "Nuovo manuale PDF tedesco completo (doc/de/Handbuch.pdf) dal design moderno e colorato, generato con 'npm run doc:handbook' e collegato dalla documentazione tedesca. Aggiunta una nota (in tutte le 11 lingue) sul fatto che la scheda relè Automatic-Feeder è sviluppata in parallelo come progetto separato.",
+				"es": "Nuevo manual PDF alemán completo (doc/de/Handbuch.pdf) con un diseño moderno y colorido, generado con 'npm run doc:handbook' y enlazado desde la documentación alemana. Añadida una nota (en los 11 idiomas) de que la placa de relé Automatic-Feeder se desarrolla en paralelo como un proyecto separado.",
+				"pl": "Nowy obszerny niemiecki podręcznik PDF (doc/de/Handbuch.pdf) o nowoczesnym, kolorowym designie, generowany poleceniem 'npm run doc:handbook' i podlinkowany w niemieckiej dokumentacji. Dodano notatkę (we wszystkich 11 językach), że płytka przekaźnikowa Automatic-Feeder jest rozwijana równolegle jako osobny projekt.",
+				"uk": "Новий докладний німецький PDF-посібник (doc/de/Handbuch.pdf) у сучасному кольоровому дизайні, що створюється командою 'npm run doc:handbook' та пов'язаний з німецькою документацією. Додано примітку (усіма 11 мовами), що релейна плата Automatic-Feeder розробляється паралельно як окремий проєкт.",
+				"zh-cn": "新增内容全面的德语 PDF 手册（doc/de/Handbuch.pdf），采用现代彩色设计，通过 'npm run doc:handbook' 生成并在德语文档中链接。新增说明（全部 11 种语言）：Automatic-Feeder 继电器板作为独立项目并行开发。"
 			}
 		},
 		"titleLang": {

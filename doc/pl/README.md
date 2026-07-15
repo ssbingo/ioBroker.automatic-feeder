@@ -394,6 +394,11 @@ to ESP32 z trzema przyciskami czasowymi (S1–S3) i własnym interfejsem WWW, do
 przez **port 80**. Adapter tylko **konfiguruje** płytkę i **pokazuje jej stan** – nie wyzwala
 karmienia przez płytkę (przyciski obsługuje się na samej płytce).
 
+> **Uwaga:** Płytka przekaźnikowa Automatic-Feeder jest rozwijana równolegle jako
+> **osobny projekt**. Adapter działa w pełni bez niej – płytka to opcjonalny, wygodny dodatek.
+> Ponieważ rozwija się niezależnie, niektóre jej szczegóły mogą zmieniać się niezależnie od
+> adaptera.
+
 * **Adres płytki (IP lub host mDNS)** – np. `192.168.1.50` lub `feeder.local`. Stały adres IP jest
   najbardziej niezawodny; mDNS (`.local`) działa tylko wtedy, gdy Twój system hosta potrafi go
   rozpoznać. Sufiks `:port` jest dozwolony, ale zwykle niepotrzebny (domyślnie `80`).

@@ -386,6 +386,10 @@ board is an ESP32 with three timer buttons (S1–S3) and its own web interface, 
 network on **port 80**. The adapter only **configures** the board and **shows its status** – it
 does not trigger feeding through the board (the buttons are operated on the board itself).
 
+> **Note:** The Automatic-Feeder relay board is developed in parallel as a **separate project**.
+> The adapter works fully without it – the board is an optional, convenient add-on. Because it
+> evolves independently, some of its details may change independently of the adapter.
+
 * **Board address (IP or mDNS host)** – e.g. `192.168.1.50` or `feeder.local`. A fixed IP is the
   most reliable; mDNS (`.local`) only works if your host system can resolve it. A `:port` suffix
   is allowed but usually not needed (default `80`).
@@ -638,6 +642,10 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.5 (2026-07-15)
+* (ssbingo) New comprehensive **German PDF handbook** ([doc/de/Handbuch.pdf](doc/de/Handbuch.pdf)) with a modern, colourful design — generated from `tools/build-handbook.js` (`npm run doc:handbook`) and linked from the German documentation
+* (ssbingo) Added a note in the relay-board section (all 11 languages) that the **Automatic-Feeder relay board is developed in parallel as a separate project**
+
 ### 1.9.4 (2026-07-15)
 * (ssbingo) The feeding announcement now also states the **approximate feeding duration** — e.g. "The next feeding starts in 5 minutes. The feeding will take about 8 seconds." The duration is the effective one (static/winter/dynamic), localized with correct singular/plural in every language
 * (ssbingo) The **Sayit volume** is now set shortly before the spoken text (small delay) so it reliably applies to that announcement instead of the previous one
@@ -675,10 +683,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.6.0 (2026-07-07)
 * (ssbingo) New per-switch data point `status.feedingDurationSec` (seconds, `0` = not feeding): the total duration of the **currently running** feeding, so a VIS widget can draw an **exact progress ring** next to the runtime countdown. Set at switch-on, cleared when the feeding ends
 * (ssbingo) New adapter icon (stylized feeder on a light grey tile)
-* (ssbingo) Documentation updated in all 11 languages
-
-### 1.5.0 (2026-07-05)
-* (ssbingo) New per-switch data point `status.feedingEndsTs` (Unix time in ms, `0` = not feeding): the end time of the **currently running** feeding, so a VIS widget can show a **live runtime countdown** (e.g. 15 → 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends
 * (ssbingo) Documentation updated in all 11 languages
 
 ---

@@ -414,6 +414,11 @@ trois boutons de minuterie (S1–S3) et de sa propre interface web, accessible s
 **port 80**. L'adaptateur se contente de **configurer** la carte et d'**afficher son état** — il ne
 déclenche pas la distribution via la carte (les boutons s'actionnent sur la carte elle-même).
 
+> **Remarque :** la carte relais Automatic-Feeder est développée en parallèle en tant que
+> **projet distinct**. L'adaptateur fonctionne parfaitement sans elle — la carte est un
+> complément optionnel et pratique. Comme elle évolue de façon indépendante, certains de ses
+> détails peuvent changer indépendamment de l'adaptateur.
+
 * **Adresse de la carte (IP ou hôte mDNS)** — p. ex. `192.168.1.50` ou `feeder.local`. Une IP fixe
   est la plus fiable ; le mDNS (`.local`) ne fonctionne que si ton système hôte parvient à le
   résoudre. Un suffixe `:port` est autorisé mais généralement inutile (par défaut `80`).

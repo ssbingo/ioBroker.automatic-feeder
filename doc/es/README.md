@@ -417,6 +417,11 @@ tres botones temporizadores (S1–S3) y su propia interfaz web, accesible a trav
 **puerto 80**. El adaptador solo **configura** la placa y **muestra su estado**; no activa la
 alimentación a través de la placa (los botones se accionan en la propia placa).
 
+> **Nota:** La placa de relé Automatic-Feeder se desarrolla en paralelo como un **proyecto
+> independiente**. El adaptador funciona completamente sin ella – la placa es un complemento
+> opcional y cómodo. Como evoluciona de forma independiente, algunos de sus detalles pueden
+> cambiar de forma independiente del adaptador.
+
 * **Dirección de la placa (IP o host mDNS)** – p. ej. `192.168.1.50` o `feeder.local`. Una IP fija
   es lo más fiable; mDNS (`.local`) solo funciona si tu sistema anfitrión puede resolverlo. Se admite
   un sufijo `:port`, pero normalmente no es necesario (por defecto `80`).

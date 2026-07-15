@@ -17,6 +17,9 @@ Dieses Dokument ist eine vollständige Anleitung. Wenn du den Adapter noch nie b
 lies es von oben nach unten – der **Schnellstart** bringt dich in wenigen Minuten zur ersten
 Fütterung, der Rest erklärt jede Einstellung im Detail.
 
+> 📖 **Als PDF-Handbuch:** Eine ausführliche, farbig gestaltete Fassung dieser Anleitung gibt es
+> zusätzlich als **[Handbuch.pdf](Handbuch.pdf)** – ideal zum Ausdrucken oder Offline-Lesen.
+
 ---
 
 ## Inhaltsverzeichnis
@@ -389,6 +392,11 @@ Relaisplatine gehört zu genau einem Schalter (einer Futterstation). Die Platine
 drei Timer-Tasten (S1–S3) und eigener Weboberfläche, die über dein Netzwerk auf **Port 80**
 erreichbar ist. Der Adapter **konfiguriert** die Platine nur und **zeigt ihren Status an** – er
 löst über die Platine keine Fütterung aus (die Tasten werden an der Platine selbst bedient).
+
+> **Hinweis:** Die Automatic-Feeder-Relaisplatine wird parallel als **eigenständiges Projekt**
+> entwickelt. Der Adapter funktioniert vollständig auch ohne sie – die Platine ist eine
+> optionale, praktische Ergänzung. Da sie sich unabhängig weiterentwickelt, können sich einige
+> ihrer Details unabhängig vom Adapter ändern.
 
 * **Platinen-Adresse (IP oder mDNS-Host)** – z. B. `192.168.1.50` oder `feeder.local`. Eine feste
   IP ist am zuverlässigsten; mDNS (`.local`) funktioniert nur, wenn dein Host-System sie auflösen
