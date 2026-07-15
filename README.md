@@ -638,6 +638,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.3 (2026-07-15)
+* (ssbingo) Fix: the **Sayit volume** is now written to the instance's own `tts.volume` state (only if it exists) instead of a `tts.text` prefix — the volume actually takes effect now, and the announcement **test no longer hangs** when a volume is set. An empty volume keeps the Sayit instance's own volume
+
 ### 1.9.2 (2026-07-15)
 * (ssbingo) New **Test announcement** button next to the Sayit instance selection — speaks a short test text through the selected instance so you can check the audio output without waiting for a feeding
 * (ssbingo) The feeding announcement now uses the **correct singular/plural** form of "minutes" for each language (e.g. "1 minute" vs "5 minutes"; Russian/Polish/Ukrainian 1 / 2–4 / 5+ forms), via the language's CLDR plural rules
@@ -676,12 +679,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.4.1 (2026-07-05)
 * (ssbingo) Fix: the cleanup of removed switches mistakenly treated the `status` **sub-channel** as an obsolete switch and deleted it on **every adapter start** — the persisted status values (last feeding/result, winter-reminder deduplication, pause state) were lost on each restart (latent since 1.0.0). Only direct children of `switches.` are considered switch channels now; status values survive restarts
-
-### 1.4.0 (2026-07-05)
-* (ssbingo) Every timestamp data point now has a **numeric twin** ending in `…Ts` (Unix time in **milliseconds**, `0` = none): `status.lastFeedingTs`, `nextFeedingTs`, `pauseActiveUntilTs`, `sunriseTs`, `sunsetTs` — countdowns and time bars in VIS work without any string parsing and independent of the display format
-* (ssbingo) New `status.blockReasonCode`: the block reason as a **stable machine-readable code** (e.g. `blockNight`, `blockWaterBelow`, `blockPauseManual`; empty = not blocked) — language-independent icon/colour logic in VIS next to the localized `status.blockReason`
-* (ssbingo) New per-switch command **`feedFor`**: write a duration in **seconds** to trigger **one feeding with exactly that duration** — no configuration change, **no instance restart** (ideal for a VIS slider). Respects the blocks like the manual button (`manualIgnoresBlocks` applies); resets to `0` after execution
-* (ssbingo) Documentation updated in all 11 languages
 
 ---
 

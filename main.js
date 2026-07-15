@@ -2837,18 +2837,32 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * Writes a text to a Sayit (TTS) instance's `<instance>.tts.text` state so it is spoken.
-	 * An optional volume 0..100 is passed as the sayit "<volume>;text" prefix.
+	 * Speaks a text via a Sayit (TTS) instance. An optional volume 0..100 is written to the
+	 * instance's own `<instance>.tts.volume` state first (only if that state exists), then the
+	 * plain text is written to `<instance>.tts.text`. Empty volume = keep the instance's volume.
 	 *
 	 * @param {string} instance - sayit instance id, e.g. "sayit.0"
 	 * @param {string} text - the fully composed message
-	 * @param {unknown} volume - optional volume 0..100 (null/empty = instance default)
-	 * @returns {Promise<void>} resolves when the state was written
+	 * @param {unknown} volume - optional volume 0..100 (null/empty = keep instance volume)
+	 * @returns {Promise<void>} resolves when the text state was written
 	 */
 	async writeSayit(instance, text, volume) {
 		const hasVol = volume !== null && volume !== undefined && volume !== '' && Number.isFinite(Number(volume));
-		const payload = hasVol ? `${Math.min(100, Math.max(0, Math.round(Number(volume))))};${text}` : text;
-		await this.setForeignStateAsync(`${instance}.tts.text`, { val: payload, ack: false });
+		if (hasVol) {
+			const v = Math.min(100, Math.max(0, Math.round(Number(volume))));
+			const volId = `${instance}.tts.volume`;
+			try {
+				const obj = await this.getForeignObjectAsync(volId);
+				if (obj) {
+					await this.setForeignStateAsync(volId, { val: v, ack: false });
+				} else {
+					this.log.warn(`Sayit instance "${instance}" has no "${volId}" state; volume ignored.`);
+				}
+			} catch (e) {
+				this.log.warn(`Could not set Sayit volume (${volId}): ${e.message}`);
+			}
+		}
+		await this.setForeignStateAsync(`${instance}.tts.text`, { val: text, ack: false });
 	}
 
 	/**

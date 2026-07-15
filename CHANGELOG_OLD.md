@@ -3,6 +3,12 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.4.0 (2026-07-05)
+* (ssbingo) Every timestamp data point now has a **numeric twin** ending in `…Ts` (Unix time in **milliseconds**, `0` = none): `status.lastFeedingTs`, `nextFeedingTs`, `pauseActiveUntilTs`, `sunriseTs`, `sunsetTs` — countdowns and time bars in VIS work without any string parsing and independent of the display format
+* (ssbingo) New `status.blockReasonCode`: the block reason as a **stable machine-readable code** (e.g. `blockNight`, `blockWaterBelow`, `blockPauseManual`; empty = not blocked) — language-independent icon/colour logic in VIS next to the localized `status.blockReason`
+* (ssbingo) New per-switch command **`feedFor`**: write a duration in **seconds** to trigger **one feeding with exactly that duration** — no configuration change, **no instance restart** (ideal for a VIS slider). Respects the blocks like the manual button (`manualIgnoresBlocks` applies); resets to `0` after execution
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.3.0 (2026-07-04)
 * (ssbingo) New per-switch **feeding pauses**. A **master switch** *Suspend feeding now* (`settings.pauseNow`) instantly suspends **all** feeding for a switch until you turn it off again — it overrides every feeding mode (fixed times, interval, dynamic feeding, winter pause) and the date-time pauses. A **Telegram** message is sent on each toggle
 * (ssbingo) In addition, up to **3 one-off date-time feeding pauses** per switch (e.g. a **quarantine after restocking**) fully suspend feeding within an absolute period, with a **Telegram** message at the start and end of each. They have the highest priority over all feeding modes
