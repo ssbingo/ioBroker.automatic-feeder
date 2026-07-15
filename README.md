@@ -642,6 +642,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.6 (2026-07-15)
+* (ssbingo) Maintenance: updated a development dependency (`@types/node` → 22.20.1) and pinned the CI deploy action to a fixed version (`ioBroker/testing-action-deploy@v1.5.1`); Dependabot now keeps `pdfmake` on the 0.2.x line (0.3.x has an incompatible server API). No functional changes
+
 ### 1.9.5 (2026-07-15)
 * (ssbingo) New comprehensive **German PDF handbook** ([doc/de/Handbuch.pdf](doc/de/Handbuch.pdf)) with a modern, colourful design — generated from `tools/build-handbook.js` (`npm run doc:handbook`) and linked from the German documentation
 * (ssbingo) Added a note in the relay-board section (all 11 languages) that the **Automatic-Feeder relay board is developed in parallel as a separate project**
@@ -678,11 +681,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.7.0 (2026-07-14)
 * (ssbingo) New optional **Automatic-Feeder relay board** integration (an ESP32 with three timer buttons). Enable it in the general settings; each switch then gets a **Relay** tab to set the board's address (IP or mDNS host, port 80), **test the connection**, and read/write the three button feeding times **S1–S3** (fetched from the board first, then saved back). The adapter only configures the board and shows its status — it does not trigger feeding through it
 * (ssbingo) New per-switch data points `relay.connected`, `relay.info`, `relay.active` and `relay.remaining` (present only when the relay board integration is enabled), polled every 60 s
-* (ssbingo) Documentation updated in all 11 languages
-
-### 1.6.0 (2026-07-07)
-* (ssbingo) New per-switch data point `status.feedingDurationSec` (seconds, `0` = not feeding): the total duration of the **currently running** feeding, so a VIS widget can draw an **exact progress ring** next to the runtime countdown. Set at switch-on, cleared when the feeding ends
-* (ssbingo) New adapter icon (stylized feeder on a light grey tile)
 * (ssbingo) Documentation updated in all 11 languages
 
 ---

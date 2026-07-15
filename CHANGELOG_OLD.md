@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.6.0 (2026-07-07)
+* (ssbingo) New per-switch data point `status.feedingDurationSec` (seconds, `0` = not feeding): the total duration of the **currently running** feeding, so a VIS widget can draw an **exact progress ring** next to the runtime countdown. Set at switch-on, cleared when the feeding ends
+* (ssbingo) New adapter icon (stylized feeder on a light grey tile)
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.5.0 (2026-07-05)
 * (ssbingo) New per-switch data point `status.feedingEndsTs` (Unix time in ms, `0` = not feeding): the end time of the **currently running** feeding, so a VIS widget can show a **live runtime countdown** (e.g. 15 → 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends
 * (ssbingo) Documentation updated in all 11 languages

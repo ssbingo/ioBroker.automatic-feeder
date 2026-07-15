@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.5",
+		"version": "1.9.6",
 		"news": {
-			"1.9.5": {
-				"en": "New comprehensive German PDF handbook (doc/de/Handbuch.pdf) with a modern, colourful design, generated via 'npm run doc:handbook' and linked from the German documentation. Added a note (all 11 languages) that the Automatic-Feeder relay board is developed in parallel as a separate project.",
-				"de": "Neues umfangreiches deutsches PDF-Handbuch (doc/de/Handbuch.pdf) in modernem, farbigem Design, erzeugt mit 'npm run doc:handbook' und in der deutschen Doku verlinkt. Hinweis ergänzt (in allen 11 Sprachen), dass die Automatic-Feeder-Relaisplatine parallel als eigenständiges Projekt entsteht.",
-				"ru": "Новое подробное немецкое PDF-руководство (doc/de/Handbuch.pdf) в современном цветном дизайне, создаётся командой 'npm run doc:handbook' и связано с немецкой документацией. Добавлено примечание (на всех 11 языках), что релейная плата Automatic-Feeder разрабатывается параллельно как отдельный проект.",
-				"pt": "Novo manual PDF alemão abrangente (doc/de/Handbuch.pdf) com design moderno e colorido, gerado com 'npm run doc:handbook' e ligado à documentação alemã. Adicionada uma nota (nos 11 idiomas) de que a placa de relé Automatic-Feeder é desenvolvida em paralelo como um projeto separado.",
-				"nl": "Nieuw uitgebreid Duits PDF-handboek (doc/de/Handbuch.pdf) met een modern, kleurrijk ontwerp, gegenereerd met 'npm run doc:handbook' en gelinkt vanuit de Duitse documentatie. Opmerking toegevoegd (in alle 11 talen) dat de Automatic-Feeder relaisprint parallel als apart project wordt ontwikkeld.",
-				"fr": "Nouveau manuel PDF allemand complet (doc/de/Handbuch.pdf) au design moderne et coloré, généré via 'npm run doc:handbook' et lié depuis la documentation allemande. Ajout d'une note (dans les 11 langues) indiquant que la carte relais Automatic-Feeder est développée en parallèle comme projet distinct.",
-				"it": "Nuovo manuale PDF tedesco completo (doc/de/Handbuch.pdf) dal design moderno e colorato, generato con 'npm run doc:handbook' e collegato dalla documentazione tedesca. Aggiunta una nota (in tutte le 11 lingue) sul fatto che la scheda relè Automatic-Feeder è sviluppata in parallelo come progetto separato.",
-				"es": "Nuevo manual PDF alemán completo (doc/de/Handbuch.pdf) con un diseño moderno y colorido, generado con 'npm run doc:handbook' y enlazado desde la documentación alemana. Añadida una nota (en los 11 idiomas) de que la placa de relé Automatic-Feeder se desarrolla en paralelo como un proyecto separado.",
-				"pl": "Nowy obszerny niemiecki podręcznik PDF (doc/de/Handbuch.pdf) o nowoczesnym, kolorowym designie, generowany poleceniem 'npm run doc:handbook' i podlinkowany w niemieckiej dokumentacji. Dodano notatkę (we wszystkich 11 językach), że płytka przekaźnikowa Automatic-Feeder jest rozwijana równolegle jako osobny projekt.",
-				"uk": "Новий докладний німецький PDF-посібник (doc/de/Handbuch.pdf) у сучасному кольоровому дизайні, що створюється командою 'npm run doc:handbook' та пов'язаний з німецькою документацією. Додано примітку (усіма 11 мовами), що релейна плата Automatic-Feeder розробляється паралельно як окремий проєкт.",
-				"zh-cn": "新增内容全面的德语 PDF 手册（doc/de/Handbuch.pdf），采用现代彩色设计，通过 'npm run doc:handbook' 生成并在德语文档中链接。新增说明（全部 11 种语言）：Automatic-Feeder 继电器板作为独立项目并行开发。"
+			"1.9.6": {
+				"en": "Maintenance: updated a development dependency (@types/node) and pinned the CI deploy action to a fixed version (ioBroker/testing-action-deploy@v1.5.1). No functional changes.",
+				"de": "Wartung: eine Entwicklungsabhängigkeit aktualisiert (@types/node) und die CI-Deploy-Action auf eine feste Version gepinnt (ioBroker/testing-action-deploy@v1.5.1). Keine funktionalen Änderungen.",
+				"ru": "Обслуживание: обновлена зависимость для разработки (@types/node) и зафиксирована версия CI-экшена деплоя (ioBroker/testing-action-deploy@v1.5.1). Без функциональных изменений.",
+				"pt": "Manutenção: atualizada uma dependência de desenvolvimento (@types/node) e fixada a versão da ação de deploy do CI (ioBroker/testing-action-deploy@v1.5.1). Sem alterações funcionais.",
+				"nl": "Onderhoud: een ontwikkelingsafhankelijkheid bijgewerkt (@types/node) en de CI-deploy-actie op een vaste versie vastgezet (ioBroker/testing-action-deploy@v1.5.1). Geen functionele wijzigingen.",
+				"fr": "Maintenance : mise à jour d'une dépendance de développement (@types/node) et épinglage de l'action de déploiement CI sur une version fixe (ioBroker/testing-action-deploy@v1.5.1). Aucune modification fonctionnelle.",
+				"it": "Manutenzione: aggiornata una dipendenza di sviluppo (@types/node) e fissata la versione dell'azione di deploy CI (ioBroker/testing-action-deploy@v1.5.1). Nessuna modifica funzionale.",
+				"es": "Mantenimiento: actualizada una dependencia de desarrollo (@types/node) y fijada la versión de la acción de despliegue de CI (ioBroker/testing-action-deploy@v1.5.1). Sin cambios funcionales.",
+				"pl": "Konserwacja: zaktualizowano zależność deweloperską (@types/node) i przypięto akcję wdrożeniową CI do stałej wersji (ioBroker/testing-action-deploy@v1.5.1). Bez zmian funkcjonalnych.",
+				"uk": "Обслуговування: оновлено залежність для розробки (@types/node) і зафіксовано версію CI-екшену розгортання (ioBroker/testing-action-deploy@v1.5.1). Без функціональних змін.",
+				"zh-cn": "维护：更新了一个开发依赖（@types/node），并将 CI 部署 action 固定到指定版本（ioBroker/testing-action-deploy@v1.5.1）。无功能性更改。"
 			}
 		},
 		"titleLang": {
