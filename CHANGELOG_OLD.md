@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.4.1 (2026-07-05)
+* (ssbingo) Fix: the cleanup of removed switches mistakenly treated the `status` **sub-channel** as an obsolete switch and deleted it on **every adapter start** — the persisted status values (last feeding/result, winter-reminder deduplication, pause state) were lost on each restart (latent since 1.0.0). Only direct children of `switches.` are considered switch channels now; status values survive restarts
+
 ### 1.4.0 (2026-07-05)
 * (ssbingo) Every timestamp data point now has a **numeric twin** ending in `…Ts` (Unix time in **milliseconds**, `0` = none): `status.lastFeedingTs`, `nextFeedingTs`, `pauseActiveUntilTs`, `sunriseTs`, `sunsetTs` — countdowns and time bars in VIS work without any string parsing and independent of the display format
 * (ssbingo) New `status.blockReasonCode`: the block reason as a **stable machine-readable code** (e.g. `blockNight`, `blockWaterBelow`, `blockPauseManual`; empty = not blocked) — language-independent icon/colour logic in VIS next to the localized `status.blockReason`

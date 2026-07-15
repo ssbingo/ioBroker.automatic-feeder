@@ -638,6 +638,10 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.4 (2026-07-15)
+* (ssbingo) The feeding announcement now also states the **approximate feeding duration** — e.g. "The next feeding starts in 5 minutes. The feeding will take about 8 seconds." The duration is the effective one (static/winter/dynamic), localized with correct singular/plural in every language
+* (ssbingo) The **Sayit volume** is now set shortly before the spoken text (small delay) so it reliably applies to that announcement instead of the previous one
+
 ### 1.9.3 (2026-07-15)
 * (ssbingo) Fix: the **Sayit volume** is now written to the instance's own `tts.volume` state (only if it exists) instead of a `tts.text` prefix — the volume actually takes effect now, and the announcement **test no longer hangs** when a volume is set. An empty volume keeps the Sayit instance's own volume
 
@@ -676,9 +680,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.5.0 (2026-07-05)
 * (ssbingo) New per-switch data point `status.feedingEndsTs` (Unix time in ms, `0` = not feeding): the end time of the **currently running** feeding, so a VIS widget can show a **live runtime countdown** (e.g. 15 → 0 s) while the feeder runs. Set at switch-on, cleared when the feeding ends
 * (ssbingo) Documentation updated in all 11 languages
-
-### 1.4.1 (2026-07-05)
-* (ssbingo) Fix: the cleanup of removed switches mistakenly treated the `status` **sub-channel** as an obsolete switch and deleted it on **every adapter start** — the persisted status values (last feeding/result, winter-reminder deduplication, pause state) were lost on each restart (latent since 1.0.0). Only direct children of `switches.` are considered switch channels now; status values survive restarts
 
 ---
 

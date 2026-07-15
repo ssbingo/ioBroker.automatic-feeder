@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.3",
+		"version": "1.9.4",
 		"news": {
-			"1.9.3": {
-				"en": "Fix: the Sayit volume is now written to the instance's own tts.volume state (not as a tts.text prefix), so it actually changes the loudness; the announcement test no longer hangs when a volume is set.",
-				"de": "Fix: Die Sayit-Lautstärke wird jetzt in den eigenen State tts.volume der Instanz geschrieben (nicht mehr als tts.text-Präfix), sodass sie die Lautstärke tatsächlich ändert; der Ansage-Test hängt nicht mehr, wenn eine Lautstärke gesetzt ist.",
-				"ru": "Исправление: громкость Sayit теперь записывается в собственный state экземпляра tts.volume (а не как префикс tts.text), поэтому она действительно меняет громкость; тест объявления больше не зависает при заданной громкости.",
-				"pt": "Correção: o volume do Sayit passa a ser escrito no estado tts.volume da própria instância (não como prefixo em tts.text), pelo que altera realmente o volume; o teste do anúncio deixa de bloquear quando um volume está definido.",
-				"nl": "Fix: het Sayit-volume wordt nu naar de eigen tts.volume-state van de instantie geschreven (niet meer als tts.text-prefix), zodat het het volume echt aanpast; de aankondigingstest blijft niet meer hangen bij een ingesteld volume.",
-				"fr": "Correctif : le volume Sayit est désormais écrit dans l'état tts.volume propre à l'instance (et non en préfixe de tts.text), de sorte qu'il modifie réellement le volume ; le test d'annonce ne se bloque plus lorsqu'un volume est défini.",
-				"it": "Correzione: il volume di Sayit viene ora scritto nello stato tts.volume dell'istanza (non più come prefisso di tts.text), così cambia davvero il volume; il test dell'annuncio non si blocca più quando è impostato un volume.",
-				"es": "Corrección: el volumen de Sayit ahora se escribe en el estado tts.volume de la propia instancia (no como prefijo de tts.text), por lo que cambia realmente el volumen; la prueba del anuncio ya no se queda colgada cuando hay un volumen definido.",
-				"pl": "Poprawka: głośność Sayit jest teraz zapisywana do własnego stanu tts.volume instancji (a nie jako prefiks tts.text), dzięki czemu faktycznie zmienia głośność; test zapowiedzi nie zawiesza się już, gdy ustawiono głośność.",
-				"uk": "Виправлення: гучність Sayit тепер записується у власний state екземпляра tts.volume (а не як префікс tts.text), тож вона справді змінює гучність; тест оголошення більше не зависає, коли задано гучність.",
-				"zh-cn": "修复：Sayit 音量现在写入实例自身的 tts.volume 状态（不再作为 tts.text 前缀），因此确实会改变音量；设置音量后预告测试不再卡住。"
+			"1.9.4": {
+				"en": "The feeding announcement now also states the approximate feeding duration, e.g. 'The feeding will take about 8 seconds' (localized, correct singular/plural). The Sayit volume is now written and applied shortly before the text so it takes effect on that announcement.",
+				"de": "Die Fütterungsansage nennt jetzt auch die ungefähre Fütterungsdauer, z. B. 'Die Fütterung wird ca. 8 Sekunden dauern' (lokalisiert, korrekter Singular/Plural). Die Sayit-Lautstärke wird nun kurz vor dem Text gesetzt, damit sie für diese Ansage wirkt.",
+				"ru": "Объявление о кормлении теперь также называет примерную длительность кормления, например «Кормление продлится примерно 8 секунд» (локализовано, правильные формы числа). Громкость Sayit теперь устанавливается непосредственно перед текстом, чтобы применяться к этому объявлению.",
+				"pt": "O anúncio de alimentação passa a indicar também a duração aproximada, por ex. 'A alimentação vai durar cerca de 8 segundos' (localizado, singular/plural correto). O volume do Sayit é agora definido pouco antes do texto para ter efeito nesse anúncio.",
+				"nl": "De voederaankondiging vermeldt nu ook de geschatte voederduur, bijv. 'De voedering duurt ongeveer 8 seconden' (gelokaliseerd, correct enkelvoud/meervoud). Het Sayit-volume wordt nu vlak voor de tekst ingesteld zodat het voor die aankondiging werkt.",
+				"fr": "L'annonce de distribution indique désormais aussi la durée approximative, p. ex. « La distribution durera environ 8 secondes » (localisé, singulier/pluriel correct). Le volume Sayit est maintenant défini juste avant le texte pour s'appliquer à cette annonce.",
+				"it": "L'annuncio di alimentazione indica ora anche la durata approssimativa, es. 'L'alimentazione durerà circa 8 secondi' (localizzato, singolare/plurale corretto). Il volume di Sayit viene ora impostato poco prima del testo così da avere effetto su quell'annuncio.",
+				"es": "El anuncio de alimentación indica ahora también la duración aproximada, p. ej. 'La alimentación durará unos 8 segundos' (localizado, singular/plural correcto). El volumen de Sayit se establece ahora justo antes del texto para que surta efecto en ese anuncio.",
+				"pl": "Zapowiedź karmienia podaje teraz także przybliżony czas karmienia, np. „Karmienie potrwa około 8 sekund” (zlokalizowane, poprawna liczba). Głośność Sayit jest teraz ustawiana tuż przed tekstem, aby zadziałała dla tej zapowiedzi.",
+				"uk": "Оголошення про годування тепер також називає приблизну тривалість, напр. «Годування триватиме приблизно 8 секунд» (локалізовано, правильні форми числа). Гучність Sayit тепер встановлюється безпосередньо перед текстом, щоб діяти для цього оголошення.",
+				"zh-cn": "投喂预告现在还会说明大致的投喂时长，例如“投喂大约持续 8 秒”（本地化，正确单复数）。Sayit 音量现在会在文本之前稍作设置，以便对该预告生效。"
 			}
 		},
 		"titleLang": {

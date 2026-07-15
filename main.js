@@ -16,7 +16,7 @@
 
 const utils = require('@iobroker/adapter-core');
 const SunCalc = require('suncalc');
-const { translate, minuteUnit, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
+const { translate, minuteUnit, secondUnit, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('./lib/messages');
 const {
 	isInWinterPause,
 	reminderDue,
@@ -51,6 +51,11 @@ const RELAY_POLL_MS = 60000;
 /** Lower/upper bound for a relay-board button feeding time (seconds); enforced by the board too. */
 const RELAY_TIME_MIN_SEC = 1;
 const RELAY_TIME_MAX_SEC = 600;
+/**
+ * Delay after writing a Sayit volume before writing the text, so the instance applies the
+ *  new volume to THIS announcement instead of the previous one (milliseconds).
+ */
+const SAYIT_VOLUME_DELAY_MS = 400;
 
 /** Read-only status states that live under `switches.<id>.status.*` (used for cleanup of legacy flat states). */
 const STATUS_STATE_IDS = [
@@ -2855,6 +2860,9 @@ class AutomaticFeeder extends utils.Adapter {
 				const obj = await this.getForeignObjectAsync(volId);
 				if (obj) {
 					await this.setForeignStateAsync(volId, { val: v, ack: false });
+					// let sayit apply the new volume before the text is spoken, otherwise this
+					// announcement may still play at the previously set volume
+					await this.delay(SAYIT_VOLUME_DELAY_MS);
 				} else {
 					this.log.warn(`Sayit instance "${instance}" has no "${volId}" state; volume ignored.`);
 				}
@@ -2899,8 +2907,14 @@ class AutomaticFeeder extends utils.Adapter {
 			return;
 		}
 		const minutes = Number(sw.announceLeadMin) || 0;
+		const seconds = Math.round(Math.min(MAX_DURATION_SEC, Math.max(0, this.effectiveDurationSec(sw))));
 		const lang = this.notifyLangFor(sw);
-		const text = `${sw.name || sw.id}: ${translate('announce', lang, { minutes, unit: minuteUnit(lang, minutes) })}`;
+		const text = `${sw.name || sw.id}: ${translate('announce', lang, {
+			minutes,
+			unit: minuteUnit(lang, minutes),
+			seconds,
+			sunit: secondUnit(lang, seconds),
+		})}`;
 		if (sw.announceViaTelegram && sw.telegramInstance) {
 			this.sendTelegram(sw, text, 'announce');
 		}
