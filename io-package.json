@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.6",
+		"version": "1.9.7",
 		"news": {
-			"1.9.6": {
-				"en": "Maintenance: updated a development dependency (@types/node) and pinned the CI deploy action to a fixed version (ioBroker/testing-action-deploy@v1.5.1). No functional changes.",
-				"de": "Wartung: eine Entwicklungsabhängigkeit aktualisiert (@types/node) und die CI-Deploy-Action auf eine feste Version gepinnt (ioBroker/testing-action-deploy@v1.5.1). Keine funktionalen Änderungen.",
-				"ru": "Обслуживание: обновлена зависимость для разработки (@types/node) и зафиксирована версия CI-экшена деплоя (ioBroker/testing-action-deploy@v1.5.1). Без функциональных изменений.",
-				"pt": "Manutenção: atualizada uma dependência de desenvolvimento (@types/node) e fixada a versão da ação de deploy do CI (ioBroker/testing-action-deploy@v1.5.1). Sem alterações funcionais.",
-				"nl": "Onderhoud: een ontwikkelingsafhankelijkheid bijgewerkt (@types/node) en de CI-deploy-actie op een vaste versie vastgezet (ioBroker/testing-action-deploy@v1.5.1). Geen functionele wijzigingen.",
-				"fr": "Maintenance : mise à jour d'une dépendance de développement (@types/node) et épinglage de l'action de déploiement CI sur une version fixe (ioBroker/testing-action-deploy@v1.5.1). Aucune modification fonctionnelle.",
-				"it": "Manutenzione: aggiornata una dipendenza di sviluppo (@types/node) e fissata la versione dell'azione di deploy CI (ioBroker/testing-action-deploy@v1.5.1). Nessuna modifica funzionale.",
-				"es": "Mantenimiento: actualizada una dependencia de desarrollo (@types/node) y fijada la versión de la acción de despliegue de CI (ioBroker/testing-action-deploy@v1.5.1). Sin cambios funcionales.",
-				"pl": "Konserwacja: zaktualizowano zależność deweloperską (@types/node) i przypięto akcję wdrożeniową CI do stałej wersji (ioBroker/testing-action-deploy@v1.5.1). Bez zmian funkcjonalnych.",
-				"uk": "Обслуговування: оновлено залежність для розробки (@types/node) і зафіксовано версію CI-екшену розгортання (ioBroker/testing-action-deploy@v1.5.1). Без функціональних змін.",
-				"zh-cn": "维护：更新了一个开发依赖（@types/node），并将 CI 部署 action 固定到指定版本（ioBroker/testing-action-deploy@v1.5.1）。无功能性更改。"
+			"1.9.7": {
+				"en": "Maintenance: re-aligns the published version with the current GitHub state, which contained a CI-only change keeping the deploy action on the floating @v1 major tag (repochecker S3044). No functional or shipped-code changes.",
+				"de": "Wartung: bringt die veröffentlichte Version wieder in Deckung mit dem aktuellen GitHub-Stand, der eine reine CI-Änderung enthielt (Deploy-Action bleibt auf dem floating @v1-Major-Tag, repochecker S3044). Keine funktionalen Änderungen.",
+				"ru": "Обслуживание: снова приводит опубликованную версию в соответствие с текущим состоянием GitHub, содержавшим лишь изменение CI (экшен деплоя остаётся на плавающем мажорном теге @v1, repochecker S3044). Без функциональных изменений.",
+				"pt": "Manutenção: realinha a versão publicada com o estado atual do GitHub, que continha apenas uma alteração de CI (a ação de deploy fica na tag maior flutuante @v1, repochecker S3044). Sem alterações funcionais.",
+				"nl": "Onderhoud: brengt de gepubliceerde versie weer in lijn met de huidige GitHub-staat, die alleen een CI-wijziging bevatte (deploy-actie blijft op de zwevende major-tag @v1, repochecker S3044). Geen functionele wijzigingen.",
+				"fr": "Maintenance : réaligne la version publiée avec l'état actuel de GitHub, qui contenait uniquement une modification CI (l'action de déploiement reste sur le tag majeur flottant @v1, repochecker S3044). Aucune modification fonctionnelle.",
+				"it": "Manutenzione: riallinea la versione pubblicata con lo stato attuale di GitHub, che conteneva solo una modifica CI (l'azione di deploy resta sul tag major flottante @v1, repochecker S3044). Nessuna modifica funzionale.",
+				"es": "Mantenimiento: realinea la versión publicada con el estado actual de GitHub, que solo contenía un cambio de CI (la acción de despliegue permanece en la etiqueta mayor flotante @v1, repochecker S3044). Sin cambios funcionales.",
+				"pl": "Konserwacja: ponownie zrównuje opublikowaną wersję z bieżącym stanem GitHub, który zawierał jedynie zmianę CI (akcja wdrożeniowa pozostaje na ruchomym tagu major @v1, repochecker S3044). Bez zmian funkcjonalnych.",
+				"uk": "Обслуговування: знову узгоджує опубліковану версію з поточним станом GitHub, який містив лише зміну CI (екшен розгортання залишається на плаваючому мажорному тезі @v1, repochecker S3044). Без функціональних змін.",
+				"zh-cn": "维护：使已发布版本与当前 GitHub 状态重新对齐——该状态仅包含一处 CI 更改（部署 action 保持在浮动主版本标签 @v1，repochecker S3044）。无功能性更改。"
 			}
 		},
 		"titleLang": {

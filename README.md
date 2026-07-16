@@ -642,6 +642,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.7 (2026-07-15)
+* (ssbingo) Maintenance: re-aligns the published version with the current GitHub state (which contained a CI-only change keeping the deploy action on the floating `@v1` major tag, per repochecker S3044). No functional or shipped-code changes
+
 ### 1.9.6 (2026-07-15)
 * (ssbingo) Maintenance: updated a development dependency (`@types/node` → 22.20.1) and pinned the CI deploy action to a fixed version (`ioBroker/testing-action-deploy@v1.5.1`); Dependabot now keeps `pdfmake` on the 0.2.x line (0.3.x has an incompatible server API). No functional changes
 
@@ -676,11 +679,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.7.1 (2026-07-14)
 * (ssbingo) The decision whether a switch uses the Automatic-Feeder relay board is now made **per switch** (a toggle in the Switches list on the general-settings tab) instead of one global switch. Only the switches you enable get a **Relay** tab and are polled; the `relay.*` data points exist only for those switches
-* (ssbingo) Documentation updated in all 11 languages
-
-### 1.7.0 (2026-07-14)
-* (ssbingo) New optional **Automatic-Feeder relay board** integration (an ESP32 with three timer buttons). Enable it in the general settings; each switch then gets a **Relay** tab to set the board's address (IP or mDNS host, port 80), **test the connection**, and read/write the three button feeding times **S1–S3** (fetched from the board first, then saved back). The adapter only configures the board and shows its status — it does not trigger feeding through it
-* (ssbingo) New per-switch data points `relay.connected`, `relay.info`, `relay.active` and `relay.remaining` (present only when the relay board integration is enabled), polled every 60 s
 * (ssbingo) Documentation updated in all 11 languages
 
 ---

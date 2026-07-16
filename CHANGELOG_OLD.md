@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.7.0 (2026-07-14)
+* (ssbingo) New optional **Automatic-Feeder relay board** integration (an ESP32 with three timer buttons). Enable it in the general settings; each switch then gets a **Relay** tab to set the board's address (IP or mDNS host, port 80), **test the connection**, and read/write the three button feeding times **S1–S3** (fetched from the board first, then saved back). The adapter only configures the board and shows its status — it does not trigger feeding through it
+* (ssbingo) New per-switch data points `relay.connected`, `relay.info`, `relay.active` and `relay.remaining` (present only when the relay board integration is enabled), polled every 60 s
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.6.0 (2026-07-07)
 * (ssbingo) New per-switch data point `status.feedingDurationSec` (seconds, `0` = not feeding): the total duration of the **currently running** feeding, so a VIS widget can draw an **exact progress ring** next to the runtime countdown. Set at switch-on, cleared when the feeding ends
 * (ssbingo) New adapter icon (stylized feeder on a light grey tile)
