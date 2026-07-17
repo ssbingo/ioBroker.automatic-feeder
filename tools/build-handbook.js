@@ -471,7 +471,7 @@ content.push(
 
 	sub('5.3  Relaisplatinen-Tab (optional)'),
 	p(
-		'Erscheint nur, wenn für den Schalter die Relaisplatine aktiviert ist. Hier stellst du die Adresse der Platine (IP oder mDNS, Port 80) ein, testest die Verbindung, liest/schreibst die drei Tasten-Fütterungszeiten S1–S3, kannst die Platine neu starten und siehst unten eine Systemübersicht (Firmware, IP, WLAN, Signal, MAC, Betriebszeit, freier Speicher, letzter Neustartgrund).',
+		'Erscheint nur, wenn für den Schalter die Relaisplatine aktiviert ist. Hier stellst du die Adresse der Platine (IP oder mDNS, Port 80) ein, testest die Verbindung, liest/schreibst die drei Tasten-Fütterungszeiten S1–S3, kannst die Platine neu starten und siehst unten eine Systemübersicht (Firmware-Version und -Build, IP, WLAN, Signal, MAC, Betriebszeit, freier Speicher, letzter Neustartgrund in Worten).',
 	),
 );
 

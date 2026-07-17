@@ -415,8 +415,10 @@ karmienia przez płytkę (przyciski obsługuje się na samej płytce).
   niedostępna, po czym automatycznie wraca do działania.
 
 Na dole zakładki **Przegląd systemu** pokazuje bieżące dane systemowe płytki po pomyślnym teście
-połączenia (przycisk *Testuj połączenie i pobierz czasy*): wersję firmware, nazwę hosta, adres IP,
-sieć Wi-Fi, siłę sygnału (dBm), adres MAC, czas działania, wolną pamięć oraz ostatni powód resetu.
+połączenia (przycisk *Testuj połączenie i pobierz czasy*): wersję i datę kompilacji firmware, nazwę hosta,
+adres IP, sieć Wi-Fi, siłę sygnału (dBm), adres MAC, czas działania, wolną pamięć oraz ostatni powód resetu
+(przedstawiony słownie, np. „Software" — płytka wysyła krótki kod, taki jak „sw", który adapter rozwija do
+pełnej nazwy).
 
 Połączenie jest także odzwierciedlane w drzewie obiektów i odświeżane co 60 s – zobacz punkty
 danych `relay.*` w sekcji 6.

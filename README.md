@@ -404,9 +404,9 @@ does not trigger feeding through the board (the buttons are operated on the boar
   prompt the board reboots and is offline for a few seconds, then comes back automatically.
 
 At the bottom of the tab, a **System overview** shows the board's live system data after a
-successful connection test (the *Test connection & fetch times* button): firmware version, host
-name, IP address, Wi-Fi network, signal strength (dBm), MAC address, uptime, free memory and the
-last reset reason.
+successful connection test (the *Test connection & fetch times* button): firmware version and
+build, host name, IP address, Wi-Fi network, signal strength (dBm), MAC address, uptime, free
+memory and the last reset reason (shown in plain words, e.g. “Software”).
 
 The connection is also mirrored into the object tree and refreshed every 60 s – see the
 `relay.*` data points in [section 6](#6-objects--data-points).
@@ -642,6 +642,10 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.9 (2026-07-17)
+* (ssbingo) The relay tab's **System overview** now also shows the **firmware release version** (`ver`, e.g. `0.0.15`) in addition to the firmware build date
+* (ssbingo) The **last reset reason** is now spelled out in plain, localized words — the board sends a short code (`sw`, `poweron`, `wdt`, `brownout`, `deepsleep`, `panic`, …), which the adapter shows as e.g. “Software”, “Power-on”, “Watchdog”
+
 ### 1.9.8 (2026-07-17)
 * (ssbingo) Fix (state role): `switches.<id>.relay.connected` now uses the role **`indicator.reachable`** instead of `indicator.connected` — the relay board is a physical LAN device (ESP32), not an adapter instance, and the ioBroker stateroles spec reserves `indicator.connected` for instances. Objects created by older versions are corrected automatically on start
 
@@ -673,11 +677,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) New optional **Sayit (text-to-speech) notifications** per switch: pick an installed `sayit.*` instance, an optional volume, and the **same three messages** as Telegram (successful feeding / could-not-feed / switch-off fault) — selected separately, so Telegram and Sayit can run in parallel
 * (ssbingo) New **feeding announcement**: announce an upcoming feeding a configurable number of minutes in advance, via **Telegram and/or Sayit**. The announcement is skipped when the feeding would currently be blocked or paused. (Placeholder announcement text for now; the final wording follows later)
 * (ssbingo) New per-switch **Message language** for the outgoing texts (Telegram, Sayit and the announcement): the ioBroker system language or a specific one; the status data points are unaffected
-* (ssbingo) Documentation updated in all 11 languages
-
-### 1.8.0 (2026-07-14)
-* (ssbingo) Each relay tab now has a **Restart board** button that restarts the ESP32 via its API (`POST /api/reboot`, with a confirmation prompt)
-* (ssbingo) New **System overview** at the bottom of each relay tab showing the board's live system data after a connection test: firmware, host name, IP address, Wi-Fi network, signal strength, MAC address, uptime, free memory and the last reset reason
 * (ssbingo) Documentation updated in all 11 languages
 
 ---

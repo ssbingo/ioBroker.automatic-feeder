@@ -136,7 +136,6 @@
 	"Connected": "Подключено",
 	"Not connected": "Не подключено",
 	"Board": "Плата",
-	"Firmware": "Прошивка",
 	"Connected — button times fetched from the board.": "Соединение установлено — время кнопок получено с платы.",
 	"Connection failed": "Не удалось подключиться",
 	"Enter the board address first.": "Сначала введите адрес платы.",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "Настройте выше экземпляр Telegram или Sayit, чтобы получать объявление.",
 	"Test announcement": "Проверить объявление",
 	"Test announcement sent.": "Тестовое объявление отправлено.",
-	"Test failed": "Не удалось выполнить тест"
+	"Test failed": "Не удалось выполнить тест",
+	"Firmware version": "Версия прошивки",
+	"Firmware build": "Сборка прошивки",
+	"resetReason_poweron": "Включение питания",
+	"resetReason_sw": "Программный сброс",
+	"resetReason_panic": "Сбой (panic)",
+	"resetReason_wdt": "Watchdog (сторожевой таймер)",
+	"resetReason_brownout": "Пониженное напряжение (brownout)",
+	"resetReason_deepsleep": "Глубокий сон (deep sleep)",
+	"resetReason_unknown": "Неизвестно"
 }

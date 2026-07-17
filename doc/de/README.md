@@ -414,9 +414,10 @@ löst über die Platine keine Fütterung aus (die Tasten werden an der Platine s
   automatisch wieder zurück.
 
 Ganz unten im Tab zeigt eine **Systemübersicht** nach einem erfolgreichen Verbindungstest (der Taste
-*Verbindung testen & Zeiten abrufen*) die Live-Systemdaten der Platine: Firmware-Version, Hostname,
-IP-Adresse, WLAN-Netzwerk, Signalstärke (dBm), MAC-Adresse, Uptime, freien Speicher und den letzten
-Reset-Grund.
+*Verbindung testen & Zeiten abrufen*) die Live-Systemdaten der Platine: Firmware-Version und Build-Datum,
+Hostname, IP-Adresse, WLAN-Netzwerk, Signalstärke (dBm), MAC-Adresse, Uptime, freien Speicher und den
+letzten Reset-Grund im Klartext (z. B. „Software", da die Platine nur ein Kurzkürzel wie „sw" sendet,
+das der Adapter ausschreibt).
 
 Die Verbindung wird außerdem in den Objektbaum gespiegelt und alle 60 s aktualisiert – siehe die
 `relay.*`-Datenpunkte in Abschnitt 6.

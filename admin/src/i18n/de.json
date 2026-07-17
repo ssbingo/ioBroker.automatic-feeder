@@ -136,7 +136,6 @@
 	"Connected": "Verbunden",
 	"Not connected": "Nicht verbunden",
 	"Board": "Platine",
-	"Firmware": "Firmware",
 	"Connected — button times fetched from the board.": "Verbunden – Tastenzeiten von der Platine abgerufen.",
 	"Connection failed": "Verbindung fehlgeschlagen",
 	"Enter the board address first.": "Geben Sie zuerst die Platinen-Adresse ein.",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "Konfigurieren Sie oben eine Telegram- oder Sayit-Instanz, um die Ansage zu erhalten.",
 	"Test announcement": "Ansage testen",
 	"Test announcement sent.": "Test-Ansage gesendet.",
-	"Test failed": "Test fehlgeschlagen"
+	"Test failed": "Test fehlgeschlagen",
+	"Firmware version": "Firmware-Version",
+	"Firmware build": "Firmware-Build",
+	"resetReason_poweron": "Einschalten (Power-On)",
+	"resetReason_sw": "Software",
+	"resetReason_panic": "Absturz (Panik)",
+	"resetReason_wdt": "Watchdog",
+	"resetReason_brownout": "Unterspannung (Brownout)",
+	"resetReason_deepsleep": "Deep-Sleep",
+	"resetReason_unknown": "Unbekannt"
 }

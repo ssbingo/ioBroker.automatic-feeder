@@ -70,6 +70,20 @@ function formatBytes(n) {
 	return `${n} B`;
 }
 
+/**
+ * Turns the board's short reset-reason code (e.g. "sw", "poweron", "wdt") into a
+ * spelled-out, localized label. Unknown/empty values fall back to the raw text.
+ */
+function resetReasonLabel(code) {
+	if (!code) {
+		return null;
+	}
+	const key = `resetReason_${String(code).toLowerCase()}`;
+	const label = I18n.t(key);
+	// I18n.t returns the key unchanged when there is no translation -> keep the raw value
+	return label === key ? code : label;
+}
+
 function RelayTab(props) {
 	const { sw, onChange, socket, instanceId } = props;
 
@@ -189,7 +203,8 @@ function RelayTab(props) {
 				overviewRows.push({ label, value });
 			}
 		};
-		add(I18n.t('Firmware'), status.fw);
+		add(I18n.t('Firmware version'), status.ver);
+		add(I18n.t('Firmware build'), status.fw);
 		add(I18n.t('Host name'), status.host);
 		add(I18n.t('IP address'), status.ip);
 		add(I18n.t('WiFi network'), status.ssid);
@@ -197,7 +212,7 @@ function RelayTab(props) {
 		add(I18n.t('MAC address'), status.mac);
 		add(I18n.t('Uptime'), formatUptime(status.uptime));
 		add(I18n.t('Free memory'), formatBytes(status.heap));
-		add(I18n.t('Last reset reason'), status.reset);
+		add(I18n.t('Last reset reason'), resetReasonLabel(status.reset));
 	}
 
 	return (

@@ -3680,7 +3680,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 * "connected" is always true here.
 	 *
 	 * @param {unknown} raw - the raw JSON returned by the board
-	 * @returns {{ok: boolean, connected: boolean, host: string, ip: string, fw: string, wifi: string, ssid: string, rssi: (number|null), mac: string, ap: string, uptime: (number|null), heap: (number|null), reset: string, times: number[], active: boolean, remaining: number, relay: boolean}} normalized status
+	 * @returns {{ok: boolean, connected: boolean, host: string, ip: string, fw: string, ver: string, wifi: string, ssid: string, rssi: (number|null), mac: string, ap: string, uptime: (number|null), heap: (number|null), reset: string, times: number[], active: boolean, remaining: number, relay: boolean}} normalized status
 	 */
 	normalizeRelayStatus(raw) {
 		const d = raw && typeof raw === 'object' ? raw : {};
@@ -3693,6 +3693,8 @@ class AutomaticFeeder extends utils.Adapter {
 			host: str(d['host']),
 			ip: str(d['ip']),
 			fw: str(d['fw']),
+			// firmware release version (newer boards send "ver", e.g. "0.0.15"); "fw" stays the build stamp
+			ver: str(d['ver']),
 			wifi: str(d['wifi']),
 			ssid: str(d['ssid']),
 			rssi: num(d['rssi']),
@@ -3726,7 +3728,12 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 			try {
 				const st = this.normalizeRelayStatus(await this.relayFetch(host, '/api/status', 'GET'));
-				const info = [st.host && `host=${st.host}`, st.ip && `ip=${st.ip}`, st.fw && `fw=${st.fw}`]
+				const info = [
+					st.host && `host=${st.host}`,
+					st.ip && `ip=${st.ip}`,
+					st.ver && `ver=${st.ver}`,
+					st.fw && `fw=${st.fw}`,
+				]
 					.filter(Boolean)
 					.join(' ');
 				await this.setStateAsync(`${base}.connected`, { val: true, ack: true }).catch(() => {});

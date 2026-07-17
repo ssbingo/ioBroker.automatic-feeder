@@ -136,7 +136,6 @@
 	"Connected": "Connecté",
 	"Not connected": "Non connecté",
 	"Board": "Carte",
-	"Firmware": "Firmware",
 	"Connected — button times fetched from the board.": "Connecté — durées des boutons récupérées depuis la carte.",
 	"Connection failed": "Échec de la connexion",
 	"Enter the board address first.": "Saisissez d'abord l'adresse de la carte.",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configurez ci-dessus une instance Telegram ou Sayit pour recevoir l'annonce.",
 	"Test announcement": "Tester l'annonce",
 	"Test announcement sent.": "Annonce de test envoyée.",
-	"Test failed": "Échec du test"
+	"Test failed": "Échec du test",
+	"Firmware version": "Version du firmware",
+	"Firmware build": "Build du firmware",
+	"resetReason_poweron": "Mise sous tension",
+	"resetReason_sw": "Logiciel",
+	"resetReason_panic": "Plantage (panic)",
+	"resetReason_wdt": "Watchdog",
+	"resetReason_brownout": "Sous-tension (brownout)",
+	"resetReason_deepsleep": "Deep sleep",
+	"resetReason_unknown": "Inconnu"
 }

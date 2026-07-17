@@ -136,7 +136,6 @@
 	"Connected": "З’єднано",
 	"Not connected": "Не з’єднано",
 	"Board": "Плата",
-	"Firmware": "Прошивка",
 	"Connected — button times fetched from the board.": "З’єднано — час кнопок отримано з плати.",
 	"Connection failed": "Не вдалося з’єднатися",
 	"Enter the board address first.": "Спочатку введіть адресу плати.",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "Налаштуйте вище екземпляр Telegram або Sayit, щоб отримувати оголошення.",
 	"Test announcement": "Перевірити оголошення",
 	"Test announcement sent.": "Тестове оголошення надіслано.",
-	"Test failed": "Тест не вдався"
+	"Test failed": "Тест не вдався",
+	"Firmware version": "Версія прошивки",
+	"Firmware build": "Збірка прошивки",
+	"resetReason_poweron": "Увімкнення живлення",
+	"resetReason_sw": "Програмний",
+	"resetReason_panic": "Збій (panic)",
+	"resetReason_wdt": "Watchdog",
+	"resetReason_brownout": "Понижена напруга (brownout)",
+	"resetReason_deepsleep": "Глибокий сон (deep sleep)",
+	"resetReason_unknown": "Невідомо"
 }

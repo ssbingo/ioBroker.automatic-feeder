@@ -136,7 +136,6 @@
 	"Connected": "已连接",
 	"Not connected": "未连接",
 	"Board": "继电器板",
-	"Firmware": "固件",
 	"Connected — button times fetched from the board.": "已连接——已从继电器板获取按键时长。",
 	"Connection failed": "连接失败",
 	"Enter the board address first.": "请先输入继电器板地址。",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "请在上方配置 Telegram 或 Sayit 实例以接收预告。",
 	"Test announcement": "测试预告",
 	"Test announcement sent.": "已发送测试预告。",
-	"Test failed": "测试失败"
+	"Test failed": "测试失败",
+	"Firmware version": "固件版本",
+	"Firmware build": "固件构建",
+	"resetReason_poweron": "上电",
+	"resetReason_sw": "软件",
+	"resetReason_panic": "崩溃 (panic)",
+	"resetReason_wdt": "看门狗 (Watchdog)",
+	"resetReason_brownout": "欠压 (brownout)",
+	"resetReason_deepsleep": "深度睡眠",
+	"resetReason_unknown": "未知"
 }

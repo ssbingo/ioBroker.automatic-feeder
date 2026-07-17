@@ -398,9 +398,10 @@ ele não aciona a alimentação através da placa (os botões são operados na p
   confirmação, a placa reinicia e fica offline durante alguns segundos, voltando depois automaticamente.
 
 Na parte inferior da aba, uma **Visão geral do sistema** mostra os dados de sistema ao vivo da placa
-após um teste de ligação bem-sucedido (o botão *Testar ligação e obter tempos*): versão do firmware,
-nome do host, endereço IP, rede Wi-Fi, intensidade do sinal (dBm), endereço MAC, tempo de atividade,
-memória livre e o último motivo de reinício.
+após um teste de ligação bem-sucedido (o botão *Testar ligação e obter tempos*): versão do firmware
+e data de compilação (build), nome do host, endereço IP, rede Wi-Fi, intensidade do sinal (dBm),
+endereço MAC, tempo de atividade, memória livre e o último motivo de reinício, apresentado por extenso
+(p. ex. „Software"; a placa envia um código curto como „sw" que o adaptador traduz).
 
 A ligação também é espelhada na árvore de objetos e atualizada a cada 60 s – veja os pontos de dados
 `relay.*` na seção 6.

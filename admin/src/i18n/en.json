@@ -136,7 +136,6 @@
 	"Connected": "Connected",
 	"Not connected": "Not connected",
 	"Board": "Board",
-	"Firmware": "Firmware",
 	"Connected — button times fetched from the board.": "Connected — button times fetched from the board.",
 	"Connection failed": "Connection failed",
 	"Enter the board address first.": "Enter the board address first.",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configure a Telegram or Sayit instance above to receive the announcement.",
 	"Test announcement": "Test announcement",
 	"Test announcement sent.": "Test announcement sent.",
-	"Test failed": "Test failed"
+	"Test failed": "Test failed",
+	"Firmware version": "Firmware version",
+	"Firmware build": "Firmware build",
+	"resetReason_poweron": "Power-on",
+	"resetReason_sw": "Software",
+	"resetReason_panic": "Panic (crash)",
+	"resetReason_wdt": "Watchdog",
+	"resetReason_brownout": "Brownout (undervoltage)",
+	"resetReason_deepsleep": "Deep sleep",
+	"resetReason_unknown": "Unknown"
 }

@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.8.0 (2026-07-14)
+* (ssbingo) Each relay tab now has a **Restart board** button that restarts the ESP32 via its API (`POST /api/reboot`, with a confirmation prompt)
+* (ssbingo) New **System overview** at the bottom of each relay tab showing the board's live system data after a connection test: firmware, host name, IP address, Wi-Fi network, signal strength, MAC address, uptime, free memory and the last reset reason
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.7.1 (2026-07-14)
 * (ssbingo) The decision whether a switch uses the Automatic-Feeder relay board is now made **per switch** (a toggle in the Switches list on the general-settings tab) instead of one global switch. Only the switches you enable get a **Relay** tab and are polled; the `relay.*` data points exist only for those switches
 * (ssbingo) Documentation updated in all 11 languages

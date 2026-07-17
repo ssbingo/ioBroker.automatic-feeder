@@ -436,8 +436,9 @@ déclenche pas la distribution via la carte (les boutons s'actionnent sur la car
 
 En bas de l'onglet, un **Aperçu du système** affiche les données système en direct de la carte
 après un test de connexion réussi (le bouton *Tester la connexion et récupérer les durées*) :
-version du firmware, nom d'hôte, adresse IP, réseau Wi-Fi, force du signal (dBm), adresse MAC,
-durée de fonctionnement, mémoire libre et la dernière raison de réinitialisation.
+version et build du firmware, nom d'hôte, adresse IP, réseau Wi-Fi, force du signal (dBm),
+adresse MAC, durée de fonctionnement, mémoire libre et la dernière raison de réinitialisation,
+affichée en clair (p. ex. « Software »).
 
 La connexion est également reflétée dans l'arborescence des objets et actualisée toutes les 60 s —
 voir les points de données `relay.*` à la section 6.

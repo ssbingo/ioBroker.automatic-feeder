@@ -403,9 +403,10 @@ de print (de knoppen worden op de print zelf bediend).
   automatisch weer terugkomt.
 
 Onderaan het tabblad toont een **Systeemoverzicht** na een geslaagde verbindingstest (de knop
-*Verbinding testen & tijden ophalen*) de live systeemgegevens van de print: firmwareversie,
-hostnaam, IP-adres, wifi-netwerk, signaalsterkte (dBm), MAC-adres, uptime, vrij geheugen en de
-laatste resetreden.
+*Verbinding testen & tijden ophalen*) de live systeemgegevens van de print: firmwareversie en
+-build (releaseversie en builddatum), hostnaam, IP-adres, wifi-netwerk, signaalsterkte (dBm),
+MAC-adres, uptime, vrij geheugen en de laatste resetreden — in leesbare woorden weergegeven (de
+print stuurt een korte code zoals „sw", die de adapter voluit schrijft, bijv. „Software").
 
 De verbinding wordt ook in de objectboom gespiegeld en elke 60 s ververst – zie de
 `relay.*`-datapunten in sectie 6.

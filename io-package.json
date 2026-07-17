@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.8",
+		"version": "1.9.9",
 		"news": {
-			"1.9.8": {
-				"en": "Fix (state role): switches.<id>.relay.connected now uses indicator.reachable instead of indicator.connected, because the relay board is a physical device (ESP32), not an adapter instance (per the ioBroker stateroles spec). Existing objects are corrected automatically on start.",
-				"de": "Fix (State-Rolle): switches.<id>.relay.connected nutzt jetzt indicator.reachable statt indicator.connected, da die Relaisplatine ein physisches Gerät (ESP32) und keine Adapter-Instanz ist (gemäß ioBroker-stateroles-Spezifikation). Vorhandene Objekte werden beim Start automatisch korrigiert.",
-				"ru": "Исправление (роль состояния): switches.<id>.relay.connected теперь использует indicator.reachable вместо indicator.connected, поскольку релейная плата — это физическое устройство (ESP32), а не экземпляр адаптера (согласно спецификации stateroles ioBroker). Существующие объекты исправляются автоматически при запуске.",
-				"pt": "Correção (função de estado): switches.<id>.relay.connected usa agora indicator.reachable em vez de indicator.connected, porque a placa de relé é um dispositivo físico (ESP32), não uma instância de adaptador (conforme a especificação stateroles do ioBroker). Os objetos existentes são corrigidos automaticamente ao iniciar.",
-				"nl": "Fix (state-rol): switches.<id>.relay.connected gebruikt nu indicator.reachable in plaats van indicator.connected, omdat de relaisprint een fysiek apparaat (ESP32) is en geen adapterinstantie (conform de ioBroker-stateroles-specificatie). Bestaande objecten worden bij het starten automatisch gecorrigeerd.",
-				"fr": "Correctif (rôle d'état) : switches.<id>.relay.connected utilise désormais indicator.reachable au lieu de indicator.connected, car la carte relais est un appareil physique (ESP32), et non une instance d'adaptateur (selon la spécification stateroles d'ioBroker). Les objets existants sont corrigés automatiquement au démarrage.",
-				"it": "Correzione (ruolo di stato): switches.<id>.relay.connected ora usa indicator.reachable invece di indicator.connected, poiché la scheda relè è un dispositivo fisico (ESP32), non un'istanza dell'adattatore (secondo la specifica stateroles di ioBroker). Gli oggetti esistenti vengono corretti automaticamente all'avvio.",
-				"es": "Corrección (rol de estado): switches.<id>.relay.connected ahora usa indicator.reachable en lugar de indicator.connected, porque la placa de relé es un dispositivo físico (ESP32), no una instancia de adaptador (según la especificación stateroles de ioBroker). Los objetos existentes se corrigen automáticamente al iniciar.",
-				"pl": "Poprawka (rola stanu): switches.<id>.relay.connected używa teraz indicator.reachable zamiast indicator.connected, ponieważ płytka przekaźnikowa to urządzenie fizyczne (ESP32), a nie instancja adaptera (zgodnie ze specyfikacją stateroles ioBroker). Istniejące obiekty są korygowane automatycznie przy starcie.",
-				"uk": "Виправлення (роль стану): switches.<id>.relay.connected тепер використовує indicator.reachable замість indicator.connected, оскільки релейна плата — це фізичний пристрій (ESP32), а не екземпляр адаптера (згідно зі специфікацією stateroles ioBroker). Наявні об'єкти виправляються автоматично під час запуску.",
-				"zh-cn": "修复（状态角色）：switches.<id>.relay.connected 现在使用 indicator.reachable 而非 indicator.connected，因为继电器板是物理设备（ESP32），而非适配器实例（依据 ioBroker stateroles 规范）。现有对象会在启动时自动更正。"
+			"1.9.9": {
+				"en": "The relay tab's System overview now also shows the firmware release version (in addition to the build date), and the last reset reason is spelled out in plain, localized words (the board sends a short code like 'sw', shown as 'Software').",
+				"de": "Die Systemübersicht im Relais-Tab zeigt jetzt auch die Firmware-Release-Version (zusätzlich zum Build-Datum), und der letzte Neustartgrund wird in ausgeschriebenen, lokalisierten Worten angezeigt (die Platine sendet einen Kurzcode wie 'sw', angezeigt als 'Software').",
+				"ru": "Обзор системы на вкладке реле теперь также показывает версию прошивки (в дополнение к дате сборки), а причина последнего сброса отображается понятными локализованными словами (плата присылает короткий код вроде 'sw', показывается как 'Software').",
+				"pt": "A visão geral do sistema na aba de relé mostra agora também a versão do firmware (além da data de compilação), e o último motivo de reinício é apresentado por extenso e localizado (a placa envia um código curto como 'sw', mostrado como 'Software').",
+				"nl": "Het systeemoverzicht op het relaistabblad toont nu ook de firmware-releaseversie (naast de builddatum), en de laatste resetreden wordt in leesbare, gelokaliseerde woorden getoond (de print stuurt een korte code zoals 'sw', getoond als 'Software').",
+				"fr": "L'aperçu du système de l'onglet relais affiche désormais aussi la version du firmware (en plus de la date de build), et la dernière raison de réinitialisation est écrite en clair et localisée (la carte envoie un code court comme 'sw', affiché « Software »).",
+				"it": "La panoramica del sistema nella scheda relè mostra ora anche la versione del firmware (oltre alla data di build), e il motivo dell'ultimo reset è scritto in forma testuale e localizzata (la scheda invia un codice breve come 'sw', mostrato come 'Software').",
+				"es": "El resumen del sistema en la pestaña de relé ahora también muestra la versión del firmware (además de la fecha de compilación), y el último motivo de reinicio se muestra en texto legible y localizado (la placa envía un código corto como 'sw', mostrado como 'Software').",
+				"pl": "Przegląd systemu w zakładce przekaźnika pokazuje teraz także wersję firmware (obok daty kompilacji), a ostatni powód resetu jest przedstawiany słownie i zlokalizowany (płytka wysyła krótki kod jak 'sw', pokazywany jako 'Software').",
+				"uk": "Огляд системи на вкладці реле тепер також показує версію прошивки (додатково до дати збірки), а причина останнього скидання відображається простими локалізованими словами (плата надсилає короткий код на кшталт 'sw', показується як 'Software').",
+				"zh-cn": "继电器选项卡的系统概览现在还会显示固件版本（除构建日期外），并以易读的本地化文字显示上次重置原因（继电器板发送诸如 'sw' 的短代码，显示为 'Software'）。"
 			}
 		},
 		"titleLang": {

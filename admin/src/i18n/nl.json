@@ -136,7 +136,6 @@
 	"Connected": "Verbonden",
 	"Not connected": "Niet verbonden",
 	"Board": "Print",
-	"Firmware": "Firmware",
 	"Connected — button times fetched from the board.": "Verbonden — knoptijden opgehaald van de print.",
 	"Connection failed": "Verbinding mislukt",
 	"Enter the board address first.": "Voer eerst het printadres in.",
@@ -180,5 +179,14 @@
 	"Configure a Telegram or Sayit instance above to receive the announcement.": "Configureer hierboven een Telegram- of Sayit-instantie om de aankondiging te ontvangen.",
 	"Test announcement": "Aankondiging testen",
 	"Test announcement sent.": "Testaankondiging verzonden.",
-	"Test failed": "Test mislukt"
+	"Test failed": "Test mislukt",
+	"Firmware version": "Firmwareversie",
+	"Firmware build": "Firmware-build",
+	"resetReason_poweron": "Inschakelen (power-on)",
+	"resetReason_sw": "Software",
+	"resetReason_panic": "Crash (panic)",
+	"resetReason_wdt": "Watchdog",
+	"resetReason_brownout": "Onderspanning (brownout)",
+	"resetReason_deepsleep": "Deep sleep",
+	"resetReason_unknown": "Onbekend"
 }

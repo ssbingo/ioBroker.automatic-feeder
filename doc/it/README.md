@@ -451,8 +451,9 @@ interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore s
 
 In fondo alla scheda, una **Panoramica del sistema** mostra i dati di sistema in tempo reale della
 scheda dopo una prova di connessione riuscita (il pulsante *Prova connessione e recupera tempi*):
-versione del firmware, nome host, indirizzo IP, rete Wi-Fi, potenza del segnale (dBm), indirizzo
-MAC, tempo di attività, memoria libera e il motivo dell'ultimo reset.
+versione e data di build del firmware, nome host, indirizzo IP, rete Wi-Fi, potenza del segnale
+(dBm), indirizzo MAC, tempo di attività, memoria libera e il motivo dell'ultimo reset, mostrato in
+forma testuale (ad es. `Software`; la scheda invia un codice breve come `sw` che l'adattatore traduce).
 
 La connessione viene inoltre rispecchiata nell'albero degli oggetti e aggiornata ogni 60 s – vedi i
 punti dati `relay.*` nella sezione 6.
