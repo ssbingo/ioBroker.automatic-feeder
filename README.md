@@ -642,6 +642,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.9.8 (2026-07-17)
+* (ssbingo) Fix (state role): `switches.<id>.relay.connected` now uses the role **`indicator.reachable`** instead of `indicator.connected` — the relay board is a physical LAN device (ESP32), not an adapter instance, and the ioBroker stateroles spec reserves `indicator.connected` for instances. Objects created by older versions are corrected automatically on start
+
 ### 1.9.7 (2026-07-15)
 * (ssbingo) Maintenance: re-aligns the published version with the current GitHub state (which contained a CI-only change keeping the deploy action on the floating `@v1` major tag, per repochecker S3044). No functional or shipped-code changes
 
@@ -675,10 +678,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.8.0 (2026-07-14)
 * (ssbingo) Each relay tab now has a **Restart board** button that restarts the ESP32 via its API (`POST /api/reboot`, with a confirmation prompt)
 * (ssbingo) New **System overview** at the bottom of each relay tab showing the board's live system data after a connection test: firmware, host name, IP address, Wi-Fi network, signal strength, MAC address, uptime, free memory and the last reset reason
-* (ssbingo) Documentation updated in all 11 languages
-
-### 1.7.1 (2026-07-14)
-* (ssbingo) The decision whether a switch uses the Automatic-Feeder relay board is now made **per switch** (a toggle in the Switches list on the general-settings tab) instead of one global switch. Only the switches you enable get a **Relay** tab and are polled; the `relay.*` data points exist only for those switches
 * (ssbingo) Documentation updated in all 11 languages
 
 ---

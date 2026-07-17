@@ -1,20 +1,20 @@
 {
 	"common": {
 		"name": "automatic-feeder",
-		"version": "1.9.7",
+		"version": "1.9.8",
 		"news": {
-			"1.9.7": {
-				"en": "Maintenance: re-aligns the published version with the current GitHub state, which contained a CI-only change keeping the deploy action on the floating @v1 major tag (repochecker S3044). No functional or shipped-code changes.",
-				"de": "Wartung: bringt die veröffentlichte Version wieder in Deckung mit dem aktuellen GitHub-Stand, der eine reine CI-Änderung enthielt (Deploy-Action bleibt auf dem floating @v1-Major-Tag, repochecker S3044). Keine funktionalen Änderungen.",
-				"ru": "Обслуживание: снова приводит опубликованную версию в соответствие с текущим состоянием GitHub, содержавшим лишь изменение CI (экшен деплоя остаётся на плавающем мажорном теге @v1, repochecker S3044). Без функциональных изменений.",
-				"pt": "Manutenção: realinha a versão publicada com o estado atual do GitHub, que continha apenas uma alteração de CI (a ação de deploy fica na tag maior flutuante @v1, repochecker S3044). Sem alterações funcionais.",
-				"nl": "Onderhoud: brengt de gepubliceerde versie weer in lijn met de huidige GitHub-staat, die alleen een CI-wijziging bevatte (deploy-actie blijft op de zwevende major-tag @v1, repochecker S3044). Geen functionele wijzigingen.",
-				"fr": "Maintenance : réaligne la version publiée avec l'état actuel de GitHub, qui contenait uniquement une modification CI (l'action de déploiement reste sur le tag majeur flottant @v1, repochecker S3044). Aucune modification fonctionnelle.",
-				"it": "Manutenzione: riallinea la versione pubblicata con lo stato attuale di GitHub, che conteneva solo una modifica CI (l'azione di deploy resta sul tag major flottante @v1, repochecker S3044). Nessuna modifica funzionale.",
-				"es": "Mantenimiento: realinea la versión publicada con el estado actual de GitHub, que solo contenía un cambio de CI (la acción de despliegue permanece en la etiqueta mayor flotante @v1, repochecker S3044). Sin cambios funcionales.",
-				"pl": "Konserwacja: ponownie zrównuje opublikowaną wersję z bieżącym stanem GitHub, który zawierał jedynie zmianę CI (akcja wdrożeniowa pozostaje na ruchomym tagu major @v1, repochecker S3044). Bez zmian funkcjonalnych.",
-				"uk": "Обслуговування: знову узгоджує опубліковану версію з поточним станом GitHub, який містив лише зміну CI (екшен розгортання залишається на плаваючому мажорному тезі @v1, repochecker S3044). Без функціональних змін.",
-				"zh-cn": "维护：使已发布版本与当前 GitHub 状态重新对齐——该状态仅包含一处 CI 更改（部署 action 保持在浮动主版本标签 @v1，repochecker S3044）。无功能性更改。"
+			"1.9.8": {
+				"en": "Fix (state role): switches.<id>.relay.connected now uses indicator.reachable instead of indicator.connected, because the relay board is a physical device (ESP32), not an adapter instance (per the ioBroker stateroles spec). Existing objects are corrected automatically on start.",
+				"de": "Fix (State-Rolle): switches.<id>.relay.connected nutzt jetzt indicator.reachable statt indicator.connected, da die Relaisplatine ein physisches Gerät (ESP32) und keine Adapter-Instanz ist (gemäß ioBroker-stateroles-Spezifikation). Vorhandene Objekte werden beim Start automatisch korrigiert.",
+				"ru": "Исправление (роль состояния): switches.<id>.relay.connected теперь использует indicator.reachable вместо indicator.connected, поскольку релейная плата — это физическое устройство (ESP32), а не экземпляр адаптера (согласно спецификации stateroles ioBroker). Существующие объекты исправляются автоматически при запуске.",
+				"pt": "Correção (função de estado): switches.<id>.relay.connected usa agora indicator.reachable em vez de indicator.connected, porque a placa de relé é um dispositivo físico (ESP32), não uma instância de adaptador (conforme a especificação stateroles do ioBroker). Os objetos existentes são corrigidos automaticamente ao iniciar.",
+				"nl": "Fix (state-rol): switches.<id>.relay.connected gebruikt nu indicator.reachable in plaats van indicator.connected, omdat de relaisprint een fysiek apparaat (ESP32) is en geen adapterinstantie (conform de ioBroker-stateroles-specificatie). Bestaande objecten worden bij het starten automatisch gecorrigeerd.",
+				"fr": "Correctif (rôle d'état) : switches.<id>.relay.connected utilise désormais indicator.reachable au lieu de indicator.connected, car la carte relais est un appareil physique (ESP32), et non une instance d'adaptateur (selon la spécification stateroles d'ioBroker). Les objets existants sont corrigés automatiquement au démarrage.",
+				"it": "Correzione (ruolo di stato): switches.<id>.relay.connected ora usa indicator.reachable invece di indicator.connected, poiché la scheda relè è un dispositivo fisico (ESP32), non un'istanza dell'adattatore (secondo la specifica stateroles di ioBroker). Gli oggetti esistenti vengono corretti automaticamente all'avvio.",
+				"es": "Corrección (rol de estado): switches.<id>.relay.connected ahora usa indicator.reachable en lugar de indicator.connected, porque la placa de relé es un dispositivo físico (ESP32), no una instancia de adaptador (según la especificación stateroles de ioBroker). Los objetos existentes se corrigen automáticamente al iniciar.",
+				"pl": "Poprawka (rola stanu): switches.<id>.relay.connected używa teraz indicator.reachable zamiast indicator.connected, ponieważ płytka przekaźnikowa to urządzenie fizyczne (ESP32), a nie instancja adaptera (zgodnie ze specyfikacją stateroles ioBroker). Istniejące obiekty są korygowane automatycznie przy starcie.",
+				"uk": "Виправлення (роль стану): switches.<id>.relay.connected тепер використовує indicator.reachable замість indicator.connected, оскільки релейна плата — це фізичний пристрій (ESP32), а не екземпляр адаптера (згідно зі специфікацією stateroles ioBroker). Наявні об'єкти виправляються автоматично під час запуску.",
+				"zh-cn": "修复（状态角色）：switches.<id>.relay.connected 现在使用 indicator.reachable 而非 indicator.connected，因为继电器板是物理设备（ESP32），而非适配器实例（依据 ioBroker stateroles 规范）。现有对象会在启动时自动更正。"
 			}
 		},
 		"titleLang": {

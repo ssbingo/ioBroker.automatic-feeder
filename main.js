@@ -1691,12 +1691,18 @@ class AutomaticFeeder extends utils.Adapter {
 					common: {
 						name: 'Relay board reachable',
 						type: 'boolean',
-						role: 'indicator.connected',
+						// the relay board is a physical LAN device (ESP32), not an adapter
+						// instance -> indicator.reachable (indicator.connected is for instances)
+						role: 'indicator.reachable',
 						read: true,
 						write: false,
 						def: false,
 					},
 					native: {},
+				});
+				// correct the role on objects created by older versions (was indicator.connected)
+				await this.extendObjectAsync(`${base}.relay.connected`, {
+					common: { role: 'indicator.reachable' },
 				});
 				await this.setObjectNotExistsAsync(`${base}.relay.info`, {
 					type: 'state',
