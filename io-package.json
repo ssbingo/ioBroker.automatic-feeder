@@ -1,129 +1,129 @@
 {
-	"common": {
-		"name": "automatic-feeder",
-		"version": "1.9.9",
-		"news": {
-			"1.9.9": {
-				"en": "The relay tab's System overview now also shows the firmware release version (in addition to the build date), and the last reset reason is spelled out in plain, localized words (the board sends a short code like 'sw', shown as 'Software').",
-				"de": "Die Systemübersicht im Relais-Tab zeigt jetzt auch die Firmware-Release-Version (zusätzlich zum Build-Datum), und der letzte Neustartgrund wird in ausgeschriebenen, lokalisierten Worten angezeigt (die Platine sendet einen Kurzcode wie 'sw', angezeigt als 'Software').",
-				"ru": "Обзор системы на вкладке реле теперь также показывает версию прошивки (в дополнение к дате сборки), а причина последнего сброса отображается понятными локализованными словами (плата присылает короткий код вроде 'sw', показывается как 'Software').",
-				"pt": "A visão geral do sistema na aba de relé mostra agora também a versão do firmware (além da data de compilação), e o último motivo de reinício é apresentado por extenso e localizado (a placa envia um código curto como 'sw', mostrado como 'Software').",
-				"nl": "Het systeemoverzicht op het relaistabblad toont nu ook de firmware-releaseversie (naast de builddatum), en de laatste resetreden wordt in leesbare, gelokaliseerde woorden getoond (de print stuurt een korte code zoals 'sw', getoond als 'Software').",
-				"fr": "L'aperçu du système de l'onglet relais affiche désormais aussi la version du firmware (en plus de la date de build), et la dernière raison de réinitialisation est écrite en clair et localisée (la carte envoie un code court comme 'sw', affiché « Software »).",
-				"it": "La panoramica del sistema nella scheda relè mostra ora anche la versione del firmware (oltre alla data di build), e il motivo dell'ultimo reset è scritto in forma testuale e localizzata (la scheda invia un codice breve come 'sw', mostrato come 'Software').",
-				"es": "El resumen del sistema en la pestaña de relé ahora también muestra la versión del firmware (además de la fecha de compilación), y el último motivo de reinicio se muestra en texto legible y localizado (la placa envía un código corto como 'sw', mostrado como 'Software').",
-				"pl": "Przegląd systemu w zakładce przekaźnika pokazuje teraz także wersję firmware (obok daty kompilacji), a ostatni powód resetu jest przedstawiany słownie i zlokalizowany (płytka wysyła krótki kod jak 'sw', pokazywany jako 'Software').",
-				"uk": "Огляд системи на вкладці реле тепер також показує версію прошивки (додатково до дати збірки), а причина останнього скидання відображається простими локалізованими словами (плата надсилає короткий код на кшталт 'sw', показується як 'Software').",
-				"zh-cn": "继电器选项卡的系统概览现在还会显示固件版本（除构建日期外），并以易读的本地化文字显示上次重置原因（继电器板发送诸如 'sw' 的短代码，显示为 'Software'）。"
-			}
-		},
-		"titleLang": {
-			"en": "Automatic Feeder",
-			"de": "Futterautomat",
-			"ru": "Автоматическая кормушка",
-			"pt": "Alimentador automático",
-			"nl": "Voederautomaat",
-			"fr": "Distributeur automatique",
-			"it": "Alimentatore automatico",
-			"es": "Comedero automático",
-			"pl": "Automat do karmienia",
-			"uk": "Автоматична годівниця",
-			"zh-cn": "自动喂食器"
-		},
-		"desc": {
-			"en": "Scheduled automatic feeder: switches an existing ioBroker state for a set duration, with temperature and day/night limits.",
-			"de": "Zeitgesteuerter Futterautomat: schaltet ein vorhandenes ioBroker-Objekt für eine definierte Dauer, mit Temperatur- und Tag-/Nacht-Grenzen.",
-			"ru": "Автоматическая кормушка по расписанию: включает существующий объект ioBroker на заданное время, с ограничениями по температуре и дню/ночи.",
-			"pt": "Alimentador automático programado: liga um objeto ioBroker existente por um tempo definido, com limites de temperatura e dia/noite.",
-			"nl": "Geplande voederautomaat: schakelt een bestaand ioBroker-object voor een ingestelde duur, met temperatuur- en dag/nacht-grenzen.",
-			"fr": "Distributeur automatique programmé : active un objet ioBroker existant pendant une durée définie, avec limites de température et jour/nuit.",
-			"it": "Alimentatore automatico programmato: attiva un oggetto ioBroker esistente per una durata definita, con limiti di temperatura e giorno/notte.",
-			"es": "Comedero automático programado: activa un objeto ioBroker existente durante un tiempo definido, con límites de temperatura y día/noche.",
-			"pl": "Zaplanowany automat do karmienia: włącza istniejący obiekt ioBroker na określony czas, z ograniczeniami temperatury i dnia/nocy.",
-			"uk": "Автоматична годівниця за розкладом: вмикає наявний об'єкт ioBroker на задану тривалість, з обмеженнями за температурою та днем/ніччю.",
-			"zh-cn": "定时自动喂食器：将现有的 ioBroker 对象按设定时长打开，并带有温度与昼夜限制。"
-		},
-		"authors": [
-			"ssbingo <s.sternitzke@online.de>"
-		],
-		"keywords": [
-			"Automatic Feeder",
-			"feeder",
-			"Koi",
-			"Fish"
-		],
-		"licenseInformation": {
-			"type": "free",
-			"license": "MIT"
-		},
-		"platform": "Javascript/Node.js",
-		"icon": "automatic-feeder.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/ssbingo/ioBroker.automatic-feeder/main/admin/automatic-feeder.png",
-		"readme": "https://github.com/ssbingo/ioBroker.automatic-feeder/blob/main/README.md",
-		"loglevel": "info",
-		"tier": 3,
-		"mode": "daemon",
-		"type": "garden",
-		"compact": true,
-		"messagebox": true,
-		"connectionType": "local",
-		"dataSource": "push",
-		"adminUI": {
-			"config": "materialize"
-		},
-		"eraseOnUpload": true,
-		"dependencies": [
-			{
-				"js-controller": ">=6.0.11"
-			}
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=7.6.20"
-			}
-		]
-	},
-	"native": {
-		"locationMode": "system",
-		"coordinateSource": "system",
-		"latitude": "",
-		"longitude": "",
-		"address": "",
-		"sunOffsetMorning": 0,
-		"sunOffsetEvening": 0,
-		"airTempEnabled": false,
-		"airTempObjectId": "",
-		"waterTempEnabled": false,
-		"waterTempObjectId": "",
-		"o2Enabled": false,
-		"o2ObjectId": "",
-		"sourcesMigratedToSwitches": false,
-		"phase4Migrated": false,
-		"switches": []
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Adapter running / configuration valid",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		}
-	]
+  "common": {
+    "name": "automatic-feeder",
+    "version": "1.9.9",
+    "news": {
+      "1.9.9": {
+        "en": "The relay tab's System overview now also shows the firmware release version (in addition to the build date), and the last reset reason is spelled out in plain, localized words (the board sends a short code like 'sw', shown as 'Software').",
+        "de": "Die Systemübersicht im Relais-Tab zeigt jetzt auch die Firmware-Release-Version (zusätzlich zum Build-Datum), und der letzte Neustartgrund wird in ausgeschriebenen, lokalisierten Worten angezeigt (die Platine sendet einen Kurzcode wie 'sw', angezeigt als 'Software').",
+        "ru": "Обзор системы на вкладке реле теперь также показывает версию прошивки (в дополнение к дате сборки), а причина последнего сброса отображается понятными локализованными словами (плата присылает короткий код вроде 'sw', показывается как 'Software').",
+        "pt": "A visão geral do sistema na aba de relé mostra agora também a versão do firmware (além da data de compilação), e o último motivo de reinício é apresentado por extenso e localizado (a placa envia um código curto como 'sw', mostrado como 'Software').",
+        "nl": "Het systeemoverzicht op het relaistabblad toont nu ook de firmware-releaseversie (naast de builddatum), en de laatste resetreden wordt in leesbare, gelokaliseerde woorden getoond (de print stuurt een korte code zoals 'sw', getoond als 'Software').",
+        "fr": "L'aperçu du système de l'onglet relais affiche désormais aussi la version du firmware (en plus de la date de build), et la dernière raison de réinitialisation est écrite en clair et localisée (la carte envoie un code court comme 'sw', affiché « Software »).",
+        "it": "La panoramica del sistema nella scheda relè mostra ora anche la versione del firmware (oltre alla data di build), e il motivo dell'ultimo reset è scritto in forma testuale e localizzata (la scheda invia un codice breve come 'sw', mostrato come 'Software').",
+        "es": "El resumen del sistema en la pestaña de relé ahora también muestra la versión del firmware (además de la fecha de compilación), y el último motivo de reinicio se muestra en texto legible y localizado (la placa envía un código corto como 'sw', mostrado como 'Software').",
+        "pl": "Przegląd systemu w zakładce przekaźnika pokazuje teraz także wersję firmware (obok daty kompilacji), a ostatni powód resetu jest przedstawiany słownie i zlokalizowany (płytka wysyła krótki kod jak 'sw', pokazywany jako 'Software').",
+        "uk": "Огляд системи на вкладці реле тепер також показує версію прошивки (додатково до дати збірки), а причина останнього скидання відображається простими локалізованими словами (плата надсилає короткий код на кшталт 'sw', показується як 'Software').",
+        "zh-cn": "继电器选项卡的系统概览现在还会显示固件版本（除构建日期外），并以易读的本地化文字显示上次重置原因（继电器板发送诸如 'sw' 的短代码，显示为 'Software'）。"
+      }
+    },
+    "titleLang": {
+      "en": "Automatic Feeder",
+      "de": "Futterautomat",
+      "ru": "Автоматическая кормушка",
+      "pt": "Alimentador automático",
+      "nl": "Voederautomaat",
+      "fr": "Distributeur automatique",
+      "it": "Alimentatore automatico",
+      "es": "Comedero automático",
+      "pl": "Automat do karmienia",
+      "uk": "Автоматична годівниця",
+      "zh-cn": "自动喂食器"
+    },
+    "desc": {
+      "en": "Scheduled automatic feeder: switches an existing ioBroker state for a set duration, with temperature and day/night limits.",
+      "de": "Zeitgesteuerter Futterautomat: schaltet ein vorhandenes ioBroker-Objekt für eine definierte Dauer, mit Temperatur- und Tag-/Nacht-Grenzen.",
+      "ru": "Автоматическая кормушка по расписанию: включает существующий объект ioBroker на заданное время, с ограничениями по температуре и дню/ночи.",
+      "pt": "Alimentador automático programado: liga um objeto ioBroker existente por um tempo definido, com limites de temperatura e dia/noite.",
+      "nl": "Geplande voederautomaat: schakelt een bestaand ioBroker-object voor een ingestelde duur, met temperatuur- en dag/nacht-grenzen.",
+      "fr": "Distributeur automatique programmé : active un objet ioBroker existant pendant une durée définie, avec limites de température et jour/nuit.",
+      "it": "Alimentatore automatico programmato: attiva un oggetto ioBroker esistente per una durata definita, con limiti di temperatura e giorno/notte.",
+      "es": "Comedero automático programado: activa un objeto ioBroker existente durante un tiempo definido, con límites de temperatura y día/noche.",
+      "pl": "Zaplanowany automat do karmienia: włącza istniejący obiekt ioBroker na określony czas, z ograniczeniami temperatury i dnia/nocy.",
+      "uk": "Автоматична годівниця за розкладом: вмикає наявний об'єкт ioBroker на задану тривалість, з обмеженнями за температурою та днем/ніччю.",
+      "zh-cn": "定时自动喂食器：将现有的 ioBroker 对象按设定时长打开，并带有温度与昼夜限制。"
+    },
+    "authors": [
+      "ssbingo <s.sternitzke@online.de>"
+    ],
+    "keywords": [
+      "Automatic Feeder",
+      "feeder",
+      "Koi",
+      "Fish"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "automatic-feeder.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/ssbingo/ioBroker.automatic-feeder/main/admin/automatic-feeder.png",
+    "readme": "https://github.com/ssbingo/ioBroker.automatic-feeder/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "garden",
+    "compact": true,
+    "messagebox": true,
+    "connectionType": "local",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "materialize"
+    },
+    "eraseOnUpload": true,
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=8.0.0"
+      }
+    ]
+  },
+  "native": {
+    "locationMode": "system",
+    "coordinateSource": "system",
+    "latitude": "",
+    "longitude": "",
+    "address": "",
+    "sunOffsetMorning": 0,
+    "sunOffsetEvening": 0,
+    "airTempEnabled": false,
+    "airTempObjectId": "",
+    "waterTempEnabled": false,
+    "waterTempObjectId": "",
+    "o2Enabled": false,
+    "o2ObjectId": "",
+    "sourcesMigratedToSwitches": false,
+    "phase4Migrated": false,
+    "switches": []
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Adapter running / configuration valid",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }

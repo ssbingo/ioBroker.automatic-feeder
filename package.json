@@ -28,8 +28,8 @@
     "suncalc": "^2.0.0"
   },
   "overrides": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "$react",
+    "react-dom": "$react-dom"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^5.2.1",
@@ -39,10 +39,12 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@iobroker/adapter-dev": "^1.5.0",
-    "@iobroker/adapter-react-v5": "^8.2.13",
+    "@iobroker/adapter-react-v5": "^8.3.2",
     "@iobroker/dev-server": "^0.8.0",
     "@iobroker/eslint-config": "^2.3.4",
     "@iobroker/testing": "^5.2.2",
+    "@mui/icons-material": "^6.5.0",
+    "@mui/material": "^6.5.0",
     "@mui/x-date-pickers": "^7.29.4",
     "@tsconfig/node22": "^22.0.5",
     "@types/iobroker": "npm:@iobroker/types@^7.2.2",
@@ -51,6 +53,8 @@
     "dayjs": "^1.11.21",
     "leaflet": "^1.9.4",
     "pdfmake": "^0.2.23",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "typescript": "~6.0.3"
   },
   "main": "main.js",
