@@ -1,20 +1,20 @@
 {
   "common": {
     "name": "automatic-feeder",
-    "version": "1.9.9",
+    "version": "1.10.0",
     "news": {
-      "1.9.9": {
-        "en": "The relay tab's System overview now also shows the firmware release version (in addition to the build date), and the last reset reason is spelled out in plain, localized words (the board sends a short code like 'sw', shown as 'Software').",
-        "de": "Die Systemübersicht im Relais-Tab zeigt jetzt auch die Firmware-Release-Version (zusätzlich zum Build-Datum), und der letzte Neustartgrund wird in ausgeschriebenen, lokalisierten Worten angezeigt (die Platine sendet einen Kurzcode wie 'sw', angezeigt als 'Software').",
-        "ru": "Обзор системы на вкладке реле теперь также показывает версию прошивки (в дополнение к дате сборки), а причина последнего сброса отображается понятными локализованными словами (плата присылает короткий код вроде 'sw', показывается как 'Software').",
-        "pt": "A visão geral do sistema na aba de relé mostra agora também a versão do firmware (além da data de compilação), e o último motivo de reinício é apresentado por extenso e localizado (a placa envia um código curto como 'sw', mostrado como 'Software').",
-        "nl": "Het systeemoverzicht op het relaistabblad toont nu ook de firmware-releaseversie (naast de builddatum), en de laatste resetreden wordt in leesbare, gelokaliseerde woorden getoond (de print stuurt een korte code zoals 'sw', getoond als 'Software').",
-        "fr": "L'aperçu du système de l'onglet relais affiche désormais aussi la version du firmware (en plus de la date de build), et la dernière raison de réinitialisation est écrite en clair et localisée (la carte envoie un code court comme 'sw', affiché « Software »).",
-        "it": "La panoramica del sistema nella scheda relè mostra ora anche la versione del firmware (oltre alla data di build), e il motivo dell'ultimo reset è scritto in forma testuale e localizzata (la scheda invia un codice breve come 'sw', mostrato come 'Software').",
-        "es": "El resumen del sistema en la pestaña de relé ahora también muestra la versión del firmware (además de la fecha de compilación), y el último motivo de reinicio se muestra en texto legible y localizado (la placa envía un código corto como 'sw', mostrado como 'Software').",
-        "pl": "Przegląd systemu w zakładce przekaźnika pokazuje teraz także wersję firmware (obok daty kompilacji), a ostatni powód resetu jest przedstawiany słownie i zlokalizowany (płytka wysyła krótki kod jak 'sw', pokazywany jako 'Software').",
-        "uk": "Огляд системи на вкладці реле тепер також показує версію прошивки (додатково до дати збірки), а причина останнього скидання відображається простими локалізованими словами (плата надсилає короткий код на кшталт 'sw', показується як 'Software').",
-        "zh-cn": "继电器选项卡的系统概览现在还会显示固件版本（除构建日期外），并以易读的本地化文字显示上次重置原因（继电器板发送诸如 'sw' 的短代码，显示为 'Software'）。"
+      "1.10.0": {
+        "en": "The admin UI now runs on React 19 (as shipped by admin 8). New minimum requirements: admin >= 8.0.0, js-controller >= 6.0.11 and Node.js >= 22. No changes to feeding, notifications or data points.",
+        "de": "Die Admin-Oberfläche läuft jetzt auf React 19 (wie in admin 8). Neue Mindestanforderungen: admin >= 8.0.0, js-controller >= 6.0.11 und Node.js >= 22. Keine Änderungen an Fütterung, Benachrichtigungen oder Datenpunkten.",
+        "ru": "Интерфейс администрирования теперь работает на React 19 (как в admin 8). Новые минимальные требования: admin >= 8.0.0, js-controller >= 6.0.11 и Node.js >= 22. Логика кормления, уведомлений и точек данных не изменилась.",
+        "pt": "A interface de administração agora funciona com React 19 (como no admin 8). Novos requisitos mínimos: admin >= 8.0.0, js-controller >= 6.0.11 e Node.js >= 22. Sem alterações na alimentação, notificações ou pontos de dados.",
+        "nl": "De admin-interface draait nu op React 19 (zoals in admin 8). Nieuwe minimumvereisten: admin >= 8.0.0, js-controller >= 6.0.11 en Node.js >= 22. Geen wijzigingen aan voeren, meldingen of datapunten.",
+        "fr": "L'interface d'administration fonctionne désormais avec React 19 (comme dans admin 8). Nouvelles exigences minimales : admin >= 8.0.0, js-controller >= 6.0.11 et Node.js >= 22. Aucune modification de l'alimentation, des notifications ou des points de données.",
+        "it": "L'interfaccia di amministrazione ora funziona con React 19 (come in admin 8). Nuovi requisiti minimi: admin >= 8.0.0, js-controller >= 6.0.11 e Node.js >= 22. Nessuna modifica ad alimentazione, notifiche o punti dati.",
+        "es": "La interfaz de administración ahora funciona con React 19 (como en admin 8). Nuevos requisitos mínimos: admin >= 8.0.0, js-controller >= 6.0.11 y Node.js >= 22. Sin cambios en la alimentación, las notificaciones o los puntos de datos.",
+        "pl": "Interfejs administracyjny działa teraz na React 19 (tak jak w admin 8). Nowe wymagania minimalne: admin >= 8.0.0, js-controller >= 6.0.11 i Node.js >= 22. Bez zmian w karmieniu, powiadomieniach i punktach danych.",
+        "uk": "Інтерфейс адміністрування тепер працює на React 19 (як в admin 8). Нові мінімальні вимоги: admin >= 8.0.0, js-controller >= 6.0.11 та Node.js >= 22. Без змін у годуванні, сповіщеннях та точках даних.",
+        "zh-cn": "管理界面现在基于 React 19 运行（与 admin 8 一致）。新的最低要求：admin >= 8.0.0、js-controller >= 6.0.11 和 Node.js >= 22。喂食、通知和数据点均无变化。"
       }
     },
     "titleLang": {

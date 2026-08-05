@@ -80,7 +80,7 @@ knopvoedertijden (S1–S3) rechtstreeks vanuit de adapter configureert.
 
 | Je hebt nodig | Details |
 |-------------|---------|
-| **ioBroker** met actuele **admin** (≥ 7) | De configuratiepagina is met React gerealiseerd. |
+| **ioBroker** met **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** en **Node.js ≥ 22** | Vereiste minimumversies. De configuratiepagina is met React 19 gerealiseerd, zoals in admin 8. |
 | **Een schakelaar-object** | Een beschrijfbaar ioBroker-datapunt dat de voederautomaat in-/uitschakelt – bijv. een stopcontact (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), een relais of een scriptvariabele. |
 | *(optioneel)* **Geocoördinaten** | Gebruikt om zonsop-/-ondergang te berekenen voor het **astronomische venster** per schakelaar. Alleen nodig als een schakelaar dat venster gebruikt; overgenomen uit de ioBroker-systeeminstellingen, één gedeelde positie of per schakelaar geconfigureerd. |
 | *(optioneel)* Temperatuur-objecten | Aanwezige datapunten met lucht- en/of watertemperatuur, voor temperatuurblokkering of dynamisch voeren. **Per schakelaar** toegewezen op het schakelaar-tabblad. |

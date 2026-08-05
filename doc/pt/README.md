@@ -81,7 +81,7 @@ e configura os seus três tempos de alimentação dos botões (S1–S3) diretame
 
 | Você precisa de | Detalhes |
 |-------------|---------|
-| **ioBroker** com **admin** atual (≥ 7) | A página de configuração é implementada com React. |
+| **ioBroker** com **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** e **Node.js ≥ 22** | Versões mínimas exigidas. A página de configuração é implementada com React 19, como no admin 8. |
 | **Um objeto de interruptor** | Um ponto de dados gravável do ioBroker que liga/desliga o alimentador automático – p. ex. uma tomada (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), um relé ou uma variável de script. |
 | *(opcional)* **Coordenadas geográficas** | Usadas para calcular o nascer/pôr do sol da **janela astronómica** por interruptor. Só são necessárias se um interruptor usar essa janela; obtidas das configurações de sistema do ioBroker, de uma posição partilhada, ou configuradas por interruptor. |
 | *(opcional)* Objetos de temperatura | Pontos de dados existentes com temperatura do ar e/ou da água, para o bloqueio por temperatura ou a alimentação dinâmica. Atribuídos **por interruptor** na aba do interruptor. |

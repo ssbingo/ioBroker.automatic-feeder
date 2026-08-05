@@ -84,7 +84,7 @@ poziomu adaptera.
 
 | Czego potrzebujesz | Szczegóły |
 |-------------|---------|
-| **ioBroker** z aktualnym **admin** (≥ 7) | Strona konfiguracji jest zrealizowana w React. |
+| **ioBroker** z **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** i **Node.js ≥ 22** | Wymagane wersje minimalne. Strona konfiguracji jest zrealizowana w React 19, tak jak w admin 8. |
 | **Obiekt przełącznika** | Zapisywalny punkt danych ioBroker, który włącza/wyłącza automat do karmienia – np. gniazdko (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), przekaźnik lub zmienna skryptowa. |
 | *(opcjonalnie)* **Współrzędne geograficzne** | Używane do obliczania wschodu/zachodu słońca dla **astronomicznego okna** danego przełącznika. Potrzebne tylko wtedy, gdy przełącznik korzysta z tego okna; pobierane z ustawień systemowych ioBroker, z jednej wspólnej pozycji lub konfigurowane dla każdego przełącznika. |
 | *(opcjonalnie)* Obiekty temperatury | Istniejące punkty danych z temperaturą powietrza i/lub wody, do blokowania temperaturowego lub karmienia dynamicznego. Przypisywane **dla każdego przełącznika** w zakładce przełącznika. |

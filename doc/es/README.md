@@ -80,7 +80,7 @@ tiempos de alimentación de los botones (S1–S3) directamente desde el adaptado
 
 | Necesitas | Detalles |
 |-------------|---------|
-| **ioBroker** con **admin** actual (≥ 7) | La página de configuración está implementada con React. |
+| **ioBroker** con **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** y **Node.js ≥ 22** | Versiones mínimas requeridas. La página de configuración está implementada con React 19, como en admin 8. |
 | **Un objeto interruptor** | Un punto de datos de ioBroker escribible que encienda/apague el comedero automático, p. ej. un enchufe (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relé o una variable de script. |
 | *(opcional)* **Coordenadas geográficas** | Se usan para calcular el orto y el ocaso de la **ventana astronómica** por interruptor. Solo se necesitan si algún interruptor usa esa ventana; se toman de los ajustes del sistema de ioBroker, de una posición compartida o se configuran por interruptor. |
 | *(opcional)* Objetos de temperatura | Puntos de datos existentes con la temperatura del aire o del agua, para el bloqueo por temperatura o la alimentación dinámica. Se asignan **por interruptor** en la pestaña del interruptor. |

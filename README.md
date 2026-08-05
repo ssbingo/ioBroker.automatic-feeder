@@ -94,7 +94,7 @@ times (S1–S3) directly from the adapter.
 
 | You need | Details |
 |----------|---------|
-| **ioBroker** with a recent **admin** (≥ 7) | The configuration page is built with React. |
+| **ioBroker** with **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22** | Required minimum versions. The configuration page is built with React 19, as used by admin 8. |
 | **A switch object** | Any writable ioBroker state that turns your feeder on/off – e.g. a smart plug (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), a relay, a script variable. |
 | *(optional)* **Geo-coordinates** | Used to calculate sunrise/sunset for the per-switch **astronomical window**. Only needed if a switch uses that window; taken from the ioBroker system settings, one shared position, or configured per switch. |
 | *(optional)* Temperature objects | Existing states with air and/or water temperature, for temperature blocking or dynamic feeding. Assigned **per switch** on the switch tab. |
@@ -642,6 +642,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.10.0 (2026-08-05)
+* (ssbingo) **Admin UI now runs on React 19** — the configuration page uses the same React version that ioBroker **admin 8** ships; `@iobroker/adapter-react-v5` updated to 8.3.2
+* (ssbingo) **Raised the minimum requirements**: **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22**
+* (ssbingo) `@mui/material` and `@mui/icons-material` are now explicit direct dependencies. They stay on **MUI 6** for now because `adapter-react-v5` still requires it (it imports `Grid2`, removed in MUI 7+); the move to **MUI 9** follows automatically once the library supports it
+* (ssbingo) No changes to feeding, notifications or data points — this release only modernizes the admin build and baseline versions
+
 ### 1.9.9 (2026-07-17)
 * (ssbingo) The relay tab's **System overview** now also shows the **firmware release version** (`ver`, e.g. `0.0.15`) in addition to the firmware build date
 * (ssbingo) The **last reset reason** is now spelled out in plain, localized words — the board sends a short code (`sw`, `poweron`, `wdt`, `brownout`, `deepsleep`, `panic`, …), which the adapter shows as e.g. “Software”, “Power-on”, “Watchdog”
@@ -672,12 +678,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.9.1 (2026-07-15)
 * (ssbingo) The feeding announcement now uses the final text **"The next feeding starts in X minutes"** (localized in the switch's selected message language; `X` = the configured lead time)
-
-### 1.9.0 (2026-07-15)
-* (ssbingo) New optional **Sayit (text-to-speech) notifications** per switch: pick an installed `sayit.*` instance, an optional volume, and the **same three messages** as Telegram (successful feeding / could-not-feed / switch-off fault) — selected separately, so Telegram and Sayit can run in parallel
-* (ssbingo) New **feeding announcement**: announce an upcoming feeding a configurable number of minutes in advance, via **Telegram and/or Sayit**. The announcement is skipped when the feeding would currently be blocked or paused. (Placeholder announcement text for now; the final wording follows later)
-* (ssbingo) New per-switch **Message language** for the outgoing texts (Telegram, Sayit and the announcement): the ioBroker system language or a specific one; the status data points are unaffected
-* (ssbingo) Documentation updated in all 11 languages
 
 ---
 

@@ -3,6 +3,12 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.9.0 (2026-07-15)
+* (ssbingo) New optional **Sayit (text-to-speech) notifications** per switch: pick an installed `sayit.*` instance, an optional volume, and the **same three messages** as Telegram (successful feeding / could-not-feed / switch-off fault) — selected separately, so Telegram and Sayit can run in parallel
+* (ssbingo) New **feeding announcement**: announce an upcoming feeding a configurable number of minutes in advance, via **Telegram and/or Sayit**. The announcement is skipped when the feeding would currently be blocked or paused. (Placeholder announcement text for now; the final wording follows later)
+* (ssbingo) New per-switch **Message language** for the outgoing texts (Telegram, Sayit and the announcement): the ioBroker system language or a specific one; the status data points are unaffected
+* (ssbingo) Documentation updated in all 11 languages
+
 ### 1.8.0 (2026-07-14)
 * (ssbingo) Each relay tab now has a **Restart board** button that restarts the ESP32 via its API (`POST /api/reboot`, with a confirmation prompt)
 * (ssbingo) New **System overview** at the bottom of each relay tab showing the board's live system data after a connection test: firmware, host name, IP address, Wi-Fi network, signal strength, MAC address, uptime, free memory and the last reset reason
