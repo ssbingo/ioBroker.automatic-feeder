@@ -94,7 +94,7 @@ times (S1–S3) directly from the adapter.
 
 | You need | Details |
 |----------|---------|
-| **ioBroker** with **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22** | Required minimum versions. The configuration page is built with React 19, as used by admin 8. |
+| **ioBroker** with **admin ≥ 7.8.23**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22** | Required minimum versions. The configuration page is built with React 19. |
 | **A switch object** | Any writable ioBroker state that turns your feeder on/off – e.g. a smart plug (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), a relay, a script variable. |
 | *(optional)* **Geo-coordinates** | Used to calculate sunrise/sunset for the per-switch **astronomical window**. Only needed if a switch uses that window; taken from the ioBroker system settings, one shared position, or configured per switch. |
 | *(optional)* Temperature objects | Existing states with air and/or water temperature, for temperature blocking or dynamic feeding. Assigned **per switch** on the switch tab. |
@@ -642,6 +642,10 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.10.1 (2026-08-14)
+* (ssbingo) Fix: lowered the minimum **admin** requirement to **7.8.23** (the current stable version) so the adapter stays installable from the stable ioBroker repository — this clears repochecker **E4033** (`admin >=8.0.0` is not in the stable repository yet). The admin UI still runs on **React 19**
+* (ssbingo) Merged upstream adapter-template updates: Dependabot configuration / auto-merge workflow refresh and the `node:` import prefix in the handbook generator (S5043)
+
 ### 1.10.0 (2026-08-05)
 * (ssbingo) **Admin UI now runs on React 19** — the configuration page uses the same React version that ioBroker **admin 8** ships; `@iobroker/adapter-react-v5` updated to 8.3.2
 * (ssbingo) **Raised the minimum requirements**: **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22**
@@ -675,9 +679,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.9.2 (2026-07-15)
 * (ssbingo) New **Test announcement** button next to the Sayit instance selection — speaks a short test text through the selected instance so you can check the audio output without waiting for a feeding
 * (ssbingo) The feeding announcement now uses the **correct singular/plural** form of "minutes" for each language (e.g. "1 minute" vs "5 minutes"; Russian/Polish/Ukrainian 1 / 2–4 / 5+ forms), via the language's CLDR plural rules
-
-### 1.9.1 (2026-07-15)
-* (ssbingo) The feeding announcement now uses the final text **"The next feeding starts in X minutes"** (localized in the switch's selected message language; `X` = the configured lead time)
 
 ---
 

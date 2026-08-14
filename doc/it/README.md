@@ -82,7 +82,7 @@ configuri i suoi tre tempi di alimentazione dei pulsanti (S1–S3) direttamente 
 
 | Ti serve | Dettagli |
 |-------------|---------|
-| **ioBroker** con **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** e **Node.js ≥ 22** | Versioni minime richieste. La pagina di configurazione è realizzata con React 19, come in admin 8. |
+| **ioBroker** con **admin ≥ 7.8.23**, **js-controller ≥ 6.0.11** e **Node.js ≥ 22** | Versioni minime richieste. La pagina di configurazione è realizzata con React 19. |
 | **Un oggetto interruttore** | Un punto dati ioBroker scrivibile che accende/spegne il distributore di mangime – ad es. una presa elettrica (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relè o una variabile di script. |
 | *(facoltativo)* **Coordinate geografiche** | Servono per calcolare alba/tramonto per la **finestra astronomica** di ciascun interruttore. Necessarie solo se un interruttore usa quella finestra; acquisite dalle impostazioni di sistema di ioBroker, da una posizione condivisa, oppure configurate per ciascun interruttore. |
 | *(facoltativo)* Oggetti di temperatura | Punti dati esistenti con temperatura dell'aria e/o dell'acqua, per il blocco in base alla temperatura o l'alimentazione dinamica. Assegnati **per ciascun interruttore** nella scheda dell'interruttore. |

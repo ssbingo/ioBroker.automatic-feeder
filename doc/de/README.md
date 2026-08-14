@@ -85,7 +85,7 @@ konfigurierst.
 
 | Du brauchst | Details |
 |-------------|---------|
-| **ioBroker** mit **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** und **Node.js ≥ 22** | Erforderliche Mindestversionen. Die Konfigurationsseite basiert auf React 19 (wie in admin 8). |
+| **ioBroker** mit **admin ≥ 7.8.23**, **js-controller ≥ 6.0.11** und **Node.js ≥ 22** | Erforderliche Mindestversionen. Die Konfigurationsseite basiert auf React 19. |
 | **Ein Schalter-Objekt** | Ein beschreibbarer ioBroker-Datenpunkt, der den Futterautomaten ein-/ausschaltet – z. B. eine Steckdose (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), ein Relais oder eine Skriptvariable. |
 | *(optional)* **Geokoordinaten** | Zur Berechnung von Sonnenauf-/-untergang für das **astronomische Fenster** pro Schalter. Nur nötig, wenn ein Schalter dieses Fenster nutzt; entnommen aus den ioBroker-Systemeinstellungen, einer gemeinsamen Position oder pro Schalter konfiguriert. |
 | *(optional)* Temperatur-Objekte | Vorhandene Datenpunkte mit Luft- und/oder Wassertemperatur, für temperaturabhängiges Sperren oder dynamisches Füttern. **Pro Schalter** im Schalter-Tab zugewiesen. |

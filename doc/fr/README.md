@@ -88,7 +88,7 @@ depuis l'adaptateur.
 
 | Tu as besoin de | Détails |
 |-------------|---------|
-| **ioBroker** avec **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** et **Node.js ≥ 22** | Versions minimales requises. La page de configuration est réalisée avec React 19, comme dans admin 8. |
+| **ioBroker** avec **admin ≥ 7.8.23**, **js-controller ≥ 6.0.11** et **Node.js ≥ 22** | Versions minimales requises. La page de configuration est réalisée avec React 19. |
 | **Un objet interrupteur** | Un point de données ioBroker accessible en écriture qui active/désactive le distributeur — p. ex. une prise (`shelly.0.…`, `sonoff.0.…`, `zigbee.0.…`), un relais ou une variable de script. |
 | *(optionnel)* **Coordonnées géographiques** | Utilisées pour calculer le lever/coucher du soleil pour la **fenêtre astronomique** propre à chaque interrupteur. Nécessaires uniquement si un interrupteur utilise cette fenêtre ; reprises depuis les paramètres système d'ioBroker, une position partagée unique ou configurées par interrupteur. |
 | *(optionnel)* Objets de température | Des points de données existants avec la température de l'air et/ou de l'eau, pour le blocage par température ou l'alimentation dynamique. Attribués **par interrupteur** dans l'onglet de l'interrupteur. |

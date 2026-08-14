@@ -330,7 +330,7 @@ content.push(
 	callout(
 		'info',
 		'Mindestanforderungen',
-		'Der Adapter benötigt Node.js >= 22, js-controller >= 6.0.11 und Admin >= 8.0.0. Die Konfigurationsseite läuft auf React 19 (wie in Admin 8).',
+		'Der Adapter benötigt Node.js >= 22, js-controller >= 6.0.11 und Admin >= 7.8.23. Die Konfigurationsseite läuft auf React 19.',
 	),
 );
 
