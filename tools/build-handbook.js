@@ -8,8 +8,8 @@
  * (see the project rules – documentation is mandatory).
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const PdfPrinter = require('pdfmake');
 
 const ROOT = path.join(__dirname, '..');
