@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Hardware compatibile — la scheda timer **Feeder-Relais**
+>
+> Stai costruendo un alimentatore e preferisci usare una scheda timer già pronta invece di cablare il tuo relè? Dai un'occhiata al **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — una scheda timer ESP32 autocostruita che si abbina perfettamente a questo adattatore ([panoramica online](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **È un progetto separato e autonomo — indipendente dall'adattatore.** La scheda e l'adattatore si corrispondono, ma sono del tutto indipendenti l'uno dall'altro: l'adattatore funziona pienamente senza la scheda e la scheda funziona senza l'adattatore.
+
+---
+
 ## Adattatore automatic-feeder per ioBroker
 
 Questo adattatore trasforma un qualsiasi interruttore ioBroker già esistente (una presa

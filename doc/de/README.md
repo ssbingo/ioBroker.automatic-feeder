@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Passende Hardware — die **Feeder-Relais**-Timerplatine
+>
+> Du baust einen Futterautomaten und möchtest lieber eine fertige Timerplatine einsetzen, statt selbst ein Relais zu verdrahten? Wirf einen Blick auf das **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — eine selbstgebaute ESP32-Timerplatine, die perfekt mit diesem Adapter zusammenspielt ([Online-Übersicht](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **Es ist ein eigenständiges Projekt — unabhängig vom Adapter.** Platine und Adapter korrespondieren miteinander, sind aber völlig unabhängig voneinander: Der Adapter funktioniert vollständig ohne die Platine, und die Platine läuft auch ohne den Adapter.
+
+---
+
 ## automatic-feeder Adapter für ioBroker
 
 Dieser Adapter macht aus einem beliebigen, bereits vorhandenen ioBroker-Schalter (einer

@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Pasujący sprzęt — płytka czasowa **Feeder-Relais**
+>
+> Budujesz karmnik i wolisz użyć gotowej płytki czasowej zamiast samodzielnie okablować przekaźnik? Zajrzyj do **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — samodzielnie budowanej płytki czasowej ESP32, która idealnie współgra z tym adapterem ([przegląd online](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **To osobny, samodzielny projekt — niezależny od adaptera.** Płytka i adapter współgrają ze sobą, ale są całkowicie niezależne od siebie: adapter działa w pełni bez płytki, a płytka działa bez adaptera.
+
+---
+
 ## Adapter automatic-feeder dla ioBroker
 
 Ten adapter zamienia dowolny, już istniejący przełącznik ioBroker (gniazdko,

@@ -1,20 +1,20 @@
 {
   "common": {
     "name": "automatic-feeder",
-    "version": "1.10.1",
+    "version": "1.10.2",
     "news": {
-      "1.10.1": {
-        "en": "Minimum admin requirement lowered to 7.8.23 so the adapter stays installable from the stable ioBroker repository (admin 8 is not in stable yet). The admin UI still runs on React 19. Requirements: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "de": "Mindestanforderung admin auf 7.8.23 gesenkt, damit der Adapter aus dem stabilen ioBroker-Repository installierbar bleibt (admin 8 ist dort noch nicht). Die Admin-Oberfläche läuft weiterhin auf React 19. Anforderungen: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "ru": "Минимальное требование admin снижено до 7.8.23, чтобы адаптер оставался устанавливаемым из стабильного репозитория ioBroker (admin 8 там ещё нет). Интерфейс администрирования по-прежнему работает на React 19. Требования: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "pt": "Requisito mínimo de admin reduzido para 7.8.23 para o adaptador continuar instalável a partir do repositório estável do ioBroker (o admin 8 ainda não está lá). A interface de administração continua a usar React 19. Requisitos: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "nl": "Minimale admin-eis verlaagd naar 7.8.23 zodat de adapter installeerbaar blijft vanuit het stabiele ioBroker-repository (admin 8 zit daar nog niet in). De admin-interface draait nog steeds op React 19. Vereisten: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "fr": "Exigence minimale d'admin abaissée à 7.8.23 pour que l'adaptateur reste installable depuis le dépôt stable d'ioBroker (admin 8 n'y est pas encore). L'interface d'administration fonctionne toujours avec React 19. Exigences : admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "it": "Requisito minimo di admin ridotto a 7.8.23 affinché l'adattatore resti installabile dal repository stabile di ioBroker (admin 8 non è ancora presente). L'interfaccia di amministrazione utilizza ancora React 19. Requisiti: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "es": "Requisito mínimo de admin reducido a 7.8.23 para que el adaptador siga siendo instalable desde el repositorio estable de ioBroker (admin 8 aún no está allí). La interfaz de administración sigue funcionando con React 19. Requisitos: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "pl": "Minimalny wymagany admin obniżony do 7.8.23, aby adapter pozostał instalowalny ze stabilnego repozytorium ioBroker (admin 8 jeszcze go nie ma). Interfejs administracyjny nadal działa na React 19. Wymagania: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "uk": "Мінімальну вимогу admin знижено до 7.8.23, щоб адаптер залишався встановлюваним зі стабільного репозиторію ioBroker (admin 8 там ще немає). Інтерфейс адміністрування, як і раніше, працює на React 19. Вимоги: admin >= 7.8.23, js-controller >= 6.0.11, Node.js >= 22.",
-        "zh-cn": "将 admin 的最低要求降至 7.8.23，使适配器仍可从 ioBroker 稳定版仓库安装（admin 8 尚未进入稳定版）。管理界面仍基于 React 19 运行。要求：admin >= 7.8.23、js-controller >= 6.0.11、Node.js >= 22。"
+      "1.10.2": {
+        "en": "The documentation now highlights, right at the top, the matching Feeder-Relais (Timer-Ersatzplatine) hardware project — a standalone ESP32 timer board that pairs with this adapter but is fully independent of it. Documentation only, no functional changes.",
+        "de": "Die Dokumentation weist jetzt ganz oben auf das passende Hardware-Projekt Feeder-Relais (Timer-Ersatzplatine) hin — eine eigenständige ESP32-Timerplatine, die mit diesem Adapter zusammenspielt, aber völlig unabhängig von ihm ist. Nur Doku, keine funktionalen Änderungen.",
+        "ru": "Документация теперь в самом верху указывает на подходящий аппаратный проект Feeder-Relais (Timer-Ersatzplatine) — самостоятельную ESP32-таймер-плату, которая сочетается с этим адаптером, но полностью независима от него. Только документация, без функциональных изменений.",
+        "pt": "A documentação agora indica, logo no topo, o projeto de hardware compatível Feeder-Relais (Timer-Ersatzplatine) — uma placa temporizadora ESP32 autónoma que combina com este adaptador, mas é totalmente independente dele. Apenas documentação, sem alterações funcionais.",
+        "nl": "De documentatie verwijst nu helemaal bovenaan naar het passende hardwareproject Feeder-Relais (Timer-Ersatzplatine) — een zelfstandige ESP32-timerprint die met deze adapter samenwerkt, maar er volledig onafhankelijk van is. Alleen documentatie, geen functionele wijzigingen.",
+        "fr": "La documentation met désormais en avant, tout en haut, le projet matériel compatible Feeder-Relais (Timer-Ersatzplatine) — une carte minuterie ESP32 autonome qui s'accorde avec cet adaptateur, mais en est totalement indépendante. Documentation uniquement, aucun changement fonctionnel.",
+        "it": "La documentazione ora segnala, in cima, il progetto hardware compatibile Feeder-Relais (Timer-Ersatzplatine) — una scheda timer ESP32 autonoma che si abbina a questo adattatore, ma ne è del tutto indipendente. Solo documentazione, nessuna modifica funzionale.",
+        "es": "La documentación ahora destaca, arriba del todo, el proyecto de hardware compatible Feeder-Relais (Timer-Ersatzplatine) — una placa temporizadora ESP32 autónoma que combina con este adaptador, pero es totalmente independiente de él. Solo documentación, sin cambios funcionales.",
+        "pl": "Dokumentacja wskazuje teraz, na samej górze, pasujący projekt sprzętowy Feeder-Relais (Timer-Ersatzplatine) — samodzielną płytkę czasową ESP32, która współgra z tym adapterem, ale jest od niego całkowicie niezależna. Tylko dokumentacja, bez zmian funkcjonalnych.",
+        "uk": "Документація тепер на самому верху вказує на сумісний апаратний проєкт Feeder-Relais (Timer-Ersatzplatine) — самостійну ESP32-таймер-плату, яка поєднується з цим адаптером, але цілком незалежна від нього. Лише документація, без функціональних змін.",
+        "zh-cn": "文档现在在最顶部指向配套的硬件项目 Feeder-Relais（Timer-Ersatzplatine）—— 一款独立的 ESP32 定时器板，与本适配器配合，但完全独立于它。仅文档更新，无功能变化。"
       }
     },
     "titleLang": {

@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Matériel compatible — la carte minuterie **Feeder-Relais**
+>
+> Vous montez un distributeur et préférez utiliser une carte minuterie prête à l'emploi plutôt que de câbler votre propre relais ? Découvrez le **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — une carte minuterie ESP32 à monter soi-même qui s'accorde parfaitement avec cet adaptateur ([aperçu en ligne](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **C'est un projet distinct et autonome — indépendant de l'adaptateur.** La carte et l'adaptateur se correspondent, mais sont totalement indépendants l'un de l'autre : l'adaptateur fonctionne pleinement sans la carte, et la carte fonctionne sans l'adaptateur.
+
+---
+
 ## Adaptateur automatic-feeder pour ioBroker
 
 Cet adaptateur transforme n'importe quel interrupteur ioBroker déjà existant (une prise, un

@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Подходящее железо — таймер-плата **Feeder-Relais**
+>
+> Собираете кормушку и хотите использовать готовую таймер-плату вместо самостоятельной разводки реле? Загляните в проект **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — самодельную ESP32-таймер-плату, которая идеально сочетается с этим адаптером ([онлайн-обзор](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **Это отдельный, самостоятельный проект — независимый от адаптера.** Плата и адаптер взаимодействуют друг с другом, но полностью независимы: адаптер полноценно работает без платы, а плата работает без адаптера.
+
+---
+
 ## Адаптер automatic-feeder для ioBroker
 
 Этот адаптер превращает любой уже имеющийся в ioBroker выключатель (розетку, реле, выход

@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 配套硬件 —— **Feeder-Relais** 定时器板
+>
+> 正在制作喂食器，并且想用现成的定时器板，而不是自己接继电器？看看 **[Feeder-Relais（Timer-Ersatzplatine）](https://github.com/ssbingo/timer-ersatzplatine)** —— 一款自制的 ESP32 定时器板，与本适配器完美配合（[在线概览](https://ssbingo.github.io/timer-ersatzplatine/)）。
+>
+> **这是一个独立的自主项目 —— 与适配器彼此独立。** 该板与本适配器相互配合，但二者完全彼此独立：适配器没有该板也能完整运行，该板没有适配器也能运行。
+
+---
+
 ## 用于 ioBroker 的 automatic-feeder 适配器
 
 本适配器可将任意一个 ioBroker 中已有的开关（一个插座、一个继电器、一个 GPIO 输出……）

@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Passende hardware — de **Feeder-Relais**-timerprint
+>
+> Bouw je een voederautomaat en gebruik je liever een kant-en-klare timerprint dan zelf een relais te bedraden? Bekijk het **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — een zelfbouw-ESP32-timerprint die perfect samenwerkt met deze adapter ([online overzicht](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **Het is een apart, zelfstandig project — onafhankelijk van de adapter.** De print en de adapter corresponderen met elkaar, maar zijn volledig onafhankelijk van elkaar: de adapter werkt volledig zonder de print, en de print werkt zonder de adapter.
+
+---
+
 ## automatic-feeder-adapter voor ioBroker
 
 Deze adapter maakt van een willekeurige, reeds aanwezige ioBroker-schakelaar (een

@@ -18,6 +18,14 @@
 
 ---
 
+> ### 🔌 Matching hardware — the **Feeder-Relais** timer board
+>
+> Building a feeder and would rather drop in a ready-made timer board than wire up your own relay? Take a look at the **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — a self-build ESP32 timer board that pairs perfectly with this adapter ([online overview](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **It is a separate, standalone project — independent of the adapter.** The board and this adapter correspond with each other, but the two are completely independent of one another: the adapter works fully without the board, and the board works without the adapter.
+
+---
+
 ## automatic-feeder adapter for ioBroker
 
 This adapter turns any existing ioBroker switch (a smart plug, a relay, a GPIO output …) into a
@@ -642,6 +650,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.10.2 (2026-08-14)
+* (ssbingo) Documentation: the READMEs (all 11 languages) and the German PDF handbook now carry a prominent notice **right at the top** pointing to the matching **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — a standalone ESP32 timer-board project that pairs with this adapter but is fully independent of it. No functional changes
+
 ### 1.10.1 (2026-08-14)
 * (ssbingo) Fix: lowered the minimum **admin** requirement to **7.8.23** (the current stable version) so the adapter stays installable from the stable ioBroker repository — this clears repochecker **E4033** (`admin >=8.0.0` is not in the stable repository yet). The admin UI still runs on **React 19**
 * (ssbingo) Merged upstream adapter-template updates: Dependabot configuration / auto-merge workflow refresh and the `node:` import prefix in the handbook generator (S5043)
@@ -675,10 +686,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.9.3 (2026-07-15)
 * (ssbingo) Fix: the **Sayit volume** is now written to the instance's own `tts.volume` state (only if it exists) instead of a `tts.text` prefix — the volume actually takes effect now, and the announcement **test no longer hangs** when a volume is set. An empty volume keeps the Sayit instance's own volume
-
-### 1.9.2 (2026-07-15)
-* (ssbingo) New **Test announcement** button next to the Sayit instance selection — speaks a short test text through the selected instance so you can check the audio output without waiting for a feeding
-* (ssbingo) The feeding announcement now uses the **correct singular/plural** form of "minutes" for each language (e.g. "1 minute" vs "5 minutes"; Russian/Polish/Ukrainian 1 / 2–4 / 5+ forms), via the language's CLDR plural rules
 
 ---
 

@@ -251,6 +251,33 @@ content.push({
 // ---- 1 Einleitung ----
 content.push(
 	section('Einleitung – was der Adapter macht'),
+	callout('tip', 'Passende Hardware: das Feeder-Relais (Timer-Ersatzplatine)', [
+		'Du möchtest lieber eine fertige Timerplatine einsetzen, statt selbst ein Relais zu verdrahten? Das Feeder-Relais ist eine selbstgebaute ESP32-Timerplatine, die perfekt mit diesem Adapter zusammenspielt.',
+		[
+			{ text: 'Projekt ansehen: ' },
+			{
+				text: 'https://github.com/ssbingo/timer-ersatzplatine',
+				link: 'https://github.com/ssbingo/timer-ersatzplatine',
+				color: C.primaryDark,
+				decoration: 'underline',
+			},
+		],
+		[
+			{ text: 'Online-Übersicht: ' },
+			{
+				text: 'https://ssbingo.github.io/timer-ersatzplatine/',
+				link: 'https://ssbingo.github.io/timer-ersatzplatine/',
+				color: C.primaryDark,
+				decoration: 'underline',
+			},
+		],
+		[
+			{
+				text: 'Eigenständiges Projekt — unabhängig vom Adapter: Platine und Adapter korrespondieren miteinander, sind aber völlig unabhängig voneinander. Der Adapter funktioniert vollständig ohne die Platine, und die Platine läuft auch ohne den Adapter.',
+				bold: true,
+			},
+		],
+	]),
 	p([
 		'Der Adapter macht aus einem beliebigen bereits vorhandenen ioBroker-Schaltobjekt (z. B. einer WLAN-Steckdose, einem Relais oder einem Skript-Datenpunkt) einen ',
 		{ text: 'zeitgesteuerten Futterautomaten', bold: true },

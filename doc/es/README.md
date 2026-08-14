@@ -5,6 +5,16 @@
   <a href="https://www.buymeacoffee.com/ssbingo"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=ssbingo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
 </p>
 
+---
+
+> ### 🔌 Hardware compatible — la placa temporizadora **Feeder-Relais**
+>
+> ¿Estás montando un comedero y prefieres usar una placa temporizadora lista en lugar de cablear tu propio relé? Echa un vistazo al **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — una placa temporizadora ESP32 de construcción propia que combina perfectamente con este adaptador ([resumen en línea](https://ssbingo.github.io/timer-ersatzplatine/)).
+>
+> **Es un proyecto separado e independiente — independiente del adaptador.** La placa y el adaptador se corresponden entre sí, pero son totalmente independientes uno del otro: el adaptador funciona plenamente sin la placa y la placa funciona sin el adaptador.
+
+---
+
 ## Adaptador automatic-feeder para ioBroker
 
 Este adaptador convierte cualquier interruptor de ioBroker ya existente (un enchufe, un relé, una
