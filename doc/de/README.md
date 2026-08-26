@@ -400,8 +400,10 @@ schalterspezifische Umschalter **Dieser Schalter nutzt die Automatic-Feeder-Rela
 aktiviert ist (siehe Abschnitt 5.1). Eine
 Relaisplatine gehört zu genau einem Schalter (einer Futterstation). Die Platine ist ein ESP32 mit
 drei Timer-Tasten (S1–S3) und eigener Weboberfläche, die über dein Netzwerk auf **Port 80**
-erreichbar ist. Der Adapter **konfiguriert** die Platine nur und **zeigt ihren Status an** – er
-löst über die Platine keine Fütterung aus (die Tasten werden an der Platine selbst bedient).
+erreichbar ist. Der Adapter **konfiguriert** die Platine, **zeigt ihren Status an** und – in der
+Standardeinstellung – **löst die Fütterung über die Platine aus** (siehe *Fütterung bevorzugt über
+die Platine* weiter unten), sodass die Platine ihren eigenen Countdown fährt, ihn auf ihrem Display
+anzeigt und ihr Relais selbst wieder abschaltet.
 
 > **Hinweis:** Die Automatic-Feeder-Relaisplatine wird parallel als **eigenständiges Projekt**
 > entwickelt. Der Adapter funktioniert vollständig auch ohne sie – die Platine ist eine
@@ -411,6 +413,16 @@ löst über die Platine keine Fütterung aus (die Tasten werden an der Platine s
 * **Platinen-Adresse (IP oder mDNS-Host)** – z. B. `192.168.1.50` oder `feeder.local`. Eine feste
   IP ist am zuverlässigsten; mDNS (`.local`) funktioniert nur, wenn dein Host-System sie auflösen
   kann. Ein Suffix `:port` ist erlaubt, aber meist nicht nötig (Standard `80`).
+* **Fütterung bevorzugt über die Platine (Fallback: Shelly direkt)** – standardmäßig aktiv. Wenn
+  aktiv, wird eine Fütterung über das Webinterface der Platine (`POST /api/trigger`) für exakt die
+  berechnete Dauer ausgelöst, sodass die **Platine selbst** den Countdown fährt, ihn auf ihrem OLED
+  anzeigt und ihr Relais wieder abschaltet. Nur wenn die Platine **nicht erreichbar** ist, schaltet
+  der Adapter das Ziel-Objekt (Shelly) direkt – genauso wie bei Schaltern ohne Platine. So spiegeln
+  Display und Log der Platine immer die echte Fütterung wider. Ausschalten, um immer direkt den
+  Shelly zu schalten (bisheriges Verhalten). Der tatsächlich genutzte Weg wird in
+  `relay.lastTriggerPath` (`board`/`direct`) geschrieben, an die Erfolgsmeldung angehängt und
+  geloggt. Vor dem Abschluss werden **sowohl Platine als auch Ziel** geprüft, und ein Sicherheits-
+  Backstop erzwingt das Aus, falls die Platine einmal nicht von selbst abschaltet.
 * **Verbindung testen & Zeiten abrufen** – kontaktiert die Platine einmalig. Ein grüner
   *Verbunden*-Chip sowie Host/IP/Firmware der Platine bestätigen eine funktionierende Verbindung;
   die drei Tasten-Fütterungszeiten werden dann von der Platine in die Felder darunter eingelesen.
@@ -498,6 +510,7 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `relay.info` | string (ro) | Kennung der Relaisplatine (Host / IP / Firmware) vom letzten erfolgreichen Abruf. |
 | `relay.active` | boolean (ro) | Der Timer der Relaisplatine läuft gerade. |
 | `relay.remaining` | number (ro) | Verbleibende Sekunden des laufenden Timers der Relaisplatine. |
+| `relay.lastTriggerPath` | string (ro) | Wie die letzte Fütterung für diesen Schalter ausgelöst wurde: `board` (über die Relaisplatine) oder `direct` (Shelly direkt geschaltet, z. B. Platine nicht erreichbar). |
 
 Diese Datenpunkte lassen sich in VIS, Skripten oder anderen Adaptern nutzen – z. B. `status.nextFeeding`
 auf einem Dashboard anzeigen oder bei `status.error = true` einen eigenen Alarm auslösen.

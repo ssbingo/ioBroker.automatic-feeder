@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog",
 	"resetReason_brownout": "Onderspanning (brownout)",
 	"resetReason_deepsleep": "Deep sleep",
-	"resetReason_unknown": "Onbekend"
+	"resetReason_unknown": "Onbekend",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Voeren bij voorkeur via de relaisprint (terugval: Shelly rechtstreeks)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Indien aan wordt een voeding via de webinterface van de print geactiveerd, zodat de print zijn eigen aftelling uitvoert en op het display toont. Alleen als de print niet bereikbaar is, schakelt de adapter het Shelly-object rechtstreeks."
 }

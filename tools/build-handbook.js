@@ -500,6 +500,9 @@ content.push(
 	p(
 		'Erscheint nur, wenn für den Schalter die Relaisplatine aktiviert ist. Hier stellst du die Adresse der Platine (IP oder mDNS, Port 80) ein, testest die Verbindung, liest/schreibst die drei Tasten-Fütterungszeiten S1–S3, kannst die Platine neu starten und siehst unten eine Systemübersicht (Firmware-Version und -Build, IP, WLAN, Signal, MAC, Betriebszeit, freier Speicher, letzter Neustartgrund in Worten).',
 	),
+	p(
+		'Neu: Die Option „Fütterung bevorzugt über die Platine (Fallback: Shelly direkt)“ ist standardmäßig aktiv. Dann löst der Adapter eine Fütterung über das Webinterface der Platine (POST /api/trigger) für exakt die berechnete Dauer aus – die Platine fährt ihren eigenen Countdown, zeigt ihn auf ihrem Display und schaltet ihr Relais selbst wieder ab. Nur wenn die Platine nicht erreichbar ist, schaltet der Adapter das Shelly-Objekt direkt (bisheriges Verhalten). Der genutzte Weg steht im Datenpunkt relay.lastTriggerPath (board/direct) und wird an die Erfolgsmeldung angehängt. Vor dem Abschluss werden sowohl Platine als auch Ziel geprüft, und ein Sicherheits-Backstop erzwingt das Aus, falls die Platine einmal nicht von selbst abschaltet.',
+	),
 );
 
 // ---- 6 Objekte / Datenpunkte ----
@@ -553,9 +556,9 @@ content.push(
 			],
 			['status.sunrise / sunset / …Ts', 'string/number (ro)', 'Berechneter Sonnenauf-/-untergang.'],
 			[
-				'relay.connected / info / active / remaining',
+				'relay.connected / info / active / remaining / lastTriggerPath',
 				'div. (ro)',
-				'Status der Relaisplatine (nur wenn der Schalter eine nutzt).',
+				'Status der Relaisplatine und der zuletzt genutzte Fütterungsweg (board/direct); nur wenn der Schalter eine Platine nutzt.',
 			],
 			['settings.*', 'div. (rw)', 'Bearbeitbares Abbild der Konfiguration (aus VIS/Skript änderbar).'],
 		],
@@ -663,6 +666,7 @@ content.push(
 	callout('tip', 'Passende Hardware entsteht parallel', [
 		'Zur optimalen Nutzung des Adapters entsteht in einem separaten Projekt parallel die „Automatic-Feeder-Relais“-Platine – ein ESP32 mit drei bedienbaren Timer-Tasten (S1–S3), eigener Weboberfläche und einer HTTP-API (Port 80).',
 		'Ist die Platine vorhanden, kann sie je Schalter im Relais-Tab eingebunden werden (siehe Abschnitt 5.3): Verbindung testen, Tastenzeiten S1–S3 lesen/schreiben, Platine neu starten und Systemdaten einsehen.',
+		'Neu: Ist die Platine eingebunden, löst der Adapter die Fütterung standardmäßig direkt über sie aus (ihre HTTP-API), sodass ihr Display und Log den Vorgang mitbekommen – nur bei Nichterreichbarkeit schaltet er ersatzweise den Shelly direkt.',
 	]),
 	p(
 		'Der Adapter funktioniert vollständig auch ohne diese Platine – sie ist eine optionale, komfortable Ergänzung. Da sie eigenständig weiterentwickelt wird, können sich Details der Platine unabhängig vom Adapter ändern.',

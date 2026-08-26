@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog (сторожевой таймер)",
 	"resetReason_brownout": "Пониженное напряжение (brownout)",
 	"resetReason_deepsleep": "Глубокий сон (deep sleep)",
-	"resetReason_unknown": "Неизвестно"
+	"resetReason_unknown": "Неизвестно",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Кормление преимущественно через плату реле (резерв: Shelly напрямую)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Если включено, кормление запускается через веб-интерфейс платы, поэтому плата ведёт собственный обратный отсчёт и показывает его на дисплее. Только если плата недоступна, адаптер переключает объект Shelly напрямую."
 }

@@ -421,8 +421,10 @@ Cet onglet n'apparaît que lorsque la bascule propre à cet interrupteur (**Cet 
 la carte relais Automatic-Feeder …**) est activée dans les réglages de base (voir section 5.1). Une
 carte relais correspond à un interrupteur (station de distribution). La carte est un ESP32 doté de
 trois boutons de minuterie (S1–S3) et de sa propre interface web, accessible sur ton réseau via le
-**port 80**. L'adaptateur se contente de **configurer** la carte et d'**afficher son état** — il ne
-déclenche pas la distribution via la carte (les boutons s'actionnent sur la carte elle-même).
+**port 80**. L'adaptateur **configure** la carte, **affiche son état** et — par défaut —
+**déclenche la distribution via la carte** (voir « Distribuer en priorité via la carte relais »
+ci-dessous), de sorte que la carte exécute son propre compte à rebours, l'affiche sur son écran
+et coupe à nouveau son relais elle-même.
 
 > **Remarque :** la carte relais Automatic-Feeder est développée en parallèle en tant que
 > **projet distinct**. L'adaptateur fonctionne parfaitement sans elle — la carte est un
@@ -432,6 +434,18 @@ déclenche pas la distribution via la carte (les boutons s'actionnent sur la car
 * **Adresse de la carte (IP ou hôte mDNS)** — p. ex. `192.168.1.50` ou `feeder.local`. Une IP fixe
   est la plus fiable ; le mDNS (`.local`) ne fonctionne que si ton système hôte parvient à le
   résoudre. Un suffixe `:port` est autorisé mais généralement inutile (par défaut `80`).
+* **Distribuer en priorité via la carte relais (repli : Shelly directement)** — activé par défaut.
+  Lorsque c'est activé, une distribution est déclenchée via l'interface web de la carte
+  (`POST /api/trigger`) pour exactement la durée calculée, de sorte que la **carte elle-même**
+  exécute le compte à rebours, l'affiche sur son OLED et coupe à nouveau son relais. Ce n'est que
+  lorsque la carte est **injoignable** que l'adaptateur bascule sur la commande directe de l'objet
+  cible (Shelly) — de la même manière que fonctionnent les interrupteurs sans carte. Ainsi,
+  l'écran et le journal de la carte reflètent toujours la distribution réelle. Désactive-le pour
+  toujours commander directement le Shelly (l'ancien comportement). Le chemin réellement utilisé
+  est écrit dans `relay.lastTriggerPath` (`board`/`direct`), ajouté au message de succès et au
+  journal. La carte **et** la cible sont toutes deux vérifiées avant qu'une distribution soit
+  considérée comme terminée, et une sécurité de secours force l'arrêt de la carte si jamais elle
+  ne se coupait pas d'elle-même.
 * **Tester la connexion et récupérer les durées** — contacte la carte une fois. Une pastille verte
   *Connecté* ainsi que l'hôte/l'IP/le firmware de la carte confirment une connexion opérationnelle ;
   les trois durées de distribution des boutons sont alors lues depuis la carte et reportées dans les
@@ -519,6 +533,7 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `relay.info` | string (ro) | Identité de la carte relais (hôte / IP / firmware) issue de la dernière interrogation réussie. |
 | `relay.active` | boolean (ro) | La minuterie de la carte relais est actuellement en cours d'exécution. |
 | `relay.remaining` | number (ro) | Secondes restantes sur la minuterie en cours de la carte relais. |
+| `relay.lastTriggerPath` | string (ro) | Comment la dernière distribution a été déclenchée pour cet interrupteur : `board` (via la carte relais) ou `direct` (Shelly commandé directement, p. ex. carte injoignable). |
 
 Ces points de données peuvent être utilisés dans VIS, des scripts ou d'autres adaptateurs — p. ex.
 afficher `status.nextFeeding` sur un tableau de bord ou déclencher ta propre alarme lorsque `status.error =

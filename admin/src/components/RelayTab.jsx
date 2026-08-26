@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Paper, Typography, TextField, Button, CircularProgress, Alert, Chip, Divider } from '@mui/material';
+import {
+	Box,
+	Paper,
+	Typography,
+	TextField,
+	Button,
+	CircularProgress,
+	Alert,
+	Chip,
+	Divider,
+	FormControlLabel,
+	Checkbox,
+} from '@mui/material';
 import SyncIcon from '@mui/icons-material/Sync';
 import SaveIcon from '@mui/icons-material/Save';
 import WifiIcon from '@mui/icons-material/Wifi';
@@ -263,6 +275,21 @@ function RelayTab(props) {
 						{msg.text}
 					</Alert>
 				) : null}
+				<Divider sx={{ my: 2 }} />
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={sw.relayPreferBoard !== false}
+							onChange={(e) => onChange({ relayPreferBoard: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Feed primarily through the relay board (fallback: Shelly directly)')}
+				/>
+				<Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+					{I18n.t(
+						'When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.',
+					)}
+				</Typography>
 			</Section>
 
 			<Section title={I18n.t('Button feeding times (seconds)')}>

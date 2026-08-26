@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog",
 	"resetReason_brownout": "Unterspannung (Brownout)",
 	"resetReason_deepsleep": "Deep-Sleep",
-	"resetReason_unknown": "Unbekannt"
+	"resetReason_unknown": "Unbekannt",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Fütterung bevorzugt über die Platine (Fallback: Shelly direkt)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Wenn aktiv, wird eine Fütterung über das Webinterface der Platine ausgelöst, sodass die Platine ihren eigenen Countdown fährt und auf ihrem Display anzeigt. Nur wenn die Platine nicht erreichbar ist, schaltet der Adapter das Shelly-Objekt direkt."
 }

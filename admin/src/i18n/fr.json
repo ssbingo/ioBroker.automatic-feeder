@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog",
 	"resetReason_brownout": "Sous-tension (brownout)",
 	"resetReason_deepsleep": "Deep sleep",
-	"resetReason_unknown": "Inconnu"
+	"resetReason_unknown": "Inconnu",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Distribuer en priorité via la carte relais (repli : Shelly directement)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Si activé, une distribution est déclenchée via l'interface web de la carte, afin que la carte gère son propre compte à rebours et l'affiche sur son écran. Ce n'est que si la carte est injoignable que l'adaptateur commute directement l'objet Shelly."
 }

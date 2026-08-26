@@ -424,8 +424,10 @@ Esta pestaña solo aparece cuando el conmutador por interruptor **Este interrupt
 Automatic-Feeder …** de este interruptor está activado en los ajustes generales (consulta la sección 5.1).
 Cada placa de relé pertenece a un interruptor (estación de alimentación). La placa es un ESP32 con
 tres botones temporizadores (S1–S3) y su propia interfaz web, accesible a través de tu red en el
-**puerto 80**. El adaptador solo **configura** la placa y **muestra su estado**; no activa la
-alimentación a través de la placa (los botones se accionan en la propia placa).
+**puerto 80**. El adaptador **configura** la placa, **muestra su estado** y –de forma predeterminada–
+**activa la alimentación a través de la placa** (consulta «Alimentar principalmente a través de la
+placa de relé» más abajo), de modo que la placa ejecuta su propia cuenta atrás, la muestra en su
+pantalla y vuelve a apagar su relé por sí misma.
 
 > **Nota:** La placa de relé Automatic-Feeder se desarrolla en paralelo como un **proyecto
 > independiente**. El adaptador funciona completamente sin ella – la placa es un complemento
@@ -435,6 +437,17 @@ alimentación a través de la placa (los botones se accionan en la propia placa)
 * **Dirección de la placa (IP o host mDNS)** – p. ej. `192.168.1.50` o `feeder.local`. Una IP fija
   es lo más fiable; mDNS (`.local`) solo funciona si tu sistema anfitrión puede resolverlo. Se admite
   un sufijo `:port`, pero normalmente no es necesario (por defecto `80`).
+* **Alimentar principalmente a través de la placa de relé (respaldo: Shelly directamente)** – activado
+  de forma predeterminada. Cuando está activado, una alimentación se activa a través de la interfaz web
+  de la placa (`POST /api/trigger`) durante exactamente la duración calculada, de modo que la **propia
+  placa** ejecuta la cuenta atrás, la muestra en su OLED y vuelve a apagar su relé. Solo cuando la placa
+  **no se puede alcanzar**, el adaptador recurre a conmutar directamente el objeto de destino (Shelly)
+  – del mismo modo que funcionan los interruptores sin placa. De esta forma, la pantalla y el registro
+  de la placa siempre reflejan la alimentación real. Desactívalo para conmutar siempre el Shelly
+  directamente (el comportamiento anterior). La ruta realmente utilizada se escribe en
+  `relay.lastTriggerPath` (`board`/`direct`), se añade al mensaje de éxito y al registro. Tanto la placa
+  **como** el destino se comprueban antes de que una alimentación se considere completada, y un tope de
+  seguridad fuerza el apagado de la placa en caso de que alguna vez no se apague por sí sola.
 * **Probar conexión y obtener tiempos** – contacta con la placa una vez. Un indicador verde
   *Conectado* y el host/IP/firmware de la placa confirman una conexión correcta; los tres tiempos de
   alimentación de los botones se leen entonces de la placa en los campos de más abajo. Un indicador
@@ -523,6 +536,7 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `relay.info` | string (ro) | Identidad de la placa de relé (host / IP / firmware) del último sondeo correcto. |
 | `relay.active` | boolean (ro) | El temporizador de la placa de relé está en marcha actualmente. |
 | `relay.remaining` | number (ro) | Segundos restantes del temporizador en marcha de la placa de relé. |
+| `relay.lastTriggerPath` | string (ro) | Cómo se activó la última alimentación para este interruptor: `board` (a través de la placa de relé) o `direct` (Shelly conmutado directamente, p. ej. placa inaccesible). |
 
 Estos puntos de datos pueden utilizarse en VIS, scripts u otros adaptadores, p. ej. mostrar
 `status.nextFeeding` en un panel o activar una alarma propia cuando `status.error = true`.

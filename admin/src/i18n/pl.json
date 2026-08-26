@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog",
 	"resetReason_brownout": "Podnapięcie (brownout)",
 	"resetReason_deepsleep": "Deep sleep",
-	"resetReason_unknown": "Nieznany"
+	"resetReason_unknown": "Nieznany",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Karm głównie przez płytkę przekaźnika (awaryjnie: Shelly bezpośrednio)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Gdy włączone, karmienie jest wyzwalane przez interfejs webowy płytki, dzięki czemu płytka prowadzi własne odliczanie i pokazuje je na wyświetlaczu. Tylko gdy płytka jest nieosiągalna, adapter przełącza obiekt Shelly bezpośrednio."
 }

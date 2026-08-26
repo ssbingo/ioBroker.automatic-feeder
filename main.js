@@ -52,6 +52,11 @@ const RELAY_POLL_MS = 60000;
 const RELAY_TIME_MIN_SEC = 1;
 const RELAY_TIME_MAX_SEC = 600;
 /**
+ * Timeout for the relay-board trigger/stop requests during a feeding (milliseconds). Shorter
+ * than the 60 s status poll so an unreachable board falls back to the direct switch quickly.
+ */
+const RELAY_TRIGGER_TIMEOUT_MS = 3000;
+/**
  * Delay after writing a Sayit volume before writing the text, so the instance applies the
  *  new volume to THIS announcement instead of the previous one (milliseconds).
  */
@@ -730,6 +735,8 @@ class AutomaticFeeder extends utils.Adapter {
 		this.announceTimers = new Map();
 		/** self-rescheduling timer that polls the relay boards for their connection status */
 		this.relayTimer = null;
+		/** last relay-board status per switch id from the poll/trigger: { connected, ...normalizedStatus } */
+		this.relayStatusCache = new Map();
 		/** last known "feeding paused" state per switch id (to detect start/end transitions) */
 		this.pauseActiveState = new Map();
 
@@ -1740,6 +1747,19 @@ class AutomaticFeeder extends utils.Adapter {
 					},
 					native: {},
 				});
+				await this.setObjectNotExistsAsync(`${base}.relay.lastTriggerPath`, {
+					type: 'state',
+					common: {
+						name: 'Last feeding path (board = via relay board, direct = Shelly directly)',
+						type: 'string',
+						role: 'text',
+						read: true,
+						write: false,
+						def: '',
+						states: { board: 'board', direct: 'direct' },
+					},
+					native: {},
+				});
 			} else {
 				// this switch does not use a relay board -> remove the relay channel and its states
 				const relayObj = await this.getObjectAsync(`${base}.relay`);
@@ -2588,9 +2608,42 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		this.feedingBusy.add(sw.id);
 		try {
+			// --- decide the feeding path (A: relay board authoritative; B: two-tier fallback) ---
+			const useBoard = !!(sw.relayEnabled && sw.relayPreferBoard !== false && sw.relayHost);
+			const cached = this.relayStatusCache.get(sw.id);
+			const knownOffline = useBoard && cached && cached.connected === false;
+			let path = 'direct';
+			let triggerSt = null;
+
 			// --- switch ON ---
-			this.log.info(`Feeding ${this.swLabel(sw)} for ${seconds}s.`);
-			await this.writeSwitch(sw, true);
+			this.log.info(`Feeding ${this.swLabel(sw)} for ${seconds}s${useBoard ? ' (relay board preferred)' : ''}.`);
+			if (useBoard && !knownOffline) {
+				try {
+					// 1st way: let the board run the feeding (its own countdown, OLED, relay-off)
+					triggerSt = await this.relayTrigger(sw.relayHost, seconds);
+					this.relayStatusCache.set(sw.id, { ...triggerSt, connected: true });
+					path = 'board';
+					this.log.debug(`${this.swLabel(sw)}: feeding triggered via the relay board (${sw.relayHost}).`);
+				} catch (e) {
+					this.relayStatusCache.set(sw.id, { connected: false });
+					this.log.warn(
+						`${this.swLabel(sw)}: relay board not reachable (${e.message}) - falling back to the direct switch.`,
+					);
+				}
+			} else if (knownOffline) {
+				this.log.warn(
+					`${this.swLabel(sw)}: relay board reported offline by the last poll - using the direct switch.`,
+				);
+			}
+			if (path === 'direct') {
+				// 2nd way: drive the target (e.g. the board's Shelly) object directly
+				await this.writeSwitch(sw, true);
+			}
+			if (sw.relayEnabled) {
+				await this.setStateAsync(`switches.${sw.id}.relay.lastTriggerPath`, { val: path, ack: true }).catch(
+					() => {},
+				);
+			}
 			await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: true, ack: true });
 			await this.setStateAsync(`switches.${sw.id}.status.lastFeeding`, {
 				val: this.localTs(new Date()),
@@ -2609,23 +2662,39 @@ class AutomaticFeeder extends utils.Adapter {
 			});
 
 			if (verify) {
-				const onConfirmed = await this.verifyState(sw, true);
+				let onConfirmed;
+				if (path === 'board') {
+					// C: strict AND - the board must report its relay ON *and* the target must confirm
+					const boardOn = !!(triggerSt && (triggerSt.relay || triggerSt.active || triggerSt.remaining > 0));
+					const targetOn = await this.verifyState(sw, true);
+					onConfirmed = boardOn && targetOn;
+					if (!onConfirmed) {
+						this.log.error(
+							`${this.swLabel(sw)}: ON not confirmed (board relay=${boardOn}, target=${targetOn}).`,
+						);
+					}
+				} else {
+					onConfirmed = await this.verifyState(sw, true);
+				}
 				if (this.terminating) {
 					return;
 				}
 				if (!onConfirmed) {
-					// Scenario 2: the switch never confirmed the ON state
+					// Scenario 2: the feeding never confirmed the ON state - stop both ways safely
+					if (path === 'board') {
+						await this.relayStop(sw.relayHost).catch(() => {});
+					}
 					await this.writeSwitch(sw, false); // safety: try to switch off again
 					await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: false, ack: true });
 					this.log.error(
-						`Feeding of ${this.swLabel(sw)} could not be performed - switch did not confirm ON. Check the switch!`,
+						`Feeding of ${this.swLabel(sw)} could not be performed - did not confirm ON. Check the switch/board!`,
 					);
 					const failMsg = this.t('feedOnFail');
 					await this.reportResult(sw, true, failMsg);
 					this.notify(sw, 'onFail', 'feedOnFail');
 					return;
 				}
-				this.log.debug(`${this.swLabel(sw)}: ON confirmed by target.`);
+				this.log.debug(`${this.swLabel(sw)}: ON confirmed${path === 'board' ? ' (board + target)' : ''}.`);
 			}
 
 			// --- keep on for the configured duration (this.delay is cleared on unload) ---
@@ -2638,33 +2707,60 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 
 			// --- switch OFF ---
-			await this.writeSwitch(sw, false);
+			// board path: the board switches its own relay off after the countdown; direct path: we do it
+			if (path === 'direct') {
+				await this.writeSwitch(sw, false);
+			}
 			await this.setStateAsync(`switches.${sw.id}.status.feedingActive`, { val: false, ack: true });
 
-			if (verify) {
-				const offConfirmed = await this.verifyState(sw, false);
+			// D: safety back-stop for the board path - runs even without verification. Make sure
+			// the board really switched its relay off; if not (e.g. it rebooted), force it off.
+			let boardOff = true;
+			if (path === 'board') {
+				boardOff = await this.confirmBoardRelay(sw, false);
 				if (this.terminating) {
 					return;
 				}
+				if (!boardOff) {
+					this.log.warn(
+						`${this.swLabel(sw)}: board did not confirm relay OFF - forcing stop (safety back-stop).`,
+					);
+					await this.relayStop(sw.relayHost).catch(() => {});
+					await this.writeSwitch(sw, false);
+				}
+			}
+
+			if (verify) {
+				// C: strict AND for the board path - both the board relay and the target must be OFF
+				const targetOff = await this.verifyState(sw, false);
+				if (this.terminating) {
+					return;
+				}
+				const offConfirmed = path === 'board' ? boardOff && targetOff : targetOff;
 				if (!offConfirmed) {
-					// Scenario 3: ON worked, but the switch did not turn OFF again
+					// Scenario 3: ON worked, but it did not turn OFF again
 					this.log.error(
-						`Fault: ${this.swLabel(sw)} did not switch OFF as planned (still ON?). Check the switch!`,
+						`Fault: ${this.swLabel(sw)} did not switch OFF as planned (board off=${boardOff}, target off=${targetOff}). Check the switch/board!`,
 					);
 					const offFailMsg = this.t('feedOffFail');
 					await this.reportResult(sw, true, offFailMsg);
 					this.notify(sw, 'offFail', 'feedOffFail');
 					return;
 				}
-				this.log.debug(`${this.swLabel(sw)}: OFF confirmed by target.`);
+				this.log.debug(`${this.swLabel(sw)}: OFF confirmed${path === 'board' ? ' (board + target)' : ''}.`);
 			}
 
 			// --- Scenario 1: everything worked ---
-			const okMsg = this.t('feedSuccess', { seconds });
+			const pathKey = path === 'board' ? 'pathBoard' : 'pathDirect';
+			const okMsg = sw.relayEnabled
+				? `${this.t('feedSuccess', { seconds })} (${this.t(pathKey)})`
+				: this.t('feedSuccess', { seconds });
 			await this.reportResult(sw, false, okMsg);
-			this.notify(sw, 'success', 'feedSuccess', { seconds });
+			this.notify(sw, 'success', 'feedSuccess', { seconds }, sw.relayEnabled ? pathKey : null);
 			// log in English (language-independent); the localized text goes to the datapoint/Telegram
-			this.log.info(`${this.swLabel(sw)}: ${translate('feedSuccess', 'en', { seconds })}`);
+			this.log.info(
+				`${this.swLabel(sw)}: ${translate('feedSuccess', 'en', { seconds })}${sw.relayEnabled ? ` [${path}]` : ''}`,
+			);
 		} finally {
 			this.feedingBusy.delete(sw.id);
 			// clear the runtime countdown end time and duration whichever way the feeding ended
@@ -2806,9 +2902,11 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @param {'success' | 'onFail' | 'offFail'} type - message category
 	 * @param {string} key - message key from lib/messages
 	 * @param {Record<string, string | number>} [params] - placeholder values
+	 * @param {string | null} [suffixKey] - optional message key appended as " (…)" (e.g. the feeding path)
 	 */
-	notify(sw, type, key, params) {
-		const text = `${sw.name || sw.id}: ${this.tSw(sw, key, params)}`;
+	notify(sw, type, key, params, suffixKey = null) {
+		const suffix = suffixKey ? ` (${this.tSw(sw, suffixKey)})` : '';
+		const text = `${sw.name || sw.id}: ${this.tSw(sw, key, params)}${suffix}`;
 		const wantTg = type === 'success' ? sw.notifySuccess : type === 'onFail' ? sw.notifyOnFail : sw.notifyOffFail;
 		if (sw.telegramInstance && wantTg) {
 			this.sendTelegram(sw, text, type);
@@ -3644,9 +3742,10 @@ class AutomaticFeeder extends utils.Adapter {
 	 * @param {string} host - board IP or mDNS host, optionally "host:port" (default port 80)
 	 * @param {string} path - request path incl. leading slash and query string
 	 * @param {'GET' | 'POST'} [method] - HTTP method (default "GET")
+	 * @param {number} [timeoutMs] - request timeout (default {@link RELAY_TIMEOUT_MS})
 	 * @returns {Promise<unknown>} the parsed JSON response
 	 */
-	async relayFetch(host, path, method = 'GET') {
+	async relayFetch(host, path, method = 'GET', timeoutMs = RELAY_TIMEOUT_MS) {
 		const authority = String(host || '')
 			.trim()
 			.replace(/^https?:\/\//i, '')
@@ -3656,7 +3755,7 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 		const url = `http://${authority}${path}`;
 		const controller = new AbortController();
-		const timer = this.setTimeout(() => controller.abort(), RELAY_TIMEOUT_MS);
+		const timer = this.setTimeout(() => controller.abort(), timeoutMs);
 		try {
 			this.log.silly(`Relay request ${method} ${url}`);
 			const res = await fetch(url, { method, signal: controller.signal });
@@ -3666,12 +3765,77 @@ class AutomaticFeeder extends utils.Adapter {
 			return await res.json();
 		} catch (e) {
 			if (e.name === 'AbortError') {
-				throw new Error(`timeout after ${RELAY_TIMEOUT_MS}ms`);
+				throw new Error(`timeout after ${timeoutMs}ms`);
 			}
 			throw e;
 		} finally {
 			this.clearTimeout(timer);
 		}
+	}
+
+	/**
+	 * Triggers a feeding on the relay board for an arbitrary number of seconds
+	 * (`POST /api/trigger?seconds=S`). The board sets its own countdown, drives its OLED and
+	 * switches the relay off again on its own. Returns the board's normalized status.
+	 *
+	 * @param {string} host - board IP or mDNS host, optionally "host:port"
+	 * @param {number} seconds - feeding duration in seconds (board clamps to its own bounds)
+	 * @returns {Promise<ReturnType<AutomaticFeeder['normalizeRelayStatus']>>} normalized status after the trigger
+	 */
+	async relayTrigger(host, seconds) {
+		const s = Math.max(RELAY_TIME_MIN_SEC, Math.min(RELAY_TIME_MAX_SEC, Math.round(Number(seconds) || 0)));
+		// src=adapter lets a newer firmware label the trigger source (ignored by older firmware)
+		const raw = await this.relayFetch(
+			host,
+			`/api/trigger?seconds=${s}&src=adapter`,
+			'POST',
+			RELAY_TRIGGER_TIMEOUT_MS,
+		);
+		return this.normalizeRelayStatus(raw);
+	}
+
+	/**
+	 * Stops all timers on the relay board (`POST /api/stop`): relay off, remaining set to 0.
+	 * Used as the safety back-stop when a board-driven feeding cannot be confirmed as OFF.
+	 *
+	 * @param {string} host - board IP or mDNS host, optionally "host:port"
+	 * @returns {Promise<ReturnType<AutomaticFeeder['normalizeRelayStatus']>>} normalized status after the stop
+	 */
+	async relayStop(host) {
+		const raw = await this.relayFetch(host, '/api/stop', 'POST', RELAY_TRIGGER_TIMEOUT_MS);
+		return this.normalizeRelayStatus(raw);
+	}
+
+	/**
+	 * Reads the relay board's `/api/status` up to a few times and checks whether its relay is
+	 * in the expected on/off state. Refreshes {@link AutomaticFeeder#relayStatusCache}.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @param {boolean} expectOn - true expects the board relay ON, false OFF
+	 * @returns {Promise<boolean>} true if the board confirmed the expected relay state
+	 */
+	async confirmBoardRelay(sw, expectOn) {
+		for (let attempt = 1; attempt <= 3; attempt++) {
+			try {
+				const st = this.normalizeRelayStatus(await this.relayFetch(sw.relayHost, '/api/status', 'GET'));
+				this.relayStatusCache.set(sw.id, { ...st, connected: true });
+				const relayOn = st.relay || st.active || st.remaining > 0;
+				if (relayOn === expectOn) {
+					return true;
+				}
+			} catch (e) {
+				this.relayStatusCache.set(sw.id, { connected: false });
+				this.log.silly(`${this.swLabel(sw)}: board status read failed (${e.message}).`);
+			}
+			if (this.terminating) {
+				return false;
+			}
+			await this.delay(600);
+			if (this.terminating) {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -3723,11 +3887,13 @@ class AutomaticFeeder extends utils.Adapter {
 			const base = `switches.${sw.id}.relay`;
 			const host = sw.relayHost;
 			if (!host || !String(host).trim()) {
+				this.relayStatusCache.set(sw.id, { connected: false });
 				await this.setStateAsync(`${base}.connected`, { val: false, ack: true }).catch(() => {});
 				continue;
 			}
 			try {
 				const st = this.normalizeRelayStatus(await this.relayFetch(host, '/api/status', 'GET'));
+				this.relayStatusCache.set(sw.id, { ...st, connected: true });
 				const info = [
 					st.host && `host=${st.host}`,
 					st.ip && `ip=${st.ip}`,
@@ -3742,6 +3908,7 @@ class AutomaticFeeder extends utils.Adapter {
 				await this.setStateAsync(`${base}.remaining`, { val: st.remaining, ack: true }).catch(() => {});
 				this.log.silly(`Relay ${this.swLabel(sw)} reachable at ${host} (${info}).`);
 			} catch (e) {
+				this.relayStatusCache.set(sw.id, { connected: false });
 				await this.setStateAsync(`${base}.connected`, { val: false, ack: true }).catch(() => {});
 				await this.setStateAsync(`${base}.active`, { val: false, ack: true }).catch(() => {});
 				this.log.debug(`Relay ${this.swLabel(sw)} not reachable at ${host}: ${e.message}`);

@@ -188,5 +188,7 @@
 	"resetReason_wdt": "看门狗 (Watchdog)",
 	"resetReason_brownout": "欠压 (brownout)",
 	"resetReason_deepsleep": "深度睡眠",
-	"resetReason_unknown": "未知"
+	"resetReason_unknown": "未知",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "优先通过继电器板投喂（回退：直接使用 Shelly）",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "启用后，投喂将通过继电器板的网页界面触发，因此继电器板会运行自己的倒计时并显示在其屏幕上。仅当无法连接到继电器板时，适配器才会直接切换 Shelly 对象。"
 }

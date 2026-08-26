@@ -113,6 +113,7 @@ function createSwitch(switches) {
 		o2ObjectId: '',
 		relayEnabled: false,
 		relayHost: '',
+		relayPreferBoard: true,
 		relayS1: 5,
 		relayS2: 5,
 		relayS3: 5,

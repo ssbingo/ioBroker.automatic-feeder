@@ -401,8 +401,10 @@ Ta zakładka pojawia się tylko wtedy, gdy w ustawieniach podstawowych włączon
 opcję **Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder …** (zobacz sekcję 5.1).
 Jedna płytka przekaźnikowa należy do jednego przełącznika (stacji karmienia). Płytka
 to ESP32 z trzema przyciskami czasowymi (S1–S3) i własnym interfejsem WWW, dostępnym w Twojej sieci
-przez **port 80**. Adapter tylko **konfiguruje** płytkę i **pokazuje jej stan** – nie wyzwala
-karmienia przez płytkę (przyciski obsługuje się na samej płytce).
+przez **port 80**. Adapter **konfiguruje** płytkę, **pokazuje jej stan** i – domyślnie – **wyzwala
+karmienie przez płytkę** (zobacz „Karm głównie przez płytkę przekaźnikową" poniżej), dzięki czemu
+płytka sama prowadzi odliczanie, pokazuje je na swoim wyświetlaczu i sama ponownie wyłącza swój
+przekaźnik.
 
 > **Uwaga:** Płytka przekaźnikowa Automatic-Feeder jest rozwijana równolegle jako
 > **osobny projekt**. Adapter działa w pełni bez niej – płytka to opcjonalny, wygodny dodatek.
@@ -412,6 +414,17 @@ karmienia przez płytkę (przyciski obsługuje się na samej płytce).
 * **Adres płytki (IP lub host mDNS)** – np. `192.168.1.50` lub `feeder.local`. Stały adres IP jest
   najbardziej niezawodny; mDNS (`.local`) działa tylko wtedy, gdy Twój system hosta potrafi go
   rozpoznać. Sufiks `:port` jest dozwolony, ale zwykle niepotrzebny (domyślnie `80`).
+* **Karm głównie przez płytkę przekaźnikową (rezerwowo: bezpośrednio Shelly)** – domyślnie
+  włączone. Gdy włączone, karmienie jest wyzwalane przez interfejs WWW płytki (`POST /api/trigger`)
+  dokładnie na obliczony czas, dzięki czemu **sama płytka** prowadzi odliczanie, pokazuje je na
+  swoim wyświetlaczu OLED i ponownie wyłącza swój przekaźnik. Dopiero gdy płytki **nie da się
+  osiągnąć**, adapter przełącza się na bezpośrednie przełączenie obiektu docelowego (Shelly) – tak
+  samo, jak działają przełączniki bez płytki. Dzięki temu wyświetlacz i log płytki zawsze
+  odzwierciedlają rzeczywiste karmienie. Wyłącz tę opcję, aby zawsze przełączać bezpośrednio Shelly
+  (dawne zachowanie). Faktycznie użyta ścieżka jest zapisywana w `relay.lastTriggerPath`
+  (`board`/`direct`), dodawana do komunikatu o powodzeniu i do logu. Zarówno płytka, **jak i** cel
+  są sprawdzane, zanim karmienie zostanie uznane za wykonane, a zabezpieczenie awaryjne wymusza
+  wyłączenie płytki, gdyby kiedykolwiek nie wyłączyła się sama.
 * **Testuj połączenie i pobierz czasy** – łączy się z płytką jednorazowo. Zielony znacznik
   *Połączono* oraz host/IP/firmware płytki potwierdzają działające połączenie; trzy czasy karmienia
   przycisków są wtedy odczytywane z płytki do poniższych pól. Czerwony znacznik *Nie połączono*
@@ -499,6 +512,7 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `relay.info` | string (ro) | Tożsamość płytki przekaźnikowej (host / IP / firmware) z ostatniego udanego odpytania. |
 | `relay.active` | boolean (ro) | Timer płytki przekaźnikowej jest aktualnie uruchomiony. |
 | `relay.remaining` | number (ro) | Pozostałe sekundy na uruchomionym timerze płytki przekaźnikowej. |
+| `relay.lastTriggerPath` | string (ro) | Sposób wyzwolenia ostatniego karmienia dla tego przełącznika: `board` (przez płytkę przekaźnikową) lub `direct` (Shelly przełączony bezpośrednio, np. płytka nieosiągalna). |
 
 Te punkty danych można wykorzystać w VIS, skryptach lub innych adapterach – np. wyświetlić
 `status.nextFeeding` na pulpicie albo wyzwolić własny alarm przy `status.error = true`.

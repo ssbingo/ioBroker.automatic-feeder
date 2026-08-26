@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog",
 	"resetReason_brownout": "Sottotensione (brownout)",
 	"resetReason_deepsleep": "Deep sleep",
-	"resetReason_unknown": "Sconosciuto"
+	"resetReason_unknown": "Sconosciuto",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Alimenta preferibilmente tramite la scheda relè (ripiego: Shelly direttamente)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Se attivo, un'alimentazione viene attivata tramite l'interfaccia web della scheda, così la scheda esegue il proprio conto alla rovescia e lo mostra sul display. Solo se la scheda non è raggiungibile l'adattatore commuta direttamente l'oggetto Shelly."
 }

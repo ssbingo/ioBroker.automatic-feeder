@@ -205,6 +205,12 @@ declare global {
 			 * Only used when this switch's relayEnabled is on.
 			 */
 			relayHost: string;
+			/**
+			 * Feed primarily through the relay board's web API (POST /api/trigger), falling
+			 * back to the direct switch only when the board is unreachable. Default on (an
+			 * explicit false disables it). Only relevant when relayEnabled is on.
+			 */
+			relayPreferBoard: boolean;
 			/** Relay board button S1 feeding time in seconds (1..600). */
 			relayS1: number;
 			/** Relay board button S2 feeding time in seconds (1..600). */

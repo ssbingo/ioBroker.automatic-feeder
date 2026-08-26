@@ -391,8 +391,10 @@ This tab only appears when the switch's **This switch uses the Automatic-Feeder 
 toggle is enabled in the general settings (see [5.1](#switches)). One relay board belongs to one
 switch (feeding station). The
 board is an ESP32 with three timer buttons (S1–S3) and its own web interface, reached over your
-network on **port 80**. The adapter only **configures** the board and **shows its status** – it
-does not trigger feeding through the board (the buttons are operated on the board itself).
+network on **port 80**. The adapter **configures** the board, **shows its status** and – by
+default – **triggers the feeding through the board** (see *Feed primarily through the relay
+board* below), so the board runs its own countdown, shows it on its display and switches its
+relay off again itself.
 
 > **Note:** The Automatic-Feeder relay board is developed in parallel as a **separate project**.
 > The adapter works fully without it – the board is an optional, convenient add-on. Because it
@@ -401,6 +403,16 @@ does not trigger feeding through the board (the buttons are operated on the boar
 * **Board address (IP or mDNS host)** – e.g. `192.168.1.50` or `feeder.local`. A fixed IP is the
   most reliable; mDNS (`.local`) only works if your host system can resolve it. A `:port` suffix
   is allowed but usually not needed (default `80`).
+* **Feed primarily through the relay board (fallback: Shelly directly)** – on by default. When on,
+  a feeding is triggered through the board's web interface (`POST /api/trigger`) for exactly the
+  computed duration, so the **board itself** runs the countdown, shows it on its OLED and switches
+  its relay off again. Only when the board **cannot be reached** does the adapter fall back to
+  switching the target (Shelly) object directly – the same way non-board switches work. This way
+  the board's display and log always reflect the real feeding. Turn it off to always switch the
+  Shelly directly (the old behaviour). The path actually used is written to `relay.lastTriggerPath`
+  (`board`/`direct`), added to the success message and the log. Both the board **and** the target
+  are checked before a feeding counts as done, and a safety back-stop forces the board off should
+  it ever fail to switch off on its own.
 * **Test connection & fetch times** – contacts the board once. A green *Connected* chip and the
   board's host/IP/firmware confirm a working connection; the three button feeding times are then
   read from the board into the fields below. A red *Not connected* chip shows the error.
@@ -484,6 +496,7 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `relay.info` | string (ro) | Relay board identity (host / IP / firmware) from the last successful poll. |
 | `relay.active` | boolean (ro) | The relay board's timer is currently running. |
 | `relay.remaining` | number (ro) | Seconds remaining on the relay board's running timer. |
+| `relay.lastTriggerPath` | string (ro) | How the last feeding was triggered for this switch: `board` (through the relay board) or `direct` (Shelly switched directly, e.g. board unreachable). |
 
 You can use these in VIS, scripts or other adapters – for example show `status.nextFeeding` on a
 dashboard, or react on `status.error = true` to send your own alarm.
@@ -650,6 +663,13 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.11.0 (2026-08-26)
+* (ssbingo) **Feeding through the relay board.** For a switch that uses the Automatic-Feeder relay board, a feeding is now triggered **primarily through the board** (`POST /api/trigger` for exactly the computed duration) instead of switching the Shelly directly. The **board itself** runs the countdown, shows it on its OLED and switches its relay off again – so its display and log finally reflect the real feeding
+* (ssbingo) **Two-tier with automatic fallback:** only when the board **cannot be reached** does the adapter fall back to switching the target (Shelly) object directly (the previous behaviour). Non-board switches are unaffected
+* (ssbingo) New per-switch option **Feed primarily through the relay board (fallback: Shelly directly)** (default on) on the relay tab, and a new state **`relay.lastTriggerPath`** (`board`/`direct`); the path used is also added to the success message and the log
+* (ssbingo) **Strict verification & safety back-stop:** a board feeding counts as done only when **both** the board relay **and** the target confirm the on/off state; if the board ever fails to switch off on its own, the adapter forces it off (`POST /api/stop`) and the Shelly off
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.10.2 (2026-08-14)
 * (ssbingo) Documentation: the READMEs (all 11 languages) and the German PDF handbook now carry a prominent notice **right at the top** pointing to the matching **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — a standalone ESP32 timer-board project that pairs with this adapter but is fully independent of it. No functional changes
 
@@ -683,9 +703,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.9.4 (2026-07-15)
 * (ssbingo) The feeding announcement now also states the **approximate feeding duration** — e.g. "The next feeding starts in 5 minutes. The feeding will take about 8 seconds." The duration is the effective one (static/winter/dynamic), localized with correct singular/plural in every language
 * (ssbingo) The **Sayit volume** is now set shortly before the spoken text (small delay) so it reliably applies to that announcement instead of the previous one
-
-### 1.9.3 (2026-07-15)
-* (ssbingo) Fix: the **Sayit volume** is now written to the instance's own `tts.volume` state (only if it exists) instead of a `tts.text` prefix — the volume actually takes effect now, and the announcement **test no longer hangs** when a volume is set. An empty volume keeps the Sayit instance's own volume
 
 ---
 

@@ -435,9 +435,10 @@ Questa scheda compare solo quando l'opzione per interruttore **Questo interrutto
 relè Automatic-Feeder …** di questo interruttore è attiva nelle impostazioni di base (vedi sezione
 5.1). Una scheda relè appartiene a un solo interruttore
 (stazione di alimentazione). La scheda è un ESP32 con tre pulsanti a tempo (S1–S3) e una propria
-interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore si limita a
-**configurare** la scheda e a **mostrarne lo stato** – non attiva l'alimentazione tramite la scheda
-(i pulsanti si azionano sulla scheda stessa).
+interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore
+**configura** la scheda, ne **mostra lo stato** e – in modo predefinito – attiva l'alimentazione
+tramite la scheda (vedi *Alimenta principalmente tramite la scheda relè* più sotto), così la scheda
+esegue il proprio conto alla rovescia, lo mostra sul suo display e spegne da sé il proprio relè.
 
 > **Nota:** la scheda relè Automatic-Feeder è sviluppata in parallelo come **progetto separato**.
 > L'adattatore funziona pienamente senza di essa – la scheda è un'aggiunta opzionale e comoda.
@@ -447,6 +448,18 @@ interfaccia web, raggiungibile nella tua rete sulla **porta 80**. L'adattatore s
 * **Indirizzo della scheda (IP o host mDNS)** – ad es. `192.168.1.50` oppure `feeder.local`. Un IP
   fisso è il più affidabile; l'mDNS (`.local`) funziona solo se il tuo sistema host è in grado di
   risolverlo. È ammesso un suffisso `:port`, ma di solito non serve (predefinito `80`).
+* **Alimenta principalmente tramite la scheda relè (fallback: Shelly direttamente)** – attivo in
+  modo predefinito. Quando è attivo, un'alimentazione viene attivata tramite l'interfaccia web della
+  scheda (`POST /api/trigger`) per esattamente la durata calcolata, così la **scheda stessa** esegue
+  il conto alla rovescia, lo mostra sul suo OLED e spegne di nuovo il proprio relè. Solo quando la
+  scheda **non è raggiungibile** l'adattatore ripiega sulla commutazione diretta dell'oggetto di
+  destinazione (Shelly) – nello stesso modo in cui funzionano gli interruttori senza scheda. In
+  questo modo il display e il log della scheda riflettono sempre l'alimentazione reale. Disattivalo
+  per commutare sempre direttamente lo Shelly (il vecchio comportamento). Il percorso effettivamente
+  utilizzato viene scritto in `relay.lastTriggerPath` (`board`/`direct`), aggiunto al messaggio di
+  successo e al log. Prima che un'alimentazione sia considerata completata vengono verificati sia la
+  scheda **sia** la destinazione, e un meccanismo di sicurezza forza lo spegnimento della scheda
+  qualora non riuscisse a spegnersi da sola.
 * **Prova connessione e recupera tempi** – contatta la scheda una volta. Un chip verde *Connesso* e
   l'host/IP/firmware della scheda confermano una connessione funzionante; i tre tempi di
   alimentazione dei pulsanti vengono quindi letti dalla scheda nei campi sottostanti. Un chip rosso
@@ -533,6 +546,7 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `relay.info` | string (ro) | Identità della scheda relè (host / IP / firmware) dall'ultimo polling riuscito. |
 | `relay.active` | boolean (ro) | Il timer della scheda relè è attualmente in funzione. |
 | `relay.remaining` | number (ro) | Secondi rimanenti sul timer in funzione della scheda relè. |
+| `relay.lastTriggerPath` | string (ro) | Come è stata attivata l'ultima alimentazione per questo interruttore: `board` (tramite la scheda relè) oppure `direct` (Shelly commutato direttamente, ad es. scheda non raggiungibile). |
 
 Questi punti dati possono essere usati in VIS, negli script o in altri adattatori – ad es.
 mostrare `status.nextFeeding` su una dashboard oppure attivare un allarme personalizzato quando

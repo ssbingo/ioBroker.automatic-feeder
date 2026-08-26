@@ -188,5 +188,7 @@
 	"resetReason_wdt": "Watchdog",
 	"resetReason_brownout": "Понижена напруга (brownout)",
 	"resetReason_deepsleep": "Глибокий сон (deep sleep)",
-	"resetReason_unknown": "Невідомо"
+	"resetReason_unknown": "Невідомо",
+	"Feed primarily through the relay board (fallback: Shelly directly)": "Годувати переважно через плату реле (резерв: Shelly напряму)",
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Якщо увімкнено, годування запускається через веб-інтерфейс плати, тож плата веде власний зворотний відлік і показує його на дисплеї. Лише якщо плата недоступна, адаптер перемикає об'єкт Shelly напряму."
 }

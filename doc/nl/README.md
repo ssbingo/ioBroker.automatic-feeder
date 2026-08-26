@@ -389,8 +389,9 @@ Automatic-Feeder relaisprint …** van deze schakelaar in de algemene instelling
 (zie sectie 5.1).
 Eén relaisprint hoort bij één schakelaar (voederstation). De print is een ESP32 met drie
 timerknoppen (S1–S3) en een eigen webinterface, bereikbaar via je netwerk op **poort 80**. De
-adapter **configureert** de print alleen en **toont zijn status** – hij triggert geen voedering via
-de print (de knoppen worden op de print zelf bediend).
+adapter **configureert** de print, **toont zijn status** en triggert – **standaard** – de voedering
+via de print (zie *Voeren primair via de relaisprint* hieronder), zodat de print zijn eigen aftelling
+laat lopen, deze op zijn display toont en zijn relais zelf weer uitschakelt.
 
 > **Let op:** De Automatic-Feeder relaisprint wordt parallel als een **apart project**
 > ontwikkeld. De adapter werkt volledig zonder deze print – de print is een optionele,
@@ -400,6 +401,17 @@ de print (de knoppen worden op de print zelf bediend).
 * **Printadres (IP of mDNS-host)** – bijv. `192.168.1.50` of `feeder.local`. Een vast IP is het
   betrouwbaarst; mDNS (`.local`) werkt alleen als je hostsysteem het kan omzetten. Een
   `:port`-achtervoegsel is toegestaan maar meestal niet nodig (standaard `80`).
+* **Voeren primair via de relaisprint (fallback: Shelly rechtstreeks)** – standaard aan. Wanneer aan,
+  wordt een voedering via de webinterface van de print (`POST /api/trigger`) getriggerd voor precies
+  de berekende duur, zodat de **print zelf** de aftelling laat lopen, deze op zijn OLED toont en zijn
+  relais weer uitschakelt. Alleen wanneer de print **niet bereikbaar is**, valt de adapter terug op
+  het rechtstreeks schakelen van het doelobject (Shelly) – op dezelfde manier als bij schakelaars
+  zonder print. Zo weerspiegelen het display en het log van de print altijd de werkelijke voedering.
+  Schakel het uit om altijd de Shelly rechtstreeks te schakelen (het oude gedrag). Het daadwerkelijk
+  gebruikte pad wordt naar `relay.lastTriggerPath` (`board`/`direct`) geschreven, aan het succesbericht
+  en het log toegevoegd. Zowel de print **als** het doelobject worden gecontroleerd voordat een
+  voedering als voltooid geldt, en een veiligheidsmaatregel dwingt de print uit mocht deze ooit niet
+  vanzelf uitschakelen.
 * **Verbinding testen & tijden ophalen** – neemt eenmalig contact op met de print. Een groene
   *Verbonden*-chip en de host/IP/firmware van de print bevestigen een werkende verbinding; de drie
   knopvoedertijden worden dan uit de print in de onderstaande velden gelezen. Een rode *Niet
@@ -487,6 +499,7 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `relay.info` | string (ro) | Identiteit van de relaisprint (host / IP / firmware) uit de laatste geslaagde peiling. |
 | `relay.active` | boolean (ro) | De timer van de relaisprint loopt momenteel. |
 | `relay.remaining` | number (ro) | Resterende seconden op de lopende timer van de relaisprint. |
+| `relay.lastTriggerPath` | string (ro) | Hoe de laatste voedering voor deze schakelaar is getriggerd: `board` (via de relaisprint) of `direct` (Shelly rechtstreeks geschakeld, bijv. print niet bereikbaar). |
 
 Deze datapunten kunnen in VIS, scripts of andere adapters worden gebruikt – bijv. `status.nextFeeding`
 op een dashboard weergeven of bij `status.error = true` een eigen alarm activeren.
