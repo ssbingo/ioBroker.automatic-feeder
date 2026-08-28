@@ -297,6 +297,12 @@ Los valores actuales están en `status.dynamicAvgTemperature`, `status.dynamicRa
 
 > Si la alimentación dinámica está activada pero no se puede calcular ningún intervalo válido (el intervalo base o máximo es 0, o una ventana de tiempo no válida), no se planifica nada: `status.nextFeeding` permanece vacío y `status.blockReason` muestra una indicación. Establece un intervalo base y un intervalo máximo mayores que 0.
 
+#### Modelo de ración de comida (orientativo)
+
+Opcionalmente, el adaptador estima la **ración diaria de comida recomendada** para un interruptor a partir de la **población de peces** y la **temperatura del agua**, siguiendo el manual original del comedero: `daily amount [g] = total fish weight × percentage(water temperature)`. Introduces el **número de peces por clase de tamaño** (15/20/30/40/50/60 cm) con un **peso editable** por clase (valores por defecto del manual: 60/125/350/1000/2000/4000 g) y el **porcentaje de alimentación por banda de temperatura** (valores por defecto 0 % por debajo de 15 °C, 1 % a 15–18 °C, 1.5 % a 18–21 °C, 2 % a 21–23 °C, 3 % por encima de 23 °C). Necesita una **fuente de temperatura del agua** para el interruptor.
+
+Es **solo una calculadora**: calcula y muestra la recomendación, pero **no** cambia cómo ni cuándo alimenta el interruptor. Los resultados se publican en `status.fishTotalWeight` (g), `status.feedPercentToday` (%) y `status.feedTargetGramsToday` (g); la pestaña del interruptor muestra además el peso total estimado y un ejemplo. (Dispensar realmente esa cantidad —convertir los gramos en tiempo de funcionamiento mediante una tasa de comedero calibrada— está previsto para un paso posterior.)
+
 #### Pausa de invierno
 
 Para cada interruptor puedes definir una **pausa de invierno** recurrente (estacional, como fechas `MM-DD` que se repiten cada año y pueden cruzar el Año Nuevo).
@@ -530,6 +536,9 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.waterTemperatureDeep` | number (ro) | Valor del sensor opcional de temperatura del agua profunda de este interruptor. |
 | `status.waterStratification` | number (ro) | Diferencia de temperatura superficial − profunda (solo con dos sensores de agua). |
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
+| `status.fishTotalWeight` | number (ro) | Modelo de ración de comida: peso total estimado de los peces (g). |
+| `status.feedPercentToday` | number (ro) | Modelo de ración de comida: porcentaje de alimentación para la temperatura del agua actual (%). |
+| `status.feedTargetGramsToday` | number (ro) | Modelo de ración de comida: cantidad de comida recomendada por día (g). Solo orientativo – no controla la alimentación. |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Orto/ocaso como tiempo Unix en ms, p. ej. para una barra de progreso del día en VIS. |
 | `relay.connected` | boolean (ro) | La placa de relé configurada para este interruptor es accesible (solo cuando este interruptor usa una placa de relé). |

@@ -30,6 +30,12 @@ const {
 	pauseInfo,
 	nextPauseBoundary,
 } = require('./lib/schedule');
+const {
+	SIZE_CLASSES: AMOUNT_SIZE_CLASSES,
+	totalFishWeight,
+	feedPercentForTemp,
+	dailyFeedGrams,
+} = require('./lib/feeding-amount');
 
 const MAX_SWITCHES = 5;
 
@@ -92,6 +98,9 @@ const STATUS_STATE_IDS = [
 	'waterTemperatureDeep',
 	'waterStratification',
 	'oxygen',
+	'fishTotalWeight',
+	'feedPercentToday',
+	'feedTargetGramsToday',
 	'sunrise',
 	'sunriseTs',
 	'sunset',
@@ -222,6 +231,25 @@ const SWITCH_DEFAULTS = {
 	waterSeasonalThresholdC: 12,
 	o2Enabled: false,
 	o2ObjectId: '',
+	// feeding-amount model (Phase A: advisory calculator, does not control feeding yet)
+	amountModelEnabled: false,
+	fishCount15: 0,
+	fishCount20: 0,
+	fishCount30: 0,
+	fishCount40: 0,
+	fishCount50: 0,
+	fishCount60: 0,
+	fishWeight15: 60,
+	fishWeight20: 125,
+	fishWeight30: 350,
+	fishWeight40: 1000,
+	fishWeight50: 2000,
+	fishWeight60: 4000,
+	feedPctBelow15: 0,
+	feedPct15: 1,
+	feedPct18: 1.5,
+	feedPct21: 2,
+	feedPct23: 3,
 };
 
 /**
@@ -1018,6 +1046,9 @@ class AutomaticFeeder extends utils.Adapter {
 			// --- temperature sources ---
 			await this.setupSources();
 
+			// --- feeding-amount model (advisory): initial calculation from the loaded temperatures ---
+			this.recomputeAllFeedAmounts();
+
 			// --- switch-state supervision: subscribe to the controlled foreign states ---
 			for (const sw of this.switches) {
 				if (sw.enabled && sw.objectId && sw.verifyEnabled !== false) {
@@ -1193,6 +1224,52 @@ class AutomaticFeeder extends utils.Adapter {
 		}
 	}
 
+	/**
+	 * Feeding-amount model (Phase A, advisory): computes the estimated total fish weight, the
+	 * feeding percentage for the current water temperature and the recommended daily food amount
+	 * (grams) for one switch, and writes them to the `status.*` data points. Does NOT change how
+	 * or when the switch feeds. When the model is off, the advisory values are cleared.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 */
+	recomputeFeedAmount(sw) {
+		const base = `switches.${sw.id}.status`;
+		if (!sw.amountModelEnabled) {
+			this.setStateAsync(`${base}.fishTotalWeight`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedPercentToday`, { val: null, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedTargetGramsToday`, { val: null, ack: true }).catch(() => {});
+			return;
+		}
+		const counts = AMOUNT_SIZE_CLASSES.map(s => Number(sw[`fishCount${s}`]) || 0);
+		const weights = AMOUNT_SIZE_CLASSES.map(s => Number(sw[`fishWeight${s}`]));
+		const tiers = {
+			below15: Number(sw.feedPctBelow15),
+			t15: Number(sw.feedPct15),
+			t18: Number(sw.feedPct18),
+			t21: Number(sw.feedPct21),
+			above23: Number(sw.feedPct23),
+		};
+		const weight = totalFishWeight(counts, weights);
+		// feeding-zone (primary) water temperature is the biologically relevant one for feeding
+		const temp = this.sourceValue(sw, 'water');
+		const percent = feedPercentForTemp(temp, tiers);
+		const grams = dailyFeedGrams(weight, percent);
+		this.setStateAsync(`${base}.fishTotalWeight`, { val: weight, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.feedPercentToday`, { val: percent, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.feedTargetGramsToday`, { val: grams, ack: true }).catch(() => {});
+		this.log.debug(
+			`Feeding-amount ${this.swLabel(sw)}: weight=${weight} g, water=${temp == null ? '?' : temp} °C ` +
+				`-> ${percent == null ? '?' : percent} % -> ${grams == null ? '?' : grams} g/day.`,
+		);
+	}
+
+	/** Recomputes the feeding-amount advisory for every switch. */
+	recomputeAllFeedAmounts() {
+		for (const sw of this.switches) {
+			this.recomputeFeedAmount(sw);
+		}
+	}
+
 	scheduleMidnightRecalc() {
 		const now = new Date();
 		const midnight = new Date(now);
@@ -1204,6 +1281,7 @@ class AutomaticFeeder extends utils.Adapter {
 		this.midnightTimer = this.setTimeout(() => {
 			this.log.debug('Midnight reached: recomputing per-switch sun windows and rescheduling all switches.');
 			this.recomputeSunWindow();
+			this.recomputeAllFeedAmounts();
 			this.scheduleMidnightRecalc();
 			// reschedule all switches so the new window is honored
 			for (const sw of this.switches) {
@@ -1640,6 +1718,43 @@ class AutomaticFeeder extends utils.Adapter {
 					name: 'Dissolved oxygen (this switch)',
 					type: 'number',
 					role: 'value',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			// --- feeding-amount model (advisory) ---
+			await this.setObjectNotExistsAsync(`${base}.status.fishTotalWeight`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: total estimated fish weight',
+					type: 'number',
+					role: 'value',
+					unit: 'g',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedPercentToday`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: feeding percentage for the current water temperature',
+					type: 'number',
+					role: 'value',
+					unit: '%',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedTargetGramsToday`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: recommended food amount per day',
+					type: 'number',
+					role: 'value',
+					unit: 'g',
 					read: true,
 					write: false,
 				},
@@ -2098,6 +2213,8 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 			if (sw.waterTempEnabled && sw.waterTempObjectId === objectId) {
 				await this.setStateAsync(`switches.${sw.id}.status.waterTemperature`, { val: value, ack: true });
+				// water temperature drives the feeding-amount advisory (feeding-zone temp)
+				this.recomputeFeedAmount(sw);
 			}
 			if (sw.waterTemp2Enabled && sw.waterTemp2ObjectId === objectId) {
 				await this.setStateAsync(`switches.${sw.id}.status.waterTemperatureDeep`, { val: value, ack: true });

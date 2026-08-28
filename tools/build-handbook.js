@@ -467,6 +467,13 @@ content.push(
 	p(
 		'Passt Intervall und Portion automatisch der Temperatur an (Q10-Modell). Mehr dazu in Abschnitt „Dynamisches Füttern – Hintergrund“.',
 	),
+	subsub('Futtermengen-Modell (Empfehlung)'),
+	p(
+		'Schätzt optional die empfohlene Tages-Futtermenge aus dem Fischbestand und der Wassertemperatur, nach dem Handbuch des Original-Futterautomaten: Tagesmenge [g] = Gesamt-Fischgewicht × Prozentsatz(Wassertemperatur). Du gibst die Anzahl der Fische je Größenklasse (15/20/30/40/50/60 cm) mit editierbarem Gewicht je Klasse (Vorgaben aus dem Handbuch: 60/125/350/1000/2000/4000 g) sowie den Fütterungsprozentsatz je Temperaturband an (Vorgaben: 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C, 3 % über 23 °C). Dafür braucht der Schalter eine Wassertemperaturquelle.',
+	),
+	p(
+		'Das ist nur ein Rechner – er berechnet und zeigt die Empfehlung, ändert aber nicht, wie oder wann der Schalter füttert. Die Ergebnisse stehen in den Datenpunkten status.fishTotalWeight (g), status.feedPercentToday (%) und status.feedTargetGramsToday (g); der Schalter-Tab zeigt zusätzlich das geschätzte Gesamtgewicht und ein Beispiel. (Das tatsächliche Ausbringen dieser Menge – Gramm über eine kalibrierte Förderrate in Laufzeit umgerechnet – ist für einen späteren Schritt geplant.)',
+	),
 	subsub('Einschränkungen'),
 	p(
 		'Astronomisches Fenster (nur tagsüber füttern) mit Sonnen-Offsets; Option, dass der manuelle Auslöser alle Sperren ignoriert.',
@@ -553,6 +560,17 @@ content.push(
 				'status.airTemperature / waterTemperature / …Deep / oxygen',
 				'number (ro)',
 				'Aktuelle Sensorwerte dieser Fütterungsstelle.',
+			],
+			['status.fishTotalWeight', 'number (ro)', 'Futtermengen-Modell: geschätztes Gesamtgewicht der Fische (g).'],
+			[
+				'status.feedPercentToday',
+				'number (ro)',
+				'Futtermengen-Modell: Fütterungsprozentsatz für die aktuelle Wassertemperatur (%).',
+			],
+			[
+				'status.feedTargetGramsToday',
+				'number (ro)',
+				'Futtermengen-Modell: empfohlene Tages-Futtermenge (g). Nur Empfehlung – steuert die Fütterung nicht.',
 			],
 			['status.sunrise / sunset / …Ts', 'string/number (ro)', 'Berechneter Sonnenauf-/-untergang.'],
 			[

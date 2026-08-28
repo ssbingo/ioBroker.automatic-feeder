@@ -190,5 +190,18 @@
 	"resetReason_deepsleep": "Deep sleep",
 	"resetReason_unknown": "Desconocido",
 	"Feed primarily through the relay board (fallback: Shelly directly)": "Alimentar preferentemente a través de la placa de relé (alternativa: Shelly directamente)",
-	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Si está activado, una alimentación se activa a través de la interfaz web de la placa, de modo que la placa ejecuta su propia cuenta atrás y la muestra en su pantalla. Solo si no se puede contactar con la placa, el adaptador conmuta el objeto Shelly directamente."
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Si está activado, una alimentación se activa a través de la interfaz web de la placa, de modo que la placa ejecuta su propia cuenta atrás y la muestra en su pantalla. Solo si no se puede contactar con la placa, el adaptador conmuta el objeto Shelly directamente.",
+	"Feeding-amount model (advisory)": "Modelo de cantidad de alimento (recomendación)",
+	"Enable a water temperature source above to use this model.": "Active arriba una fuente de temperatura del agua para usar este modelo.",
+	"Show the recommended daily food amount (does not control feeding yet)": "Mostrar la cantidad diaria de alimento recomendada (aún no controla la alimentación)",
+	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Estima la cantidad diaria de alimento a partir de la población de peces y la temperatura del agua (según el manual del comedero). Solo calcula y muestra la recomendación — la alimentación no cambia.",
+	"Fish stock (count and weight per size class)": "Población de peces (cantidad y peso por clase de tamaño)",
+	"g/fish": "g/pez",
+	"Feeding percentage by water temperature (% per day)": "Porcentaje de alimentación por temperatura del agua (% por día)",
+	"below 15 °C": "por debajo de 15 °C",
+	"above 23 °C": "por encima de 23 °C",
+	"Estimated total weight": "Peso total estimado",
+	"example at 21–23 °C": "ejemplo a 21–23 °C",
+	"day": "día",
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "El valor en vivo para la temperatura actual del agua está en el punto de datos status.feedTargetGramsToday."
 }

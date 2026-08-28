@@ -304,6 +304,12 @@ I valori correnti sono in `status.dynamicAvgTemperature`, `status.dynamicRate`, 
 
 > Se l'alimentazione dinamica è attiva ma non è possibile calcolare un intervallo valido (l'intervallo base o massimo è 0, oppure una finestra temporale non valida), non viene programmato nulla: `status.nextFeeding` resta vuoto e `status.blockReason` mostra un'indicazione. Imposta un intervallo base e un intervallo massimo maggiori di 0.
 
+#### Modello della quantità di mangime (indicativo)
+
+Facoltativamente l'adattatore stima la **quantità giornaliera di mangime consigliata** per un interruttore a partire dalla **popolazione ittica** e dalla **temperatura dell'acqua**, seguendo il manuale originale del distributore di mangime: `daily amount [g] = total fish weight × percentage(water temperature)`. Inserisci il **numero di pesci per classe di taglia** (15/20/30/40/50/60 cm) con un **peso modificabile** per classe (valori predefiniti dal manuale: 60/125/350/1000/2000/4000 g) e la **percentuale di alimentazione per fascia di temperatura** (valori predefiniti 0 % sotto i 15 °C, 1 % a 15–18 °C, 1,5 % a 18–21 °C, 2 % a 21–23 °C, 3 % sopra i 23 °C). Richiede una **fonte di temperatura dell'acqua** per l'interruttore.
+
+Si tratta **solo di un calcolatore**: calcola e mostra la raccomandazione, ma **non** modifica come o quando l'interruttore distribuisce il mangime. I risultati vengono pubblicati in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) e `status.feedTargetGramsToday` (g); la scheda dell'interruttore mostra inoltre il peso totale stimato e un esempio. (L'effettiva distribuzione di quella quantità – convertendo i grammi in tempo di funzionamento tramite una portata del distributore calibrata – è prevista per una fase successiva.)
+
 #### Pausa invernale
 
 Per ogni interruttore è possibile definire una **pausa invernale** ricorrente (stagionale, come date `MM-GG` che si ripetono ogni anno e possono attraversare il Capodanno).
@@ -540,6 +546,9 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.waterTemperatureDeep` | number (ro) | Valore del sensore facoltativo di temperatura dell'acqua profonda di questo interruttore. |
 | `status.waterStratification` | number (ro) | Differenza di temperatura superficiale − profondo (solo con due sensori dell'acqua). |
 | `status.oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
+| `status.fishTotalWeight` | number (ro) | Modello della quantità di mangime: peso totale stimato dei pesci (g). |
+| `status.feedPercentToday` | number (ro) | Modello della quantità di mangime: percentuale di alimentazione per la temperatura dell'acqua attuale (%). |
+| `status.feedTargetGramsToday` | number (ro) | Modello della quantità di mangime: quantità di mangime consigliata al giorno (g). Solo indicativo – non controlla l'alimentazione. |
 | `status.sunrise` / `status.sunset` | string (ro) | Alba/tramonto calcolati per la posizione di questo interruttore (finestra astronomica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Alba/tramonto come tempo Unix in ms — ad es. per una barra di avanzamento del giorno in VIS. |
 | `relay.connected` | boolean (ro) | La scheda relè configurata per questo interruttore è raggiungibile (solo quando questo interruttore usa una scheda relè). |

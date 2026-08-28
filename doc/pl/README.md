@@ -291,6 +291,12 @@ Bieżące wartości znajdują się w `status.dynamicAvgTemperature`, `status.dyn
 
 > Jeśli karmienie dynamiczne jest włączone, ale nie można obliczyć prawidłowego interwału (interwał bazowy lub maksymalny wynosi 0 albo okno czasowe jest nieprawidłowe), nic nie zostaje zaplanowane: `status.nextFeeding` pozostaje pusty, a `status.blockReason` pokazuje wskazówkę. Ustaw interwał bazowy i interwał maksymalny większe od 0.
 
+#### Model ilości karmy (orientacyjny)
+
+Opcjonalnie adapter szacuje **zalecaną dzienną ilość karmy** dla przełącznika na podstawie **obsady ryb** i **temperatury wody**, zgodnie z oryginalną instrukcją karmnika: `daily amount [g] = total fish weight × percentage(water temperature)`. Podajesz **liczbę ryb w każdej klasie wielkości** (15/20/30/40/50/60 cm) z **edytowalną masą** dla każdej klasy (wartości domyślne z instrukcji: 60/125/350/1000/2000/4000 g) oraz **procent karmienia dla każdego zakresu temperatury** (domyślnie 0 % poniżej 15 °C, 1 % przy 15–18 °C, 1.5 % przy 18–21 °C, 2 % przy 21–23 °C, 3 % powyżej 23 °C). Wymaga **źródła temperatury wody** dla przełącznika.
+
+Jest to **wyłącznie kalkulator** – oblicza i pokazuje zalecenie, ale **nie** zmienia sposobu ani czasu karmienia przez przełącznik. Wyniki są publikowane w `status.fishTotalWeight` (g), `status.feedPercentToday` (%) i `status.feedTargetGramsToday` (g); zakładka przełącznika pokazuje dodatkowo szacowaną łączną masę oraz przykład. (Rzeczywiste wydawanie tej ilości – przeliczanie gramów na czas działania za pomocą skalibrowanej wydajności karmnika – jest planowane na późniejszy etap.)
+
 #### Przerwa zimowa
 
 Dla każdego przełącznika można zdefiniować cykliczną **przerwę zimową** (sezonową, jako daty `MM-DD`, które powtarzają się co roku i mogą przechodzić przez Nowy Rok).
@@ -506,6 +512,9 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.waterTemperatureDeep` | number (ro) | Wartość opcjonalnego głębokiego czujnika temperatury wody tego przełącznika. |
 | `status.waterStratification` | number (ro) | Różnica temperatur płytki − głęboki (tylko przy dwóch czujnikach wody). |
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
+| `status.fishTotalWeight` | number (ro) | Model ilości karmy: szacowana łączna masa ryb (g). |
+| `status.feedPercentToday` | number (ro) | Model ilości karmy: procent karmienia dla bieżącej temperatury wody (%). |
+| `status.feedTargetGramsToday` | number (ro) | Model ilości karmy: zalecana ilość karmy na dzień (g). Tylko orientacyjnie – nie steruje karmieniem. |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Wschód/zachód słońca jako czas uniksowy w ms — np. dla paska postępu dnia w VIS. |
 | `relay.connected` | boolean (ro) | Płytka przekaźnikowa skonfigurowana dla tego przełącznika jest osiągalna (tylko gdy ten przełącznik używa płytki przekaźnikowej). |

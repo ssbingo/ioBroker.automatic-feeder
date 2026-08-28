@@ -190,5 +190,18 @@
 	"resetReason_deepsleep": "深度睡眠",
 	"resetReason_unknown": "未知",
 	"Feed primarily through the relay board (fallback: Shelly directly)": "优先通过继电器板投喂（回退：直接使用 Shelly）",
-	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "启用后，投喂将通过继电器板的网页界面触发，因此继电器板会运行自己的倒计时并显示在其屏幕上。仅当无法连接到继电器板时，适配器才会直接切换 Shelly 对象。"
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "启用后，投喂将通过继电器板的网页界面触发，因此继电器板会运行自己的倒计时并显示在其屏幕上。仅当无法连接到继电器板时，适配器才会直接切换 Shelly 对象。",
+	"Feeding-amount model (advisory)": "投喂量模型（建议）",
+	"Enable a water temperature source above to use this model.": "请在上方启用水温来源以使用此模型。",
+	"Show the recommended daily food amount (does not control feeding yet)": "显示推荐的每日投喂量（尚不控制投喂）",
+	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "根据鱼群和水温（依据喂食器手册）估算每日投喂量。仅计算并显示建议——投喂保持不变。",
+	"Fish stock (count and weight per size class)": "鱼群（各体长级别的数量和体重）",
+	"g/fish": "克/条",
+	"Feeding percentage by water temperature (% per day)": "按水温的投喂百分比（每日 %）",
+	"below 15 °C": "低于 15 °C",
+	"above 23 °C": "高于 23 °C",
+	"Estimated total weight": "估算总重量",
+	"example at 21–23 °C": "示例：21–23 °C",
+	"day": "天",
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "当前水温的实时值位于数据点 status.feedTargetGramsToday。"
 }

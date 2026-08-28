@@ -289,6 +289,22 @@ Die aktuellen Werte stehen in `status.dynamicAvgTemperature`, `status.dynamicRat
 
 > Ist das dynamische Füttern aktiviert, kann aber kein gültiges Intervall berechnet werden (Basis- oder Max-Intervall ist 0 oder ein ungültiges Zeitfenster), wird nichts geplant: `status.nextFeeding` bleibt leer und `status.blockReason` zeigt einen Hinweis. Setze ein Basis-Intervall und ein Max-Intervall größer als 0.
 
+#### Futtermengen-Modell (Empfehlung)
+
+Optional schätzt der Adapter die **empfohlene Tages-Futtermenge** eines Schalters aus dem
+**Fischbestand** und der **Wassertemperatur**, nach dem Original-Handbuch des Futterautomaten:
+`Tagesmenge [g] = Gesamtgewicht der Fische × Prozentsatz(Wassertemperatur)`. Du gibst die **Anzahl
+der Fische je Größenklasse** (15/20/30/40/50/60 cm) mit einem **editierbaren Gewicht** je Klasse ein
+(Standard aus dem Handbuch: 60/125/350/1000/2000/4000 g) sowie den **Fütterungsprozentsatz je
+Temperaturband** (Standard 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C,
+3 % über 23 °C). Es benötigt eine **Wassertemperaturquelle** für den Schalter.
+
+Das ist **nur ein Rechner** – er berechnet und zeigt die Empfehlung an, ändert aber **nicht**, wie
+oder wann der Schalter füttert. Die Ergebnisse stehen in `status.fishTotalWeight` (g),
+`status.feedPercentToday` (%) und `status.feedTargetGramsToday` (g); der Schalter-Tab zeigt zusätzlich
+das geschätzte Gesamtgewicht und ein Beispiel. (Das tatsächliche Dosieren der Menge – Gramm über eine
+kalibrierte Dosierrate in Laufzeit umrechnen – ist für einen späteren Schritt geplant.)
+
 #### Winterpause
 
 Pro Schalter lässt sich eine wiederkehrende **Winterpause** definieren (saisonal, als `MM-TT`-Daten, die sich jährlich wiederholen und über den Jahreswechsel reichen können).
@@ -504,6 +520,9 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.waterTemperatureDeep` | number (ro) | Wert des optionalen tiefen Wassertemperatur-Sensors dieses Schalters. |
 | `status.waterStratification` | number (ro) | Temperaturdifferenz flach − tief (nur bei zwei Wassersensoren). |
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
+| `status.fishTotalWeight` | number (ro) | Futtermengen-Modell: geschätztes Gesamtgewicht der Fische (g). |
+| `status.feedPercentToday` | number (ro) | Futtermengen-Modell: Fütterungsprozentsatz für die aktuelle Wassertemperatur (%). |
+| `status.feedTargetGramsToday` | number (ro) | Futtermengen-Modell: empfohlene Tages-Futtermenge (g). Nur Empfehlung – steuert die Fütterung nicht. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sonnenauf-/-untergang als Unix-Zeit in ms — z. B. für einen Tagesverlaufs-Balken in VIS. |
 | `relay.connected` | boolean (ro) | Die für diesen Schalter konfigurierte Relaisplatine ist erreichbar (nur wenn dieser Schalter eine Relaisplatine nutzt). |

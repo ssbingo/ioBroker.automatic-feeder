@@ -195,6 +195,34 @@ declare global {
 			o2Enabled: boolean;
 			o2ObjectId: string;
 			/**
+			 * Feeding-amount model (Phase A, advisory only): estimate the recommended daily food
+			 * amount from the fish inventory and the water temperature. Does not control feeding.
+			 */
+			amountModelEnabled: boolean;
+			/** Number of fish per size class (cm). */
+			fishCount15: number;
+			fishCount20: number;
+			fishCount30: number;
+			fishCount40: number;
+			fishCount50: number;
+			fishCount60: number;
+			/** Approximate weight (g) per size class (editable; defaults from the manual). */
+			fishWeight15: number;
+			fishWeight20: number;
+			fishWeight30: number;
+			fishWeight40: number;
+			fishWeight50: number;
+			fishWeight60: number;
+			/**
+			 * Feeding percentage (% of total weight per day) per water-temperature band
+			 * (editable; defaults from the manual). Bands: <15, 15..18, 18..21, 21..23, >23 °C.
+			 */
+			feedPctBelow15: number;
+			feedPct15: number;
+			feedPct18: number;
+			feedPct21: number;
+			feedPct23: number;
+			/**
 			 * Use the Automatic-Feeder relay board for THIS switch. Decided per switch:
 			 * when on, this switch gets a "Relay" tab and its board is configured/polled.
 			 */

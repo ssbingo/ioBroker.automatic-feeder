@@ -150,6 +150,16 @@ function SwitchTab(props) {
 	const times = Array.isArray(sw.times) ? sw.times : [];
 	const astro = !!sw.astroWindowEnabled;
 
+	// feeding-amount model: size classes, default weights, and the live estimated total weight
+	const amtSizes = [15, 20, 30, 40, 50, 60];
+	const amtWeightDefaults = { 15: 60, 20: 125, 30: 350, 40: 1000, 50: 2000, 60: 4000 };
+	const amtTotalWeight = amtSizes.reduce(
+		(sum, s) => sum + (Number(sw[`fishCount${s}`]) || 0) * (Number(sw[`fishWeight${s}`]) || amtWeightDefaults[s]),
+		0,
+	);
+	const amtRefPct = Number(sw.feedPct21 ?? 2);
+	const amtRefGrams = Math.round((amtTotalWeight * amtRefPct) / 100);
+
 	// dropdown options for the telegram instance (keep a configured-but-missing one visible)
 	const telegramOptions = Array.isArray(telegramInstances) ? [...telegramInstances] : [];
 	if (sw.telegramInstance && !telegramOptions.includes(sw.telegramInstance)) {
@@ -637,6 +647,53 @@ function SwitchTab(props) {
 							onChange={(e) => onChange({ dynamicMaxDurationSec: Number(e.target.value) || 0 })}
 						/>
 						</Box>
+					</Box>
+				)}
+			</Section>
+
+			{/* Feeding-amount model (advisory) */}
+			<Section title={I18n.t('Feeding-amount model (advisory)')}>
+				{!sw.waterTempEnabled ? (
+					<Typography variant="body2" color="textSecondary">
+						{I18n.t('Enable a water temperature source above to use this model.')}
+					</Typography>
+				) : (
+					<Box>
+						<FormControlLabel
+							control={<Checkbox checked={!!sw.amountModelEnabled} onChange={(e) => onChange({ amountModelEnabled: e.target.checked })} />}
+							label={I18n.t('Show the recommended daily food amount (does not control feeding yet)')}
+						/>
+						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+							{I18n.t('Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.')}
+						</Typography>
+
+						<Typography variant="subtitle2" sx={{ mt: 1 }}>{I18n.t('Fish stock (count and weight per size class)')}</Typography>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+							{amtSizes.map((s) => (
+								<Box key={s} sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+									<TextField variant="standard" type="number" sx={{ width: 80 }} label={`${s} cm`} disabled={!sw.amountModelEnabled}
+										value={sw[`fishCount${s}`] ?? 0} onChange={(e) => onChange({ [`fishCount${s}`]: Number(e.target.value) || 0 })} />
+									<TextField variant="standard" type="number" sx={{ width: 90 }} label={I18n.t('g/fish')} disabled={!sw.amountModelEnabled}
+										value={sw[`fishWeight${s}`] ?? amtWeightDefaults[s]} onChange={(e) => onChange({ [`fishWeight${s}`]: Number(e.target.value) || 0 })} />
+								</Box>
+							))}
+						</Box>
+
+						<Typography variant="subtitle2" sx={{ mt: 2 }}>{I18n.t('Feeding percentage by water temperature (% per day)')}</Typography>
+						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label={I18n.t('below 15 °C')} disabled={!sw.amountModelEnabled} value={sw.feedPctBelow15 ?? 0} onChange={(e) => onChange({ feedPctBelow15: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="15–18 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct15 ?? 1} onChange={(e) => onChange({ feedPct15: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="18–21 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct18 ?? 1.5} onChange={(e) => onChange({ feedPct18: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="21–23 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct21 ?? 2} onChange={(e) => onChange({ feedPct21: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label={I18n.t('above 23 °C')} disabled={!sw.amountModelEnabled} value={sw.feedPct23 ?? 3} onChange={(e) => onChange({ feedPct23: Number(e.target.value) || 0 })} />
+						</Box>
+
+						<Typography variant="body2" sx={{ mt: 2 }}>
+							{I18n.t('Estimated total weight')}: <b>{amtTotalWeight} g</b> — {I18n.t('example at 21–23 °C')} ({amtRefPct} %): <b>{amtRefGrams} g/{I18n.t('day')}</b>
+						</Typography>
+						<Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
+							{I18n.t('The live value for the current water temperature is in the data point status.feedTargetGramsToday.')}
+						</Typography>
 					</Box>
 				)}
 			</Section>

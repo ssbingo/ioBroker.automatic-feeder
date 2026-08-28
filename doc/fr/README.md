@@ -311,6 +311,12 @@ Les valeurs actuelles figurent dans `status.dynamicAvgTemperature`, `status.dyna
 
 > Si l'alimentation dynamique est activée mais qu'aucun intervalle valide ne peut être calculé (intervalle de base ou maximal à 0, ou une fenêtre horaire invalide), rien n'est planifié : `status.nextFeeding` reste vide et `status.blockReason` affiche une indication. Définissez un intervalle de base et un intervalle maximal supérieurs à 0.
 
+#### Modèle de quantité d'alimentation (indicatif)
+
+En option, l'adaptateur estime la **quantité quotidienne de nourriture recommandée** pour un interrupteur à partir du **cheptel de poissons** et de la **température de l'eau**, conformément au manuel d'origine du distributeur : `daily amount [g] = total fish weight × percentage(water temperature)`. Vous saisissez le **nombre de poissons par classe de taille** (15/20/30/40/50/60 cm) avec un **poids modifiable** par classe (valeurs par défaut du manuel : 60/125/350/1000/2000/4000 g), et le **pourcentage d'alimentation par plage de température** (valeurs par défaut 0 % en dessous de 15 °C, 1 % à 15–18 °C, 1.5 % à 18–21 °C, 2 % à 21–23 °C, 3 % au-dessus de 23 °C). Il nécessite une **source de température de l'eau** pour l'interrupteur.
+
+Il s'agit **uniquement d'un calculateur** – il calcule et affiche la recommandation mais ne **modifie pas** la façon dont ni le moment où l'interrupteur distribue. Les résultats sont publiés dans `status.fishTotalWeight` (g), `status.feedPercentToday` (%) et `status.feedTargetGramsToday` (g) ; l'onglet de l'interrupteur affiche en outre le poids total estimé et un exemple. (La distribution effective de cette quantité – la conversion des grammes en temps de fonctionnement via un débit de distributeur calibré – est prévue pour une étape ultérieure.)
+
 #### Pause hivernale
 
 Pour chaque interrupteur, vous pouvez définir une **pause hivernale** récurrente (saisonnière, sous forme de dates `MM-JJ` qui se répètent chaque année et peuvent chevaucher le Nouvel An).
@@ -527,6 +533,9 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.waterTemperatureDeep` | number (ro) | Valeur du capteur de température de l'eau en profondeur optionnel de cet interrupteur. |
 | `status.waterStratification` | number (ro) | Écart de température peu profonde − profonde (uniquement avec deux capteurs d'eau). |
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
+| `status.fishTotalWeight` | number (ro) | Modèle de quantité d'alimentation : poids total estimé des poissons (g). |
+| `status.feedPercentToday` | number (ro) | Modèle de quantité d'alimentation : pourcentage d'alimentation pour la température de l'eau actuelle (%). |
+| `status.feedTargetGramsToday` | number (ro) | Modèle de quantité d'alimentation : quantité de nourriture recommandée par jour (g). À titre indicatif uniquement – ne contrôle pas la distribution. |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Lever/coucher du soleil en temps Unix en ms — p. ex. pour une barre de progression du jour dans VIS. |
 | `relay.connected` | boolean (ro) | La carte relais configurée pour cet interrupteur est joignable (uniquement lorsque cet interrupteur utilise une carte relais). |

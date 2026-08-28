@@ -280,6 +280,12 @@ De huidige waarden staan in `status.dynamicAvgTemperature`, `status.dynamicRate`
 
 > Als dynamisch voeren is ingeschakeld maar er geen geldig interval kan worden berekend (basis- of max-interval is 0, of een ongeldig tijdvenster), wordt er niets ingepland: `status.nextFeeding` blijft leeg en `status.blockReason` toont een aanwijzing. Stel een basisinterval en een max-interval groter dan 0 in.
 
+#### Voederhoeveelheidsmodel (advies)
+
+Optioneel schat de adapter de **aanbevolen dagelijkse voederhoeveelheid** voor een schakelaar op basis van het **visbestand** en de **watertemperatuur**, volgens de originele handleiding van de voederautomaat: `daily amount [g] = total fish weight × percentage(water temperature)`. Je voert het **aantal vissen per grootteklasse** (15/20/30/40/50/60 cm) in met een **bewerkbaar gewicht** per klasse (standaardwaarden uit de handleiding: 60/125/350/1000/2000/4000 g), en het **voederpercentage per temperatuurband** (standaard 0 % onder 15 °C, 1 % bij 15–18 °C, 1.5 % bij 18–21 °C, 2 % bij 21–23 °C, 3 % boven 23 °C). Er is een **watertemperatuurbron** voor de schakelaar nodig.
+
+Dit is **alleen een rekenmachine** — het berekent en toont de aanbeveling, maar verandert **niet** hoe of wanneer de schakelaar voedert. De resultaten worden gepubliceerd in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) en `status.feedTargetGramsToday` (g); het schakelaar-tabblad toont bovendien het geschatte totaalgewicht en een voorbeeld. (Het daadwerkelijk doseren van die hoeveelheid — het omrekenen van grammen naar looptijd via een gekalibreerde voedersnelheid — is gepland voor een latere stap.)
+
 #### Winterpauze
 
 Per schakelaar kun je een terugkerende **winterpauze** instellen (seizoensgebonden, als `MM-DD`-data die zich jaarlijks herhalen en over de jaarwisseling kunnen lopen).
@@ -493,6 +499,9 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.waterTemperatureDeep` | number (ro) | Optionele diepe watertemperatuursensorwaarde van deze schakelaar. |
 | `status.waterStratification` | number (ro) | Temperatuurverschil ondiep − diep (alleen met twee watersensoren). |
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
+| `status.fishTotalWeight` | number (ro) | Voederhoeveelheidsmodel: geschat totaalgewicht van de vissen (g). |
+| `status.feedPercentToday` | number (ro) | Voederhoeveelheidsmodel: voederpercentage voor de huidige watertemperatuur (%). |
+| `status.feedTargetGramsToday` | number (ro) | Voederhoeveelheidsmodel: aanbevolen voederhoeveelheid per dag (g). Alleen advies — regelt de voedering niet. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Zonsop-/-ondergang als Unix-tijd in ms — bijv. voor een dagvoortgangsbalk in VIS. |
 | `relay.connected` | boolean (ro) | De voor deze schakelaar geconfigureerde relaisprint is bereikbaar (alleen wanneer deze schakelaar een relaisprint gebruikt). |

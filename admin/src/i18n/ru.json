@@ -190,5 +190,18 @@
 	"resetReason_deepsleep": "Глубокий сон (deep sleep)",
 	"resetReason_unknown": "Неизвестно",
 	"Feed primarily through the relay board (fallback: Shelly directly)": "Кормление преимущественно через плату реле (резерв: Shelly напрямую)",
-	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Если включено, кормление запускается через веб-интерфейс платы, поэтому плата ведёт собственный обратный отсчёт и показывает его на дисплее. Только если плата недоступна, адаптер переключает объект Shelly напрямую."
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "Если включено, кормление запускается через веб-интерфейс платы, поэтому плата ведёт собственный обратный отсчёт и показывает его на дисплее. Только если плата недоступна, адаптер переключает объект Shelly напрямую.",
+	"Feeding-amount model (advisory)": "Модель количества корма (рекомендация)",
+	"Enable a water temperature source above to use this model.": "Включите выше источник температуры воды, чтобы использовать эту модель.",
+	"Show the recommended daily food amount (does not control feeding yet)": "Показывать рекомендуемое суточное количество корма (пока не управляет кормлением)",
+	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Оценивает суточное количество корма по составу рыб и температуре воды (по руководству кормушки). Только вычисляет и показывает рекомендацию — кормление не меняется.",
+	"Fish stock (count and weight per size class)": "Состав рыб (количество и вес по размерным классам)",
+	"g/fish": "г/рыба",
+	"Feeding percentage by water temperature (% per day)": "Процент кормления по температуре воды (% в день)",
+	"below 15 °C": "ниже 15 °C",
+	"above 23 °C": "выше 23 °C",
+	"Estimated total weight": "Оценочный общий вес",
+	"example at 21–23 °C": "например при 21–23 °C",
+	"day": "день",
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "Актуальное значение для текущей температуры воды находится в точке данных status.feedTargetGramsToday."
 }

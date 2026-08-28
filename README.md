@@ -286,6 +286,22 @@ The current values are exposed in `status.dynamicAvgTemperature`, `status.dynami
 
 > If dynamic feeding is enabled but no valid interval can be computed (base or max interval is 0, or an invalid time window), nothing is scheduled: `status.nextFeeding` stays empty and `status.blockReason` shows a hint. Set a base interval and a max interval greater than 0.
 
+#### Feeding-amount model (advisory)
+
+Optionally the adapter estimates the **recommended daily food amount** for a switch from the **fish
+stock** and the **water temperature**, following the original feeder manual:
+`daily amount [g] = total fish weight × percentage(water temperature)`. You enter the **number of
+fish per size class** (15/20/30/40/50/60 cm) with an **editable weight** per class (defaults from
+the manual: 60/125/350/1000/2000/4000 g), and the **feeding percentage per temperature band**
+(defaults 0 % below 15 °C, 1 % at 15–18 °C, 1.5 % at 18–21 °C, 2 % at 21–23 °C, 3 % above 23 °C). It
+needs a **water-temperature source** for the switch.
+
+This is a **calculator only** – it computes and shows the recommendation but does **not** change how
+or when the switch feeds. The results are published in `status.fishTotalWeight` (g),
+`status.feedPercentToday` (%) and `status.feedTargetGramsToday` (g); the switch tab additionally
+shows the estimated total weight and an example. (Actually dispensing that amount – converting grams
+into run-time via a calibrated feeder rate – is planned for a later step.)
+
 #### Winter pause
 
 Per switch you can define a recurring **winter pause** (seasonal, given as `MM-DD` dates that repeat every year and may wrap around New Year).
@@ -490,6 +506,9 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.waterTemperatureDeep` | number (ro) | This switch's optional deep water-temperature sensor value. |
 | `status.waterStratification` | number (ro) | Temperature difference shallow − deep (only with two water sensors). |
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
+| `status.fishTotalWeight` | number (ro) | Feeding-amount model: estimated total fish weight (g). |
+| `status.feedPercentToday` | number (ro) | Feeding-amount model: feeding percentage for the current water temperature (%). |
+| `status.feedTargetGramsToday` | number (ro) | Feeding-amount model: recommended food amount per day (g). Advisory only – does not control feeding. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
 | `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when this switch uses a relay board). |
@@ -663,6 +682,11 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.12.0 (2026-08-28)
+* (ssbingo) **Feeding-amount model (advisory).** New optional per-switch calculator that estimates the **recommended daily food amount** from the **fish stock** (count and editable weight per size class 15–60 cm) and the **water temperature** (feeding percentage per temperature band), following the original feeder manual: `daily amount [g] = total fish weight × percentage(water temperature)`. Defaults are taken from the manual and stay fully editable
+* (ssbingo) The result is published in the new states **`status.fishTotalWeight`** (g), **`status.feedPercentToday`** (%) and **`status.feedTargetGramsToday`** (g); the switch tab additionally shows the estimated total weight and an example. This is a **calculator only** — it computes and shows the recommendation but does **not** change how or when the switch feeds (actually dispensing the amount is planned for a later step)
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.11.0 (2026-08-26)
 * (ssbingo) **Feeding through the relay board.** For a switch that uses the Automatic-Feeder relay board, a feeding is now triggered **primarily through the board** (`POST /api/trigger` for exactly the computed duration) instead of switching the Shelly directly. The **board itself** runs the countdown, shows it on its OLED and switches its relay off again – so its display and log finally reflect the real feeding
 * (ssbingo) **Two-tier with automatic fallback:** only when the board **cannot be reached** does the adapter fall back to switching the target (Shelly) object directly (the previous behaviour). Non-board switches are unaffected
@@ -699,10 +723,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.9.5 (2026-07-15)
 * (ssbingo) New comprehensive **German PDF handbook** ([doc/de/Handbuch.pdf](doc/de/Handbuch.pdf)) with a modern, colourful design — generated from `tools/build-handbook.js` (`npm run doc:handbook`) and linked from the German documentation
 * (ssbingo) Added a note in the relay-board section (all 11 languages) that the **Automatic-Feeder relay board is developed in parallel as a separate project**
-
-### 1.9.4 (2026-07-15)
-* (ssbingo) The feeding announcement now also states the **approximate feeding duration** — e.g. "The next feeding starts in 5 minutes. The feeding will take about 8 seconds." The duration is the effective one (static/winter/dynamic), localized with correct singular/plural in every language
-* (ssbingo) The **Sayit volume** is now set shortly before the spoken text (small delay) so it reliably applies to that announcement instead of the previous one
 
 ---
 

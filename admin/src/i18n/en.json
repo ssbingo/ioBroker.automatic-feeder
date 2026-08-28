@@ -190,5 +190,18 @@
 	"resetReason_deepsleep": "Deep sleep",
 	"resetReason_unknown": "Unknown",
 	"Feed primarily through the relay board (fallback: Shelly directly)": "Feed primarily through the relay board (fallback: Shelly directly)",
-	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly."
+	"When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.": "When on, a feeding is triggered through the board’s web interface, so the board runs its own countdown and shows it on its display. Only if the board cannot be reached does the adapter switch the Shelly object directly.",
+	"Feeding-amount model (advisory)": "Feeding-amount model (advisory)",
+	"Enable a water temperature source above to use this model.": "Enable a water temperature source above to use this model.",
+	"Show the recommended daily food amount (does not control feeding yet)": "Show the recommended daily food amount (does not control feeding yet)",
+	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.",
+	"Fish stock (count and weight per size class)": "Fish stock (count and weight per size class)",
+	"g/fish": "g/fish",
+	"Feeding percentage by water temperature (% per day)": "Feeding percentage by water temperature (% per day)",
+	"below 15 °C": "below 15 °C",
+	"above 23 °C": "above 23 °C",
+	"Estimated total weight": "Estimated total weight",
+	"example at 21–23 °C": "example at 21–23 °C",
+	"day": "day",
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "The live value for the current water temperature is in the data point status.feedTargetGramsToday."
 }

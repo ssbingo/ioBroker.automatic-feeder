@@ -248,6 +248,12 @@
 
 > 如果已启用动态投喂但无法计算出有效的间隔（基准或最大间隔为 0，或时间窗口无效），则不会排入任何计划：`status.nextFeeding` 保持为空，`status.blockReason` 会显示提示。请将基准间隔和最大间隔设为大于 0。
 
+#### 投喂量模型（建议值）
+
+可选：适配器可根据**鱼群存栏**和**水温**，按原始喂食器说明书为某个开关估算**每日建议投喂量**：`daily amount [g] = total fish weight × percentage(water temperature)`。你需要输入**每个体长档位的鱼数量**（15/20/30/40/50/60 cm），每个档位都带有**可编辑的重量**（说明书默认值：60/125/350/1000/2000/4000 g），以及**每个温度区间的投喂百分比**（默认值：15 °C 以下为 0 %、15–18 °C 为 1 %、18–21 °C 为 1.5 %、21–23 °C 为 2 %、23 °C 以上为 3 %）。它需要为该开关配置一个**水温来源**。
+
+这**仅仅是一个计算器**——它会计算并显示建议值，但**不会**改变该开关如何或何时喂食。计算结果会发布到 `status.fishTotalWeight`（g）、`status.feedPercentToday`（%）和 `status.feedTargetGramsToday`（g）中；该开关选项卡还会额外显示估算的总重量以及一个示例。（真正把这个量投放出来——通过校准过的喂食速率将克数换算为运行时间——已计划在后续步骤中实现。）
+
 #### 冬季暂停
 
 每个开关都可以设置一个重复的**冬季暂停**（按季节，以每年重复的 `MM-DD` 日期表示，可跨越新年）。
@@ -413,6 +419,9 @@
 | `status.waterTemperatureDeep` | number (ro) | 该开关可选的深层水温传感器的值。 |
 | `status.waterStratification` | number (ro) | 温度差 浅层 − 深层（仅在有两个水温传感器时）。 |
 | `status.oxygen` | number (ro) | 该开关自身溶解氧来源的值。 |
+| `status.fishTotalWeight` | number (ro) | 投喂量模型：估算的鱼群总重量（g）。 |
+| `status.feedPercentToday` | number (ro) | 投喂量模型：当前水温对应的投喂百分比（%）。 |
+| `status.feedTargetGramsToday` | number (ro) | 投喂量模型：每日建议投喂量（g）。仅供参考——不会控制喂食。 |
 | `status.sunrise` / `status.sunset` | string (ro) | 为该开关位置计算出的日出/日落（天文时段）。 |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | 日出/日落，以毫秒为单位的 Unix 时间——例如用于 VIS 中的白昼进度条。 |
 | `relay.connected` | boolean (ro) | 为该开关配置的继电器板可达（仅当该开关使用继电器板时）。 |

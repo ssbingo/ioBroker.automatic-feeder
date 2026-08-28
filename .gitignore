@@ -24,3 +24,9 @@ admin/i18n/*/flat.txt
 
 # local scratch: VIS project exports / import ZIPs (not part of the adapter)
 tmp/
+
+# personal Claude Code local settings (permissions etc.) — not part of the adapter
+.claude/settings.local.json
+
+# working fish-icon assets (Pixabay-licensed source images, not redistributable as standalone files)
+dev/fish-icons/
