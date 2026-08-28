@@ -160,6 +160,8 @@ function SwitchTab(props) {
 	// and the live estimated total weight (only the fish count is user-editable)
 	const amtSizes = [15, 20, 30, 40, 50, 60];
 	const amtWeight = { 15: 60, 20: 125, 30: 350, 40: 1000, 50: 2000, 60: 4000 };
+	// icon display height per size (px) — grows with the fish so sizes are visually distinct
+	const amtIconH = { 15: 26, 20: 33, 30: 43, 40: 53, 50: 61, 60: 70 };
 	const amtTotalWeight = amtSizes.reduce((sum, s) => sum + (Number(sw[`fishCount${s}`]) || 0) * amtWeight[s], 0);
 	const amtRefPct = Number(sw.feedPct21 ?? 2);
 	const amtRefGrams = Math.round((amtTotalWeight * amtRefPct) / 100);
@@ -675,38 +677,43 @@ function SwitchTab(props) {
 						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 0.5 }}>
 							{I18n.t('The weight per size is a fixed estimate from the feeder manual — you only enter how many fish there are.')}
 						</Typography>
-						<Table size="small" sx={{ maxWidth: 560, '& td, & th': { px: 1 } }}>
-							<TableHead>
-								<TableRow>
-									<TableCell sx={{ width: 96 }} />
-									<TableCell>{I18n.t('Size')}</TableCell>
-									<TableCell align="right">{I18n.t('Weight approx.')}</TableCell>
-									<TableCell align="center">{I18n.t('Count')}</TableCell>
-									<TableCell align="right">{I18n.t('Subtotal')}</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{amtSizes.map((s) => {
-									const sub = (Number(sw[`fishCount${s}`]) || 0) * amtWeight[s];
-									return (
-										<TableRow key={s}>
-											<TableCell>
-												<Box component="img" src={FISH_ICONS[s]} alt="" sx={{ display: 'block', height: 34, width: 'auto', maxWidth: 84 }} />
-											</TableCell>
-											<TableCell sx={{ whiteSpace: 'nowrap' }}>{s} cm</TableCell>
-											<TableCell align="right" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>± {amtWeight[s]} g</TableCell>
-											<TableCell align="center">
-												<TextField variant="standard" type="number" sx={{ width: 64 }}
-													inputProps={{ min: 0, style: { textAlign: 'right' } }} disabled={!sw.amountModelEnabled}
-													value={sw[`fishCount${s}`] ?? 0}
-													onChange={(e) => onChange({ [`fishCount${s}`]: Math.max(0, Number(e.target.value) || 0) })} />
-											</TableCell>
-											<TableCell align="right" sx={{ whiteSpace: 'nowrap', color: sub ? 'text.primary' : 'text.disabled' }}>{sub} g</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
+						<Box sx={{ overflowX: 'auto' }}>
+							<Table sx={{ maxWidth: 840, '& td, & th': { px: 1.5, fontSize: '0.95rem' } }}>
+								<TableHead>
+									<TableRow>
+										<TableCell sx={{ width: 190 }} />
+										<TableCell>{I18n.t('Size')}</TableCell>
+										<TableCell align="right">{I18n.t('Weight approx.')}</TableCell>
+										<TableCell align="center">{I18n.t('Count')}</TableCell>
+										<TableCell align="right">{I18n.t('Subtotal')}</TableCell>
+									</TableRow>
+								</TableHead>
+								<TableBody>
+									{amtSizes.map((s) => {
+										const sub = (Number(sw[`fishCount${s}`]) || 0) * amtWeight[s];
+										return (
+											<TableRow key={s} sx={{ '& td': { py: 1.5 } }}>
+												<TableCell>
+													<Box sx={{ height: 80, display: 'flex', alignItems: 'flex-end' }}>
+														<Box component="img" src={FISH_ICONS[s]} alt=""
+															sx={{ display: 'block', height: amtIconH[s], width: 'auto', maxWidth: 180 }} />
+													</Box>
+												</TableCell>
+												<TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 500 }}>{s} cm</TableCell>
+												<TableCell align="right" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>± {amtWeight[s]} g</TableCell>
+												<TableCell align="center">
+													<TextField variant="standard" type="number" sx={{ width: 72 }}
+														inputProps={{ min: 0, style: { textAlign: 'right', fontSize: '1rem' } }} disabled={!sw.amountModelEnabled}
+														value={sw[`fishCount${s}`] ?? 0}
+														onChange={(e) => onChange({ [`fishCount${s}`]: Math.max(0, Number(e.target.value) || 0) })} />
+												</TableCell>
+												<TableCell align="right" sx={{ whiteSpace: 'nowrap', color: sub ? 'text.primary' : 'text.disabled' }}>{sub} g</TableCell>
+											</TableRow>
+										);
+									})}
+								</TableBody>
+							</Table>
+						</Box>
 
 						<Typography variant="subtitle2" sx={{ mt: 2 }}>{I18n.t('Feeding percentage by water temperature (% per day)')}</Typography>
 						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>

@@ -682,6 +682,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.13.1 (2026-08-28)
+* (ssbingo) UI: the feeding-amount **fish-stock table is larger and easier to read** — the fish icons now **scale with the size class** (a 15 cm fish is shown smaller than a 60 cm one, on a common baseline), the table is about 50 % wider and the rows are roughly twice as tall. Purely visual, no functional change
+
 ### 1.13.0 (2026-08-28)
 * (ssbingo) **Feeding-amount model – redesigned input.** The fish stock is now entered in a compact **table** modelled on the feeder manual: one row per size class with a **fish icon**, the size, the **fixed weight estimate** and a **count** field
 * (ssbingo) The per-size **weight is no longer an editable field** — it is a fixed estimate from the manual (60/125/350/1000/2000/4000 g). You now only enter **how many fish** there are per size class; the calculation and the states (`status.fishTotalWeight` / `status.feedPercentToday` / `status.feedTargetGramsToday`) are unchanged
@@ -722,9 +725,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.9.7 (2026-07-15)
 * (ssbingo) Maintenance: re-aligns the published version with the current GitHub state (which contained a CI-only change keeping the deploy action on the floating `@v1` major tag, per repochecker S3044). No functional or shipped-code changes
-
-### 1.9.6 (2026-07-15)
-* (ssbingo) Maintenance: updated a development dependency (`@types/node` → 22.20.1) and pinned the CI deploy action to a fixed version (`ioBroker/testing-action-deploy@v1.5.1`); Dependabot now keeps `pdfmake` on the 0.2.x line (0.3.x has an incompatible server API). No functional changes
 
 ---
 
