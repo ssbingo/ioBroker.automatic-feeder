@@ -206,13 +206,6 @@ declare global {
 			fishCount40: number;
 			fishCount50: number;
 			fishCount60: number;
-			/** Approximate weight (g) per size class (editable; defaults from the manual). */
-			fishWeight15: number;
-			fishWeight20: number;
-			fishWeight30: number;
-			fishWeight40: number;
-			fishWeight50: number;
-			fishWeight60: number;
 			/**
 			 * Feeding percentage (% of total weight per day) per water-temperature band
 			 * (editable; defaults from the manual). Bands: <15, 15..18, 18..21, 21..23, >23 °C.

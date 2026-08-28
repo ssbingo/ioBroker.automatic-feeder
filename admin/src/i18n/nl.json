@@ -195,13 +195,17 @@
 	"Enable a water temperature source above to use this model.": "Schakel hierboven een watertemperatuurbron in om dit model te gebruiken.",
 	"Show the recommended daily food amount (does not control feeding yet)": "Aanbevolen dagelijkse voederhoeveelheid tonen (stuurt het voeren nog niet)",
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Schat de dagelijkse voederhoeveelheid op basis van de visstand en de watertemperatuur (volgens de handleiding van de voederautomaat). Het berekent en toont alleen het advies — het voeren blijft ongewijzigd.",
-	"Fish stock (count and weight per size class)": "Visstand (aantal en gewicht per grootteklasse)",
-	"g/fish": "g/vis",
 	"Feeding percentage by water temperature (% per day)": "Voederpercentage per watertemperatuur (% per dag)",
 	"below 15 °C": "onder 15 °C",
 	"above 23 °C": "boven 23 °C",
 	"Estimated total weight": "Geschat totaalgewicht",
 	"example at 21–23 °C": "voorbeeld bij 21–23 °C",
 	"day": "dag",
-	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "De live-waarde voor de huidige watertemperatuur staat in het datapunt status.feedTargetGramsToday."
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "De live-waarde voor de huidige watertemperatuur staat in het datapunt status.feedTargetGramsToday.",
+	"Fish stock (number of fish per size class)": "Visstand (aantal vissen per grootteklasse)",
+	"The weight per size is a fixed estimate from the feeder manual — you only enter how many fish there are.": "Het gewicht per grootte is een vaste schatting uit de handleiding van de voederautomaat — je geeft alleen op hoeveel vissen er zijn.",
+	"Size": "Grootte",
+	"Weight approx.": "Gewicht ca.",
+	"Count": "Aantal",
+	"Subtotal": "Subtotaal"
 }

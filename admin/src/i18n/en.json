@@ -195,13 +195,17 @@
 	"Enable a water temperature source above to use this model.": "Enable a water temperature source above to use this model.",
 	"Show the recommended daily food amount (does not control feeding yet)": "Show the recommended daily food amount (does not control feeding yet)",
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.",
-	"Fish stock (count and weight per size class)": "Fish stock (count and weight per size class)",
-	"g/fish": "g/fish",
 	"Feeding percentage by water temperature (% per day)": "Feeding percentage by water temperature (% per day)",
 	"below 15 °C": "below 15 °C",
 	"above 23 °C": "above 23 °C",
 	"Estimated total weight": "Estimated total weight",
 	"example at 21–23 °C": "example at 21–23 °C",
 	"day": "day",
-	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "The live value for the current water temperature is in the data point status.feedTargetGramsToday."
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "The live value for the current water temperature is in the data point status.feedTargetGramsToday.",
+	"Fish stock (number of fish per size class)": "Fish stock (number of fish per size class)",
+	"The weight per size is a fixed estimate from the feeder manual — you only enter how many fish there are.": "The weight per size is a fixed estimate from the feeder manual — you only enter how many fish there are.",
+	"Size": "Size",
+	"Weight approx.": "Weight approx.",
+	"Count": "Count",
+	"Subtotal": "Subtotal"
 }

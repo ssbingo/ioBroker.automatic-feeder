@@ -195,13 +195,17 @@
 	"Enable a water temperature source above to use this model.": "Attiva sopra una sorgente di temperatura dell’acqua per usare questo modello.",
 	"Show the recommended daily food amount (does not control feeding yet)": "Mostra la quantità giornaliera di mangime consigliata (non controlla ancora l’alimentazione)",
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Stima la quantità giornaliera di mangime dal popolamento ittico e dalla temperatura dell’acqua (secondo il manuale dell’alimentatore). Calcola e mostra solo il consiglio — l’alimentazione resta invariata.",
-	"Fish stock (count and weight per size class)": "Popolamento ittico (numero e peso per classe di taglia)",
-	"g/fish": "g/pesce",
 	"Feeding percentage by water temperature (% per day)": "Percentuale di alimentazione per temperatura dell’acqua (% al giorno)",
 	"below 15 °C": "sotto 15 °C",
 	"above 23 °C": "sopra 23 °C",
 	"Estimated total weight": "Peso totale stimato",
 	"example at 21–23 °C": "esempio a 21–23 °C",
 	"day": "giorno",
-	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "Il valore in tempo reale per la temperatura attuale dell’acqua è nel punto dati status.feedTargetGramsToday."
+	"The live value for the current water temperature is in the data point status.feedTargetGramsToday.": "Il valore in tempo reale per la temperatura attuale dell’acqua è nel punto dati status.feedTargetGramsToday.",
+	"Fish stock (number of fish per size class)": "Popolamento ittico (numero di pesci per classe di taglia)",
+	"The weight per size is a fixed estimate from the feeder manual — you only enter how many fish there are.": "Il peso per taglia è una stima fissa dal manuale dell’alimentatore — indichi solo quanti pesci ci sono.",
+	"Size": "Taglia",
+	"Weight approx.": "Peso circa",
+	"Count": "Numero",
+	"Subtotal": "Subtotale"
 }

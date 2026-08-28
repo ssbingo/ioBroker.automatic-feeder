@@ -293,11 +293,12 @@ Die aktuellen Werte stehen in `status.dynamicAvgTemperature`, `status.dynamicRat
 
 Optional schätzt der Adapter die **empfohlene Tages-Futtermenge** eines Schalters aus dem
 **Fischbestand** und der **Wassertemperatur**, nach dem Original-Handbuch des Futterautomaten:
-`Tagesmenge [g] = Gesamtgewicht der Fische × Prozentsatz(Wassertemperatur)`. Du gibst die **Anzahl
-der Fische je Größenklasse** (15/20/30/40/50/60 cm) mit einem **editierbaren Gewicht** je Klasse ein
-(Standard aus dem Handbuch: 60/125/350/1000/2000/4000 g) sowie den **Fütterungsprozentsatz je
-Temperaturband** (Standard 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C,
-3 % über 23 °C). Es benötigt eine **Wassertemperaturquelle** für den Schalter.
+`Tagesmenge [g] = Gesamtgewicht der Fische × Prozentsatz(Wassertemperatur)`. Du gibst nur die
+**Anzahl der Fische je Größenklasse** (15/20/30/40/50/60 cm) in einer kleinen Tabelle mit einem
+Fisch-Icon je Größe ein; das **Gewicht je Größe ist ein fester Schätzwert aus dem Handbuch**
+(60/125/350/1000/2000/4000 g). Zusätzlich legst du den **Fütterungsprozentsatz je Temperaturband**
+fest (Standard 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C, 3 % über
+23 °C). Es benötigt eine **Wassertemperaturquelle** für den Schalter.
 
 Das ist **nur ein Rechner** – er berechnet und zeigt die Empfehlung an, ändert aber **nicht**, wie
 oder wann der Schalter füttert. Die Ergebnisse stehen in `status.fishTotalWeight` (g),

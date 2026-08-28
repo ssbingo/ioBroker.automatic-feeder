@@ -32,6 +32,7 @@ const {
 } = require('./lib/schedule');
 const {
 	SIZE_CLASSES: AMOUNT_SIZE_CLASSES,
+	WEIGHT_DEFAULTS: AMOUNT_WEIGHT_DEFAULTS,
 	totalFishWeight,
 	feedPercentForTemp,
 	dailyFeedGrams,
@@ -239,12 +240,6 @@ const SWITCH_DEFAULTS = {
 	fishCount40: 0,
 	fishCount50: 0,
 	fishCount60: 0,
-	fishWeight15: 60,
-	fishWeight20: 125,
-	fishWeight30: 350,
-	fishWeight40: 1000,
-	fishWeight50: 2000,
-	fishWeight60: 4000,
 	feedPctBelow15: 0,
 	feedPct15: 1,
 	feedPct18: 1.5,
@@ -1241,7 +1236,8 @@ class AutomaticFeeder extends utils.Adapter {
 			return;
 		}
 		const counts = AMOUNT_SIZE_CLASSES.map(s => Number(sw[`fishCount${s}`]) || 0);
-		const weights = AMOUNT_SIZE_CLASSES.map(s => Number(sw[`fishWeight${s}`]));
+		// per-size weight is a fixed estimate from the feeder manual (not user-editable)
+		const weights = AMOUNT_SIZE_CLASSES.map(s => AMOUNT_WEIGHT_DEFAULTS[s]);
 		const tiers = {
 			below15: Number(sw.feedPctBelow15),
 			t15: Number(sw.feedPct15),

@@ -20,7 +20,13 @@ import {
 	InputLabel,
 	Select,
 	MenuItem,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableRow,
 } from '@mui/material';
+import FISH_ICONS from './fishIcons';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -150,13 +156,11 @@ function SwitchTab(props) {
 	const times = Array.isArray(sw.times) ? sw.times : [];
 	const astro = !!sw.astroWindowEnabled;
 
-	// feeding-amount model: size classes, default weights, and the live estimated total weight
+	// feeding-amount model: size classes with the manual's fixed weight estimate (g) per size,
+	// and the live estimated total weight (only the fish count is user-editable)
 	const amtSizes = [15, 20, 30, 40, 50, 60];
-	const amtWeightDefaults = { 15: 60, 20: 125, 30: 350, 40: 1000, 50: 2000, 60: 4000 };
-	const amtTotalWeight = amtSizes.reduce(
-		(sum, s) => sum + (Number(sw[`fishCount${s}`]) || 0) * (Number(sw[`fishWeight${s}`]) || amtWeightDefaults[s]),
-		0,
-	);
+	const amtWeight = { 15: 60, 20: 125, 30: 350, 40: 1000, 50: 2000, 60: 4000 };
+	const amtTotalWeight = amtSizes.reduce((sum, s) => sum + (Number(sw[`fishCount${s}`]) || 0) * amtWeight[s], 0);
 	const amtRefPct = Number(sw.feedPct21 ?? 2);
 	const amtRefGrams = Math.round((amtTotalWeight * amtRefPct) / 100);
 
@@ -667,17 +671,42 @@ function SwitchTab(props) {
 							{I18n.t('Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.')}
 						</Typography>
 
-						<Typography variant="subtitle2" sx={{ mt: 1 }}>{I18n.t('Fish stock (count and weight per size class)')}</Typography>
-						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-							{amtSizes.map((s) => (
-								<Box key={s} sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
-									<TextField variant="standard" type="number" sx={{ width: 80 }} label={`${s} cm`} disabled={!sw.amountModelEnabled}
-										value={sw[`fishCount${s}`] ?? 0} onChange={(e) => onChange({ [`fishCount${s}`]: Number(e.target.value) || 0 })} />
-									<TextField variant="standard" type="number" sx={{ width: 90 }} label={I18n.t('g/fish')} disabled={!sw.amountModelEnabled}
-										value={sw[`fishWeight${s}`] ?? amtWeightDefaults[s]} onChange={(e) => onChange({ [`fishWeight${s}`]: Number(e.target.value) || 0 })} />
-								</Box>
-							))}
-						</Box>
+						<Typography variant="subtitle2" sx={{ mt: 1 }}>{I18n.t('Fish stock (number of fish per size class)')}</Typography>
+						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 0.5 }}>
+							{I18n.t('The weight per size is a fixed estimate from the feeder manual — you only enter how many fish there are.')}
+						</Typography>
+						<Table size="small" sx={{ maxWidth: 560, '& td, & th': { px: 1 } }}>
+							<TableHead>
+								<TableRow>
+									<TableCell sx={{ width: 96 }} />
+									<TableCell>{I18n.t('Size')}</TableCell>
+									<TableCell align="right">{I18n.t('Weight approx.')}</TableCell>
+									<TableCell align="center">{I18n.t('Count')}</TableCell>
+									<TableCell align="right">{I18n.t('Subtotal')}</TableCell>
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								{amtSizes.map((s) => {
+									const sub = (Number(sw[`fishCount${s}`]) || 0) * amtWeight[s];
+									return (
+										<TableRow key={s}>
+											<TableCell>
+												<Box component="img" src={FISH_ICONS[s]} alt="" sx={{ display: 'block', height: 34, width: 'auto', maxWidth: 84 }} />
+											</TableCell>
+											<TableCell sx={{ whiteSpace: 'nowrap' }}>{s} cm</TableCell>
+											<TableCell align="right" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>± {amtWeight[s]} g</TableCell>
+											<TableCell align="center">
+												<TextField variant="standard" type="number" sx={{ width: 64 }}
+													inputProps={{ min: 0, style: { textAlign: 'right' } }} disabled={!sw.amountModelEnabled}
+													value={sw[`fishCount${s}`] ?? 0}
+													onChange={(e) => onChange({ [`fishCount${s}`]: Math.max(0, Number(e.target.value) || 0) })} />
+											</TableCell>
+											<TableCell align="right" sx={{ whiteSpace: 'nowrap', color: sub ? 'text.primary' : 'text.disabled' }}>{sub} g</TableCell>
+										</TableRow>
+									);
+								})}
+							</TableBody>
+						</Table>
 
 						<Typography variant="subtitle2" sx={{ mt: 2 }}>{I18n.t('Feeding percentage by water temperature (% per day)')}</Typography>
 						<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
