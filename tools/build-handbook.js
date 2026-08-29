@@ -472,7 +472,10 @@ content.push(
 		'Schätzt optional die empfohlene Tages-Futtermenge aus dem Fischbestand und der Wassertemperatur, nach dem Handbuch des Original-Futterautomaten: Tagesmenge [g] = Gesamt-Fischgewicht × Prozentsatz(Wassertemperatur). Du gibst nur die Anzahl der Fische je Größenklasse (15/20/30/40/50/60 cm) in einer kleinen Tabelle mit einem Fisch-Icon je Größe an; das Gewicht je Größe ist ein fester Schätzwert aus dem Handbuch (60/125/350/1000/2000/4000 g). Zusätzlich legst du den Fütterungsprozentsatz je Temperaturband fest (Vorgaben: 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C, 3 % über 23 °C). Dafür braucht der Schalter eine Wassertemperaturquelle.',
 	),
 	p(
-		'Das ist nur ein Rechner – er berechnet und zeigt die Empfehlung, ändert aber nicht, wie oder wann der Schalter füttert. Die Ergebnisse stehen in den Datenpunkten status.fishTotalWeight (g), status.feedPercentToday (%) und status.feedTargetGramsToday (g); der Schalter-Tab zeigt zusätzlich das geschätzte Gesamtgewicht und ein Beispiel. (Das tatsächliche Ausbringen dieser Menge – Gramm über eine kalibrierte Förderrate in Laufzeit umgerechnet – ist für einen späteren Schritt geplant.)',
+		'Für sich genommen ist das ein Rechner – er berechnet und zeigt die Empfehlung. Die Ergebnisse stehen in den Datenpunkten status.fishTotalWeight (g), status.feedPercentToday (%) und status.feedTargetGramsToday (g); der Schalter-Tab zeigt zusätzlich das geschätzte Gesamtgewicht und ein Beispiel.',
+	),
+	p(
+		'Optional kann diese Menge auch die Fütterung steuern: Aktiviere „Fütterung mit dieser Menge steuern", dann wird die empfohlene Tagesmenge (g) über die kalibrierte Dosierrate (g/s) in Motor-Laufzeit umgerechnet und auf die Fütterungen des Tages verteilt. Eine kleine Kalibrier-Hilfe lässt den Motor einige Sekunden laufen; du wiegst das ausgeworfene Futter und der Adapter berechnet die Rate. Optional begrenzt ein Tages-Maximum (g) die Menge (Überfütterungs-Schutz). Dieser Modus schließt sich mit dem dynamischen Füttern (Q10) gegenseitig aus; das „Wann" (feste Zeiten / Intervall / astronomisches Fenster) und alle Sperren bleiben unverändert und vorrangig. Die resultierende Laufzeit steht in status.feedTargetSecondsToday (s/Tag) und status.feedEffectiveDurationSec (s je Fütterung); die Dauer je Fütterung wird zur Sicherheit begrenzt.',
 	),
 	subsub('Einschränkungen'),
 	p(
@@ -567,10 +570,16 @@ content.push(
 				'number (ro)',
 				'Futtermengen-Modell: Fütterungsprozentsatz für die aktuelle Wassertemperatur (%).',
 			],
+			['status.feedTargetGramsToday', 'number (ro)', 'Futtermengen-Modell: empfohlene Tages-Futtermenge (g).'],
 			[
-				'status.feedTargetGramsToday',
+				'status.feedTargetSecondsToday',
 				'number (ro)',
-				'Futtermengen-Modell: empfohlene Tages-Futtermenge (g). Nur Empfehlung – steuert die Fütterung nicht.',
+				'Futtermengen-Modell (Steuermodus): gesamte Motor-Laufzeit pro Tag (s). 0, wenn die Steuerung aus ist.',
+			],
+			[
+				'status.feedEffectiveDurationSec',
+				'number (ro)',
+				'Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist.',
 			],
 			['status.sunrise / sunset / …Ts', 'string/number (ro)', 'Berechneter Sonnenauf-/-untergang.'],
 			[

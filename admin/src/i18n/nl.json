@@ -207,5 +207,21 @@
 	"Size": "Grootte",
 	"Weight approx.": "Gewicht ca.",
 	"Count": "Aantal",
-	"Subtotal": "Subtotaal"
+	"Subtotal": "Subtotaal",
+	"Control feeding with this amount": "Voeren met deze hoeveelheid aansturen",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "De aanbevolen hoeveelheid bepaalt de voederduur (schakelt dynamiek Q10 uit)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "De dagelijkse hoeveelheid wordt via de doseersnelheid omgezet in motorlooptijd en verdeeld over de voederbeurten van de dag. Het \"wanneer\" en alle blokkeringen blijven ongewijzigd. Sluit elkaar uit met dynamiek (Q10).",
+	"Dispense rate (g/s)": "Doseersnelheid (g/s)",
+	"Daily max (g, optional)": "Dagmaximum (g, optioneel)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Kalibreren: laat de motor enkele seconden lopen, weeg het uitgeworpen voer, voer het in en bereken de snelheid.",
+	"Test run (s)": "Testrun (s)",
+	"Run motor": "Motor starten",
+	"Dispensed (g)": "Uitgeworpen (g)",
+	"Compute rate": "Snelheid berekenen",
+	"Motor running — weigh the dispensed food, then enter it below.": "Motor draait — weeg het uitgeworpen voer en voer het hieronder in.",
+	"Dispense rate calculated.": "Doseersnelheid berekend.",
+	"Enter a test duration and the dispensed weight first.": "Voer eerst de testduur en het uitgeworpen gewicht in.",
+	"Feedings per day": "Voederbeurten per dag",
+	"example": "voorbeeld",
+	"feeding": "voederbeurt"
 }

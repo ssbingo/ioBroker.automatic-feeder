@@ -296,11 +296,20 @@ of fish per size class** (15/20/30/40/50/60 cm) in a small table with a fish ico
 the **feeding percentage per temperature band** (defaults 0 % below 15 °C, 1 % at 15–18 °C, 1.5 % at
 18–21 °C, 2 % at 21–23 °C, 3 % above 23 °C). It needs a **water-temperature source** for the switch.
 
-This is a **calculator only** – it computes and shows the recommendation but does **not** change how
-or when the switch feeds. The results are published in `status.fishTotalWeight` (g),
-`status.feedPercentToday` (%) and `status.feedTargetGramsToday` (g); the switch tab additionally
-shows the estimated total weight and an example. (Actually dispensing that amount – converting grams
-into run-time via a calibrated feeder rate – is planned for a later step.)
+By itself this is a **calculator** – it computes and shows the recommendation. The results are
+published in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) and
+`status.feedTargetGramsToday` (g); the switch tab additionally shows the estimated total weight and
+an example.
+
+Optionally you can let this amount **control feeding**: enable **Control feeding with this amount**
+and the recommended daily grams are converted into motor run-time and split across the day's
+feedings. For that you calibrate the **dispense rate** (g/s) — a small helper runs the motor for a
+few seconds so you can weigh the dispensed food and let the adapter compute the rate — and may set
+an optional **daily maximum (g)** as an overfeeding safeguard. This mode is **mutually exclusive
+with dynamic (Q10) feeding**; the **"when"** (fixed times / interval / astronomical window) and all
+blocks (night, temperature, O₂, pauses, winter) stay unchanged and keep priority. The resulting
+run-time is published in `status.feedTargetSecondsToday` (s per day) and
+`status.feedEffectiveDurationSec` (s per feeding); the per-feeding duration is capped for safety.
 
 #### Winter pause
 
@@ -508,7 +517,9 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
 | `status.fishTotalWeight` | number (ro) | Feeding-amount model: estimated total fish weight (g). |
 | `status.feedPercentToday` | number (ro) | Feeding-amount model: feeding percentage for the current water temperature (%). |
-| `status.feedTargetGramsToday` | number (ro) | Feeding-amount model: recommended food amount per day (g). Advisory only – does not control feeding. |
+| `status.feedTargetGramsToday` | number (ro) | Feeding-amount model: recommended food amount per day (g). |
+| `status.feedTargetSecondsToday` | number (ro) | Feeding-amount model (control mode): total motor run-time per day (s) to dispense the amount. 0 when control is off. |
+| `status.feedEffectiveDurationSec` | number (ro) | Feeding-amount model (control mode): duration per feeding it currently drives (s). 0 when control is off. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
 | `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when this switch uses a relay board). |
@@ -682,6 +693,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.14.0 (2026-08-29)
+* (ssbingo) **The feeding-amount model can now control feeding (opt-in).** Enable **Control feeding with this amount** on a switch and the recommended daily grams are converted to motor run-time — via a calibrated **dispense rate** (g/s) — and split across the day's feedings. The amount model becomes the "how much" driver, **mutually exclusive with dynamic (Q10)**
+* (ssbingo) **Calibration helper** on the switch tab: run the motor for a few seconds, weigh the dispensed food, and the adapter computes the g/s rate. An optional **daily maximum (g)** guards against overfeeding, and the per-feeding duration is capped
+* (ssbingo) New states **`status.feedTargetSecondsToday`** (s per day) and **`status.feedEffectiveDurationSec`** (s per feeding). The **"when"** (fixed times / interval / astronomical window) and all blocks (night, temperature, O₂, pauses, winter) stay unchanged and keep priority
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.13.1 (2026-08-28)
 * (ssbingo) UI: the feeding-amount **fish-stock table is larger and easier to read** — the fish icons now **scale with the size class** (a 15 cm fish is shown smaller than a 60 cm one, on a common baseline), the table is about 50 % wider and the rows are roughly twice as tall. Purely visual, no functional change
 
@@ -722,9 +739,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.9.8 (2026-07-17)
 * (ssbingo) Fix (state role): `switches.<id>.relay.connected` now uses the role **`indicator.reachable`** instead of `indicator.connected` — the relay board is a physical LAN device (ESP32), not an adapter instance, and the ioBroker stateroles spec reserves `indicator.connected` for instances. Objects created by older versions are corrected automatically on start
-
-### 1.9.7 (2026-07-15)
-* (ssbingo) Maintenance: re-aligns the published version with the current GitHub state (which contained a CI-only change keeping the deploy action on the floating `@v1` major tag, per repochecker S3044). No functional or shipped-code changes
 
 ---
 

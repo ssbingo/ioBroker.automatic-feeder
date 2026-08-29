@@ -207,5 +207,21 @@
 	"Size": "Tamaño",
 	"Weight approx.": "Peso aprox.",
 	"Count": "Cantidad",
-	"Subtotal": "Subtotal"
+	"Subtotal": "Subtotal",
+	"Control feeding with this amount": "Controlar la alimentación con esta cantidad",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "La cantidad recomendada define la duración de la alimentación (desactiva la dinámica Q10)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "La cantidad diaria se convierte en tiempo de funcionamiento del motor mediante la tasa de dosificación y se reparte entre las alimentaciones del día. El “cuándo” alimentar y todos los bloqueos no cambian. Mutuamente excluyente con la dinámica (Q10).",
+	"Dispense rate (g/s)": "Tasa de dosificación (g/s)",
+	"Daily max (g, optional)": "Máx. diario (g, opcional)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Calibrar: haga funcionar el motor unos segundos, pese el alimento dispensado, introdúzcalo y calcule la tasa.",
+	"Test run (s)": "Prueba (s)",
+	"Run motor": "Arrancar motor",
+	"Dispensed (g)": "Dispensado (g)",
+	"Compute rate": "Calcular tasa",
+	"Motor running — weigh the dispensed food, then enter it below.": "Motor en marcha — pese el alimento dispensado e introdúzcalo abajo.",
+	"Dispense rate calculated.": "Tasa de dosificación calculada.",
+	"Enter a test duration and the dispensed weight first.": "Introduzca primero la duración de la prueba y el peso dispensado.",
+	"Feedings per day": "Alimentaciones por día",
+	"example": "ejemplo",
+	"feeding": "alimentación"
 }

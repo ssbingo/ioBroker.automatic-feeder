@@ -252,7 +252,9 @@
 
 可选：适配器可根据**鱼群存栏**和**水温**，按原始喂食器说明书为某个开关估算**每日建议投喂量**：`daily amount [g] = total fish weight × percentage(water temperature)`。你只需在一个**小表格**中输入**每个体长档位的鱼数量**（15/20/30/40/50/60 cm），每个档位都带有一个鱼图标；每个档位的重量是说明书给出的**固定估算值**（60/125/350/1000/2000/4000 g）。此外，你还需设置**每个温度区间的投喂百分比**（默认值：15 °C 以下为 0 %、15–18 °C 为 1 %、18–21 °C 为 1.5 %、21–23 °C 为 2 %、23 °C 以上为 3 %）。它需要为该开关配置一个**水温来源**。
 
-这**仅仅是一个计算器**——它会计算并显示建议值，但**不会**改变该开关如何或何时喂食。计算结果会发布到 `status.fishTotalWeight`（g）、`status.feedPercentToday`（%）和 `status.feedTargetGramsToday`（g）中；该开关选项卡还会额外显示估算的总重量以及一个示例。（真正把这个量投放出来——通过校准过的喂食速率将克数换算为运行时间——已计划在后续步骤中实现。）
+这是一个**计算器**，用于计算并显示建议值。计算结果会发布到 `status.fishTotalWeight`（g）、`status.feedPercentToday`（%）和 `status.feedTargetGramsToday`（g）中；该开关选项卡还会额外显示估算的总重量以及一个示例。
+
+你也可以选择让这个量**控制喂食**：启用**用该量控制喂食**后，每日建议克数会被换算为电机运行时间，并分摊到当天的各次喂食中。为此你需要校准**投放速率**（g/s）——一个小助手会让电机运行几秒钟，使你能够称量投放出的饲料并由适配器计算出速率——并可设置可选的**每日上限（g）**作为过量投喂的保护。此模式与**动态 (Q10) 投喂互斥**；**"何时"**（固定时间／间隔／天文时段）以及所有阻断（夜间、温度、O₂、暂停、冬季）保持不变并仍具优先级。换算得到的运行时间会发布到 `status.feedTargetSecondsToday`（每天 s）和 `status.feedEffectiveDurationSec`（每次喂食 s）中；每次喂食的时长为安全起见会被限幅。
 
 #### 冬季暂停
 
@@ -421,7 +423,9 @@
 | `status.oxygen` | number (ro) | 该开关自身溶解氧来源的值。 |
 | `status.fishTotalWeight` | number (ro) | 投喂量模型：估算的鱼群总重量（g）。 |
 | `status.feedPercentToday` | number (ro) | 投喂量模型：当前水温对应的投喂百分比（%）。 |
-| `status.feedTargetGramsToday` | number (ro) | 投喂量模型：每日建议投喂量（g）。仅供参考——不会控制喂食。 |
+| `status.feedTargetGramsToday` | number (ro) | 投喂量模型：每日建议投喂量（g）。 |
+| `status.feedTargetSecondsToday` | number (ro) | 投喂量模型（控制模式）：为投放该量所需的每日电机总运行时间（s）。控制关闭时为 0。 |
+| `status.feedEffectiveDurationSec` | number (ro) | 投喂量模型（控制模式）：当前驱动的每次喂食时长（s）。控制关闭时为 0。 |
 | `status.sunrise` / `status.sunset` | string (ro) | 为该开关位置计算出的日出/日落（天文时段）。 |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | 日出/日落，以毫秒为单位的 Unix 时间——例如用于 VIS 中的白昼进度条。 |
 | `relay.connected` | boolean (ro) | 为该开关配置的继电器板可达（仅当该开关使用继电器板时）。 |

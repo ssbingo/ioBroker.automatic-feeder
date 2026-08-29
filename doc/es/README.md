@@ -301,7 +301,9 @@ Los valores actuales están en `status.dynamicAvgTemperature`, `status.dynamicRa
 
 Opcionalmente, el adaptador estima la **ración diaria de comida recomendada** para un interruptor a partir de la **población de peces** y la **temperatura del agua**, siguiendo el manual original del comedero: `daily amount [g] = total fish weight × percentage(water temperature)`. Solo introduces el **número de peces por clase de tamaño** (15/20/30/40/50/60 cm) en una pequeña tabla con un icono de pez por tamaño; el **peso por tamaño** es una estimación fija del manual (60/125/350/1000/2000/4000 g). También defines el **porcentaje de alimentación por banda de temperatura** (valores por defecto 0 % por debajo de 15 °C, 1 % a 15–18 °C, 1.5 % a 18–21 °C, 2 % a 21–23 °C, 3 % por encima de 23 °C). Necesita una **fuente de temperatura del agua** para el interruptor.
 
-Es **solo una calculadora**: calcula y muestra la recomendación, pero **no** cambia cómo ni cuándo alimenta el interruptor. Los resultados se publican en `status.fishTotalWeight` (g), `status.feedPercentToday` (%) y `status.feedTargetGramsToday` (g); la pestaña del interruptor muestra además el peso total estimado y un ejemplo. (Dispensar realmente esa cantidad —convertir los gramos en tiempo de funcionamiento mediante una tasa de comedero calibrada— está previsto para un paso posterior.)
+Por sí solo es una **calculadora**: calcula y muestra la recomendación. Los resultados se publican en `status.fishTotalWeight` (g), `status.feedPercentToday` (%) y `status.feedTargetGramsToday` (g); la pestaña del interruptor muestra además el peso total estimado y un ejemplo.
+
+Opcionalmente puedes dejar que esta cantidad **controle la alimentación**: activa **Controlar la alimentación con esta cantidad** y los gramos diarios recomendados se convierten en tiempo de funcionamiento del motor y se reparten entre las alimentaciones del día. Para ello calibras la **tasa de dispensado** (g/s) —un pequeño asistente hace funcionar el motor durante unos segundos para que puedas pesar la comida dispensada y dejar que el adaptador calcule la tasa— y puedes fijar un **máximo diario (g)** opcional como protección contra la sobrealimentación. Este modo es **mutuamente excluyente con la alimentación dinámica (Q10)**; el **«cuándo»** (horas fijas / intervalo / ventana astronómica) y todos los bloqueos (noche, temperatura, O₂, pausas, invierno) permanecen sin cambios y mantienen la prioridad. El tiempo de funcionamiento resultante se publica en `status.feedTargetSecondsToday` (s por día) y `status.feedEffectiveDurationSec` (s por alimentación); la duración por alimentación se limita por seguridad.
 
 #### Pausa de invierno
 
@@ -538,7 +540,9 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
 | `status.fishTotalWeight` | number (ro) | Modelo de ración de comida: peso total estimado de los peces (g). |
 | `status.feedPercentToday` | number (ro) | Modelo de ración de comida: porcentaje de alimentación para la temperatura del agua actual (%). |
-| `status.feedTargetGramsToday` | number (ro) | Modelo de ración de comida: cantidad de comida recomendada por día (g). Solo orientativo – no controla la alimentación. |
+| `status.feedTargetGramsToday` | number (ro) | Modelo de ración de comida: cantidad de comida recomendada por día (g). |
+| `status.feedTargetSecondsToday` | number (ro) | Modelo de ración de comida (modo de control): tiempo total de funcionamiento del motor por día (s) para dispensar la cantidad. 0 cuando el control está desactivado. |
+| `status.feedEffectiveDurationSec` | number (ro) | Modelo de ración de comida (modo de control): duración por alimentación que impulsa actualmente (s). 0 cuando el control está desactivado. |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Orto/ocaso como tiempo Unix en ms, p. ej. para una barra de progreso del día en VIS. |
 | `relay.connected` | boolean (ro) | La placa de relé configurada para este interruptor es accesible (solo cuando este interruptor usa una placa de relé). |

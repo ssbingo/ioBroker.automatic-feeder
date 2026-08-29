@@ -284,7 +284,9 @@ De huidige waarden staan in `status.dynamicAvgTemperature`, `status.dynamicRate`
 
 Optioneel schat de adapter de **aanbevolen dagelijkse voederhoeveelheid** voor een schakelaar op basis van het **visbestand** en de **watertemperatuur**, volgens de originele handleiding van de voederautomaat: `daily amount [g] = total fish weight × percentage(water temperature)`. Je voert enkel het **aantal vissen per grootteklasse** (15/20/30/40/50/60 cm) in, in een kleine tabel met een **vis-icoon** per grootte; het **gewicht per grootte** is een vaste schatting uit de handleiding (60/125/350/1000/2000/4000 g). Daarnaast stel je het **voederpercentage per temperatuurband** in (standaard 0 % onder 15 °C, 1 % bij 15–18 °C, 1.5 % bij 18–21 °C, 2 % bij 21–23 °C, 3 % boven 23 °C). Er is een **watertemperatuurbron** voor de schakelaar nodig.
 
-Dit is **alleen een rekenmachine** — het berekent en toont de aanbeveling, maar verandert **niet** hoe of wanneer de schakelaar voedert. De resultaten worden gepubliceerd in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) en `status.feedTargetGramsToday` (g); het schakelaar-tabblad toont bovendien het geschatte totaalgewicht en een voorbeeld. (Het daadwerkelijk doseren van die hoeveelheid — het omrekenen van grammen naar looptijd via een gekalibreerde voedersnelheid — is gepland voor een latere stap.)
+Dit is een **rekenmachine** — het berekent en toont de aanbeveling. De resultaten worden gepubliceerd in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) en `status.feedTargetGramsToday` (g); het schakelaar-tabblad toont bovendien het geschatte totaalgewicht en een voorbeeld.
+
+Optioneel kun je deze hoeveelheid de **voedering laten regelen**: schakel **Voedering regelen met deze hoeveelheid** in en de aanbevolen dagelijkse grammen worden omgerekend naar motorlooptijd en over de voederingen van de dag verdeeld. Daarvoor kalibreer je de **doseersnelheid** (g/s) — een kleine hulp laat de motor enkele seconden lopen zodat je het afgegeven voer kunt wegen en de adapter de snelheid laat berekenen — en kun je een optioneel **dagmaximum (g)** instellen als beveiliging tegen overvoeren. Deze modus is **wederzijds uitsluitend met dynamisch voeren (Q10)**; het **„wanneer"** (vaste tijden / interval / astronomisch venster) en alle blokkeringen (nacht, temperatuur, O₂, pauzes, winter) blijven ongewijzigd en behouden voorrang. De resulterende looptijd wordt gepubliceerd in `status.feedTargetSecondsToday` (s per dag) en `status.feedEffectiveDurationSec` (s per voedering); de duur per voedering wordt voor de veiligheid begrensd.
 
 #### Winterpauze
 
@@ -501,7 +503,9 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
 | `status.fishTotalWeight` | number (ro) | Voederhoeveelheidsmodel: geschat totaalgewicht van de vissen (g). |
 | `status.feedPercentToday` | number (ro) | Voederhoeveelheidsmodel: voederpercentage voor de huidige watertemperatuur (%). |
-| `status.feedTargetGramsToday` | number (ro) | Voederhoeveelheidsmodel: aanbevolen voederhoeveelheid per dag (g). Alleen advies — regelt de voedering niet. |
+| `status.feedTargetGramsToday` | number (ro) | Voederhoeveelheidsmodel: aanbevolen voederhoeveelheid per dag (g). |
+| `status.feedTargetSecondsToday` | number (ro) | Voederhoeveelheidsmodel (regelmodus): totale motorlooptijd per dag (s) om de hoeveelheid te doseren. 0 wanneer regelen uit staat. |
+| `status.feedEffectiveDurationSec` | number (ro) | Voederhoeveelheidsmodel (regelmodus): duur per voedering die het momenteel aanstuurt (s). 0 wanneer regelen uit staat. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Zonsop-/-ondergang als Unix-tijd in ms — bijv. voor een dagvoortgangsbalk in VIS. |
 | `relay.connected` | boolean (ro) | De voor deze schakelaar geconfigureerde relaisprint is bereikbaar (alleen wanneer deze schakelaar een relaisprint gebruikt). |

@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.9.7 (2026-07-15)
+* (ssbingo) Maintenance: re-aligns the published version with the current GitHub state (which contained a CI-only change keeping the deploy action on the floating `@v1` major tag, per repochecker S3044). No functional or shipped-code changes
+
 ### 1.9.6 (2026-07-15)
 * (ssbingo) Maintenance: updated a development dependency (`@types/node` → 22.20.1) and pinned the CI deploy action to a fixed version (`ioBroker/testing-action-deploy@v1.5.1`); Dependabot now keeps `pdfmake` on the 0.2.x line (0.3.x has an incompatible server API). No functional changes
 

@@ -207,5 +207,21 @@
 	"Size": "Розмір",
 	"Weight approx.": "Вага прибл.",
 	"Count": "Кількість",
-	"Subtotal": "Проміжна сума"
+	"Subtotal": "Проміжна сума",
+	"Control feeding with this amount": "Керувати годуванням за цією кількістю",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "Рекомендована кількість задає тривалість годування (вимикає динаміку Q10)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "Добова кількість перераховується в час роботи мотора за швидкістю подачі та розподіляється на годування дня. «Коли» годувати й усі блокування залишаються незмінними. Взаємовиключно з динамікою (Q10).",
+	"Dispense rate (g/s)": "Швидкість подачі (г/с)",
+	"Daily max (g, optional)": "Макс. на день (г, необовʼязково)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Калібрування: увімкніть мотор на кілька секунд, зважте видану їжу, введіть значення та обчисліть швидкість.",
+	"Test run (s)": "Тест (с)",
+	"Run motor": "Запустити мотор",
+	"Dispensed (g)": "Видано (г)",
+	"Compute rate": "Обчислити швидкість",
+	"Motor running — weigh the dispensed food, then enter it below.": "Мотор працює — зважте видану їжу та введіть значення нижче.",
+	"Dispense rate calculated.": "Швидкість подачі обчислено.",
+	"Enter a test duration and the dispensed weight first.": "Спершу введіть тривалість тесту та видану вагу.",
+	"Feedings per day": "Годувань на день",
+	"example": "приклад",
+	"feeding": "годування"
 }

@@ -207,5 +207,21 @@
 	"Size": "Wielkość",
 	"Weight approx.": "Masa ok.",
 	"Count": "Liczba",
-	"Subtotal": "Suma częściowa"
+	"Subtotal": "Suma częściowa",
+	"Control feeding with this amount": "Steruj karmieniem tą ilością",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "Zalecana ilość ustala czas karmienia (wyłącza dynamikę Q10)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "Dzienna ilość jest przeliczana na czas pracy silnika według szybkości dozowania i rozdzielana na karmienia w ciągu dnia. „Kiedy\" karmić oraz wszystkie blokady pozostają bez zmian. Wzajemnie wyklucza się z dynamiką (Q10).",
+	"Dispense rate (g/s)": "Szybkość dozowania (g/s)",
+	"Daily max (g, optional)": "Maks. dzienne (g, opcjonalnie)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Kalibracja: uruchom silnik na kilka sekund, zważ wydaną karmę, wpisz wartość i oblicz szybkość.",
+	"Test run (s)": "Test (s)",
+	"Run motor": "Uruchom silnik",
+	"Dispensed (g)": "Wydano (g)",
+	"Compute rate": "Oblicz szybkość",
+	"Motor running — weigh the dispensed food, then enter it below.": "Silnik pracuje — zważ wydaną karmę i wpisz ją poniżej.",
+	"Dispense rate calculated.": "Szybkość dozowania obliczona.",
+	"Enter a test duration and the dispensed weight first.": "Najpierw wpisz czas testu i wydaną masę.",
+	"Feedings per day": "Karmień dziennie",
+	"example": "przykład",
+	"feeding": "karmienie"
 }

@@ -207,5 +207,21 @@
 	"Size": "Taille",
 	"Weight approx.": "Poids env.",
 	"Count": "Nombre",
-	"Subtotal": "Sous-total"
+	"Subtotal": "Sous-total",
+	"Control feeding with this amount": "Piloter la distribution avec cette quantité",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "La quantité recommandée définit la durée de distribution (désactive le mode dynamique Q10)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "La quantité journalière est convertie en temps de fonctionnement du moteur via le débit de distribution et répartie sur les distributions du jour. Le « quand » nourrir et tous les blocages restent inchangés. Exclusif avec le mode dynamique (Q10).",
+	"Dispense rate (g/s)": "Débit de distribution (g/s)",
+	"Daily max (g, optional)": "Max. par jour (g, optionnel)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Calibrer : faites tourner le moteur quelques secondes, pesez la nourriture distribuée, saisissez-la, puis calculez le débit.",
+	"Test run (s)": "Essai (s)",
+	"Run motor": "Lancer le moteur",
+	"Dispensed (g)": "Distribué (g)",
+	"Compute rate": "Calculer le débit",
+	"Motor running — weigh the dispensed food, then enter it below.": "Moteur en marche — pesez la nourriture distribuée puis saisissez-la ci-dessous.",
+	"Dispense rate calculated.": "Débit de distribution calculé.",
+	"Enter a test duration and the dispensed weight first.": "Saisissez d’abord la durée de l’essai et le poids distribué.",
+	"Feedings per day": "Distributions par jour",
+	"example": "exemple",
+	"feeding": "distribution"
 }

@@ -207,5 +207,21 @@
 	"Size": "Размер",
 	"Weight approx.": "Вес прибл.",
 	"Count": "Количество",
-	"Subtotal": "Промежуточный итог"
+	"Subtotal": "Промежуточный итог",
+	"Control feeding with this amount": "Управлять кормлением по этому количеству",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "Рекомендованное количество задаёт длительность кормления (отключает динамику Q10)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "Суточное количество пересчитывается во время работы мотора по скорости подачи и распределяется по кормлениям дня. «Когда» кормить и все блокировки не меняются. Взаимоисключающе с динамикой (Q10).",
+	"Dispense rate (g/s)": "Скорость подачи (г/с)",
+	"Daily max (g, optional)": "Макс. в день (г, необязательно)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Калибровка: включите мотор на несколько секунд, взвесьте выданный корм, введите значение и рассчитайте скорость.",
+	"Test run (s)": "Тестовый запуск (с)",
+	"Run motor": "Запустить мотор",
+	"Dispensed (g)": "Выдано (г)",
+	"Compute rate": "Рассчитать скорость",
+	"Motor running — weigh the dispensed food, then enter it below.": "Мотор работает — взвесьте выданный корм и введите значение ниже.",
+	"Dispense rate calculated.": "Скорость подачи рассчитана.",
+	"Enter a test duration and the dispensed weight first.": "Сначала введите длительность теста и выданный вес.",
+	"Feedings per day": "Кормлений в день",
+	"example": "пример",
+	"feeding": "кормление"
 }

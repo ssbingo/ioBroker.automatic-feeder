@@ -207,5 +207,21 @@
 	"Size": "体长",
 	"Weight approx.": "约重",
 	"Count": "数量",
-	"Subtotal": "小计"
+	"Subtotal": "小计",
+	"Control feeding with this amount": "用该投喂量控制投喂",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "由推荐投喂量决定投喂时长（关闭 Q10 动态模式）",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "按投喂速率将每日投喂量换算为电机运行时间，并分摊到当天各次投喂。投喂“时间”和所有封锁保持不变。与动态模式（Q10）互斥。",
+	"Dispense rate (g/s)": "投喂速率 (克/秒)",
+	"Daily max (g, optional)": "每日上限 (克，可选)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "校准：让电机运行几秒，称量投出的饲料，输入后计算速率。",
+	"Test run (s)": "试运行 (秒)",
+	"Run motor": "启动电机",
+	"Dispensed (g)": "投出量 (克)",
+	"Compute rate": "计算速率",
+	"Motor running — weigh the dispensed food, then enter it below.": "电机运行中——称量投出的饲料并在下方输入。",
+	"Dispense rate calculated.": "投喂速率已计算。",
+	"Enter a test duration and the dispensed weight first.": "请先输入试运行时长和投出重量。",
+	"Feedings per day": "每日投喂次数",
+	"example": "示例",
+	"feeding": "次投喂"
 }

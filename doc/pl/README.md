@@ -295,7 +295,9 @@ Bieżące wartości znajdują się w `status.dynamicAvgTemperature`, `status.dyn
 
 Opcjonalnie adapter szacuje **zalecaną dzienną ilość karmy** dla przełącznika na podstawie **obsady ryb** i **temperatury wody**, zgodnie z oryginalną instrukcją karmnika: `daily amount [g] = total fish weight × percentage(water temperature)`. Podajesz **tylko liczbę ryb w każdej klasie wielkości** (15/20/30/40/50/60 cm) w małej tabeli z ikoną ryby przy każdym rozmiarze; masa dla każdego rozmiaru to **stałe oszacowanie z instrukcji** (60/125/350/1000/2000/4000 g). Ustawiasz też **procent karmienia dla każdego zakresu temperatury** (domyślnie 0 % poniżej 15 °C, 1 % przy 15–18 °C, 1.5 % przy 18–21 °C, 2 % przy 21–23 °C, 3 % powyżej 23 °C). Wymaga **źródła temperatury wody** dla przełącznika.
 
-Jest to **wyłącznie kalkulator** – oblicza i pokazuje zalecenie, ale **nie** zmienia sposobu ani czasu karmienia przez przełącznik. Wyniki są publikowane w `status.fishTotalWeight` (g), `status.feedPercentToday` (%) i `status.feedTargetGramsToday` (g); zakładka przełącznika pokazuje dodatkowo szacowaną łączną masę oraz przykład. (Rzeczywiste wydawanie tej ilości – przeliczanie gramów na czas działania za pomocą skalibrowanej wydajności karmnika – jest planowane na późniejszy etap.)
+Domyślnie jest to **kalkulator** – oblicza i pokazuje zalecenie. Wyniki są publikowane w `status.fishTotalWeight` (g), `status.feedPercentToday` (%) i `status.feedTargetGramsToday` (g); zakładka przełącznika pokazuje dodatkowo szacowaną łączną masę oraz przykład.
+
+Opcjonalnie możesz pozwolić, aby ta ilość **sterowała karmieniem**: włącz **Steruj karmieniem tą ilością**, a zalecana dzienna liczba gramów zostanie przeliczona na czas działania silnika i rozłożona na karmienia w ciągu dnia. W tym celu kalibrujesz **wydajność wydawania** (g/s) — mały pomocnik uruchamia silnik na kilka sekund, abyś mógł zważyć wydaną karmę i pozwolić adapterowi obliczyć wydajność — oraz możesz ustawić opcjonalne **maksimum dzienne (g)** jako zabezpieczenie przed przekarmieniem. Ten tryb **wyklucza się wzajemnie z karmieniem dynamicznym (Q10)**; **„kiedy"** (stałe godziny / interwał / okno astronomiczne) oraz wszystkie blokady (noc, temperatura, O₂, przerwy, zima) pozostają bez zmian i zachowują priorytet. Wynikowy czas działania jest publikowany w `status.feedTargetSecondsToday` (s na dzień) i `status.feedEffectiveDurationSec` (s na karmienie); czas trwania pojedynczego karmienia jest ograniczany ze względów bezpieczeństwa.
 
 #### Przerwa zimowa
 
@@ -514,7 +516,9 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
 | `status.fishTotalWeight` | number (ro) | Model ilości karmy: szacowana łączna masa ryb (g). |
 | `status.feedPercentToday` | number (ro) | Model ilości karmy: procent karmienia dla bieżącej temperatury wody (%). |
-| `status.feedTargetGramsToday` | number (ro) | Model ilości karmy: zalecana ilość karmy na dzień (g). Tylko orientacyjnie – nie steruje karmieniem. |
+| `status.feedTargetGramsToday` | number (ro) | Model ilości karmy: zalecana ilość karmy na dzień (g). |
+| `status.feedTargetSecondsToday` | number (ro) | Model ilości karmy (tryb sterowania): łączny czas działania silnika na dzień (s) potrzebny do wydania tej ilości. 0, gdy sterowanie jest wyłączone. |
+| `status.feedEffectiveDurationSec` | number (ro) | Model ilości karmy (tryb sterowania): czas trwania pojedynczego karmienia, który aktualnie wymusza (s). 0, gdy sterowanie jest wyłączone. |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Wschód/zachód słońca jako czas uniksowy w ms — np. dla paska postępu dnia w VIS. |
 | `relay.connected` | boolean (ro) | Płytka przekaźnikowa skonfigurowana dla tego przełącznika jest osiągalna (tylko gdy ten przełącznik używa płytki przekaźnikowej). |

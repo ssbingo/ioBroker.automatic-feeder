@@ -216,6 +216,15 @@ declare global {
 			feedPct21: number;
 			feedPct23: number;
 			/**
+			 * Phase B: let the feeding-amount model drive the feeding duration (mutually exclusive
+			 * with the Q10 dynamic mode). `dispenseGramsPerSec` is the calibrated dispense rate (g/s)
+			 * used to turn the daily grams into motor run-time; `feedDailyMaxGrams` is an optional
+			 * daily cap (null/0 = no cap).
+			 */
+			amountControlEnabled: boolean;
+			dispenseGramsPerSec: number;
+			feedDailyMaxGrams: number | null;
+			/**
 			 * Use the Automatic-Feeder relay board for THIS switch. Decided per switch:
 			 * when on, this switch gets a "Relay" tab and its board is configured/polled.
 			 */

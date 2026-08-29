@@ -36,6 +36,9 @@ const {
 	totalFishWeight,
 	feedPercentForTemp,
 	dailyFeedGrams,
+	applyDailyCap,
+	dispenseSeconds,
+	perFeedingSeconds,
 } = require('./lib/feeding-amount');
 
 const MAX_SWITCHES = 5;
@@ -102,6 +105,8 @@ const STATUS_STATE_IDS = [
 	'fishTotalWeight',
 	'feedPercentToday',
 	'feedTargetGramsToday',
+	'feedTargetSecondsToday',
+	'feedEffectiveDurationSec',
 	'sunrise',
 	'sunriseTs',
 	'sunset',
@@ -245,6 +250,10 @@ const SWITCH_DEFAULTS = {
 	feedPct18: 1.5,
 	feedPct21: 2,
 	feedPct23: 3,
+	// feeding-amount model (Phase B: turn the recommendation into actual feeding)
+	amountControlEnabled: false,
+	dispenseGramsPerSec: 0,
+	feedDailyMaxGrams: null,
 };
 
 /**
@@ -1227,13 +1236,18 @@ class AutomaticFeeder extends utils.Adapter {
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 */
-	recomputeFeedAmount(sw) {
-		const base = `switches.${sw.id}.status`;
+	/**
+	 * Computes the feeding-amount model values for a switch: estimated total fish weight (g),
+	 * the feeding percentage for the current water temperature (%) and the recommended daily
+	 * amount (g). Grams/percent are null when the water temperature is unknown or the model is
+	 * off. The grams are the raw recommendation (no daily cap applied here).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {{weight: number, percent: number|null, grams: number|null, temp: number|null}}
+	 */
+	amountModelValues(sw) {
 		if (!sw.amountModelEnabled) {
-			this.setStateAsync(`${base}.fishTotalWeight`, { val: 0, ack: true }).catch(() => {});
-			this.setStateAsync(`${base}.feedPercentToday`, { val: null, ack: true }).catch(() => {});
-			this.setStateAsync(`${base}.feedTargetGramsToday`, { val: null, ack: true }).catch(() => {});
-			return;
+			return { weight: 0, percent: null, grams: null, temp: null };
 		}
 		const counts = AMOUNT_SIZE_CLASSES.map(s => Number(sw[`fishCount${s}`]) || 0);
 		// per-size weight is a fixed estimate from the feeder manual (not user-editable)
@@ -1250,6 +1264,83 @@ class AutomaticFeeder extends utils.Adapter {
 		const temp = this.sourceValue(sw, 'water');
 		const percent = feedPercentForTemp(temp, tiers);
 		const grams = dailyFeedGrams(weight, percent);
+		return { weight, percent, grams, temp };
+	}
+
+	/**
+	 * Number of feedings planned for the current day, used to split the daily amount across the
+	 * day's feedings (Phase B). Fixed-times mode → number of valid times; interval mode → number
+	 * of grid slots inside today's window (fixed or astronomical).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {number} feedings per day (0 if the schedule yields none)
+	 */
+	feedingsPerDay(sw) {
+		if ((sw.mode || 'times') !== 'interval') {
+			const times = Array.isArray(sw.times)
+				? sw.times.filter(t => typeof t === 'string' && /^\d{1,2}:\d{2}/.test(t))
+				: [];
+			return times.length;
+		}
+		const now = new Date();
+		let start;
+		let end;
+		if (sw.astroWindowEnabled) {
+			const win = this.sunWindowFor(sw, now);
+			start = win && win.start;
+			end = win && win.end;
+		} else {
+			start = this.timeToDate(sw.windowStart, now);
+			end = this.timeToDate(sw.windowEnd, now);
+		}
+		const intervalMin = Math.min(MAX_INTERVAL_MIN, Math.max(0, Number(sw.intervalMin) || 0));
+		if (!start || !end || intervalMin <= 0 || end.getTime() <= start.getTime()) {
+			return 0;
+		}
+		const span = end.getTime() - start.getTime();
+		return Math.floor(span / (intervalMin * 60000)) + 1;
+	}
+
+	/**
+	 * Phase B: turns the recommended daily amount into motor run-time. Applies the optional daily
+	 * cap, divides by the calibrated dispense rate (g/s) to get the total daily seconds, and splits
+	 * that across the day's feedings. The per-feeding duration is clamped to [0, MAX_DURATION_SEC].
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {{grams: number|null, capped: number|null, rate: number, N: number, dailySec: number, perFeedingSec: number}}
+	 */
+	amountControlSeconds(sw) {
+		const { grams } = this.amountModelValues(sw);
+		const capped = applyDailyCap(grams, sw.feedDailyMaxGrams);
+		const rate = Number(sw.dispenseGramsPerSec);
+		const N = this.feedingsPerDay(sw);
+		const dailySec = dispenseSeconds(capped, rate);
+		const perRaw = perFeedingSeconds(dailySec, N);
+		const perFeedingSec = perRaw == null ? 0 : Math.min(MAX_DURATION_SEC, Math.max(0, perRaw));
+		return { grams, capped, rate, N, dailySec: dailySec || 0, perFeedingSec };
+	}
+
+	/**
+	 * Feeding-amount model: computes the estimated total fish weight, the feeding percentage for
+	 * the current water temperature and the recommended daily food amount (grams) for one switch,
+	 * and writes them to the `status.*` data points. In Phase-B control mode it additionally
+	 * publishes the resulting daily run-time and per-feeding duration. When the model is off, the
+	 * values are cleared. This only writes status — the actual feeding duration is taken from
+	 * {@link effectiveDurationSec}.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 */
+	recomputeFeedAmount(sw) {
+		const base = `switches.${sw.id}.status`;
+		const { weight, percent, grams, temp } = this.amountModelValues(sw);
+		if (!sw.amountModelEnabled) {
+			this.setStateAsync(`${base}.fishTotalWeight`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedPercentToday`, { val: null, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedTargetGramsToday`, { val: null, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
+			return;
+		}
 		this.setStateAsync(`${base}.fishTotalWeight`, { val: weight, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedPercentToday`, { val: percent, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedTargetGramsToday`, { val: grams, ack: true }).catch(() => {});
@@ -1257,9 +1348,37 @@ class AutomaticFeeder extends utils.Adapter {
 			`Feeding-amount ${this.swLabel(sw)}: weight=${weight} g, water=${temp == null ? '?' : temp} °C ` +
 				`-> ${percent == null ? '?' : percent} % -> ${grams == null ? '?' : grams} g/day.`,
 		);
+		if (!sw.amountControlEnabled) {
+			this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
+			return;
+		}
+		const { rate, N, dailySec, perFeedingSec, capped } = this.amountControlSeconds(sw);
+		this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: Math.round(dailySec), ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.feedEffectiveDurationSec`, {
+			val: Math.round(perFeedingSec * 10) / 10,
+			ack: true,
+		}).catch(() => {});
+		if (grams != null && grams > 0) {
+			if (!(rate > 0)) {
+				this.log.warn(
+					`Feeding-amount ${this.swLabel(sw)}: control is on but the dispense rate is not calibrated ` +
+						`(g/s = ${sw.dispenseGramsPerSec}); each feeding runs 0 s until you set it.`,
+				);
+			} else if (N <= 0) {
+				this.log.warn(
+					`Feeding-amount ${this.swLabel(sw)}: control is on but no feedings are planned today; nothing is dispensed.`,
+				);
+			} else {
+				this.log.debug(
+					`Feeding-amount ${this.swLabel(sw)}: control -> ${Math.round(Number(capped))} g/day at ${rate} g/s ` +
+						`over ${N} feeding(s) = ${perFeedingSec.toFixed(1)} s each.`,
+				);
+			}
+		}
 	}
 
-	/** Recomputes the feeding-amount advisory for every switch. */
+	/** Recomputes the feeding-amount advisory (and control run-times) for every switch. */
 	recomputeAllFeedAmounts() {
 		for (const sw of this.switches) {
 			this.recomputeFeedAmount(sw);
@@ -1751,6 +1870,30 @@ class AutomaticFeeder extends utils.Adapter {
 					type: 'number',
 					role: 'value',
 					unit: 'g',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedTargetSecondsToday`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: total motor run-time per day (control mode)',
+					type: 'number',
+					role: 'value',
+					unit: 's',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedEffectiveDurationSec`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: duration per feeding it currently drives (control mode)',
+					type: 'number',
+					role: 'value',
+					unit: 's',
 					read: true,
 					write: false,
 				},
@@ -3202,6 +3345,12 @@ class AutomaticFeeder extends utils.Adapter {
 			const d = Number(sw.winterDurationSec) || 0;
 			this.log.silly(`Duration ${this.swLabel(sw)}: winter (${sw.winterMode}) -> ${d}s.`);
 			return d;
+		}
+		if (sw.amountControlEnabled) {
+			// feeding-amount model drives "how much": grams/day -> run-time, split over the day
+			const { perFeedingSec } = this.amountControlSeconds(sw);
+			this.log.silly(`Duration ${this.swLabel(sw)}: amount-model -> ${perFeedingSec.toFixed(1)}s.`);
+			return perFeedingSec;
 		}
 		if (sw.dynamicEnabled) {
 			const t = this.dynamicTemp(sw);

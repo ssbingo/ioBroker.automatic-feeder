@@ -207,5 +207,21 @@
 	"Size": "Size",
 	"Weight approx.": "Weight approx.",
 	"Count": "Count",
-	"Subtotal": "Subtotal"
+	"Subtotal": "Subtotal",
+	"Control feeding with this amount": "Control feeding with this amount",
+	"Let the recommended amount set the feeding duration (turns off dynamic Q10)": "Let the recommended amount set the feeding duration (turns off dynamic Q10)",
+	"The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).": "The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).",
+	"Dispense rate (g/s)": "Dispense rate (g/s)",
+	"Daily max (g, optional)": "Daily max (g, optional)",
+	"Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.": "Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.",
+	"Test run (s)": "Test run (s)",
+	"Run motor": "Run motor",
+	"Dispensed (g)": "Dispensed (g)",
+	"Compute rate": "Compute rate",
+	"Motor running — weigh the dispensed food, then enter it below.": "Motor running — weigh the dispensed food, then enter it below.",
+	"Dispense rate calculated.": "Dispense rate calculated.",
+	"Enter a test duration and the dispensed weight first.": "Enter a test duration and the dispensed weight first.",
+	"Feedings per day": "Feedings per day",
+	"example": "example",
+	"feeding": "feeding"
 }

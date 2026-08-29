@@ -300,11 +300,21 @@ Fisch-Icon je Größe ein; das **Gewicht je Größe ist ein fester Schätzwert a
 fest (Standard 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C, 3 % über
 23 °C). Es benötigt eine **Wassertemperaturquelle** für den Schalter.
 
-Das ist **nur ein Rechner** – er berechnet und zeigt die Empfehlung an, ändert aber **nicht**, wie
-oder wann der Schalter füttert. Die Ergebnisse stehen in `status.fishTotalWeight` (g),
-`status.feedPercentToday` (%) und `status.feedTargetGramsToday` (g); der Schalter-Tab zeigt zusätzlich
-das geschätzte Gesamtgewicht und ein Beispiel. (Das tatsächliche Dosieren der Menge – Gramm über eine
-kalibrierte Dosierrate in Laufzeit umrechnen – ist für einen späteren Schritt geplant.)
+Für sich genommen ist das ein **Rechner** – er berechnet und zeigt die Empfehlung an. Die Ergebnisse
+stehen in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) und
+`status.feedTargetGramsToday` (g); der Schalter-Tab zeigt zusätzlich das geschätzte Gesamtgewicht und
+ein Beispiel.
+
+Optional kann diese Menge auch die **Fütterung steuern**: Aktiviere **Fütterung mit dieser Menge
+steuern**, dann wird die empfohlene Tagesmenge (g) in Motor-Laufzeit umgerechnet und auf die
+Fütterungen des Tages verteilt. Dafür kalibrierst du die **Dosierrate** (g/s) – eine kleine Hilfe
+lässt den Motor einige Sekunden laufen, du wiegst das ausgeworfene Futter und der Adapter berechnet
+die Rate – und kannst optional ein **Tages-Maximum (g)** als Überfütterungs-Schutz setzen. Dieser
+Modus **schließt sich mit der Dynamik (Q10) gegenseitig aus**; das **„Wann"** (feste Zeiten /
+Intervall / astronomisches Fenster) und alle Sperren (Nacht, Temperatur, O₂, Pausen, Winter) bleiben
+unverändert und weiterhin vorrangig. Die resultierende Laufzeit steht in
+`status.feedTargetSecondsToday` (s/Tag) und `status.feedEffectiveDurationSec` (s je Fütterung); die
+Dauer je Fütterung wird zur Sicherheit begrenzt.
 
 #### Winterpause
 
@@ -523,7 +533,9 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
 | `status.fishTotalWeight` | number (ro) | Futtermengen-Modell: geschätztes Gesamtgewicht der Fische (g). |
 | `status.feedPercentToday` | number (ro) | Futtermengen-Modell: Fütterungsprozentsatz für die aktuelle Wassertemperatur (%). |
-| `status.feedTargetGramsToday` | number (ro) | Futtermengen-Modell: empfohlene Tages-Futtermenge (g). Nur Empfehlung – steuert die Fütterung nicht. |
+| `status.feedTargetGramsToday` | number (ro) | Futtermengen-Modell: empfohlene Tages-Futtermenge (g). |
+| `status.feedTargetSecondsToday` | number (ro) | Futtermengen-Modell (Steuermodus): gesamte Motor-Laufzeit pro Tag (s) für die Menge. 0, wenn die Steuerung aus ist. |
+| `status.feedEffectiveDurationSec` | number (ro) | Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sonnenauf-/-untergang als Unix-Zeit in ms — z. B. für einen Tagesverlaufs-Balken in VIS. |
 | `relay.connected` | boolean (ro) | Die für diesen Schalter konfigurierte Relaisplatine ist erreichbar (nur wenn dieser Schalter eine Relaisplatine nutzt). |

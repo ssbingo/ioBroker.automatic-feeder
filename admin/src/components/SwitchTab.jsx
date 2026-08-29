@@ -165,6 +165,31 @@ function SwitchTab(props) {
 	const amtTotalWeight = amtSizes.reduce((sum, s) => sum + (Number(sw[`fishCount${s}`]) || 0) * amtWeight[s], 0);
 	const amtRefPct = Number(sw.feedPct21 ?? 2);
 	const amtRefGrams = Math.round((amtTotalWeight * amtRefPct) / 100);
+	// Phase B (control): calibrated rate, feedings per day and an illustrative per-feeding time
+	const amtRate = Number(sw.dispenseGramsPerSec) || 0;
+	const amtFeedingsPerDay = (() => {
+		if ((sw.mode || 'times') !== 'interval') {
+			return times.length;
+		}
+		if (sw.astroWindowEnabled) {
+			return null; // depends on the daylight window (computed in the backend)
+		}
+		const toMin = (hhmm) => {
+			const m = /^(\d{1,2}):(\d{2})/.exec(hhmm || '');
+			return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+		};
+		const s = toMin(sw.windowStart);
+		const e = toMin(sw.windowEnd);
+		const iv = Number(sw.intervalMin) || 0;
+		if (s == null || e == null || iv <= 0 || e <= s) {
+			return 0;
+		}
+		return Math.floor((e - s) / iv) + 1;
+	})();
+	const amtExampleSec =
+		amtRate > 0 && amtFeedingsPerDay && amtRefGrams > 0
+			? Math.round(((amtRefGrams / amtRate) / amtFeedingsPerDay) * 10) / 10
+			: null;
 
 	// dropdown options for the telegram instance (keep a configured-but-missing one visible)
 	const telegramOptions = Array.isArray(telegramInstances) ? [...telegramInstances] : [];
@@ -182,6 +207,10 @@ function SwitchTab(props) {
 	const [feedMsg, setFeedMsg] = useState(null); // { severity, text }
 	const [sayitBusy, setSayitBusy] = useState(false);
 	const [sayitMsg, setSayitMsg] = useState(null); // { severity, text }
+	const [calRunSec, setCalRunSec] = useState(5); // dispense-rate calibration: test-run seconds
+	const [calGrams, setCalGrams] = useState(''); // dispense-rate calibration: weighed grams
+	const [calBusy, setCalBusy] = useState(false);
+	const [calMsg, setCalMsg] = useState(null); // { severity, text }
 
 	const updateTime = (index, value) => {
 		const next = times.slice();
@@ -228,6 +257,38 @@ function SwitchTab(props) {
 			setSayitMsg({ severity: 'error', text: `${I18n.t('Test failed')}: ${e}` });
 		}
 		setSayitBusy(false);
+	};
+
+	// dispense-rate calibration: run the motor for calRunSec, the user weighs the output
+	const runCalibration = async () => {
+		setCalBusy(true);
+		setCalMsg(null);
+		try {
+			const res = await socket.sendTo(instanceId, 'feedNow', {
+				switchId: sw.id,
+				durationSec: Number(calRunSec) || 0,
+			});
+			if (res && res.error) {
+				setCalMsg({ severity: 'error', text: res.error });
+			} else {
+				setCalMsg({ severity: 'success', text: I18n.t('Motor running — weigh the dispensed food, then enter it below.') });
+			}
+		} catch (e) {
+			setCalMsg({ severity: 'error', text: `${I18n.t('Could not start feeding')}: ${e}` });
+		}
+		setCalBusy(false);
+	};
+
+	// dispense-rate calibration: rate (g/s) = weighed grams / test-run seconds
+	const computeRate = () => {
+		const g = Number(calGrams);
+		const s = Number(calRunSec);
+		if (g > 0 && s > 0) {
+			onChange({ dispenseGramsPerSec: Math.round((g / s) * 1000) / 1000 });
+			setCalMsg({ severity: 'success', text: I18n.t('Dispense rate calculated.') });
+		} else {
+			setCalMsg({ severity: 'error', text: I18n.t('Enter a test duration and the dispensed weight first.') });
+		}
 	};
 
 	return (
@@ -554,7 +615,17 @@ function SwitchTab(props) {
 				) : (
 					<Box>
 						<FormControlLabel
-							control={<Checkbox checked={!!sw.dynamicEnabled} onChange={(e) => onChange({ dynamicEnabled: e.target.checked })} />}
+							control={
+								<Checkbox
+									checked={!!sw.dynamicEnabled}
+									onChange={(e) =>
+										onChange({
+											dynamicEnabled: e.target.checked,
+											...(e.target.checked ? { amountControlEnabled: false } : {}),
+										})
+									}
+								/>
+							}
 							label={I18n.t('Enable dynamic feeding (Q10)')}
 						/>
 						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
@@ -730,6 +801,115 @@ function SwitchTab(props) {
 						<Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
 							{I18n.t('The live value for the current water temperature is in the data point status.feedTargetGramsToday.')}
 						</Typography>
+
+						<Divider sx={{ my: 2 }} />
+						<Typography variant="subtitle2">{I18n.t('Control feeding with this amount')}</Typography>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={!!sw.amountControlEnabled}
+									disabled={!sw.amountModelEnabled}
+									onChange={(e) =>
+										onChange({
+											amountControlEnabled: e.target.checked,
+											...(e.target.checked ? { dynamicEnabled: false } : {}),
+										})
+									}
+								/>
+							}
+							label={I18n.t('Let the recommended amount set the feeding duration (turns off dynamic Q10)')}
+						/>
+						<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+							{I18n.t(
+								'The daily amount is converted to motor run-time using the dispense rate and split across the day’s feedings. When to feed and all blocks stay unchanged. Mutually exclusive with dynamic (Q10).',
+							)}
+						</Typography>
+						{sw.amountControlEnabled ? (
+							<Box>
+								<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+									<TextField
+										variant="standard"
+										type="number"
+										sx={{ width: 150 }}
+										inputProps={{ step: 0.1, min: 0 }}
+										label={I18n.t('Dispense rate (g/s)')}
+										value={sw.dispenseGramsPerSec ?? 0}
+										onChange={(e) => onChange({ dispenseGramsPerSec: Math.max(0, Number(e.target.value) || 0) })}
+									/>
+									<TextField
+										variant="standard"
+										type="number"
+										sx={{ width: 170 }}
+										inputProps={{ step: 1, min: 0 }}
+										label={I18n.t('Daily max (g, optional)')}
+										value={sw.feedDailyMaxGrams ?? ''}
+										onChange={(e) =>
+											onChange({
+												feedDailyMaxGrams: e.target.value === '' ? null : Math.max(0, Number(e.target.value) || 0),
+											})
+										}
+									/>
+								</Box>
+								<Paper variant="outlined" sx={{ p: 1.5, mt: 2, maxWidth: 620 }}>
+									<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+										{I18n.t(
+											'Calibrate: run the motor for a few seconds, weigh the dispensed food, enter it, then compute the rate.',
+										)}
+									</Typography>
+									<Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+										<TextField
+											variant="standard"
+											type="number"
+											sx={{ width: 110 }}
+											inputProps={{ min: 1 }}
+											label={I18n.t('Test run (s)')}
+											value={calRunSec}
+											onChange={(e) => setCalRunSec(Math.max(1, Number(e.target.value) || 0))}
+										/>
+										<Button
+											variant="outlined"
+											size="small"
+											startIcon={calBusy ? <CircularProgress size={16} /> : <RestaurantIcon />}
+											disabled={calBusy}
+											onClick={runCalibration}
+										>
+											{I18n.t('Run motor')}
+										</Button>
+										<TextField
+											variant="standard"
+											type="number"
+											sx={{ width: 130 }}
+											inputProps={{ step: 0.1, min: 0 }}
+											label={I18n.t('Dispensed (g)')}
+											value={calGrams}
+											onChange={(e) => setCalGrams(e.target.value)}
+										/>
+										<Button variant="contained" size="small" onClick={computeRate}>
+											{I18n.t('Compute rate')}
+										</Button>
+									</Box>
+									{calMsg ? (
+										<Alert severity={calMsg.severity} sx={{ mt: 1 }}>
+											{calMsg.text}
+										</Alert>
+									) : null}
+								</Paper>
+								<Typography variant="body2" sx={{ mt: 2 }}>
+									{I18n.t('Feedings per day')}: <b>{amtFeedingsPerDay == null ? '—' : amtFeedingsPerDay}</b>
+									{amtExampleSec != null ? (
+										<>
+											{' '}
+											— {I18n.t('example')} (~{amtRefGrams} g, {amtRate} g/s): <b>≈ {amtExampleSec} s/{I18n.t('feeding')}</b>
+										</>
+									) : null}
+								</Typography>
+								<Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
+									{I18n.t(
+										'Live values are in status.feedTargetSecondsToday and status.feedEffectiveDurationSec. Overfeeding is harmful — the per-feeding duration is capped.',
+									)}
+								</Typography>
+							</Box>
+						) : null}
 					</Box>
 				)}
 			</Section>
