@@ -258,6 +258,23 @@ Liegt die aktuelle Temperatur außerhalb des erlaubten Bereichs, wird die Fütte
 und der Grund in `status.blockReason` geschrieben. (Ist ein Temperaturwert unbekannt, sperrt diese
 Quelle nicht.)
 
+#### Wasserqualität (Ammonium / Nitrit)
+
+Optional überwacht der Schalter **Ammonium** (NH₃/NH₄) und/oder **Nitrit** (NO₂) des Wassers –
+„Steigen diese Werte → weniger füttern" (aus dem Handbuch des Futterautomaten). Ordne je Stoff einen
+vorhandenen Datenpunkt zu und aktiviere **Fütterung bei schlechter Wasserqualität sperren/reduzieren**.
+Je Stoff legst du zwei Schwellen fest:
+
+* **Reduzieren ab** – ab diesem Warnwert (Wert **≥** Schwelle) wird die **Tagesmenge reduziert**, auf
+  einen einstellbaren Prozentsatz (*Tagesmenge reduzieren auf (%)*). Das wirkt **nur im
+  Mengen-Steuermodus** (in den festen/dynamischen Modi gibt es keine Menge zum Reduzieren).
+* **Sperren ab** – oberhalb dieses Maximums (Wert **>** Schwelle) wird die Fütterung in **jedem Modus
+  komplett gesperrt** (wie die Temperatur-/Sauerstoff-Sperren); der Grund steht in `status.blockReason`.
+
+Eine leere Schwelle schaltet die jeweilige Stufe ab. Die Live-Werte stehen in `status.ammonia` und
+`status.nitrite`. Es gibt keine allgemeingültigen Grenzwerte (sie hängen von pH und Temperatur ab) –
+Richtwert: Ammonium und Nitrit möglichst nahe null halten und die Schwellen nach dem eigenen Testkit setzen.
+
 #### Einschränkungen
 
 * **Fütterung auf das astronomische Tagesfenster beschränken (Sonnenauf-/-untergang + Offsets)** –
@@ -533,6 +550,8 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.waterTemperatureDeep` | number (ro) | Wert des optionalen tiefen Wassertemperatur-Sensors dieses Schalters. |
 | `status.waterStratification` | number (ro) | Temperaturdifferenz flach − tief (nur bei zwei Wassersensoren). |
 | `status.oxygen` | number (ro) | Wert der eigenen Sauerstoff-Quelle dieses Schalters. |
+| `status.ammonia` | number (ro) | Wert der eigenen Ammonium-Quelle (NH₃/NH₄) dieses Schalters. |
+| `status.nitrite` | number (ro) | Wert der eigenen Nitrit-Quelle (NO₂) dieses Schalters. |
 | `status.fishTotalWeight` | number (ro) | Futtermengen-Modell: geschätztes Gesamtgewicht der Fische (g). |
 | `status.feedPercentToday` | number (ro) | Futtermengen-Modell: Fütterungsprozentsatz für die aktuelle Wassertemperatur (%). |
 | `status.feedTargetGramsToday` | number (ro) | Futtermengen-Modell: empfohlene Tages-Futtermenge (g). |

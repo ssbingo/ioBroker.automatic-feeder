@@ -251,6 +251,15 @@ Ligt de huidige temperatuur buiten het toegestane bereik, dan wordt de voedering
 en de reden in `status.blockReason` geschreven. (Is een temperatuurwaarde onbekend, dan blokkeert deze
 bron niet.)
 
+#### Waterkwaliteit (ammoniak / nitriet)
+
+Optioneel bewaakt de schakelaar de **ammoniak** (NH₃/NH₄) en/of het **nitriet** (NO₂) van het water – „stijgen deze waarden, voer dan minder" (uit het handboek van de voederautomaat). Wijs voor elk een bestaand datapunt toe en activeer **Voeren blokkeren/verlagen bij slechte waterkwaliteit**. Voor elke stof stel je twee drempels in:
+
+* **Verlagen boven** – ligt de waarde **op of boven** deze waarschuwingsdrempel, dan wordt de **dagelijkse hoeveelheid verlaagd** tot een instelbaar percentage (*Dagelijkse hoeveelheid verlagen tot (%)*). Dit werkt alleen in de **regelmodus van het voederhoeveelheidsmodel** (in de vaste/dynamische modus is er geen hoeveelheid om te verlagen).
+* **Blokkeren boven** – ligt de waarde **boven** dit maximum, dan wordt het voeren **volledig geblokkeerd** in elke modus (net als de temperatuur-/zuurstofblokkeringen); de reden wordt naar `status.blockReason` geschreven.
+
+Laat een drempel leeg om dat niveau uit te schakelen. De actuele waarden worden gespiegeld in `status.ammonia` en `status.nitrite`. Er bestaan geen universele veilige grenswaarden (ze zijn afhankelijk van pH en temperatuur) – houd ammoniak en nitriet als richtlijn dicht bij nul en stel de drempels in op basis van je eigen testset.
+
 #### Beperkingen
 
 * **Voeren beperken tot het astronomische dagvenster (zonsop-/-ondergang + offsets)** – indien aan
@@ -503,6 +512,8 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.waterTemperatureDeep` | number (ro) | Optionele diepe watertemperatuursensorwaarde van deze schakelaar. |
 | `status.waterStratification` | number (ro) | Temperatuurverschil ondiep − diep (alleen met twee watersensoren). |
 | `status.oxygen` | number (ro) | Eigen opgeloste-zuurstof-bronwaarde van deze schakelaar. |
+| `status.ammonia` | number (ro) | Eigen ammoniak-bronwaarde (NH₃/NH₄) van deze schakelaar. |
+| `status.nitrite` | number (ro) | Eigen nitriet-bronwaarde (NO₂) van deze schakelaar. |
 | `status.fishTotalWeight` | number (ro) | Voederhoeveelheidsmodel: geschat totaalgewicht van de vissen (g). |
 | `status.feedPercentToday` | number (ro) | Voederhoeveelheidsmodel: voederpercentage voor de huidige watertemperatuur (%). |
 | `status.feedTargetGramsToday` | number (ro) | Voederhoeveelheidsmodel: aanbevolen voederhoeveelheid per dag (g). |

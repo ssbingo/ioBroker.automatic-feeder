@@ -279,6 +279,26 @@ Si la température actuelle se trouve en dehors de la plage autorisée, la distr
 et la raison est écrite dans `status.blockReason`. (Si une valeur de température est inconnue, cette
 source ne bloque pas.)
 
+#### Qualité de l'eau (ammoniac / nitrite)
+
+En option, l'interrupteur surveille l'**ammoniac** (NH₃/NH₄) et/ou le **nitrite** (NO₂) de l'eau —
+« si ces valeurs augmentent, distribue moins » (d'après le manuel du distributeur). Attribue un
+point de données existant pour chacun et active **Bloquer/réduire la distribution en cas de mauvaise
+qualité de l'eau**. Pour chaque substance, tu définis deux seuils :
+
+* **Réduire au-dessus de** — lorsque la valeur est **supérieure ou égale** à ce seuil d'alerte, la
+  **quantité quotidienne est réduite** à un pourcentage configurable (*Réduire la quantité
+  quotidienne à (%)*). Cela ne prend effet que dans le **mode de commande du modèle de quantité
+  d'alimentation** (il n'y a aucune quantité à réduire dans les modes fixe/dynamique).
+* **Bloquer au-dessus de** — lorsque la valeur est **supérieure** à ce maximum, la distribution est
+  **entièrement bloquée** dans tous les modes (comme les blocages par température/oxygène) ; la
+  raison est écrite dans `status.blockReason`.
+
+Laisse un seuil vide pour désactiver ce niveau. Les valeurs actuelles sont reflétées dans
+`status.ammonia` et `status.nitrite`. Il n'existe pas de limites de sécurité universelles (elles
+dépendent du pH et de la température) — à titre indicatif, maintiens l'ammoniac et le nitrite proches
+de zéro et règle les seuils à partir de ton propre kit de test.
+
 #### Restrictions
 
 * **Restreindre la distribution à la fenêtre diurne astronomique (lever/coucher du soleil +
@@ -537,6 +557,8 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.waterTemperatureDeep` | number (ro) | Valeur du capteur de température de l'eau en profondeur optionnel de cet interrupteur. |
 | `status.waterStratification` | number (ro) | Écart de température peu profonde − profonde (uniquement avec deux capteurs d'eau). |
 | `status.oxygen` | number (ro) | Valeur de la source d'oxygène dissous propre à cet interrupteur. |
+| `status.ammonia` | number (ro) | Valeur de la source d'ammoniac (NH₃/NH₄) propre à cet interrupteur. |
+| `status.nitrite` | number (ro) | Valeur de la source de nitrite (NO₂) propre à cet interrupteur. |
 | `status.fishTotalWeight` | number (ro) | Modèle de quantité d'alimentation : poids total estimé des poissons (g). |
 | `status.feedPercentToday` | number (ro) | Modèle de quantité d'alimentation : pourcentage d'alimentation pour la température de l'eau actuelle (%). |
 | `status.feedTargetGramsToday` | number (ro) | Modèle de quantité d'alimentation : quantité de nourriture recommandée par jour (g). |

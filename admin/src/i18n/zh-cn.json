@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "请先输入试运行时长和投出重量。",
 	"Feedings per day": "每日投喂次数",
 	"example": "示例",
-	"feeding": "次投喂"
+	"feeding": "次投喂",
+	"Water quality (ammonia / nitrite)": "水质（氨 / 亚硝酸盐）",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "分配氨（NH₃/NH₄）和/或亚硝酸盐（NO₂）来源。达到或超过警戒阈值时，每日投喂量会减少（仅在投喂量控制模式下）；超过最大阈值时，所有模式下都会封锁投喂。参考：将氨和亚硝酸盐保持在接近零。",
+	"Block/reduce feeding on poor water quality": "水质差时封锁/减少投喂",
+	"Ammonia (NH₃/NH₄)": "氨（NH₃/NH₄）",
+	"Ammonia object": "氨对象",
+	"Nitrite (NO₂)": "亚硝酸盐（NO₂）",
+	"Nitrite object": "亚硝酸盐对象",
+	"Reduce above": "超过则减少",
+	"Block above": "超过则封锁",
+	"Reduce daily amount to (%)": "将每日投喂量减至（%）",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "仅当投喂量控制模式主导投喂时，减少才生效。超过最大阈值的硬性封锁在所有模式下均生效。实时值：status.ammonia 和 status.nitrite。"
 }

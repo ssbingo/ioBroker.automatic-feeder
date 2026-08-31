@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Inserisci prima la durata della prova e il peso erogato.",
 	"Feedings per day": "Alimentazioni al giorno",
 	"example": "esempio",
-	"feeding": "alimentazione"
+	"feeding": "alimentazione",
+	"Water quality (ammonia / nitrite)": "Qualità dell’acqua (ammoniaca / nitrito)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Assegna sorgenti di ammoniaca (NH₃/NH₄) e/o nitrito (NO₂). Alla soglia di avviso o oltre, la quantità giornaliera viene ridotta (solo nella modalità di controllo per quantità); oltre la soglia massima l’alimentazione è bloccata in ogni modalità. Come riferimento, mantieni ammoniaca e nitrito vicini a zero.",
+	"Block/reduce feeding on poor water quality": "Blocca/riduci l’alimentazione con scarsa qualità dell’acqua",
+	"Ammonia (NH₃/NH₄)": "Ammoniaca (NH₃/NH₄)",
+	"Ammonia object": "Oggetto ammoniaca",
+	"Nitrite (NO₂)": "Nitrito (NO₂)",
+	"Nitrite object": "Oggetto nitrito",
+	"Reduce above": "Riduci oltre",
+	"Block above": "Blocca oltre",
+	"Reduce daily amount to (%)": "Riduci la quantità giornaliera al (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "La riduzione si applica solo quando la modalità di controllo per quantità comanda l’alimentazione. Il blocco rigido oltre la soglia massima vale in ogni modalità. Valori in tempo reale: status.ammonia e status.nitrite."
 }

@@ -250,6 +250,15 @@ Se a temperatura atual estiver fora da faixa permitida, a alimentação é ignor
 e o motivo é gravado em `status.blockReason`. (Se um valor de temperatura for desconhecido, essa
 fonte não bloqueia.)
 
+#### Qualidade da água (amoníaco / nitrito)
+
+Opcionalmente, o interruptor monitoriza o **amoníaco** (NH₃/NH₄) e/ou o **nitrito** (NO₂) da água – „se estes valores subirem, alimente menos" (do manual do alimentador). Atribua um ponto de dados existente a cada um e ative **Bloquear/reduzir a alimentação com má qualidade da água**. Para cada substância você define dois limites:
+
+* **Reduzir acima de** – quando o valor está **em ou acima** deste limite de aviso, a **quantidade diária é reduzida** para uma percentagem configurável (*Reduzir a quantidade diária para (%)*). Isto só tem efeito no **modo de controlo do modelo de quantidade de ração** (não há quantidade a reduzir nos modos fixo/dinâmico).
+* **Bloquear acima de** – quando o valor está **acima** deste máximo, a alimentação é **totalmente bloqueada** em todos os modos (como os bloqueios de temperatura/oxigénio); o motivo é gravado em `status.blockReason`.
+
+Deixe um limite vazio para desativar esse nível. Os valores atuais são espelhados em `status.ammonia` e `status.nitrite`. Não existem limites seguros universais (dependem do pH e da temperatura) – como orientação, mantenha o amoníaco e o nitrito próximos de zero e defina os limites a partir do seu próprio kit de teste.
+
 #### Restrições
 
 * **Restringir a alimentação à janela astronómica do dia (nascer/pôr do sol + offsets)** – quando
@@ -496,6 +505,8 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `status.waterTemperatureDeep` | number (ro) | Valor do sensor opcional de temperatura da água profunda deste interruptor. |
 | `status.waterStratification` | number (ro) | Diferença de temperatura superficial − profunda (só com dois sensores de água). |
 | `status.oxygen` | number (ro) | Valor da fonte de oxigénio dissolvido própria deste interruptor. |
+| `status.ammonia` | number (ro) | Valor da fonte de amoníaco (NH₃/NH₄) própria deste interruptor. |
+| `status.nitrite` | number (ro) | Valor da fonte de nitrito (NO₂) própria deste interruptor. |
 | `status.fishTotalWeight` | number (ro) | Modelo de quantidade de ração: peso total estimado dos peixes (g). |
 | `status.feedPercentToday` | number (ro) | Modelo de quantidade de ração: percentagem de alimentação para a temperatura atual da água (%). |
 | `status.feedTargetGramsToday` | number (ro) | Modelo de quantidade de ração: quantidade diária de ração recomendada (g). |

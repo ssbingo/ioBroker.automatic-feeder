@@ -606,6 +606,131 @@ function SwitchTab(props) {
 				) : null}
 			</Section>
 
+			{/* Water quality (ammonia / nitrite) */}
+			<Section title={I18n.t('Water quality (ammonia / nitrite)')}>
+				<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+					{I18n.t(
+						'Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.',
+					)}
+				</Typography>
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={!!sw.waterQualityEnabled}
+							onChange={(e) => onChange({ waterQualityEnabled: e.target.checked })}
+						/>
+					}
+					label={I18n.t('Block/reduce feeding on poor water quality')}
+				/>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={!!sw.ammoniaEnabled}
+								onChange={(e) => onChange({ ammoniaEnabled: e.target.checked })}
+							/>
+						}
+						label={I18n.t('Ammonia (NH₃/NH₄)')}
+					/>
+					<Box sx={{ flexGrow: 1 }}>
+						<ObjectSelect
+							label={I18n.t('Ammonia object')}
+							value={sw.ammoniaObjectId}
+							disabled={!sw.ammoniaEnabled}
+							onChange={(v) => onChange({ ammoniaObjectId: v })}
+							socket={socket}
+							theme={theme}
+							themeName={themeName}
+							themeType={themeType}
+							filterFunc={TEMPERATURE_FILTER}
+						/>
+					</Box>
+				</Box>
+				{sw.ammoniaEnabled ? (
+					<Box sx={{ display: 'flex', gap: 2, ml: 4 }}>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Reduce above')}
+							disabled={!sw.waterQualityEnabled}
+							value={sw.ammoniaWarn ?? ''}
+							onChange={(e) => onChange({ ammoniaWarn: toNumberOrNull(e.target.value) })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Block above')}
+							disabled={!sw.waterQualityEnabled}
+							value={sw.ammoniaMax ?? ''}
+							onChange={(e) => onChange({ ammoniaMax: toNumberOrNull(e.target.value) })}
+						/>
+					</Box>
+				) : null}
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={!!sw.nitriteEnabled}
+								onChange={(e) => onChange({ nitriteEnabled: e.target.checked })}
+							/>
+						}
+						label={I18n.t('Nitrite (NO₂)')}
+					/>
+					<Box sx={{ flexGrow: 1 }}>
+						<ObjectSelect
+							label={I18n.t('Nitrite object')}
+							value={sw.nitriteObjectId}
+							disabled={!sw.nitriteEnabled}
+							onChange={(v) => onChange({ nitriteObjectId: v })}
+							socket={socket}
+							theme={theme}
+							themeName={themeName}
+							themeType={themeType}
+							filterFunc={TEMPERATURE_FILTER}
+						/>
+					</Box>
+				</Box>
+				{sw.nitriteEnabled ? (
+					<Box sx={{ display: 'flex', gap: 2, ml: 4 }}>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Reduce above')}
+							disabled={!sw.waterQualityEnabled}
+							value={sw.nitriteWarn ?? ''}
+							onChange={(e) => onChange({ nitriteWarn: toNumberOrNull(e.target.value) })}
+						/>
+						<TextField
+							variant="standard"
+							type="number"
+							label={I18n.t('Block above')}
+							disabled={!sw.waterQualityEnabled}
+							value={sw.nitriteMax ?? ''}
+							onChange={(e) => onChange({ nitriteMax: toNumberOrNull(e.target.value) })}
+						/>
+					</Box>
+				) : null}
+				<Box sx={{ mt: 2 }}>
+					<TextField
+						variant="standard"
+						type="number"
+						sx={{ width: 220 }}
+						inputProps={{ min: 0, max: 100 }}
+						label={I18n.t('Reduce daily amount to (%)')}
+						disabled={!sw.waterQualityEnabled}
+						value={sw.waterQualityReduceToPct ?? 50}
+						onChange={(e) =>
+							onChange({ waterQualityReduceToPct: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })
+						}
+					/>
+					<Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
+						{I18n.t(
+							'The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.',
+						)}
+					</Typography>
+				</Box>
+			</Section>
+
 			{/* Dynamic feeding */}
 			<Section title={I18n.t('Dynamic feeding')}>
 				{!sw.airTempEnabled && !sw.waterTempEnabled ? (

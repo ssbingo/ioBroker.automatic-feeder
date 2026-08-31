@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Спершу введіть тривалість тесту та видану вагу.",
 	"Feedings per day": "Годувань на день",
 	"example": "приклад",
-	"feeding": "годування"
+	"feeding": "годування",
+	"Water quality (ammonia / nitrite)": "Якість води (аміак / нітрит)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Призначте джерела аміаку (NH₃/NH₄) та/або нітриту (NO₂). Від порога попередження добова кількість зменшується (лише в режимі керування кількістю); понад максимальний поріг годування блокується в усіх режимах. Орієнтир: тримайте аміак і нітрит близько нуля.",
+	"Block/reduce feeding on poor water quality": "Блокувати/зменшувати годування за поганої якості води",
+	"Ammonia (NH₃/NH₄)": "Аміак (NH₃/NH₄)",
+	"Ammonia object": "Обʼєкт аміаку",
+	"Nitrite (NO₂)": "Нітрит (NO₂)",
+	"Nitrite object": "Обʼєкт нітриту",
+	"Reduce above": "Зменшувати від",
+	"Block above": "Блокувати від",
+	"Reduce daily amount to (%)": "Зменшувати добову кількість до (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Зменшення діє лише коли годуванням керує режим керування кількістю. Жорстке блокування понад максимальний поріг діє в усіх режимах. Актуальні значення: status.ammonia і status.nitrite."
 }

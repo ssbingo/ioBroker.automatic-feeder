@@ -195,6 +195,22 @@ declare global {
 			o2Enabled: boolean;
 			o2ObjectId: string;
 			/**
+			 * Water quality (Phase C): per-switch ammonia (NH3/NH4) and nitrite (NO2) sources.
+			 * At/above the warn threshold the daily amount is reduced (amount-control mode); above
+			 * the max threshold feeding is blocked entirely (all modes). Thresholds null = tier off.
+			 * `waterQualityReduceToPct` is the percentage of the amount fed while in the warn band.
+			 */
+			waterQualityEnabled: boolean;
+			ammoniaEnabled: boolean;
+			ammoniaObjectId: string;
+			ammoniaWarn: number | null;
+			ammoniaMax: number | null;
+			nitriteEnabled: boolean;
+			nitriteObjectId: string;
+			nitriteWarn: number | null;
+			nitriteMax: number | null;
+			waterQualityReduceToPct: number;
+			/**
 			 * Feeding-amount model (Phase A, advisory only): estimate the recommended daily food
 			 * amount from the fish inventory and the water temperature. Does not control feeding.
 			 */

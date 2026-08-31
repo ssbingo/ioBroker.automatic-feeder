@@ -268,6 +268,26 @@ oxígeno*). Por cada interruptor:
 Si la temperatura actual está fuera del rango permitido, la alimentación se omite y el motivo se
 escribe en `status.blockReason`. (Si un valor de temperatura es desconocido, esa fuente no bloquea.)
 
+#### Calidad del agua (amoníaco / nitrito)
+
+Opcionalmente, el interruptor vigila el **amoníaco** (NH₃/NH₄) o el **nitrito** (NO₂) del agua –
+«si estos valores suben, alimenta menos» (del manual del alimentador). Asigna un punto de datos
+existente para cada uno y activa **Bloquear/reducir la alimentación con mala calidad del agua**. Por
+cada sustancia estableces dos umbrales:
+
+* **Reducir por encima de** – cuando el valor está **igual o por encima de** este umbral de
+  advertencia, la **cantidad diaria se reduce** a un porcentaje configurable (*Reducir la cantidad
+  diaria a (%)*). Esto solo surte efecto en el **modo de control del modelo de ración de comida** (en
+  los modos de horas fijas/dinámico no hay ninguna cantidad que reducir).
+* **Bloquear por encima de** – cuando el valor está **por encima de** este máximo, la alimentación se
+  **bloquea por completo** en todos los modos (como los bloqueos por temperatura/oxígeno); el motivo
+  se escribe en `status.blockReason`.
+
+Deja un umbral vacío para desactivar ese nivel. Los valores actuales se reflejan en `status.ammonia`
+y `status.nitrite`. No existen límites seguros universales (dependen del pH y de la temperatura) –
+como orientación, mantén el amoníaco y el nitrito cerca de cero y establece los umbrales según tu
+propio kit de prueba.
+
 #### Restricciones
 
 * **Restringir la alimentación a la ventana astronómica del día (orto/ocaso + desfases)**: cuando
@@ -540,6 +560,8 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.waterTemperatureDeep` | number (ro) | Valor del sensor opcional de temperatura del agua profunda de este interruptor. |
 | `status.waterStratification` | number (ro) | Diferencia de temperatura superficial − profunda (solo con dos sensores de agua). |
 | `status.oxygen` | number (ro) | Valor de la fuente de oxígeno disuelto propia de este interruptor. |
+| `status.ammonia` | number (ro) | Valor de la fuente de amoníaco (NH₃/NH₄) propia de este interruptor. |
+| `status.nitrite` | number (ro) | Valor de la fuente de nitrito (NO₂) propia de este interruptor. |
 | `status.fishTotalWeight` | number (ro) | Modelo de ración de comida: peso total estimado de los peces (g). |
 | `status.feedPercentToday` | number (ro) | Modelo de ración de comida: porcentaje de alimentación para la temperatura del agua actual (%). |
 | `status.feedTargetGramsToday` | number (ro) | Modelo de ración de comida: cantidad de comida recomendada por día (g). |

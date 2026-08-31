@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Voer eerst de testduur en het uitgeworpen gewicht in.",
 	"Feedings per day": "Voederbeurten per dag",
 	"example": "voorbeeld",
-	"feeding": "voederbeurt"
+	"feeding": "voederbeurt",
+	"Water quality (ammonia / nitrite)": "Waterkwaliteit (ammoniak / nitriet)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Wijs ammoniak- (NH₃/NH₄) en/of nitriet- (NO₂) bronnen toe. Vanaf de waarschuwingsdrempel wordt de dagelijkse hoeveelheid verlaagd (alleen in de voederhoeveelheid-regelmodus); boven de maximumdrempel wordt het voeren in elke modus geblokkeerd. Richtlijn: houd ammoniak en nitriet dicht bij nul.",
+	"Block/reduce feeding on poor water quality": "Voeren blokkeren/verminderen bij slechte waterkwaliteit",
+	"Ammonia (NH₃/NH₄)": "Ammoniak (NH₃/NH₄)",
+	"Ammonia object": "Ammoniak-object",
+	"Nitrite (NO₂)": "Nitriet (NO₂)",
+	"Nitrite object": "Nitriet-object",
+	"Reduce above": "Verminderen vanaf",
+	"Block above": "Blokkeren vanaf",
+	"Reduce daily amount to (%)": "Dagelijkse hoeveelheid verlagen tot (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "De verlaging geldt alleen wanneer de voederhoeveelheid-regelmodus het voeren aanstuurt. De harde blokkering boven de maximumdrempel geldt in elke modus. Live-waarden: status.ammonia en status.nitrite."
 }

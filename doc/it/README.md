@@ -272,6 +272,26 @@ Se la temperatura attuale è al di fuori dell'intervallo consentito, la distribu
 e il motivo viene scritto in `status.blockReason`. (Se un valore di temperatura è sconosciuto, questa
 sorgente non blocca.)
 
+#### Qualità dell'acqua (ammoniaca / nitriti)
+
+Facoltativamente l'interruttore controlla l'**ammoniaca** (NH₃/NH₄) e/o i **nitriti** (NO₂)
+dell'acqua – „se questi valori aumentano, alimenta di meno" (dal manuale del distributore di
+mangime). Assegna un punto dato esistente per ciascuno e attiva **Blocca/riduci l'alimentazione in
+caso di scarsa qualità dell'acqua**. Per ogni sostanza imposti due soglie:
+
+* **Riduci se superiore a** – quando il valore è **pari o superiore** a questa soglia di avviso, la
+  **quantità giornaliera viene ridotta** a una percentuale configurabile (*Riduci la quantità
+  giornaliera a (%)*). Ha effetto solo nella **modalità di controllo con la quantità di mangime**
+  (nelle modalità fissa/dinamica non c'è alcuna quantità da ridurre).
+* **Blocca se superiore a** – quando il valore è **superiore** a questo massimo, l'alimentazione
+  viene **bloccata completamente** in ogni modalità (come i blocchi per temperatura/ossigeno); il
+  motivo viene scritto in `status.blockReason`.
+
+Lascia vuota una soglia per disattivare quel livello. I valori correnti sono riportati in
+`status.ammonia` e `status.nitrite`. Non esistono limiti di sicurezza universali (dipendono dal pH e
+dalla temperatura) – come guida, mantieni ammoniaca e nitriti vicini allo zero e imposta le soglie in
+base al tuo kit di test.
+
 #### Limitazioni
 
 * **Limita la distribuzione alla finestra diurna astronomica (alba/tramonto + scarti)** – se
@@ -550,6 +570,8 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.waterTemperatureDeep` | number (ro) | Valore del sensore facoltativo di temperatura dell'acqua profonda di questo interruttore. |
 | `status.waterStratification` | number (ro) | Differenza di temperatura superficiale − profondo (solo con due sensori dell'acqua). |
 | `status.oxygen` | number (ro) | Valore della sorgente di ossigeno disciolto propria di questo interruttore. |
+| `status.ammonia` | number (ro) | Valore della sorgente di ammoniaca (NH₃/NH₄) propria di questo interruttore. |
+| `status.nitrite` | number (ro) | Valore della sorgente di nitriti (NO₂) propria di questo interruttore. |
 | `status.fishTotalWeight` | number (ro) | Modello della quantità di mangime: peso totale stimato dei pesci (g). |
 | `status.feedPercentToday` | number (ro) | Modello della quantità di mangime: percentuale di alimentazione per la temperatura dell'acqua attuale (%). |
 | `status.feedTargetGramsToday` | number (ro) | Modello della quantità di mangime: quantità di mangime consigliata al giorno (g). |

@@ -463,6 +463,10 @@ content.push(
 	p(
 		'Blockiert die Fütterung, wenn Wasser- oder Lufttemperatur unter/über frei wählbaren Grenzen liegt. Bei zwei Wassersensoren wird für die Sperre stets die kälteste Schicht verwendet.',
 	),
+	subsub('Wasserqualität (Ammonium / Nitrit)'),
+	p(
+		'Optional überwacht der Schalter Ammonium (NH3/NH4) und/oder Nitrit (NO2) – „Steigen diese Werte → weniger füttern". Je Stoff ordnest du einen Datenpunkt zu und legst zwei Schwellen fest: Ab der Warnschwelle („Reduzieren ab", Wert ≥ Schwelle) wird die Tagesmenge auf einen einstellbaren Prozentsatz reduziert – nur im Mengen-Steuermodus. Oberhalb der Max-Schwelle („Sperren ab", Wert > Schwelle) wird die Fütterung in jedem Modus komplett gesperrt (wie Temperatur-/O2-Sperre). Leere Schwelle = Stufe aus. Live-Werte in status.ammonia und status.nitrite. Es gibt keine allgemeingültigen Grenzwerte (abhängig von pH/Temperatur) – Richtwert: Ammonium und Nitrit möglichst nahe null halten.',
+	),
 	subsub('Dynamisches Füttern'),
 	p(
 		'Passt Intervall und Portion automatisch der Temperatur an (Q10-Modell). Mehr dazu in Abschnitt „Dynamisches Füttern – Hintergrund“.',
@@ -560,9 +564,9 @@ content.push(
 				'Aktuelle Werte des dynamischen Fütterns.',
 			],
 			[
-				'status.airTemperature / waterTemperature / …Deep / oxygen',
+				'status.airTemperature / waterTemperature / …Deep / oxygen / ammonia / nitrite',
 				'number (ro)',
-				'Aktuelle Sensorwerte dieser Fütterungsstelle.',
+				'Aktuelle Sensorwerte dieser Fütterungsstelle (Temperaturen, Sauerstoff, Ammonium NH3/NH4, Nitrit NO2).',
 			],
 			['status.fishTotalWeight', 'number (ro)', 'Futtermengen-Modell: geschätztes Gesamtgewicht der Fische (g).'],
 			[

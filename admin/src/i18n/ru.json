@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Сначала введите длительность теста и выданный вес.",
 	"Feedings per day": "Кормлений в день",
 	"example": "пример",
-	"feeding": "кормление"
+	"feeding": "кормление",
+	"Water quality (ammonia / nitrite)": "Качество воды (аммиак / нитрит)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Назначьте источники аммиака (NH₃/NH₄) и/или нитрита (NO₂). При достижении порога предупреждения суточное количество уменьшается (только в режиме управления количеством); выше максимального порога кормление блокируется во всех режимах. Ориентир: держите аммиак и нитрит близко к нулю.",
+	"Block/reduce feeding on poor water quality": "Блокировать/уменьшать кормление при плохом качестве воды",
+	"Ammonia (NH₃/NH₄)": "Аммиак (NH₃/NH₄)",
+	"Ammonia object": "Объект аммиака",
+	"Nitrite (NO₂)": "Нитрит (NO₂)",
+	"Nitrite object": "Объект нитрита",
+	"Reduce above": "Уменьшать от",
+	"Block above": "Блокировать от",
+	"Reduce daily amount to (%)": "Уменьшать суточное количество до (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Уменьшение действует только когда кормлением управляет режим управления количеством. Жёсткая блокировка выше максимального порога действует во всех режимах. Актуальные значения: status.ammonia и status.nitrite."
 }

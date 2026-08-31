@@ -102,6 +102,8 @@ const STATUS_STATE_IDS = [
 	'waterTemperatureDeep',
 	'waterStratification',
 	'oxygen',
+	'ammonia',
+	'nitrite',
 	'fishTotalWeight',
 	'feedPercentToday',
 	'feedTargetGramsToday',
@@ -237,6 +239,19 @@ const SWITCH_DEFAULTS = {
 	waterSeasonalThresholdC: 12,
 	o2Enabled: false,
 	o2ObjectId: '',
+	// water quality (Phase C): per-switch ammonia (NH3/NH4) and nitrite (NO2) sources.
+	// Above the warn threshold the daily amount is reduced (amount-control mode); above the
+	// max threshold feeding is blocked entirely (all modes). Thresholds null = that tier off.
+	waterQualityEnabled: false,
+	ammoniaEnabled: false,
+	ammoniaObjectId: '',
+	ammoniaWarn: null,
+	ammoniaMax: null,
+	nitriteEnabled: false,
+	nitriteObjectId: '',
+	nitriteWarn: null,
+	nitriteMax: null,
+	waterQualityReduceToPct: 50,
 	// feeding-amount model (Phase A: advisory calculator, does not control feeding yet)
 	amountModelEnabled: false,
 	fishCount15: 0,
@@ -268,6 +283,17 @@ function mdToDotMM(md) {
 		return '';
 	}
 	return `${String(Number(m[2])).padStart(2, '0')}.${String(Number(m[1])).padStart(2, '0')}`;
+}
+
+/**
+ * True when a value is set (not null/undefined/"") and coerces to a finite number.
+ * Used to tell "threshold configured" from "empty".
+ *
+ * @param {unknown} v - candidate value
+ * @returns {boolean} whether v is a usable numeric threshold
+ */
+function isNum(v) {
+	return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
 }
 
 /**
@@ -790,6 +816,7 @@ class AutomaticFeeder extends utils.Adapter {
 		this.foreignBuffers = new Map();
 		this.tempObjectIds = new Set();
 		this.o2ObjectIds = new Set();
+		this.wqObjectIds = new Set();
 		/** source object ids for which an "ack=false" hint has already been logged (once each) */
 		this.unackedSources = new Set();
 		// longest sample window we need to keep (ms); set in setupSources
@@ -1307,17 +1334,20 @@ class AutomaticFeeder extends utils.Adapter {
 	 * that across the day's feedings. The per-feeding duration is clamped to [0, MAX_DURATION_SEC].
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
-	 * @returns {{grams: number|null, capped: number|null, rate: number, N: number, dailySec: number, perFeedingSec: number}}
+	 * @returns {{grams: number|null, wqFactor: number, capped: number|null, rate: number, N: number, dailySec: number, perFeedingSec: number}}
 	 */
 	amountControlSeconds(sw) {
 		const { grams } = this.amountModelValues(sw);
-		const capped = applyDailyCap(grams, sw.feedDailyMaxGrams);
+		// poor water quality (ammonia/nitrite in the warn band) reduces the amount
+		const wqFactor = this.waterQualityFactor(sw);
+		const reduced = grams == null ? null : grams * wqFactor;
+		const capped = applyDailyCap(reduced, sw.feedDailyMaxGrams);
 		const rate = Number(sw.dispenseGramsPerSec);
 		const N = this.feedingsPerDay(sw);
 		const dailySec = dispenseSeconds(capped, rate);
 		const perRaw = perFeedingSeconds(dailySec, N);
 		const perFeedingSec = perRaw == null ? 0 : Math.min(MAX_DURATION_SEC, Math.max(0, perRaw));
-		return { grams, capped, rate, N, dailySec: dailySec || 0, perFeedingSec };
+		return { grams, wqFactor, capped, rate, N, dailySec: dailySec || 0, perFeedingSec };
 	}
 
 	/**
@@ -1353,7 +1383,7 @@ class AutomaticFeeder extends utils.Adapter {
 			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
 			return;
 		}
-		const { rate, N, dailySec, perFeedingSec, capped } = this.amountControlSeconds(sw);
+		const { rate, N, dailySec, perFeedingSec, capped, wqFactor } = this.amountControlSeconds(sw);
 		this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: Math.round(dailySec), ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedEffectiveDurationSec`, {
 			val: Math.round(perFeedingSec * 10) / 10,
@@ -1370,8 +1400,9 @@ class AutomaticFeeder extends utils.Adapter {
 					`Feeding-amount ${this.swLabel(sw)}: control is on but no feedings are planned today; nothing is dispensed.`,
 				);
 			} else {
+				const wqNote = wqFactor < 1 ? ` (water-quality reduced to ${Math.round(wqFactor * 100)}%)` : '';
 				this.log.debug(
-					`Feeding-amount ${this.swLabel(sw)}: control -> ${Math.round(Number(capped))} g/day at ${rate} g/s ` +
+					`Feeding-amount ${this.swLabel(sw)}: control -> ${Math.round(Number(capped))} g/day${wqNote} at ${rate} g/s ` +
 						`over ${N} feeding(s) = ${perFeedingSec.toFixed(1)} s each.`,
 				);
 			}
@@ -1838,6 +1869,28 @@ class AutomaticFeeder extends utils.Adapter {
 				},
 				native: {},
 			});
+			await this.setObjectNotExistsAsync(`${base}.status.ammonia`, {
+				type: 'state',
+				common: {
+					name: 'Ammonia NH3/NH4 (this switch)',
+					type: 'number',
+					role: 'value',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.nitrite`, {
+				type: 'state',
+				common: {
+					name: 'Nitrite NO2 (this switch)',
+					type: 'number',
+					role: 'value',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
 			// --- feeding-amount model (advisory) ---
 			await this.setObjectNotExistsAsync(`${base}.status.fishTotalWeight`, {
 				type: 'state',
@@ -2263,6 +2316,7 @@ class AutomaticFeeder extends utils.Adapter {
 		// collect the union of foreign objects referenced by any switch
 		this.tempObjectIds = new Set();
 		this.o2ObjectIds = new Set();
+		this.wqObjectIds = new Set();
 		for (const sw of this.switches) {
 			const used = [];
 			if (sw.airTempEnabled && sw.airTempObjectId) {
@@ -2281,12 +2335,20 @@ class AutomaticFeeder extends utils.Adapter {
 				this.o2ObjectIds.add(sw.o2ObjectId);
 				used.push(`o2=${sw.o2ObjectId}`);
 			}
+			if (sw.ammoniaEnabled && sw.ammoniaObjectId) {
+				this.wqObjectIds.add(sw.ammoniaObjectId);
+				used.push(`nh=${sw.ammoniaObjectId}`);
+			}
+			if (sw.nitriteEnabled && sw.nitriteObjectId) {
+				this.wqObjectIds.add(sw.nitriteObjectId);
+				used.push(`no2=${sw.nitriteObjectId}`);
+			}
 			if (used.length) {
 				this.log.debug(`Sources for ${this.swLabel(sw)}: ${used.join(', ')}.`);
 			}
 		}
 
-		const allIds = new Set([...this.tempObjectIds, ...this.o2ObjectIds]);
+		const allIds = new Set([...this.tempObjectIds, ...this.o2ObjectIds, ...this.wqObjectIds]);
 		for (const id of allIds) {
 			this.subscribeForeignStates(id);
 			let value = null;
@@ -2306,7 +2368,7 @@ class AutomaticFeeder extends utils.Adapter {
 			this.log.debug(`Source subscribed: ${id} (initial value: ${value ?? 'unknown'}).`);
 		}
 		if (!allIds.size) {
-			this.log.debug('No per-switch temperature/oxygen sources configured.');
+			this.log.debug('No per-switch temperature/oxygen/water-quality sources configured.');
 		}
 		// initialize the per-switch mirror states
 		for (const id of allIds) {
@@ -2372,6 +2434,15 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 			if (sw.o2Enabled && sw.o2ObjectId === objectId) {
 				await this.setStateAsync(`switches.${sw.id}.status.oxygen`, { val: value, ack: true });
+			}
+			if (sw.ammoniaEnabled && sw.ammoniaObjectId === objectId) {
+				await this.setStateAsync(`switches.${sw.id}.status.ammonia`, { val: value, ack: true });
+				// water quality can reduce the daily amount -> refresh the control run-time
+				this.recomputeFeedAmount(sw);
+			}
+			if (sw.nitriteEnabled && sw.nitriteObjectId === objectId) {
+				await this.setStateAsync(`switches.${sw.id}.status.nitrite`, { val: value, ack: true });
+				this.recomputeFeedAmount(sw);
 			}
 		}
 	}
@@ -3618,7 +3689,7 @@ class AutomaticFeeder extends utils.Adapter {
 	 * Current value of a switch's own air/water/oxygen source, or null.
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
-	 * @param {'air' | 'water' | 'o2'} kind - which source
+	 * @param {'air' | 'water' | 'o2' | 'ammonia' | 'nitrite'} kind - which source
 	 * @returns {number | null} the current value, or null if unknown/disabled
 	 */
 	sourceValue(sw, kind) {
@@ -3629,6 +3700,10 @@ class AutomaticFeeder extends utils.Adapter {
 			objId = sw.waterTempEnabled ? sw.waterTempObjectId : '';
 		} else if (kind === 'o2') {
 			objId = sw.o2Enabled ? sw.o2ObjectId : '';
+		} else if (kind === 'ammonia') {
+			objId = sw.ammoniaEnabled ? sw.ammoniaObjectId : '';
+		} else if (kind === 'nitrite') {
+			objId = sw.nitriteEnabled ? sw.nitriteObjectId : '';
 		}
 		if (!objId) {
 			return null;
@@ -3762,8 +3837,56 @@ class AutomaticFeeder extends utils.Adapter {
 				return { key: 'blockOxygenLow', params: { value: o2, limit: sw.o2Min } };
 			}
 		}
+		// water quality: ammonia (NH3/NH4) or nitrite (NO2) above the max threshold -> hard block
+		// (works in all modes). The lower "warn" threshold only reduces the amount in control mode.
+		if (sw.waterQualityEnabled) {
+			if (sw.ammoniaEnabled && isNum(sw.ammoniaMax)) {
+				const a = this.sourceValue(sw, 'ammonia');
+				if (a !== null && a > Number(sw.ammoniaMax)) {
+					return { key: 'blockAmmoniaHigh', params: { value: a, limit: Number(sw.ammoniaMax) } };
+				}
+			}
+			if (sw.nitriteEnabled && isNum(sw.nitriteMax)) {
+				const n = this.sourceValue(sw, 'nitrite');
+				if (n !== null && n > Number(sw.nitriteMax)) {
+					return { key: 'blockNitriteHigh', params: { value: n, limit: Number(sw.nitriteMax) } };
+				}
+			}
+		}
 		this.log.silly(`Block check ${this.swLabel(sw)}: no block, feeding allowed.`);
 		return null;
+	}
+
+	/**
+	 * Water-quality reduction factor (0..1) for the amount-control mode: when a water-quality
+	 * value is at or above its warn threshold (but below the max, which blocks entirely), the
+	 * daily amount is scaled to `waterQualityReduceToPct` %. Returns 1 (no reduction) otherwise.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {number} factor in [0, 1]
+	 */
+	waterQualityFactor(sw) {
+		if (!sw.waterQualityEnabled) {
+			return 1;
+		}
+		let reduce = false;
+		if (sw.ammoniaEnabled && isNum(sw.ammoniaWarn)) {
+			const a = this.sourceValue(sw, 'ammonia');
+			if (a !== null && a >= Number(sw.ammoniaWarn)) {
+				reduce = true;
+			}
+		}
+		if (sw.nitriteEnabled && isNum(sw.nitriteWarn)) {
+			const n = this.sourceValue(sw, 'nitrite');
+			if (n !== null && n >= Number(sw.nitriteWarn)) {
+				reduce = true;
+			}
+		}
+		if (!reduce) {
+			return 1;
+		}
+		const pct = Number(sw.waterQualityReduceToPct);
+		return Number.isFinite(pct) && pct >= 0 && pct <= 100 ? pct / 100 : 1;
 	}
 
 	// ----------------------------------------------------------------------------

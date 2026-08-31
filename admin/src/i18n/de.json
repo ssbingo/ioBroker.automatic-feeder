@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Bitte zuerst Testdauer und ausgeworfenes Gewicht eingeben.",
 	"Feedings per day": "Fütterungen pro Tag",
 	"example": "Beispiel",
-	"feeding": "Fütterung"
+	"feeding": "Fütterung",
+	"Water quality (ammonia / nitrite)": "Wasserqualität (Ammonium / Nitrit)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Ordne Ammonium- (NH₃/NH₄) und/oder Nitrit- (NO₂) Quellen zu. Ab der Warnschwelle wird die Tagesmenge reduziert (nur im Mengen-Steuermodus); oberhalb der Max-Schwelle wird die Fütterung in jedem Modus gesperrt. Richtwert: Ammonium und Nitrit möglichst nahe null halten.",
+	"Block/reduce feeding on poor water quality": "Fütterung bei schlechter Wasserqualität sperren/reduzieren",
+	"Ammonia (NH₃/NH₄)": "Ammonium (NH₃/NH₄)",
+	"Ammonia object": "Ammonium-Objekt",
+	"Nitrite (NO₂)": "Nitrit (NO₂)",
+	"Nitrite object": "Nitrit-Objekt",
+	"Reduce above": "Reduzieren ab",
+	"Block above": "Sperren ab",
+	"Reduce daily amount to (%)": "Tagesmenge reduzieren auf (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Die Reduktion wirkt nur, wenn der Mengen-Steuermodus die Fütterung bestimmt. Die harte Sperre oberhalb der Max-Schwelle gilt in jedem Modus. Live-Werte: status.ammonia und status.nitrite."
 }

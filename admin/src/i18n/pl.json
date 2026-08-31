@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Najpierw wpisz czas testu i wydaną masę.",
 	"Feedings per day": "Karmień dziennie",
 	"example": "przykład",
-	"feeding": "karmienie"
+	"feeding": "karmienie",
+	"Water quality (ammonia / nitrite)": "Jakość wody (amoniak / azotyn)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Przypisz źródła amoniaku (NH₃/NH₄) i/lub azotynu (NO₂). Od progu ostrzegawczego dzienna ilość jest zmniejszana (tylko w trybie sterowania ilością); powyżej progu maksymalnego karmienie jest blokowane w każdym trybie. Wskazówka: utrzymuj amoniak i azotyn blisko zera.",
+	"Block/reduce feeding on poor water quality": "Blokuj/zmniejszaj karmienie przy złej jakości wody",
+	"Ammonia (NH₃/NH₄)": "Amoniak (NH₃/NH₄)",
+	"Ammonia object": "Obiekt amoniaku",
+	"Nitrite (NO₂)": "Azotyn (NO₂)",
+	"Nitrite object": "Obiekt azotynu",
+	"Reduce above": "Zmniejsz powyżej",
+	"Block above": "Blokuj powyżej",
+	"Reduce daily amount to (%)": "Zmniejsz dzienną ilość do (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Redukcja działa tylko, gdy karmieniem steruje tryb sterowania ilością. Twarda blokada powyżej progu maksymalnego obowiązuje w każdym trybie. Wartości na żywo: status.ammonia i status.nitrite."
 }

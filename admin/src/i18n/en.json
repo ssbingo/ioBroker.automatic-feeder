@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Enter a test duration and the dispensed weight first.",
 	"Feedings per day": "Feedings per day",
 	"example": "example",
-	"feeding": "feeding"
+	"feeding": "feeding",
+	"Water quality (ammonia / nitrite)": "Water quality (ammonia / nitrite)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.",
+	"Block/reduce feeding on poor water quality": "Block/reduce feeding on poor water quality",
+	"Ammonia (NH₃/NH₄)": "Ammonia (NH₃/NH₄)",
+	"Ammonia object": "Ammonia object",
+	"Nitrite (NO₂)": "Nitrite (NO₂)",
+	"Nitrite object": "Nitrite object",
+	"Reduce above": "Reduce above",
+	"Block above": "Block above",
+	"Reduce daily amount to (%)": "Reduce daily amount to (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite."
 }

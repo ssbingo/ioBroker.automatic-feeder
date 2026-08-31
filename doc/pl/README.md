@@ -262,6 +262,26 @@ Jeśli aktualna temperatura leży poza dozwolonym zakresem, karmienie zostaje po
 a powód zapisany w `status.blockReason`. (Jeśli wartość temperatury jest nieznana, to źródło nie
 blokuje.)
 
+#### Jakość wody (amoniak / azotyn)
+
+Opcjonalnie przełącznik monitoruje **amoniak** (NH₃/NH₄) i/lub **azotyn** (NO₂) wody –
+„gdy te wartości rosną, karm mniej" (z instrukcji karmnika). Przypisz każdemu istniejący punkt
+danych i włącz **Blokuj/zmniejszaj karmienie przy złej jakości wody**. Dla każdej substancji
+ustawiasz dwa progi:
+
+* **Zmniejsz powyżej** – gdy wartość jest **równa lub większa** od tego progu ostrzegawczego,
+  **dzienna ilość zostaje zmniejszona** do ustawialnego procentu (*Zmniejsz dzienną ilość do (%)*).
+  Działa to tylko w **trybie sterowania ilością karmy** (w trybach stałym/dynamicznym nie ma ilości
+  do zmniejszenia).
+* **Blokuj powyżej** – gdy wartość jest **powyżej** tego maksimum, karmienie zostaje **całkowicie
+  zablokowane** w każdym trybie (jak blokady temperaturowe/tlenowe); powód zapisywany jest w
+  `status.blockReason`.
+
+Pozostaw próg pusty, aby wyłączyć dany poziom. Aktualne wartości są odzwierciedlane w
+`status.ammonia` i `status.nitrite`. Nie istnieją uniwersalne bezpieczne granice (zależą od pH
+i temperatury) – orientacyjnie utrzymuj amoniak i azotyn możliwie blisko zera i ustaw progi na
+podstawie własnego zestawu testowego.
+
 #### Ograniczenia
 
 * **Ogranicz karmienie do astronomicznego okna dnia (wschód/zachód słońca + przesunięcia)** –
@@ -515,6 +535,8 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.waterTemperatureDeep` | number (ro) | Wartość opcjonalnego głębokiego czujnika temperatury wody tego przełącznika. |
 | `status.waterStratification` | number (ro) | Różnica temperatur płytki − głęboki (tylko przy dwóch czujnikach wody). |
 | `status.oxygen` | number (ro) | Wartość własnego źródła rozpuszczonego tlenu tego przełącznika. |
+| `status.ammonia` | number (ro) | Wartość własnego źródła amoniaku (NH₃/NH₄) tego przełącznika. |
+| `status.nitrite` | number (ro) | Wartość własnego źródła azotynu (NO₂) tego przełącznika. |
 | `status.fishTotalWeight` | number (ro) | Model ilości karmy: szacowana łączna masa ryb (g). |
 | `status.feedPercentToday` | number (ro) | Model ilości karmy: procent karmienia dla bieżącej temperatury wody (%). |
 | `status.feedTargetGramsToday` | number (ro) | Model ilości karmy: zalecana ilość karmy na dzień (g). |

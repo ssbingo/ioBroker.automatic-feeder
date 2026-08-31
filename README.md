@@ -259,6 +259,22 @@ Only shown for the temperature sources you enabled above (*Temperature & oxygen 
 If the current temperature is outside the allowed range, the feeding is skipped and the reason
 is written to `status.blockReason`. (If a temperature value is unknown, that source does not block.)
 
+#### Water quality (ammonia / nitrite)
+
+Optionally the switch watches the **ammonia** (NH₃/NH₄) and/or **nitrite** (NO₂) of the water –
+"if these values rise, feed less" (from the feeder manual). Assign an existing state for each and
+enable **Block/reduce feeding on poor water quality**. For each substance you set two thresholds:
+
+* **Reduce above** – when the value is **at or above** this warn threshold, the **daily amount is
+  reduced** to a configurable percentage (*Reduce daily amount to (%)*). This only takes effect in
+  the **feeding-amount control mode** (there is no amount to reduce in the fixed/dynamic modes).
+* **Block above** – when the value is **above** this maximum, feeding is **blocked entirely** in
+  every mode (like the temperature/oxygen blocks); the reason is written to `status.blockReason`.
+
+Leave a threshold empty to switch that tier off. The live values are mirrored in `status.ammonia`
+and `status.nitrite`. There are no universal safe limits (they depend on pH and temperature) – as a
+guide, keep ammonia and nitrite close to zero and set the thresholds from your own test kit.
+
 #### Restrictions
 
 * **Restrict feeding to the astronomical day window (sunrise/sunset + offsets)** – when on,
@@ -517,6 +533,8 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.waterTemperatureDeep` | number (ro) | This switch's optional deep water-temperature sensor value. |
 | `status.waterStratification` | number (ro) | Temperature difference shallow − deep (only with two water sensors). |
 | `status.oxygen` | number (ro) | This switch's own dissolved-oxygen source value. |
+| `status.ammonia` | number (ro) | This switch's own ammonia (NH₃/NH₄) source value. |
+| `status.nitrite` | number (ro) | This switch's own nitrite (NO₂) source value. |
 | `status.fishTotalWeight` | number (ro) | Feeding-amount model: estimated total fish weight (g). |
 | `status.feedPercentToday` | number (ro) | Feeding-amount model: feeding percentage for the current water temperature (%). |
 | `status.feedTargetGramsToday` | number (ro) | Feeding-amount model: recommended food amount per day (g). |
@@ -695,6 +713,11 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.15.0 (2026-08-31)
+* (ssbingo) **Water-quality limits (Phase C).** New optional per-switch **ammonia (NH₃/NH₄)** and **nitrite (NO₂)** sources – "if these values rise, feed less" (from the feeder manual). Each has a **warn threshold** that **reduces the daily amount** (only in the feeding-amount control mode) and a **max threshold** that **blocks feeding entirely** in every mode
+* (ssbingo) New states **`status.ammonia`** and **`status.nitrite`** mirror the source values; when a max threshold is exceeded the block reason (`blockAmmoniaHigh` / `blockNitriteHigh`) appears in `status.blockReason`. There are no universal safe limits – set the thresholds from your own test kit
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.14.2 (2026-08-31)
 * (ssbingo) Fix (admin UI, **dark mode**): the configuration page is now wrapped in the theme the admin has already resolved, so the **tab labels are visible immediately in dark mode**. Previously they rendered as dark text on a dark background (only revealed on hover or after opening a tab), because the tabs inherited the outer theme that is fixed at page-load time. Applies on first open and when you toggle the theme
 
@@ -734,12 +757,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.10.1 (2026-08-14)
 * (ssbingo) Fix: lowered the minimum **admin** requirement to **7.8.23** (the current stable version) so the adapter stays installable from the stable ioBroker repository — this clears repochecker **E4033** (`admin >=8.0.0` is not in the stable repository yet). The admin UI still runs on **React 19**
 * (ssbingo) Merged upstream adapter-template updates: Dependabot configuration / auto-merge workflow refresh and the `node:` import prefix in the handbook generator (S5043)
-
-### 1.10.0 (2026-08-05)
-* (ssbingo) **Admin UI now runs on React 19** — the configuration page uses the same React version that ioBroker **admin 8** ships; `@iobroker/adapter-react-v5` updated to 8.3.2
-* (ssbingo) **Raised the minimum requirements**: **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22**
-* (ssbingo) `@mui/material` and `@mui/icons-material` are now explicit direct dependencies. They stay on **MUI 6** for now because `adapter-react-v5` still requires it (it imports `Grid2`, removed in MUI 7+); the move to **MUI 9** follows automatically once the library supports it
-* (ssbingo) No changes to feeding, notifications or data points — this release only modernizes the admin build and baseline versions
 
 ---
 

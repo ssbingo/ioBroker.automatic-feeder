@@ -223,5 +223,16 @@
 	"Enter a test duration and the dispensed weight first.": "Saisissez d’abord la durée de l’essai et le poids distribué.",
 	"Feedings per day": "Distributions par jour",
 	"example": "exemple",
-	"feeding": "distribution"
+	"feeding": "distribution",
+	"Water quality (ammonia / nitrite)": "Qualité de l’eau (ammoniac / nitrite)",
+	"Assign ammonia (NH₃/NH₄) and/or nitrite (NO₂) sources. At or above the warn threshold the daily amount is reduced (only in the feeding-amount control mode); above the max threshold feeding is blocked in every mode. As a guide, keep ammonia and nitrite close to zero.": "Attribuez des sources d’ammoniac (NH₃/NH₄) et/ou de nitrite (NO₂). À partir du seuil d’alerte, la quantité journalière est réduite (uniquement en mode de pilotage par la quantité) ; au-dessus du seuil maximal, la distribution est bloquée dans tous les modes. Repère : gardez l’ammoniac et le nitrite proches de zéro.",
+	"Block/reduce feeding on poor water quality": "Bloquer/réduire la distribution en cas de mauvaise qualité de l’eau",
+	"Ammonia (NH₃/NH₄)": "Ammoniac (NH₃/NH₄)",
+	"Ammonia object": "Objet ammoniac",
+	"Nitrite (NO₂)": "Nitrite (NO₂)",
+	"Nitrite object": "Objet nitrite",
+	"Reduce above": "Réduire au-dessus de",
+	"Block above": "Bloquer au-dessus de",
+	"Reduce daily amount to (%)": "Réduire la quantité journalière à (%)",
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "La réduction ne s’applique que lorsque le mode de pilotage par la quantité commande la distribution. Le blocage strict au-dessus du seuil maximal s’applique dans tous les modes. Valeurs en direct : status.ammonia et status.nitrite."
 }
