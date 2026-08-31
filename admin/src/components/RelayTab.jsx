@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
 	Box,
@@ -105,14 +105,16 @@ function RelayTab(props) {
 	const [status, setStatus] = useState(null); // full normalized status | { connected: false } | null
 	const [msg, setMsg] = useState(null); // { severity, text }
 
-	// copy the S1-S3 times returned by the board into the configuration
+	// copy the S1-S3 times returned by the board into the configuration (only when they
+	// actually differ, so a plain read on tab-open does not mark the configuration changed)
 	const applyTimes = (res) => {
 		if (Array.isArray(res.times) && res.times.length >= 3) {
-			onChange({
-				relayS1: clampSeconds(res.times[0]),
-				relayS2: clampSeconds(res.times[1]),
-				relayS3: clampSeconds(res.times[2]),
-			});
+			const t1 = clampSeconds(res.times[0]);
+			const t2 = clampSeconds(res.times[1]);
+			const t3 = clampSeconds(res.times[2]);
+			if (t1 !== sw.relayS1 || t2 !== sw.relayS2 || t3 !== sw.relayS3) {
+				onChange({ relayS1: t1, relayS2: t2, relayS3: t3 });
+			}
 		}
 	};
 
@@ -194,6 +196,16 @@ function RelayTab(props) {
 		}
 		setBusy(false);
 	};
+
+	// when the relay tab opens (or is switched to another switch's board), run the
+	// connection test and read the board data once — provided an address is configured
+	useEffect(() => {
+		if (host.trim()) {
+			testAndFetch();
+		}
+		// intentionally keyed on the switch id only: re-run when the tab opens or the
+		// board changes, but not on every keystroke while editing the address field
+	}, [sw.id]);
 
 	const timeField = (key, label) => (
 		<TextField

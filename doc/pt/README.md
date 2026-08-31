@@ -420,7 +420,7 @@ display e desliga novamente o seu relé por conta própria.
   placa a desligar-se caso alguma vez falhe em desligar-se por conta própria.
 * **Testar ligação e obter tempos** – contacta a placa uma vez. Um chip verde *Ligado* e o
   host/IP/firmware da placa confirmam uma ligação a funcionar; os três tempos de alimentação dos
-  botões são então lidos da placa para os campos abaixo. Um chip vermelho *Não ligado* mostra o erro.
+  botões são então lidos da placa para os campos abaixo. Um chip vermelho *Não ligado* mostra o erro. Isto também é executado automaticamente ao abrir a aba (se um endereço estiver configurado), de modo que o status, a visão geral do sistema e os tempos dos botões são carregados sem um clique.
 * **Tempos de alimentação dos botões (segundos)** – o tempo de alimentação de cada botão **S1**,
   **S2** e **S3** (1–600 s). Como estes são **também editáveis na própria interface web da placa**,
   *obtenha*-os sempre primeiro e depois ajuste-os.

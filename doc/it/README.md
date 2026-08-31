@@ -471,7 +471,9 @@ esegue il proprio conto alla rovescia, lo mostra sul suo display e spegne da sé
 * **Prova connessione e recupera tempi** – contatta la scheda una volta. Un chip verde *Connesso* e
   l'host/IP/firmware della scheda confermano una connessione funzionante; i tre tempi di
   alimentazione dei pulsanti vengono quindi letti dalla scheda nei campi sottostanti. Un chip rosso
-  *Non connesso* mostra l'errore.
+  *Non connesso* mostra l'errore. Viene eseguita automaticamente anche all'apertura di questa scheda
+  (se è configurato un indirizzo), così lo stato, la Panoramica del sistema e i tempi dei pulsanti si
+  caricano senza alcun clic.
 * **Tempi di alimentazione dei pulsanti (secondi)** – il tempo di alimentazione di ciascun pulsante
   **S1**, **S2** e **S3** (1–600 s). Poiché questi sono **modificabili anche sull'interfaccia web
   della scheda stessa**, *recuperali* sempre prima, poi modificali.

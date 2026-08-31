@@ -459,7 +459,9 @@ pantalla y vuelve a apagar su relé por sí misma.
 * **Probar conexión y obtener tiempos** – contacta con la placa una vez. Un indicador verde
   *Conectado* y el host/IP/firmware de la placa confirman una conexión correcta; los tres tiempos de
   alimentación de los botones se leen entonces de la placa en los campos de más abajo. Un indicador
-  rojo *No conectado* muestra el error.
+  rojo *No conectado* muestra el error. Esto también se ejecuta automáticamente al abrir la pestaña
+  (si hay una dirección configurada), de modo que el estado, el resumen del sistema y los tiempos de
+  los botones se cargan sin necesidad de hacer clic.
 * **Tiempos de alimentación de los botones (segundos)** – el tiempo de alimentación de cada botón
   **S1**, **S2** y **S3** (1–600 s). Como estos **también se pueden editar en la propia interfaz web
   de la placa**, primero *obtenlos* siempre y luego ajústalos.

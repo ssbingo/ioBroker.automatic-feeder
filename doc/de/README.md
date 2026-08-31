@@ -453,7 +453,9 @@ anzeigt und ihr Relais selbst wieder abschaltet.
 * **Verbindung testen & Zeiten abrufen** – kontaktiert die Platine einmalig. Ein grüner
   *Verbunden*-Chip sowie Host/IP/Firmware der Platine bestätigen eine funktionierende Verbindung;
   die drei Tasten-Fütterungszeiten werden dann von der Platine in die Felder darunter eingelesen.
-  Ein roter *Nicht verbunden*-Chip zeigt den Fehler an.
+  Ein roter *Nicht verbunden*-Chip zeigt den Fehler an. Das läuft auch **automatisch beim Öffnen des
+  Tabs** (sofern eine Adresse hinterlegt ist), sodass Status, Systemübersicht und Tastenzeiten ohne
+  Klick geladen werden.
 * **Tasten-Fütterungszeiten (Sekunden)** – die Fütterungszeit jeder Taste **S1**, **S2** und
   **S3** (1–600 s). Da diese **auch an der eigenen Weboberfläche der Platine bearbeitbar** sind,
   immer erst *abrufen* und dann anpassen.

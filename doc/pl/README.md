@@ -436,7 +436,8 @@ przekaźnik.
 * **Testuj połączenie i pobierz czasy** – łączy się z płytką jednorazowo. Zielony znacznik
   *Połączono* oraz host/IP/firmware płytki potwierdzają działające połączenie; trzy czasy karmienia
   przycisków są wtedy odczytywane z płytki do poniższych pól. Czerwony znacznik *Nie połączono*
-  pokazuje błąd.
+  pokazuje błąd. Dzieje się to również automatycznie po otwarciu zakładki (jeśli skonfigurowano
+  adres), dzięki czemu status, **Przegląd systemu** i czasy przycisków ładują się bez kliknięcia.
 * **Czasy karmienia przycisków (sekundy)** – czas karmienia każdego z przycisków **S1**, **S2** i
   **S3** (1–600 s). Ponieważ **można je edytować także we własnym interfejsie WWW płytki**, zawsze
   najpierw je *pobierz*, a dopiero potem dostosuj.

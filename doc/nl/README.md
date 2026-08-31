@@ -423,7 +423,9 @@ laat lopen, deze op zijn display toont en zijn relais zelf weer uitschakelt.
 * **Verbinding testen & tijden ophalen** – neemt eenmalig contact op met de print. Een groene
   *Verbonden*-chip en de host/IP/firmware van de print bevestigen een werkende verbinding; de drie
   knopvoedertijden worden dan uit de print in de onderstaande velden gelezen. Een rode *Niet
-  verbonden*-chip toont de fout.
+  verbonden*-chip toont de fout. Dit gebeurt ook automatisch bij het openen van het tabblad (mits
+  er een adres is ingesteld), zodat de status, het systeemoverzicht en de knoptijden zonder klik
+  worden geladen.
 * **Knopvoedertijden (seconden)** – de voedertijd van elke knop **S1**, **S2** en **S3** (1–600 s).
   Omdat deze **ook bewerkbaar zijn op de eigen webinterface van de print**, haal ze altijd eerst
   *op* en pas ze daarna aan.

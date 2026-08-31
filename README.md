@@ -440,7 +440,9 @@ relay off again itself.
   it ever fail to switch off on its own.
 * **Test connection & fetch times** – contacts the board once. A green *Connected* chip and the
   board's host/IP/firmware confirm a working connection; the three button feeding times are then
-  read from the board into the fields below. A red *Not connected* chip shows the error.
+  read from the board into the fields below. A red *Not connected* chip shows the error. This also
+  runs **automatically when you open the tab** (if an address is configured), so the status,
+  system overview and button times load without a click.
 * **Button feeding times (seconds)** – the feeding time of each button **S1**, **S2** and **S3**
   (1–600 s). Because these are **also editable on the board's own web interface**, always
   *fetch* them first, then adjust them.
@@ -693,6 +695,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.14.1 (2026-08-29)
+* (ssbingo) UI: opening a switch's **Relay** tab now runs the **connection test and reads the board data automatically** (once, when a board address is configured) — the connection status, system overview and S1–S3 button times load without clicking *Test connection*. A plain read no longer marks the configuration as changed
+
 ### 1.14.0 (2026-08-29)
 * (ssbingo) **The feeding-amount model can now control feeding (opt-in).** Enable **Control feeding with this amount** on a switch and the recommended daily grams are converted to motor run-time — via a calibrated **dispense rate** (g/s) — and split across the day's feedings. The amount model becomes the "how much" driver, **mutually exclusive with dynamic (Q10)**
 * (ssbingo) **Calibration helper** on the switch tab: run the motor for a few seconds, weigh the dispensed food, and the adapter computes the g/s rate. An optional **daily maximum (g)** guards against overfeeding, and the per-feeding duration is capped
@@ -736,9 +741,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.9.9 (2026-07-17)
 * (ssbingo) The relay tab's **System overview** now also shows the **firmware release version** (`ver`, e.g. `0.0.15`) in addition to the firmware build date
 * (ssbingo) The **last reset reason** is now spelled out in plain, localized words — the board sends a short code (`sw`, `poweron`, `wdt`, `brownout`, `deepsleep`, `panic`, …), which the adapter shows as e.g. “Software”, “Power-on”, “Watchdog”
-
-### 1.9.8 (2026-07-17)
-* (ssbingo) Fix (state role): `switches.<id>.relay.connected` now uses the role **`indicator.reachable`** instead of `indicator.connected` — the relay board is a physical LAN device (ESP32), not an adapter instance, and the ioBroker stateroles spec reserves `indicator.connected` for instances. Objects created by older versions are corrected automatically on start
 
 ---
 

@@ -457,7 +457,9 @@ et coupe à nouveau son relais elle-même.
 * **Tester la connexion et récupérer les durées** — contacte la carte une fois. Une pastille verte
   *Connecté* ainsi que l'hôte/l'IP/le firmware de la carte confirment une connexion opérationnelle ;
   les trois durées de distribution des boutons sont alors lues depuis la carte et reportées dans les
-  champs ci-dessous. Une pastille rouge *Non connecté* affiche l'erreur.
+  champs ci-dessous. Une pastille rouge *Non connecté* affiche l'erreur. Ce test s'exécute
+  également automatiquement à l'ouverture de l'onglet (si une adresse est configurée), de sorte que
+  l'état, l'*Aperçu du système* et les durées des boutons se chargent sans clic.
 * **Durées de distribution des boutons (secondes)** — la durée de distribution de chaque bouton
   **S1**, **S2** et **S3** (1–600 s). Comme celles-ci sont **également modifiables sur l'interface
   web de la carte elle-même**, commence toujours par les *récupérer*, puis ajuste-les.
