@@ -291,7 +291,7 @@ De huidige waarden staan in `status.dynamicAvgTemperature`, `status.dynamicRate`
 
 #### Voederhoeveelheidsmodel (advies)
 
-Optioneel schat de adapter de **aanbevolen dagelijkse voederhoeveelheid** voor een schakelaar op basis van het **visbestand** en de **watertemperatuur**, volgens de originele handleiding van de voederautomaat: `daily amount [g] = total fish weight × percentage(water temperature)`. Je voert enkel het **aantal vissen per grootteklasse** (15/20/30/40/50/60 cm) in, in een kleine tabel met een **vis-icoon** per grootte; het **gewicht per grootte** is een vaste schatting uit de handleiding (60/125/350/1000/2000/4000 g). Daarnaast stel je het **voederpercentage per temperatuurband** in (standaard 0 % onder 15 °C, 1 % bij 15–18 °C, 1.5 % bij 18–21 °C, 2 % bij 21–23 °C, 3 % boven 23 °C). Er is een **watertemperatuurbron** voor de schakelaar nodig.
+Optioneel schat de adapter de **aanbevolen dagelijkse voederhoeveelheid** voor een schakelaar op basis van het **visbestand** en de **watertemperatuur**, volgens de originele handleiding van de voederautomaat: `daily amount [g] = total fish weight × percentage(water temperature)`. Je voert enkel het **aantal vissen per grootteklasse** (15/20/30/40/50/60 cm) in, in een kleine tabel met een **vis-icoon** per grootte; het **gewicht per grootte** is een vaste schatting uit de handleiding (60/125/350/1000/2000/4000 g). Daarnaast stel je het **voederpercentage per temperatuurband** in (standaard 0 % onder 15 °C, 1 % bij 15–18 °C, 1.5 % bij 18–21 °C, 2 % bij 21–23 °C, 3 % bij 23–28 °C, daarna bij hitte opnieuw beperkt: 1.5 % bij 28–30 °C en 0.5 % boven 30 °C – de temperatuurrespons piekt rond 24–26 °C en neemt daarboven af). Er is een **watertemperatuurbron** voor de schakelaar nodig.
 
 Dit is een **rekenmachine** — het berekent en toont de aanbeveling. De resultaten worden gepubliceerd in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) en `status.feedTargetGramsToday` (g); het schakelaar-tabblad toont bovendien het geschatte totaalgewicht en een voorbeeld.
 
@@ -517,6 +517,8 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.fishTotalWeight` | number (ro) | Voederhoeveelheidsmodel: geschat totaalgewicht van de vissen (g). |
 | `status.feedPercentToday` | number (ro) | Voederhoeveelheidsmodel: voederpercentage voor de huidige watertemperatuur (%). |
 | `status.feedTargetGramsToday` | number (ro) | Voederhoeveelheidsmodel: aanbevolen voederhoeveelheid per dag (g). |
+| `status.feedingsPerDayToday` | number (ro) | Voederhoeveelheidsmodel: aantal geplande voederingen voor vandaag. |
+| `status.feedTargetPortionGrams` | number (ro) | Voederhoeveelheidsmodel: aanbevolen hoeveelheid per afzonderlijke voedering (g) = dagelijkse hoeveelheid ÷ voederingen (na begrenzing / verlaging bij waterkwaliteit). |
 | `status.feedTargetSecondsToday` | number (ro) | Voederhoeveelheidsmodel (regelmodus): totale motorlooptijd per dag (s) om de hoeveelheid te doseren. 0 wanneer regelen uit staat. |
 | `status.feedEffectiveDurationSec` | number (ro) | Voederhoeveelheidsmodel (regelmodus): duur per voedering die het momenteel aanstuurt (s). 0 wanneer regelen uit staat. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |

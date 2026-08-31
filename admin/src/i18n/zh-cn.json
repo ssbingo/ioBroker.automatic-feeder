@@ -197,7 +197,6 @@
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "根据鱼群和水温（依据喂食器手册）估算每日投喂量。仅计算并显示建议——投喂保持不变。",
 	"Feeding percentage by water temperature (% per day)": "按水温的投喂百分比（每日 %）",
 	"below 15 °C": "低于 15 °C",
-	"above 23 °C": "高于 23 °C",
 	"Estimated total weight": "估算总重量",
 	"example at 21–23 °C": "示例：21–23 °C",
 	"day": "天",
@@ -234,5 +233,6 @@
 	"Reduce above": "超过则减少",
 	"Block above": "超过则封锁",
 	"Reduce daily amount to (%)": "将每日投喂量减至（%）",
-	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "仅当投喂量控制模式主导投喂时，减少才生效。超过最大阈值的硬性封锁在所有模式下均生效。实时值：status.ammonia 和 status.nitrite。"
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "仅当投喂量控制模式主导投喂时，减少才生效。超过最大阈值的硬性封锁在所有模式下均生效。实时值：status.ammonia 和 status.nitrite。",
+	"above 30 °C": "高于 30 °C"
 }

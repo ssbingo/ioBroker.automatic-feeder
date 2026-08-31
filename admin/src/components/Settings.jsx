@@ -133,6 +133,8 @@ function createSwitch(switches) {
 		feedPct18: 1.5,
 		feedPct21: 2,
 		feedPct23: 3,
+		feedPct28: 1.5,
+		feedPct30: 0.5,
 		amountControlEnabled: false,
 		dispenseGramsPerSec: 0,
 		feedDailyMaxGrams: null,

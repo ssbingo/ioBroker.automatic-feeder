@@ -259,7 +259,7 @@
 
 #### 投喂量模型（建议值）
 
-可选：适配器可根据**鱼群存栏**和**水温**，按原始喂食器说明书为某个开关估算**每日建议投喂量**：`daily amount [g] = total fish weight × percentage(water temperature)`。你只需在一个**小表格**中输入**每个体长档位的鱼数量**（15/20/30/40/50/60 cm），每个档位都带有一个鱼图标；每个档位的重量是说明书给出的**固定估算值**（60/125/350/1000/2000/4000 g）。此外，你还需设置**每个温度区间的投喂百分比**（默认值：15 °C 以下为 0 %、15–18 °C 为 1 %、18–21 °C 为 1.5 %、21–23 °C 为 2 %、23 °C 以上为 3 %）。它需要为该开关配置一个**水温来源**。
+可选：适配器可根据**鱼群存栏**和**水温**，按原始喂食器说明书为某个开关估算**每日建议投喂量**：`daily amount [g] = total fish weight × percentage(water temperature)`。你只需在一个**小表格**中输入**每个体长档位的鱼数量**（15/20/30/40/50/60 cm），每个档位都带有一个鱼图标；每个档位的重量是说明书给出的**固定估算值**（60/125/350/1000/2000/4000 g）。此外，你还需设置**每个温度区间的投喂百分比**（默认值：15 °C 以下为 0 %、15–18 °C 为 1 %、18–21 °C 为 1.5 %、21–23 °C 为 2 %、23–28 °C 为 3 %，随后在高温下再次降低投喂：28–30 °C 为 1.5 %、30 °C 以上为 0.5 % —— 温度响应在 24–26 °C 左右达到峰值，超过后则逐渐回落）。它需要为该开关配置一个**水温来源**。
 
 这是一个**计算器**，用于计算并显示建议值。计算结果会发布到 `status.fishTotalWeight`（g）、`status.feedPercentToday`（%）和 `status.feedTargetGramsToday`（g）中；该开关选项卡还会额外显示估算的总重量以及一个示例。
 
@@ -435,6 +435,8 @@
 | `status.fishTotalWeight` | number (ro) | 投喂量模型：估算的鱼群总重量（g）。 |
 | `status.feedPercentToday` | number (ro) | 投喂量模型：当前水温对应的投喂百分比（%）。 |
 | `status.feedTargetGramsToday` | number (ro) | 投喂量模型：每日建议投喂量（g）。 |
+| `status.feedingsPerDayToday` | number (ro) | 投喂量模型：今日计划的投喂次数。 |
+| `status.feedTargetPortionGrams` | number (ro) | 投喂量模型：每次投喂的建议量（g）= 每日投喂量 ÷ 投喂次数（在上限 / 水质降量之后）。 |
 | `status.feedTargetSecondsToday` | number (ro) | 投喂量模型（控制模式）：为投放该量所需的每日电机总运行时间（s）。控制关闭时为 0。 |
 | `status.feedEffectiveDurationSec` | number (ro) | 投喂量模型（控制模式）：当前驱动的每次喂食时长（s）。控制关闭时为 0。 |
 | `status.sunrise` / `status.sunset` | string (ro) | 为该开关位置计算出的日出/日落（天文时段）。 |

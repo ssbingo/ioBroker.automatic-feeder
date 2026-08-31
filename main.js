@@ -107,6 +107,8 @@ const STATUS_STATE_IDS = [
 	'fishTotalWeight',
 	'feedPercentToday',
 	'feedTargetGramsToday',
+	'feedingsPerDayToday',
+	'feedTargetPortionGrams',
 	'feedTargetSecondsToday',
 	'feedEffectiveDurationSec',
 	'sunrise',
@@ -119,7 +121,7 @@ const STATUS_STATE_IDS = [
 const SETTINGS_READONLY = new Set(['winterWindow']);
 
 /** Numeric settings that may be null (empty = "no limit"). */
-const NULLABLE_SETTINGS = new Set(['waterMin', 'waterMax', 'airMin', 'airMax', 'o2Min']);
+const NULLABLE_SETTINGS = new Set(['waterMin', 'waterMax', 'airMin', 'airMax', 'o2Min', 'feedDailyMaxGrams']);
 
 /**
  * Absolute [min, max] bounds for non-nullable numeric settings, enforced on the
@@ -149,6 +151,21 @@ const NUMERIC_BOUNDS = {
 	sunOffsetMorning: [0, 720],
 	sunOffsetEvening: [0, 720],
 	waterSeasonalThresholdC: [0, 40],
+	// feeding-amount model
+	fishCount15: [0, 100000],
+	fishCount20: [0, 100000],
+	fishCount30: [0, 100000],
+	fishCount40: [0, 100000],
+	fishCount50: [0, 100000],
+	fishCount60: [0, 100000],
+	feedPctBelow15: [0, 10],
+	feedPct15: [0, 10],
+	feedPct18: [0, 10],
+	feedPct21: [0, 10],
+	feedPct23: [0, 10],
+	feedPct28: [0, 10],
+	feedPct30: [0, 10],
+	dispenseGramsPerSec: [0, 100000],
 };
 
 /**
@@ -265,6 +282,8 @@ const SWITCH_DEFAULTS = {
 	feedPct18: 1.5,
 	feedPct21: 2,
 	feedPct23: 3,
+	feedPct28: 1.5,
+	feedPct30: 0.5,
 	// feeding-amount model (Phase B: turn the recommendation into actual feeding)
 	amountControlEnabled: false,
 	dispenseGramsPerSec: 0,
@@ -766,6 +785,135 @@ const SWITCH_SETTINGS = [
 		type: 'string',
 		role: 'text',
 		get: sw => (sw.o2Enabled ? sw.o2ObjectId || '' : ''),
+	},
+	// feeding-amount model (editable from VIS/scripts, e.g. the FeedingAmount widget)
+	{
+		id: 'amountModelEnabled',
+		name: 'Feeding-amount model enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.amountModelEnabled,
+	},
+	{
+		id: 'fishCount15',
+		name: 'Fish count 15 cm',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.fishCount15) || 0,
+	},
+	{
+		id: 'fishCount20',
+		name: 'Fish count 20 cm',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.fishCount20) || 0,
+	},
+	{
+		id: 'fishCount30',
+		name: 'Fish count 30 cm',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.fishCount30) || 0,
+	},
+	{
+		id: 'fishCount40',
+		name: 'Fish count 40 cm',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.fishCount40) || 0,
+	},
+	{
+		id: 'fishCount50',
+		name: 'Fish count 50 cm',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.fishCount50) || 0,
+	},
+	{
+		id: 'fishCount60',
+		name: 'Fish count 60 cm',
+		type: 'number',
+		role: 'value',
+		get: sw => Number(sw.fishCount60) || 0,
+	},
+	{
+		id: 'feedPctBelow15',
+		name: 'Feeding % below 15 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPctBelow15) || 0,
+	},
+	{
+		id: 'feedPct15',
+		name: 'Feeding % 15-18 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPct15) || 0,
+	},
+	{
+		id: 'feedPct18',
+		name: 'Feeding % 18-21 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPct18) || 0,
+	},
+	{
+		id: 'feedPct21',
+		name: 'Feeding % 21-23 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPct21) || 0,
+	},
+	{
+		id: 'feedPct23',
+		name: 'Feeding % 23-28 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPct23) || 0,
+	},
+	{
+		id: 'feedPct28',
+		name: 'Feeding % 28-30 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPct28) || 0,
+	},
+	{
+		id: 'feedPct30',
+		name: 'Feeding % above 30 °C',
+		type: 'number',
+		role: 'value',
+		unit: '%',
+		get: sw => Number(sw.feedPct30) || 0,
+	},
+	{
+		id: 'amountControlEnabled',
+		name: 'Feeding-amount control enabled',
+		type: 'boolean',
+		role: 'indicator',
+		get: sw => !!sw.amountControlEnabled,
+	},
+	{
+		id: 'dispenseGramsPerSec',
+		name: 'Dispense rate',
+		type: 'number',
+		role: 'value',
+		unit: 'g/s',
+		get: sw => Number(sw.dispenseGramsPerSec) || 0,
+	},
+	{
+		id: 'feedDailyMaxGrams',
+		name: 'Daily maximum amount',
+		type: 'number',
+		role: 'value',
+		unit: 'g',
+		get: sw => sw.feedDailyMaxGrams ?? null,
 	},
 ];
 
@@ -1285,6 +1433,8 @@ class AutomaticFeeder extends utils.Adapter {
 			t18: Number(sw.feedPct18),
 			t21: Number(sw.feedPct21),
 			above23: Number(sw.feedPct23),
+			t28: Number(sw.feedPct28),
+			above30: Number(sw.feedPct30),
 		};
 		const weight = totalFishWeight(counts, weights);
 		// feeding-zone (primary) water temperature is the biologically relevant one for feeding
@@ -1367,6 +1517,8 @@ class AutomaticFeeder extends utils.Adapter {
 			this.setStateAsync(`${base}.fishTotalWeight`, { val: 0, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedPercentToday`, { val: null, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedTargetGramsToday`, { val: null, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedingsPerDayToday`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.feedTargetPortionGrams`, { val: null, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: 0, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
 			return;
@@ -1378,12 +1530,21 @@ class AutomaticFeeder extends utils.Adapter {
 			`Feeding-amount ${this.swLabel(sw)}: weight=${weight} g, water=${temp == null ? '?' : temp} °C ` +
 				`-> ${percent == null ? '?' : percent} % -> ${grams == null ? '?' : grams} g/day.`,
 		);
+		// number of feedings today, for the "grams per feeding" the widget shows
+		const feedingsToday = this.feedingsPerDay(sw);
+		this.setStateAsync(`${base}.feedingsPerDayToday`, { val: feedingsToday, ack: true }).catch(() => {});
+		const portionOf = daily =>
+			daily != null && feedingsToday > 0 ? Math.round((Number(daily) / feedingsToday) * 10) / 10 : null;
 		if (!sw.amountControlEnabled) {
+			// Phase A: the portion follows the raw recommendation; no control run-time
+			this.setStateAsync(`${base}.feedTargetPortionGrams`, { val: portionOf(grams), ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: 0, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
 			return;
 		}
 		const { rate, N, dailySec, perFeedingSec, capped, wqFactor } = this.amountControlSeconds(sw);
+		// control mode: the portion follows the (water-quality reduced, capped) daily amount
+		this.setStateAsync(`${base}.feedTargetPortionGrams`, { val: portionOf(capped), ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: Math.round(dailySec), ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedEffectiveDurationSec`, {
 			val: Math.round(perFeedingSec * 10) / 10,
@@ -1920,6 +2081,29 @@ class AutomaticFeeder extends utils.Adapter {
 				type: 'state',
 				common: {
 					name: 'Feeding-amount model: recommended food amount per day',
+					type: 'number',
+					role: 'value',
+					unit: 'g',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedingsPerDayToday`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: feedings planned for today',
+					type: 'number',
+					role: 'value',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.feedTargetPortionGrams`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: recommended amount per feeding',
 					type: 'number',
 					role: 'value',
 					unit: 'g',

@@ -197,7 +197,6 @@
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Schätzt die Tages-Futtermenge aus dem Fischbestand und der Wassertemperatur (nach dem Futterautomaten-Handbuch). Es berechnet und zeigt nur die Empfehlung – die Fütterung bleibt unverändert.",
 	"Feeding percentage by water temperature (% per day)": "Fütterungsprozentsatz nach Wassertemperatur (% pro Tag)",
 	"below 15 °C": "unter 15 °C",
-	"above 23 °C": "über 23 °C",
 	"Estimated total weight": "Geschätztes Gesamtgewicht",
 	"example at 21–23 °C": "Beispiel bei 21–23 °C",
 	"day": "Tag",
@@ -234,5 +233,6 @@
 	"Reduce above": "Reduzieren ab",
 	"Block above": "Sperren ab",
 	"Reduce daily amount to (%)": "Tagesmenge reduzieren auf (%)",
-	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Die Reduktion wirkt nur, wenn der Mengen-Steuermodus die Fütterung bestimmt. Die harte Sperre oberhalb der Max-Schwelle gilt in jedem Modus. Live-Werte: status.ammonia und status.nitrite."
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Die Reduktion wirkt nur, wenn der Mengen-Steuermodus die Fütterung bestimmt. Die harte Sperre oberhalb der Max-Schwelle gilt in jedem Modus. Live-Werte: status.ammonia und status.nitrite.",
+	"above 30 °C": "über 30 °C"
 }

@@ -230,7 +230,12 @@ declare global {
 			feedPct15: number;
 			feedPct18: number;
 			feedPct21: number;
+			/** Feeding % for the 23–28 °C optimum band (field name kept for compatibility). */
 			feedPct23: number;
+			/** Feeding % for the 28–30 °C throttle band. */
+			feedPct28: number;
+			/** Feeding % above 30 °C (strong throttle). */
+			feedPct30: number;
 			/**
 			 * Phase B: let the feeding-amount model drive the feeding duration (mutually exclusive
 			 * with the Q10 dynamic mode). `dispenseGramsPerSec` is the calibrated dispense rate (g/s)

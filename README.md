@@ -310,7 +310,9 @@ stock** and the **water temperature**, following the original feeder manual:
 of fish per size class** (15/20/30/40/50/60 cm) in a small table with a fish icon per size; the
 **weight per size is a fixed estimate from the manual** (60/125/350/1000/2000/4000 g). You also set
 the **feeding percentage per temperature band** (defaults 0 % below 15 °C, 1 % at 15–18 °C, 1.5 % at
-18–21 °C, 2 % at 21–23 °C, 3 % above 23 °C). It needs a **water-temperature source** for the switch.
+18–21 °C, 2 % at 21–23 °C, 3 % at 23–28 °C, then **throttled again in the heat**: 1.5 % at 28–30 °C
+and 0.5 % above 30 °C – the temperature response peaks around 24–26 °C and falls off above it). It
+needs a **water-temperature source** for the switch.
 
 By itself this is a **calculator** – it computes and shows the recommendation. The results are
 published in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) and
@@ -538,6 +540,8 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.fishTotalWeight` | number (ro) | Feeding-amount model: estimated total fish weight (g). |
 | `status.feedPercentToday` | number (ro) | Feeding-amount model: feeding percentage for the current water temperature (%). |
 | `status.feedTargetGramsToday` | number (ro) | Feeding-amount model: recommended food amount per day (g). |
+| `status.feedingsPerDayToday` | number (ro) | Feeding-amount model: number of feedings planned for today. |
+| `status.feedTargetPortionGrams` | number (ro) | Feeding-amount model: recommended amount per single feeding (g) = daily amount ÷ feedings (after cap / water-quality reduction). |
 | `status.feedTargetSecondsToday` | number (ro) | Feeding-amount model (control mode): total motor run-time per day (s) to dispense the amount. 0 when control is off. |
 | `status.feedEffectiveDurationSec` | number (ro) | Feeding-amount model (control mode): duration per feeding it currently drives (s). 0 when control is off. |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
@@ -713,6 +717,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.16.0 (2026-08-31)
+* (ssbingo) **Feeding-amount model – high-temperature throttling** (issue #23). The percentage table no longer stays at 3 % above 23 °C: the top band now ends at 28 °C and two new editable bands throttle the amount in the heat – **1.5 % at 28–30 °C** and **0.5 % above 30 °C** (the temperature response peaks around 24–26 °C and falls off above it). Behaviour up to 28 °C is unchanged; existing switches get the new bands with sensible defaults
+* (ssbingo) **Feeding-amount settings are now editable from VIS/scripts** (issue #24): the model's config (`amountModelEnabled`, fish counts, temperature percentages, `amountControlEnabled`, `dispenseGramsPerSec`, `feedDailyMaxGrams`) is mirrored as writable `switches.<id>.settings.*` states, so a VIS widget can edit them
+* (ssbingo) New states **`status.feedingsPerDayToday`** and **`status.feedTargetPortionGrams`** (recommended grams per single feeding = daily amount ÷ feedings, after cap / water-quality reduction)
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.15.1 (2026-08-31)
 * (ssbingo) Fix (relay board): a **false "did not switch off" fault** could be reported for a board-fed switch even though it fed and switched off correctly. The **target object (e.g. the Shelly) is now authoritative** for the off check — a fault (and the Telegram/Sayit notification) is only raised when the target is genuinely still on. If the target is off but the board's `/api/status` cannot confirm its relay off in time (a brief hiccup, or its countdown ending a moment later), the adapter now logs a **warning** instead of a fault; the safety back-stop still forces the board off
 
@@ -753,9 +763,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) New per-switch option **Feed primarily through the relay board (fallback: Shelly directly)** (default on) on the relay tab, and a new state **`relay.lastTriggerPath`** (`board`/`direct`); the path used is also added to the success message and the log
 * (ssbingo) **Strict verification & safety back-stop:** a board feeding counts as done only when **both** the board relay **and** the target confirm the on/off state; if the board ever fails to switch off on its own, the adapter forces it off (`POST /api/stop`) and the Shelly off
 * (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
-
-### 1.10.2 (2026-08-14)
-* (ssbingo) Documentation: the READMEs (all 11 languages) and the German PDF handbook now carry a prominent notice **right at the top** pointing to the matching **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — a standalone ESP32 timer-board project that pairs with this adapter but is fully independent of it. No functional changes
 
 ---
 

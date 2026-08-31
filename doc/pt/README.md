@@ -290,7 +290,7 @@ Os valores atuais estão em `status.dynamicAvgTemperature`, `status.dynamicRate`
 
 #### Modelo de quantidade de ração (indicativo)
 
-Opcionalmente, o adaptador estima a **quantidade diária de ração recomendada** para um interruptor a partir da **população de peixes** e da **temperatura da água**, seguindo o manual original do alimentador: `daily amount [g] = total fish weight × percentage(water temperature)`. Você indica apenas o **número de peixes por classe de tamanho** (15/20/30/40/50/60 cm) numa pequena tabela com um ícone de peixe por tamanho; o **peso por tamanho** é uma estimativa fixa do manual (60/125/350/1000/2000/4000 g). Você também define a **percentagem de alimentação por faixa de temperatura** (padrões 0 % abaixo de 15 °C, 1 % entre 15–18 °C, 1,5 % entre 18–21 °C, 2 % entre 21–23 °C, 3 % acima de 23 °C). Precisa de uma **fonte de temperatura da água** para o interruptor.
+Opcionalmente, o adaptador estima a **quantidade diária de ração recomendada** para um interruptor a partir da **população de peixes** e da **temperatura da água**, seguindo o manual original do alimentador: `daily amount [g] = total fish weight × percentage(water temperature)`. Você indica apenas o **número de peixes por classe de tamanho** (15/20/30/40/50/60 cm) numa pequena tabela com um ícone de peixe por tamanho; o **peso por tamanho** é uma estimativa fixa do manual (60/125/350/1000/2000/4000 g). Você também define a **percentagem de alimentação por faixa de temperatura** (padrões 0 % abaixo de 15 °C, 1 % entre 15–18 °C, 1,5 % entre 18–21 °C, 2 % entre 21–23 °C, 3 % entre 23–28 °C, depois novamente reduzida no calor: 1,5 % entre 28–30 °C e 0,5 % acima de 30 °C – a resposta à temperatura atinge o pico por volta de 24–26 °C e diminui acima disso). Precisa de uma **fonte de temperatura da água** para o interruptor.
 
 Isto é **apenas uma calculadora** – calcula e mostra a recomendação. Os resultados são publicados em `status.fishTotalWeight` (g), `status.feedPercentToday` (%) e `status.feedTargetGramsToday` (g); a aba do interruptor mostra ainda o peso total estimado e um exemplo.
 
@@ -510,6 +510,8 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `status.fishTotalWeight` | number (ro) | Modelo de quantidade de ração: peso total estimado dos peixes (g). |
 | `status.feedPercentToday` | number (ro) | Modelo de quantidade de ração: percentagem de alimentação para a temperatura atual da água (%). |
 | `status.feedTargetGramsToday` | number (ro) | Modelo de quantidade de ração: quantidade diária de ração recomendada (g). |
+| `status.feedingsPerDayToday` | number (ro) | Modelo de quantidade de ração: número de alimentações planeadas para hoje. |
+| `status.feedTargetPortionGrams` | number (ro) | Modelo de quantidade de ração: quantidade recomendada por alimentação individual (g) = quantidade diária ÷ alimentações (após o limite máximo / redução por qualidade da água). |
 | `status.feedTargetSecondsToday` | number (ro) | Modelo de quantidade de ração (modo de controlo): tempo total de funcionamento do motor por dia (s) para dispensar a quantidade. 0 quando o controlo está desativado. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modelo de quantidade de ração (modo de controlo): duração por alimentação que ele aciona atualmente (s). 0 quando o controlo está desativado. |
 | `status.sunrise` / `status.sunset` | string (ro) | Nascer/pôr do sol calculado para a localização deste interruptor (janela astronómica). |

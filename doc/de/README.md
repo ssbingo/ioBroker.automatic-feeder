@@ -314,8 +314,10 @@ Optional schätzt der Adapter die **empfohlene Tages-Futtermenge** eines Schalte
 **Anzahl der Fische je Größenklasse** (15/20/30/40/50/60 cm) in einer kleinen Tabelle mit einem
 Fisch-Icon je Größe ein; das **Gewicht je Größe ist ein fester Schätzwert aus dem Handbuch**
 (60/125/350/1000/2000/4000 g). Zusätzlich legst du den **Fütterungsprozentsatz je Temperaturband**
-fest (Standard 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C, 3 % über
-23 °C). Es benötigt eine **Wassertemperaturquelle** für den Schalter.
+fest (Standard 0 % unter 15 °C, 1 % bei 15–18 °C, 1,5 % bei 18–21 °C, 2 % bei 21–23 °C, 3 % bei
+23–28 °C, danach **bei Hitze wieder gedrosselt**: 1,5 % bei 28–30 °C und 0,5 % über 30 °C – die
+Temperatur-Reaktion hat ihr Optimum bei ~24–26 °C und fällt darüber wieder ab). Es benötigt eine
+**Wassertemperaturquelle** für den Schalter.
 
 Für sich genommen ist das ein **Rechner** – er berechnet und zeigt die Empfehlung an. Die Ergebnisse
 stehen in `status.fishTotalWeight` (g), `status.feedPercentToday` (%) und
@@ -555,6 +557,8 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.fishTotalWeight` | number (ro) | Futtermengen-Modell: geschätztes Gesamtgewicht der Fische (g). |
 | `status.feedPercentToday` | number (ro) | Futtermengen-Modell: Fütterungsprozentsatz für die aktuelle Wassertemperatur (%). |
 | `status.feedTargetGramsToday` | number (ro) | Futtermengen-Modell: empfohlene Tages-Futtermenge (g). |
+| `status.feedingsPerDayToday` | number (ro) | Futtermengen-Modell: Anzahl der heute geplanten Fütterungen. |
+| `status.feedTargetPortionGrams` | number (ro) | Futtermengen-Modell: empfohlene Menge je Einzel-Fütterung (g) = Tagesmenge ÷ Fütterungen (nach Deckel / Wasserqualitäts-Reduktion). |
 | `status.feedTargetSecondsToday` | number (ro) | Futtermengen-Modell (Steuermodus): gesamte Motor-Laufzeit pro Tag (s) für die Menge. 0, wenn die Steuerung aus ist. |
 | `status.feedEffectiveDurationSec` | number (ro) | Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist. |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |

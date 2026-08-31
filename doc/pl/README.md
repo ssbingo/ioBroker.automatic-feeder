@@ -313,7 +313,7 @@ Bieżące wartości znajdują się w `status.dynamicAvgTemperature`, `status.dyn
 
 #### Model ilości karmy (orientacyjny)
 
-Opcjonalnie adapter szacuje **zalecaną dzienną ilość karmy** dla przełącznika na podstawie **obsady ryb** i **temperatury wody**, zgodnie z oryginalną instrukcją karmnika: `daily amount [g] = total fish weight × percentage(water temperature)`. Podajesz **tylko liczbę ryb w każdej klasie wielkości** (15/20/30/40/50/60 cm) w małej tabeli z ikoną ryby przy każdym rozmiarze; masa dla każdego rozmiaru to **stałe oszacowanie z instrukcji** (60/125/350/1000/2000/4000 g). Ustawiasz też **procent karmienia dla każdego zakresu temperatury** (domyślnie 0 % poniżej 15 °C, 1 % przy 15–18 °C, 1.5 % przy 18–21 °C, 2 % przy 21–23 °C, 3 % powyżej 23 °C). Wymaga **źródła temperatury wody** dla przełącznika.
+Opcjonalnie adapter szacuje **zalecaną dzienną ilość karmy** dla przełącznika na podstawie **obsady ryb** i **temperatury wody**, zgodnie z oryginalną instrukcją karmnika: `daily amount [g] = total fish weight × percentage(water temperature)`. Podajesz **tylko liczbę ryb w każdej klasie wielkości** (15/20/30/40/50/60 cm) w małej tabeli z ikoną ryby przy każdym rozmiarze; masa dla każdego rozmiaru to **stałe oszacowanie z instrukcji** (60/125/350/1000/2000/4000 g). Ustawiasz też **procent karmienia dla każdego zakresu temperatury** (domyślnie 0 % poniżej 15 °C, 1 % przy 15–18 °C, 1.5 % przy 18–21 °C, 2 % przy 21–23 °C, 3 % przy 23–28 °C, następnie ponownie ograniczana w upale: 1.5 % przy 28–30 °C i 0.5 % powyżej 30 °C – reakcja na temperaturę osiąga szczyt w okolicy 24–26 °C i maleje powyżej). Wymaga **źródła temperatury wody** dla przełącznika.
 
 Domyślnie jest to **kalkulator** – oblicza i pokazuje zalecenie. Wyniki są publikowane w `status.fishTotalWeight` (g), `status.feedPercentToday` (%) i `status.feedTargetGramsToday` (g); zakładka przełącznika pokazuje dodatkowo szacowaną łączną masę oraz przykład.
 
@@ -540,6 +540,8 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.fishTotalWeight` | number (ro) | Model ilości karmy: szacowana łączna masa ryb (g). |
 | `status.feedPercentToday` | number (ro) | Model ilości karmy: procent karmienia dla bieżącej temperatury wody (%). |
 | `status.feedTargetGramsToday` | number (ro) | Model ilości karmy: zalecana ilość karmy na dzień (g). |
+| `status.feedingsPerDayToday` | number (ro) | Model ilości karmy: liczba karmień zaplanowanych na dziś. |
+| `status.feedTargetPortionGrams` | number (ro) | Model ilości karmy: zalecana ilość na pojedyncze karmienie (g) = ilość dzienna ÷ liczba karmień (po ograniczeniu / redukcji z powodu jakości wody). |
 | `status.feedTargetSecondsToday` | number (ro) | Model ilości karmy (tryb sterowania): łączny czas działania silnika na dzień (s) potrzebny do wydania tej ilości. 0, gdy sterowanie jest wyłączone. |
 | `status.feedEffectiveDurationSec` | number (ro) | Model ilości karmy (tryb sterowania): czas trwania pojedynczego karmienia, który aktualnie wymusza (s). 0, gdy sterowanie jest wyłączone. |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |

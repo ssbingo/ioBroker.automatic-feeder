@@ -197,7 +197,6 @@
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Estime la quantité journalière de nourriture à partir du cheptel de poissons et de la température de l’eau (d’après le manuel du distributeur). Il calcule et affiche seulement la recommandation — la distribution reste inchangée.",
 	"Feeding percentage by water temperature (% per day)": "Pourcentage de nourrissage selon la température de l’eau (% par jour)",
 	"below 15 °C": "moins de 15 °C",
-	"above 23 °C": "plus de 23 °C",
 	"Estimated total weight": "Poids total estimé",
 	"example at 21–23 °C": "exemple à 21–23 °C",
 	"day": "jour",
@@ -234,5 +233,6 @@
 	"Reduce above": "Réduire au-dessus de",
 	"Block above": "Bloquer au-dessus de",
 	"Reduce daily amount to (%)": "Réduire la quantité journalière à (%)",
-	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "La réduction ne s’applique que lorsque le mode de pilotage par la quantité commande la distribution. Le blocage strict au-dessus du seuil maximal s’applique dans tous les modes. Valeurs en direct : status.ammonia et status.nitrite."
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "La réduction ne s’applique que lorsque le mode de pilotage par la quantité commande la distribution. Le blocage strict au-dessus du seuil maximal s’applique dans tous les modes. Valeurs en direct : status.ammonia et status.nitrite.",
+	"above 30 °C": "plus de 30 °C"
 }

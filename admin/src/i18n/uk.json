@@ -197,7 +197,6 @@
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Оцінює добову кількість корму за складом риби та температурою води (за посібником годівниці). Лише обчислює й показує рекомендацію — годування залишається незмінним.",
 	"Feeding percentage by water temperature (% per day)": "Відсоток годування за температурою води (% на день)",
 	"below 15 °C": "нижче 15 °C",
-	"above 23 °C": "вище 23 °C",
 	"Estimated total weight": "Оцінена загальна вага",
 	"example at 21–23 °C": "наприклад за 21–23 °C",
 	"day": "день",
@@ -234,5 +233,6 @@
 	"Reduce above": "Зменшувати від",
 	"Block above": "Блокувати від",
 	"Reduce daily amount to (%)": "Зменшувати добову кількість до (%)",
-	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Зменшення діє лише коли годуванням керує режим керування кількістю. Жорстке блокування понад максимальний поріг діє в усіх режимах. Актуальні значення: status.ammonia і status.nitrite."
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Зменшення діє лише коли годуванням керує режим керування кількістю. Жорстке блокування понад максимальний поріг діє в усіх режимах. Актуальні значення: status.ammonia і status.nitrite.",
+	"above 30 °C": "вище 30 °C"
 }

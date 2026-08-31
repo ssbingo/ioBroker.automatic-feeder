@@ -197,7 +197,6 @@
 	"Estimates the daily food amount from the fish stock and the water temperature (based on the feeder manual). It only computes and shows the recommendation — feeding stays unchanged.": "Schat de dagelijkse voederhoeveelheid op basis van de visstand en de watertemperatuur (volgens de handleiding van de voederautomaat). Het berekent en toont alleen het advies — het voeren blijft ongewijzigd.",
 	"Feeding percentage by water temperature (% per day)": "Voederpercentage per watertemperatuur (% per dag)",
 	"below 15 °C": "onder 15 °C",
-	"above 23 °C": "boven 23 °C",
 	"Estimated total weight": "Geschat totaalgewicht",
 	"example at 21–23 °C": "voorbeeld bij 21–23 °C",
 	"day": "dag",
@@ -234,5 +233,6 @@
 	"Reduce above": "Verminderen vanaf",
 	"Block above": "Blokkeren vanaf",
 	"Reduce daily amount to (%)": "Dagelijkse hoeveelheid verlagen tot (%)",
-	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "De verlaging geldt alleen wanneer de voederhoeveelheid-regelmodus het voeren aanstuurt. De harde blokkering boven de maximumdrempel geldt in elke modus. Live-waarden: status.ammonia en status.nitrite."
+	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "De verlaging geldt alleen wanneer de voederhoeveelheid-regelmodus het voeren aanstuurt. De harde blokkering boven de maximumdrempel geldt in elke modus. Live-waarden: status.ammonia en status.nitrite.",
+	"above 30 °C": "boven 30 °C"
 }

@@ -917,7 +917,9 @@ function SwitchTab(props) {
 							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="15–18 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct15 ?? 1} onChange={(e) => onChange({ feedPct15: Number(e.target.value) || 0 })} />
 							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="18–21 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct18 ?? 1.5} onChange={(e) => onChange({ feedPct18: Number(e.target.value) || 0 })} />
 							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="21–23 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct21 ?? 2} onChange={(e) => onChange({ feedPct21: Number(e.target.value) || 0 })} />
-							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label={I18n.t('above 23 °C')} disabled={!sw.amountModelEnabled} value={sw.feedPct23 ?? 3} onChange={(e) => onChange({ feedPct23: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="23–28 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct23 ?? 3} onChange={(e) => onChange({ feedPct23: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label="28–30 °C" disabled={!sw.amountModelEnabled} value={sw.feedPct28 ?? 1.5} onChange={(e) => onChange({ feedPct28: Number(e.target.value) || 0 })} />
+							<TextField variant="standard" type="number" sx={{ width: 110 }} inputProps={{ step: 0.1 }} label={I18n.t('above 30 °C')} disabled={!sw.amountModelEnabled} value={sw.feedPct30 ?? 0.5} onChange={(e) => onChange({ feedPct30: Number(e.target.value) || 0 })} />
 						</Box>
 
 						<Typography variant="body2" sx={{ mt: 2 }}>
