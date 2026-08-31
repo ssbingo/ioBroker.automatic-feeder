@@ -713,6 +713,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.15.1 (2026-08-31)
+* (ssbingo) Fix (relay board): a **false "did not switch off" fault** could be reported for a board-fed switch even though it fed and switched off correctly. The **target object (e.g. the Shelly) is now authoritative** for the off check — a fault (and the Telegram/Sayit notification) is only raised when the target is genuinely still on. If the target is off but the board's `/api/status` cannot confirm its relay off in time (a brief hiccup, or its countdown ending a moment later), the adapter now logs a **warning** instead of a fault; the safety back-stop still forces the board off
+
 ### 1.15.0 (2026-08-31)
 * (ssbingo) **Water-quality limits (Phase C).** New optional per-switch **ammonia (NH₃/NH₄)** and **nitrite (NO₂)** sources – "if these values rise, feed less" (from the feeder manual). Each has a **warn threshold** that **reduces the daily amount** (only in the feeding-amount control mode) and a **max threshold** that **blocks feeding entirely** in every mode
 * (ssbingo) New states **`status.ammonia`** and **`status.nitrite`** mirror the source values; when a max threshold is exceeded the block reason (`blockAmmoniaHigh` / `blockNitriteHigh`) appears in `status.blockReason`. There are no universal safe limits – set the thresholds from your own test kit
@@ -753,10 +756,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.10.2 (2026-08-14)
 * (ssbingo) Documentation: the READMEs (all 11 languages) and the German PDF handbook now carry a prominent notice **right at the top** pointing to the matching **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — a standalone ESP32 timer-board project that pairs with this adapter but is fully independent of it. No functional changes
-
-### 1.10.1 (2026-08-14)
-* (ssbingo) Fix: lowered the minimum **admin** requirement to **7.8.23** (the current stable version) so the adapter stays installable from the stable ioBroker repository — this clears repochecker **E4033** (`admin >=8.0.0` is not in the stable repository yet). The admin UI still runs on **React 19**
-* (ssbingo) Merged upstream adapter-template updates: Dependabot configuration / auto-merge workflow refresh and the `node:` import prefix in the handbook generator (S5043)
 
 ---
 

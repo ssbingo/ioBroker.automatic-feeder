@@ -3058,23 +3058,34 @@ class AutomaticFeeder extends utils.Adapter {
 			}
 
 			if (verify) {
-				// C: strict AND for the board path - both the board relay and the target must be OFF
+				// The target object (e.g. the Shelly) is what actually powers the feeder, so it is
+				// authoritative for "did it switch off". On the board path the board relay is only a
+				// secondary confirmation used for the safety back-stop above: if the target is off but
+				// the board status could not be confirmed in time (a brief /api/status hiccup, or its
+				// countdown ended a moment later), we log a warning instead of raising a false fault.
 				const targetOff = await this.verifyState(sw, false);
 				if (this.terminating) {
 					return;
 				}
-				const offConfirmed = path === 'board' ? boardOff && targetOff : targetOff;
-				if (!offConfirmed) {
-					// Scenario 3: ON worked, but it did not turn OFF again
+				if (!targetOff) {
+					// Scenario 3: ON worked, but the target did not turn OFF again
 					this.log.error(
-						`Fault: ${this.swLabel(sw)} did not switch OFF as planned (board off=${boardOff}, target off=${targetOff}). Check the switch/board!`,
+						`Fault: ${this.swLabel(sw)} did not switch OFF as planned (target off=false, board off=${boardOff}). Check the switch/board!`,
 					);
 					const offFailMsg = this.t('feedOffFail');
 					await this.reportResult(sw, true, offFailMsg);
 					this.notify(sw, 'offFail', 'feedOffFail');
 					return;
 				}
-				this.log.debug(`${this.swLabel(sw)}: OFF confirmed${path === 'board' ? ' (board + target)' : ''}.`);
+				if (path === 'board' && !boardOff) {
+					this.log.warn(
+						`${this.swLabel(sw)}: target confirmed OFF, but the board relay could not be confirmed off via ` +
+							`/api/status in time (the safety back-stop already forced it off). Treating the feeding as done.`,
+					);
+				}
+				this.log.debug(
+					`${this.swLabel(sw)}: OFF confirmed${path === 'board' ? ' (target authoritative)' : ''}.`,
+				);
 			}
 
 			// --- Scenario 1: everything worked ---
