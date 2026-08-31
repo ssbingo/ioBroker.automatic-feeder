@@ -695,6 +695,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.14.2 (2026-08-31)
+* (ssbingo) Fix (admin UI, **dark mode**): the configuration page is now wrapped in the theme the admin has already resolved, so the **tab labels are visible immediately in dark mode**. Previously they rendered as dark text on a dark background (only revealed on hover or after opening a tab), because the tabs inherited the outer theme that is fixed at page-load time. Applies on first open and when you toggle the theme
+
 ### 1.14.1 (2026-08-29)
 * (ssbingo) UI: opening a switch's **Relay** tab now runs the **connection test and reads the board data automatically** (once, when a board address is configured) — the connection status, system overview and S1–S3 button times load without clicking *Test connection*. A plain read no longer marks the configuration as changed
 
@@ -737,10 +740,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) **Raised the minimum requirements**: **admin ≥ 8.0.0**, **js-controller ≥ 6.0.11** and **Node.js ≥ 22**
 * (ssbingo) `@mui/material` and `@mui/icons-material` are now explicit direct dependencies. They stay on **MUI 6** for now because `adapter-react-v5` still requires it (it imports `Grid2`, removed in MUI 7+); the move to **MUI 9** follows automatically once the library supports it
 * (ssbingo) No changes to feeding, notifications or data points — this release only modernizes the admin build and baseline versions
-
-### 1.9.9 (2026-07-17)
-* (ssbingo) The relay tab's **System overview** now also shows the **firmware release version** (`ver`, e.g. `0.0.15`) in addition to the firmware build date
-* (ssbingo) The **last reset reason** is now spelled out in plain, localized words — the board sends a short code (`sw`, `poweron`, `wdt`, `brownout`, `deepsleep`, `panic`, …), which the adapter shows as e.g. “Software”, “Power-on”, “Watchdog”
 
 ---
 

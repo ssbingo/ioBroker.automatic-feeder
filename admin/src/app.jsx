@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { GenericApp } from '@iobroker/adapter-react-v5';
 
 import Settings from './components/Settings';
@@ -42,23 +43,35 @@ class App extends GenericApp {
 			return super.render();
 		}
 
+		// Wrap the whole UI in the theme GenericApp has already resolved from the admin
+		// (this.state.theme / themeType). Without this the tabs and labels would inherit the
+		// outer theme from index.jsx, which is fixed at module load (Utils.getThemeName()) and
+		// is often still "light" on first render — so in dark mode the tab labels render as
+		// dark text on a dark background until an interaction re-themes them.
 		return (
-			<div className="App" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-				<div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-					<Settings
-						native={this.state.native}
-						onChange={(attr, value) => this.updateNativeValue(attr, value)}
-						socket={this.socket}
-						theme={this.state.theme}
-						themeType={this.state.themeType}
-						themeName={this.state.themeName}
-						instanceId={`${this.adapterName}.${this.instance}`}
-					/>
-				</div>
-				{this.renderError()}
-				{this.renderToast()}
-				{this.renderSaveCloseButtons()}
-			</div>
+			<StyledEngineProvider injectFirst>
+				<ThemeProvider theme={this.state.theme}>
+					<div
+						className="App"
+						style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
+					>
+						<div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+							<Settings
+								native={this.state.native}
+								onChange={(attr, value) => this.updateNativeValue(attr, value)}
+								socket={this.socket}
+								theme={this.state.theme}
+								themeType={this.state.themeType}
+								themeName={this.state.themeName}
+								instanceId={`${this.adapterName}.${this.instance}`}
+							/>
+						</div>
+						{this.renderError()}
+						{this.renderToast()}
+						{this.renderSaveCloseButtons()}
+					</div>
+				</ThemeProvider>
+			</StyledEngineProvider>
 		);
 	}
 }
