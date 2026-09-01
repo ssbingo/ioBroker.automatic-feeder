@@ -297,6 +297,8 @@ Dit is een **rekenmachine** — het berekent en toont de aanbeveling. De resulta
 
 Optioneel kun je deze hoeveelheid de **voedering laten regelen**: schakel **Voedering regelen met deze hoeveelheid** in en de aanbevolen dagelijkse grammen worden omgerekend naar motorlooptijd en over de voederingen van de dag verdeeld. Daarvoor kalibreer je de **doseersnelheid** (g/s) — een kleine hulp laat de motor enkele seconden lopen zodat je het afgegeven voer kunt wegen en de adapter de snelheid laat berekenen — en kun je een optioneel **dagmaximum (g)** instellen als beveiliging tegen overvoeren. Deze modus is **wederzijds uitsluitend met dynamisch voeren (Q10)**; het **„wanneer"** (vaste tijden / interval / astronomisch venster) en alle blokkeringen (nacht, temperatuur, O₂, pauzes, winter) blijven ongewijzigd en behouden voorrang. De resulterende looptijd wordt gepubliceerd in `status.feedTargetSecondsToday` (s per dag) en `status.feedEffectiveDurationSec` (s per voedering); de duur per voedering wordt voor de veiligheid begrensd.
 
+In plaats van één enkele snelheid kun je meerdere **voederprofielen** definiëren — benoemde voersoorten (bijv. een 3 mm allround en een 6 mm zomerpellet) elk met een **eigen gekalibreerde snelheid (g/s)**. De snelheid van het **actieve** profiel stuurt de berekening aan; de kalibratiehulp vult het actieve profiel. Het actieve voer kan vanuit de VIS-widget worden gewisseld (state `status.activeFeedName`, effectieve snelheid `status.dispenseRate`). Zonder gedefinieerd profiel wordt de hierboven genoemde enkele doseersnelheid gebruikt.
+
 #### Winterpauze
 
 Per schakelaar kun je een terugkerende **winterpauze** instellen (seizoensgebonden, als `MM-DD`-data die zich jaarlijks herhalen en over de jaarwisseling kunnen lopen).
@@ -521,6 +523,8 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.feedTargetPortionGrams` | number (ro) | Voederhoeveelheidsmodel: aanbevolen hoeveelheid per afzonderlijke voedering (g) = dagelijkse hoeveelheid ÷ voederingen (na begrenzing / verlaging bij waterkwaliteit). |
 | `status.feedTargetSecondsToday` | number (ro) | Voederhoeveelheidsmodel (regelmodus): totale motorlooptijd per dag (s) om de hoeveelheid te doseren. 0 wanneer regelen uit staat. |
 | `status.feedEffectiveDurationSec` | number (ro) | Voederhoeveelheidsmodel (regelmodus): duur per voedering die het momenteel aanstuurt (s). 0 wanneer regelen uit staat. |
+| `status.dispenseRate` | number (ro) | Voederhoeveelheidsmodel: effectieve doseersnelheid (g/s) van het actieve voederprofiel. |
+| `status.activeFeedName` | string (ro) | Voederhoeveelheidsmodel: naam van het actieve voederprofiel (leeg wanneer er geen is geconfigureerd). |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Zonsop-/-ondergang als Unix-tijd in ms — bijv. voor een dagvoortgangsbalk in VIS. |
 | `relay.connected` | boolean (ro) | De voor deze schakelaar geconfigureerde relaisprint is bereikbaar (alleen wanneer deze schakelaar een relaisprint gebruikt). |

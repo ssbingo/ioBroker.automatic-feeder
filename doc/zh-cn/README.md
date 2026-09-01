@@ -265,6 +265,8 @@
 
 你也可以选择让这个量**控制喂食**：启用**用该量控制喂食**后，每日建议克数会被换算为电机运行时间，并分摊到当天的各次喂食中。为此你需要校准**投放速率**（g/s）——一个小助手会让电机运行几秒钟，使你能够称量投放出的饲料并由适配器计算出速率——并可设置可选的**每日上限（g）**作为过量投喂的保护。此模式与**动态 (Q10) 投喂互斥**；**"何时"**（固定时间／间隔／天文时段）以及所有阻断（夜间、温度、O₂、暂停、冬季）保持不变并仍具优先级。换算得到的运行时间会发布到 `status.feedTargetSecondsToday`（每天 s）和 `status.feedEffectiveDurationSec`（每次喂食 s）中；每次喂食的时长为安全起见会被限幅。
 
+除单一速率外，你还可以定义多个**饲料配置**——具名的饲料类型（例如一种 3 mm 全能型饲料和一种 6 mm 夏季颗粒），每个都带有**各自校准的投放速率（g/s）**。计算使用**活动**配置的速率驱动；校准助手会填充活动配置。活动饲料可从 VIS 小部件切换（状态 `status.activeFeedName`，有效速率 `status.dispenseRate`）。若未定义任何配置，则使用上述单一投放速率。
+
 #### 冬季暂停
 
 每个开关都可以设置一个重复的**冬季暂停**（按季节，以每年重复的 `MM-DD` 日期表示，可跨越新年）。
@@ -439,6 +441,8 @@
 | `status.feedTargetPortionGrams` | number (ro) | 投喂量模型：每次投喂的建议量（g）= 每日投喂量 ÷ 投喂次数（在上限 / 水质降量之后）。 |
 | `status.feedTargetSecondsToday` | number (ro) | 投喂量模型（控制模式）：为投放该量所需的每日电机总运行时间（s）。控制关闭时为 0。 |
 | `status.feedEffectiveDurationSec` | number (ro) | 投喂量模型（控制模式）：当前驱动的每次喂食时长（s）。控制关闭时为 0。 |
+| `status.dispenseRate` | number (ro) | 投喂量模型：活动饲料配置的有效投放速率（g/s）。 |
+| `status.activeFeedName` | string (ro) | 投喂量模型：活动饲料配置的名称（未配置时为空）。 |
 | `status.sunrise` / `status.sunset` | string (ro) | 为该开关位置计算出的日出/日落（天文时段）。 |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | 日出/日落，以毫秒为单位的 Unix 时间——例如用于 VIS 中的白昼进度条。 |
 | `relay.connected` | boolean (ro) | 为该开关配置的继电器板可达（仅当该开关使用继电器板时）。 |

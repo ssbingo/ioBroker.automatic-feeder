@@ -332,6 +332,8 @@ Si tratta di un **calcolatore**: calcola e mostra la raccomandazione. I risultat
 
 Facoltativamente puoi lasciare che questa quantità **controlli l'alimentazione**: attiva **Controlla l'alimentazione con questa quantità** e i grammi giornalieri consigliati vengono convertiti in tempo di funzionamento del motore e ripartiti tra le distribuzioni della giornata. A tal fine calibri la **portata di erogazione** (g/s) — un piccolo strumento di aiuto fa girare il motore per alcuni secondi, così puoi pesare il mangime erogato e lasciare che l'adattatore calcoli la portata — e puoi impostare un **massimo giornaliero (g)** facoltativo come protezione contro la sovralimentazione. Questa modalità è **mutuamente esclusiva con l'alimentazione dinamica (Q10)**; il **„quando"** (orari fissi / intervallo / finestra astronomica) e tutti i blocchi (notte, temperatura, O₂, pause, inverno) restano invariati e mantengono la priorità. Il tempo di funzionamento risultante viene pubblicato in `status.feedTargetSecondsToday` (s al giorno) e `status.feedEffectiveDurationSec` (s per distribuzione); la durata per singola distribuzione è limitata per sicurezza.
 
+Invece di un'unica portata puoi definire diversi **profili di mangime** — tipi di mangime con nome (ad es. un pellet universale da 3 mm e un pellet estivo da 6 mm), ciascuno con la propria **portata calibrata (g/s)**. La portata del profilo **attivo** pilota il calcolo; lo strumento di aiuto per la calibrazione riempie il profilo attivo. Il mangime attivo può essere cambiato dal widget VIS (stato `status.activeFeedName`, portata effettiva `status.dispenseRate`). Se non è definito alcun profilo, viene usata l'unica portata di erogazione indicata sopra.
+
 #### Pausa invernale
 
 Per ogni interruttore è possibile definire una **pausa invernale** ricorrente (stagionale, come date `MM-GG` che si ripetono ogni anno e possono attraversare il Capodanno).
@@ -579,6 +581,8 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.feedTargetPortionGrams` | number (ro) | Modello della quantità di mangime: quantità consigliata per singola distribuzione (g) = quantità giornaliera ÷ distribuzioni (dopo il limite massimo / la riduzione per la qualità dell'acqua). |
 | `status.feedTargetSecondsToday` | number (ro) | Modello della quantità di mangime (modalità di controllo): tempo di funzionamento totale del motore al giorno (s) per erogare la quantità. 0 quando il controllo è disattivato. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modello della quantità di mangime (modalità di controllo): durata per distribuzione attualmente pilotata (s). 0 quando il controllo è disattivato. |
+| `status.dispenseRate` | number (ro) | Modello della quantità di mangime: portata di erogazione effettiva (g/s) del profilo di mangime attivo. |
+| `status.activeFeedName` | string (ro) | Modello della quantità di mangime: nome del profilo di mangime attivo (vuoto quando nessuno è configurato). |
 | `status.sunrise` / `status.sunset` | string (ro) | Alba/tramonto calcolati per la posizione di questo interruttore (finestra astronomica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Alba/tramonto come tempo Unix in ms — ad es. per una barra di avanzamento del giorno in VIS. |
 | `relay.connected` | boolean (ro) | La scheda relè configurata per questo interruttore è raggiungibile (solo quando questo interruttore usa una scheda relè). |

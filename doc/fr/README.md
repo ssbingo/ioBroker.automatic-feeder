@@ -339,6 +339,8 @@ Il s'agit d'un **calculateur** qui calcule et affiche la recommandation. Les ré
 
 En option, vous pouvez laisser cette quantité **commander l'alimentation** : activez **Commander l'alimentation avec cette quantité** et les grammes quotidiens recommandés sont convertis en temps de fonctionnement du moteur et répartis sur les distributions de la journée. Pour cela, vous calibrez le **débit de distribution** (g/s) — une petite aide fait tourner le moteur pendant quelques secondes afin que vous puissiez peser la nourriture distribuée et laisser l'adaptateur calculer le débit — et pouvez définir un **maximum quotidien (g)** facultatif comme protection contre la suralimentation. Ce mode **s'exclut mutuellement avec l'alimentation dynamique (Q10)** ; le **« quand »** (heures fixes / intervalle / fenêtre astronomique) et tous les blocages (nuit, température, O₂, pauses, hiver) restent inchangés et conservent la priorité. Le temps de fonctionnement résultant est publié dans `status.feedTargetSecondsToday` (s par jour) et `status.feedEffectiveDurationSec` (s par distribution) ; la durée par distribution est limitée par sécurité.
 
+Au lieu d'un débit unique, vous pouvez définir plusieurs **profils d'alimentation** — des types de nourriture nommés (p. ex. une nourriture polyvalente de 3 mm et un granulé d'été de 6 mm) chacun avec son **propre débit calibré (g/s)**. Le débit du profil **actif** pilote le calcul ; l'aide de calibrage renseigne le profil actif. La nourriture active peut être changée depuis le widget VIS (état `status.activeFeedName`, débit effectif `status.dispenseRate`). Si aucun profil n'est défini, le débit de distribution unique ci-dessus est utilisé.
+
 #### Pause hivernale
 
 Pour chaque interrupteur, vous pouvez définir une **pause hivernale** récurrente (saisonnière, sous forme de dates `MM-JJ` qui se répètent chaque année et peuvent chevaucher le Nouvel An).
@@ -566,6 +568,8 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.feedTargetPortionGrams` | number (ro) | Modèle de quantité d'alimentation : quantité recommandée par repas (g) = quantité quotidienne ÷ nombre de repas (après plafonnement / réduction pour la qualité de l'eau). |
 | `status.feedTargetSecondsToday` | number (ro) | Modèle de quantité d'alimentation (mode commande) : temps de fonctionnement total du moteur par jour (s) pour distribuer la quantité. 0 lorsque la commande est désactivée. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modèle de quantité d'alimentation (mode commande) : durée par distribution actuellement pilotée (s). 0 lorsque la commande est désactivée. |
+| `status.dispenseRate` | number (ro) | Modèle de quantité d'alimentation : débit de distribution effectif (g/s) du profil d'alimentation actif. |
+| `status.activeFeedName` | string (ro) | Modèle de quantité d'alimentation : nom du profil d'alimentation actif (vide lorsqu'aucun n'est configuré). |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Lever/coucher du soleil en temps Unix en ms — p. ex. pour une barre de progression du jour dans VIS. |
 | `relay.connected` | boolean (ro) | La carte relais configurée pour cet interrupteur est joignable (uniquement lorsque cet interrupteur utilise une carte relais). |

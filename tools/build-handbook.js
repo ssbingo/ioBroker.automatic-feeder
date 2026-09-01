@@ -479,7 +479,7 @@ content.push(
 		'Für sich genommen ist das ein Rechner – er berechnet und zeigt die Empfehlung. Die Ergebnisse stehen in den Datenpunkten status.fishTotalWeight (g), status.feedPercentToday (%) und status.feedTargetGramsToday (g); der Schalter-Tab zeigt zusätzlich das geschätzte Gesamtgewicht und ein Beispiel.',
 	),
 	p(
-		'Optional kann diese Menge auch die Fütterung steuern: Aktiviere „Fütterung mit dieser Menge steuern", dann wird die empfohlene Tagesmenge (g) über die kalibrierte Dosierrate (g/s) in Motor-Laufzeit umgerechnet und auf die Fütterungen des Tages verteilt. Eine kleine Kalibrier-Hilfe lässt den Motor einige Sekunden laufen; du wiegst das ausgeworfene Futter und der Adapter berechnet die Rate. Optional begrenzt ein Tages-Maximum (g) die Menge (Überfütterungs-Schutz). Dieser Modus schließt sich mit dem dynamischen Füttern (Q10) gegenseitig aus; das „Wann" (feste Zeiten / Intervall / astronomisches Fenster) und alle Sperren bleiben unverändert und vorrangig. Die resultierende Laufzeit steht in status.feedTargetSecondsToday (s/Tag) und status.feedEffectiveDurationSec (s je Fütterung); die Dauer je Fütterung wird zur Sicherheit begrenzt.',
+		'Optional kann diese Menge auch die Fütterung steuern: Aktiviere „Fütterung mit dieser Menge steuern", dann wird die empfohlene Tagesmenge (g) über die kalibrierte Dosierrate (g/s) in Motor-Laufzeit umgerechnet und auf die Fütterungen des Tages verteilt. Eine kleine Kalibrier-Hilfe lässt den Motor einige Sekunden laufen; du wiegst das ausgeworfene Futter und der Adapter berechnet die Rate. Optional begrenzt ein Tages-Maximum (g) die Menge (Überfütterungs-Schutz). Dieser Modus schließt sich mit dem dynamischen Füttern (Q10) gegenseitig aus; das „Wann" (feste Zeiten / Intervall / astronomisches Fenster) und alle Sperren bleiben unverändert und vorrangig. Die resultierende Laufzeit steht in status.feedTargetSecondsToday (s/Tag) und status.feedEffectiveDurationSec (s je Fütterung); die Dauer je Fütterung wird zur Sicherheit begrenzt. Statt einer einzelnen Rate lassen sich mehrere Futterprofile (benannte Futtersorten mit je eigener Rate g/s) anlegen; die Rate des aktiven Profils bestimmt die Berechnung, umschaltbar aus dem VIS-Widget (status.activeFeedName / status.dispenseRate).',
 	),
 	subsub('Einschränkungen'),
 	p(
@@ -594,6 +594,11 @@ content.push(
 				'status.feedEffectiveDurationSec',
 				'number (ro)',
 				'Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist.',
+			],
+			[
+				'status.dispenseRate / activeFeedName',
+				'number/string (ro)',
+				'Futtermengen-Modell: effektive Dosierrate (g/s) und Name des aktiven Futterprofils.',
 			],
 			['status.sunrise / sunset / …Ts', 'string/number (ro)', 'Berechneter Sonnenauf-/-untergang.'],
 			[

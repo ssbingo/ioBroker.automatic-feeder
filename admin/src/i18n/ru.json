@@ -234,5 +234,11 @@
 	"Block above": "Блокировать от",
 	"Reduce daily amount to (%)": "Уменьшать суточное количество до (%)",
 	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "Уменьшение действует только когда кормлением управляет режим управления количеством. Жёсткая блокировка выше максимального порога действует во всех режимах. Актуальные значения: status.ammonia и status.nitrite.",
-	"above 30 °C": "выше 30 °C"
+	"above 30 °C": "выше 30 °C",
+	"Feed profiles": "Профили корма",
+	"Named food types, each with its own dispense rate (g/s). The active one drives feeding; with no profile the single rate above is used. Switchable from the widget.": "Именованные виды корма, каждый со своей скоростью подачи (г/с). Активный определяет кормление; без профиля используется одиночная скорость выше. Переключается из виджета.",
+	"Feed name": "Название корма",
+	"Rate (g/s)": "Скорость (г/с)",
+	"Add feed": "Добавить корм",
+	"Remove feed": "Удалить корм"
 }

@@ -246,6 +246,13 @@ declare global {
 			dispenseGramsPerSec: number;
 			feedDailyMaxGrams: number | null;
 			/**
+			 * Feed profiles: named food types each with their own calibrated dispense rate (g/s).
+			 * The active profile (`activeFeed` index) drives Phase B; an empty list falls back to
+			 * `dispenseGramsPerSec`.
+			 */
+			feedProfiles: { name: string; gramsPerSec: number }[];
+			activeFeed: number;
+			/**
 			 * Use the Automatic-Feeder relay board for THIS switch. Decided per switch:
 			 * when on, this switch gets a "Relay" tab and its board is configured/polled.
 			 */

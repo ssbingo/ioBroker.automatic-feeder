@@ -280,15 +280,32 @@ function SwitchTab(props) {
 	};
 
 	// dispense-rate calibration: rate (g/s) = weighed grams / test-run seconds
+	// feed profiles: named food types, each with a calibrated dispense rate (g/s)
+	const feedProfiles = Array.isArray(sw.feedProfiles) ? sw.feedProfiles : [];
+	const activeFeed = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
+	const addFeed = () => onChange({ feedProfiles: [...feedProfiles, { name: '', gramsPerSec: 0 }] });
+	const updateFeed = (i, patch) =>
+		onChange({ feedProfiles: feedProfiles.map((p, idx) => (idx === i ? { ...p, ...patch } : p)) });
+	const removeFeed = (i) => {
+		const next = feedProfiles.filter((_, idx) => idx !== i);
+		onChange({ feedProfiles: next, activeFeed: Math.min(activeFeed, Math.max(0, next.length - 1)) });
+	};
+
 	const computeRate = () => {
 		const g = Number(calGrams);
 		const s = Number(calRunSec);
-		if (g > 0 && s > 0) {
-			onChange({ dispenseGramsPerSec: Math.round((g / s) * 1000) / 1000 });
-			setCalMsg({ severity: 'success', text: I18n.t('Dispense rate calculated.') });
-		} else {
+		if (g <= 0 || s <= 0) {
 			setCalMsg({ severity: 'error', text: I18n.t('Enter a test duration and the dispensed weight first.') });
+			return;
 		}
+		const rate = Math.round((g / s) * 1000) / 1000;
+		// with feed profiles, calibration fills the active profile's rate; otherwise the single rate
+		if (feedProfiles.length) {
+			updateFeed(activeFeed, { gramsPerSec: rate });
+		} else {
+			onChange({ dispenseGramsPerSec: rate });
+		}
+		setCalMsg({ severity: 'success', text: I18n.t('Dispense rate calculated.') });
 	};
 
 	return (
@@ -976,6 +993,47 @@ function SwitchTab(props) {
 											})
 										}
 									/>
+								</Box>
+								<Box sx={{ mt: 2, maxWidth: 620 }}>
+									<Typography variant="subtitle2">{I18n.t('Feed profiles')}</Typography>
+									<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+										{I18n.t(
+											'Named food types, each with its own dispense rate (g/s). The active one drives feeding; with no profile the single rate above is used. Switchable from the widget.',
+										)}
+									</Typography>
+									{feedProfiles.map((p, i) => (
+										<Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 0.5 }}>
+											<Radio
+												size="small"
+												checked={activeFeed === i}
+												onChange={() => onChange({ activeFeed: i })}
+											/>
+											<TextField
+												variant="standard"
+												sx={{ flexGrow: 1, minWidth: 120 }}
+												label={I18n.t('Feed name')}
+												value={p.name ?? ''}
+												onChange={(e) => updateFeed(i, { name: e.target.value })}
+											/>
+											<TextField
+												variant="standard"
+												type="number"
+												sx={{ width: 110 }}
+												inputProps={{ step: 0.1, min: 0 }}
+												label={I18n.t('Rate (g/s)')}
+												value={p.gramsPerSec ?? 0}
+												onChange={(e) => updateFeed(i, { gramsPerSec: Math.max(0, Number(e.target.value) || 0) })}
+											/>
+											<Tooltip title={I18n.t('Remove feed')}>
+												<IconButton size="small" onClick={() => removeFeed(i)}>
+													<DeleteIcon fontSize="small" />
+												</IconButton>
+											</Tooltip>
+										</Box>
+									))}
+									<Button size="small" startIcon={<AddIcon />} onClick={addFeed}>
+										{I18n.t('Add feed')}
+									</Button>
 								</Box>
 								<Paper variant="outlined" sx={{ p: 1.5, mt: 2, maxWidth: 620 }}>
 									<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>

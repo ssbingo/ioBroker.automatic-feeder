@@ -234,5 +234,11 @@
 	"Block above": "Blocca oltre",
 	"Reduce daily amount to (%)": "Riduci la quantità giornaliera al (%)",
 	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "La riduzione si applica solo quando la modalità di controllo per quantità comanda l’alimentazione. Il blocco rigido oltre la soglia massima vale in ogni modalità. Valori in tempo reale: status.ammonia e status.nitrite.",
-	"above 30 °C": "sopra 30 °C"
+	"above 30 °C": "sopra 30 °C",
+	"Feed profiles": "Profili di mangime",
+	"Named food types, each with its own dispense rate (g/s). The active one drives feeding; with no profile the single rate above is used. Switchable from the widget.": "Tipi di mangime con nome, ognuno con la propria portata (g/s). Quello attivo comanda l’alimentazione; senza profilo si usa la portata singola sopra. Commutabile dal widget.",
+	"Feed name": "Nome mangime",
+	"Rate (g/s)": "Portata (g/s)",
+	"Add feed": "Aggiungi mangime",
+	"Remove feed": "Rimuovi mangime"
 }

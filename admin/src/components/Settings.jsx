@@ -138,6 +138,8 @@ function createSwitch(switches) {
 		amountControlEnabled: false,
 		dispenseGramsPerSec: 0,
 		feedDailyMaxGrams: null,
+		feedProfiles: [],
+		activeFeed: 0,
 		relayEnabled: false,
 		relayHost: '',
 		relayPreferBoard: true,

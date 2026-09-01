@@ -319,6 +319,8 @@ Domyślnie jest to **kalkulator** – oblicza i pokazuje zalecenie. Wyniki są p
 
 Opcjonalnie możesz pozwolić, aby ta ilość **sterowała karmieniem**: włącz **Steruj karmieniem tą ilością**, a zalecana dzienna liczba gramów zostanie przeliczona na czas działania silnika i rozłożona na karmienia w ciągu dnia. W tym celu kalibrujesz **wydajność wydawania** (g/s) — mały pomocnik uruchamia silnik na kilka sekund, abyś mógł zważyć wydaną karmę i pozwolić adapterowi obliczyć wydajność — oraz możesz ustawić opcjonalne **maksimum dzienne (g)** jako zabezpieczenie przed przekarmieniem. Ten tryb **wyklucza się wzajemnie z karmieniem dynamicznym (Q10)**; **„kiedy"** (stałe godziny / interwał / okno astronomiczne) oraz wszystkie blokady (noc, temperatura, O₂, przerwy, zima) pozostają bez zmian i zachowują priorytet. Wynikowy czas działania jest publikowany w `status.feedTargetSecondsToday` (s na dzień) i `status.feedEffectiveDurationSec` (s na karmienie); czas trwania pojedynczego karmienia jest ograniczany ze względów bezpieczeństwa.
 
+Zamiast pojedynczej wydajności możesz zdefiniować kilka **profili karmy** — nazwane rodzaje karmy (np. uniwersalna 3 mm oraz letni granulat 6 mm), każdy z **własną skalibrowaną wydajnością (g/s)**. Wydajność **aktywnego** profilu steruje obliczeniem; pomocnik kalibracji wypełnia aktywny profil. Aktywną karmę można przełączać z widżetu VIS (stan `status.activeFeedName`, efektywna wydajność `status.dispenseRate`). Gdy nie zdefiniowano żadnego profilu, używana jest pojedyncza wydajność wydawania powyżej.
+
 #### Przerwa zimowa
 
 Dla każdego przełącznika można zdefiniować cykliczną **przerwę zimową** (sezonową, jako daty `MM-DD`, które powtarzają się co roku i mogą przechodzić przez Nowy Rok).
@@ -544,6 +546,8 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.feedTargetPortionGrams` | number (ro) | Model ilości karmy: zalecana ilość na pojedyncze karmienie (g) = ilość dzienna ÷ liczba karmień (po ograniczeniu / redukcji z powodu jakości wody). |
 | `status.feedTargetSecondsToday` | number (ro) | Model ilości karmy (tryb sterowania): łączny czas działania silnika na dzień (s) potrzebny do wydania tej ilości. 0, gdy sterowanie jest wyłączone. |
 | `status.feedEffectiveDurationSec` | number (ro) | Model ilości karmy (tryb sterowania): czas trwania pojedynczego karmienia, który aktualnie wymusza (s). 0, gdy sterowanie jest wyłączone. |
+| `status.dispenseRate` | number (ro) | Model ilości karmy: efektywna wydajność wydawania (g/s) aktywnego profilu karmy. |
+| `status.activeFeedName` | string (ro) | Model ilości karmy: nazwa aktywnego profilu karmy (pusta, gdy żaden nie jest skonfigurowany). |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Wschód/zachód słońca jako czas uniksowy w ms — np. dla paska postępu dnia w VIS. |
 | `relay.connected` | boolean (ro) | Płytka przekaźnikowa skonfigurowana dla tego przełącznika jest osiągalna (tylko gdy ten przełącznik używa płytki przekaźnikowej). |

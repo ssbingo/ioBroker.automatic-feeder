@@ -234,5 +234,11 @@
 	"Block above": "超过则封锁",
 	"Reduce daily amount to (%)": "将每日投喂量减至（%）",
 	"The reduction applies only when the feeding-amount control mode drives feeding. The hard block above the max threshold applies in every mode. Live values: status.ammonia and status.nitrite.": "仅当投喂量控制模式主导投喂时，减少才生效。超过最大阈值的硬性封锁在所有模式下均生效。实时值：status.ammonia 和 status.nitrite。",
-	"above 30 °C": "高于 30 °C"
+	"above 30 °C": "高于 30 °C",
+	"Feed profiles": "饲料配置",
+	"Named food types, each with its own dispense rate (g/s). The active one drives feeding; with no profile the single rate above is used. Switchable from the widget.": "命名的饲料种类，各有自己的投喂速率（克/秒）。活动配置主导投喂；无配置时使用上面的单一速率。可从组件切换。",
+	"Feed name": "饲料名称",
+	"Rate (g/s)": "速率 (克/秒)",
+	"Add feed": "添加饲料",
+	"Remove feed": "删除饲料"
 }

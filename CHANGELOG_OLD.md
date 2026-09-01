@@ -3,6 +3,13 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.11.0 (2026-08-26)
+* (ssbingo) **Feeding through the relay board.** For a switch that uses the Automatic-Feeder relay board, a feeding is now triggered **primarily through the board** (`POST /api/trigger` for exactly the computed duration) instead of switching the Shelly directly. The **board itself** runs the countdown, shows it on its OLED and switches its relay off again – so its display and log finally reflect the real feeding
+* (ssbingo) **Two-tier with automatic fallback:** only when the board **cannot be reached** does the adapter fall back to switching the target (Shelly) object directly (the previous behaviour). Non-board switches are unaffected
+* (ssbingo) New per-switch option **Feed primarily through the relay board (fallback: Shelly directly)** (default on) on the relay tab, and a new state **`relay.lastTriggerPath`** (`board`/`direct`); the path used is also added to the success message and the log
+* (ssbingo) **Strict verification & safety back-stop:** a board feeding counts as done only when **both** the board relay **and** the target confirm the on/off state; if the board ever fails to switch off on its own, the adapter forces it off (`POST /api/stop`) and the Shelly off
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.10.2 (2026-08-14)
 * (ssbingo) Documentation: the READMEs (all 11 languages) and the German PDF handbook now carry a prominent notice **right at the top** pointing to the matching **[Feeder-Relais (Timer-Ersatzplatine)](https://github.com/ssbingo/timer-ersatzplatine)** — a standalone ESP32 timer-board project that pairs with this adapter but is fully independent of it. No functional changes
 

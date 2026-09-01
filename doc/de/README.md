@@ -335,6 +335,12 @@ unverändert und weiterhin vorrangig. Die resultierende Laufzeit steht in
 `status.feedTargetSecondsToday` (s/Tag) und `status.feedEffectiveDurationSec` (s je Fütterung); die
 Dauer je Fütterung wird zur Sicherheit begrenzt.
 
+Statt einer einzelnen Rate kannst du mehrere **Futterprofile** anlegen – benannte Futtersorten
+(z. B. ein 3-mm-Allround und ein 6-mm-Sommerpellet) mit je **eigener kalibrierter Rate (g/s)**. Die
+Rate des **aktiven** Profils bestimmt die Berechnung; die Kalibrier-Hilfe füllt das aktive Profil.
+Das aktive Futter lässt sich aus dem VIS-Widget umschalten (Datenpunkt `status.activeFeedName`,
+effektive Rate `status.dispenseRate`). Ohne Profil wird die einzelne Dosierrate oben verwendet.
+
 #### Winterpause
 
 Pro Schalter lässt sich eine wiederkehrende **Winterpause** definieren (saisonal, als `MM-TT`-Daten, die sich jährlich wiederholen und über den Jahreswechsel reichen können).
@@ -561,6 +567,8 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.feedTargetPortionGrams` | number (ro) | Futtermengen-Modell: empfohlene Menge je Einzel-Fütterung (g) = Tagesmenge ÷ Fütterungen (nach Deckel / Wasserqualitäts-Reduktion). |
 | `status.feedTargetSecondsToday` | number (ro) | Futtermengen-Modell (Steuermodus): gesamte Motor-Laufzeit pro Tag (s) für die Menge. 0, wenn die Steuerung aus ist. |
 | `status.feedEffectiveDurationSec` | number (ro) | Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist. |
+| `status.dispenseRate` | number (ro) | Futtermengen-Modell: effektive Dosierrate (g/s) des aktiven Futterprofils. |
+| `status.activeFeedName` | string (ro) | Futtermengen-Modell: Name des aktiven Futterprofils (leer, wenn keines konfiguriert ist). |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sonnenauf-/-untergang als Unix-Zeit in ms — z. B. für einen Tagesverlaufs-Balken in VIS. |
 | `relay.connected` | boolean (ro) | Die für diesen Schalter konfigurierte Relaisplatine ist erreichbar (nur wenn dieser Schalter eine Relaisplatine nutzt). |

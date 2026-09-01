@@ -296,6 +296,8 @@ Isto é **apenas uma calculadora** – calcula e mostra a recomendação. Os res
 
 Opcionalmente, você pode deixar esta quantidade **controlar a alimentação**: ative **Controlar a alimentação com esta quantidade** e as gramas diárias recomendadas são convertidas em tempo de funcionamento do motor e distribuídas pelas alimentações do dia. Para isso, você calibra a **taxa de dispensa** (g/s) — um pequeno auxiliar faz o motor funcionar durante alguns segundos para que você possa pesar a ração dispensada e deixar o adaptador calcular a taxa — e pode definir um **máximo diário (g)** opcional como salvaguarda contra a sobrealimentação. Este modo é **mutuamente exclusivo com a alimentação dinâmica (Q10)**; o **"quando"** (horários fixos / intervalo / janela astronómica) e todos os bloqueios (noite, temperatura, O₂, pausas, inverno) permanecem inalterados e mantêm prioridade. O tempo de funcionamento resultante é publicado em `status.feedTargetSecondsToday` (s por dia) e `status.feedEffectiveDurationSec` (s por alimentação); a duração por alimentação é limitada por segurança.
 
+Em vez de uma única taxa, você pode definir vários **perfis de ração** — tipos de ração nomeados (por exemplo, um granulado universal de 3 mm e um granulado de verão de 6 mm), cada um com a **sua própria taxa calibrada (g/s)**. A taxa do perfil **ativo** conduz o cálculo; o auxiliar de calibração preenche o perfil ativo. A ração ativa pode ser alternada a partir do widget VIS (estado `status.activeFeedName`, taxa efetiva `status.dispenseRate`). Se nenhum perfil estiver definido, é usada a taxa de dispensa única acima.
+
 #### Pausa de inverno
 
 Para cada interruptor pode definir uma **pausa de inverno** recorrente (sazonal, como datas `MM-DD` que se repetem todos os anos e podem atravessar o Ano Novo).
@@ -514,6 +516,8 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `status.feedTargetPortionGrams` | number (ro) | Modelo de quantidade de ração: quantidade recomendada por alimentação individual (g) = quantidade diária ÷ alimentações (após o limite máximo / redução por qualidade da água). |
 | `status.feedTargetSecondsToday` | number (ro) | Modelo de quantidade de ração (modo de controlo): tempo total de funcionamento do motor por dia (s) para dispensar a quantidade. 0 quando o controlo está desativado. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modelo de quantidade de ração (modo de controlo): duração por alimentação que ele aciona atualmente (s). 0 quando o controlo está desativado. |
+| `status.dispenseRate` | number (ro) | Modelo de quantidade de ração: taxa de dispensa efetiva (g/s) do perfil de ração ativo. |
+| `status.activeFeedName` | string (ro) | Modelo de quantidade de ração: nome do perfil de ração ativo (vazio quando nenhum está configurado). |
 | `status.sunrise` / `status.sunset` | string (ro) | Nascer/pôr do sol calculado para a localização deste interruptor (janela astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Nascer/pôr do sol como tempo Unix em ms — p. ex. para uma barra de progresso do dia no VIS. |
 | `relay.connected` | boolean (ro) | A placa de relé configurada para este interruptor está acessível (apenas quando este interruptor usa uma placa de relé). |

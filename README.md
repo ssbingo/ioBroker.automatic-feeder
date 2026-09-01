@@ -329,6 +329,12 @@ blocks (night, temperature, O₂, pauses, winter) stay unchanged and keep priori
 run-time is published in `status.feedTargetSecondsToday` (s per day) and
 `status.feedEffectiveDurationSec` (s per feeding); the per-feeding duration is capped for safety.
 
+Instead of a single rate you can define several **feed profiles** — named food types (e.g. a 3 mm
+all-round and a 6 mm summer pellet) each with their **own calibrated rate (g/s)**. The **active**
+profile's rate drives the calculation; the calibration helper fills the active profile. The active
+feed can be switched from the VIS widget (state `status.activeFeedName`, effective rate
+`status.dispenseRate`). With no profile defined, the single dispense rate above is used.
+
 #### Winter pause
 
 Per switch you can define a recurring **winter pause** (seasonal, given as `MM-DD` dates that repeat every year and may wrap around New Year).
@@ -544,6 +550,8 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.feedTargetPortionGrams` | number (ro) | Feeding-amount model: recommended amount per single feeding (g) = daily amount ÷ feedings (after cap / water-quality reduction). |
 | `status.feedTargetSecondsToday` | number (ro) | Feeding-amount model (control mode): total motor run-time per day (s) to dispense the amount. 0 when control is off. |
 | `status.feedEffectiveDurationSec` | number (ro) | Feeding-amount model (control mode): duration per feeding it currently drives (s). 0 when control is off. |
+| `status.dispenseRate` | number (ro) | Feeding-amount model: effective dispense rate (g/s) of the active feed profile. |
+| `status.activeFeedName` | string (ro) | Feeding-amount model: name of the active feed profile (empty when none configured). |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
 | `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when this switch uses a relay board). |
@@ -717,6 +725,11 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.17.0 (2026-09-01)
+* (ssbingo) **Feed profiles for the feeding-amount model.** Instead of a single rate you can define several **named feed types** per switch, each with its own calibrated **dispense rate (g/s)** (e.g. a 3 mm all-round and a 6 mm summer pellet); the **active** profile's rate drives Phase B. Manage the list in the admin (the calibration helper fills the active profile), switch the active feed from the VIS widget via the writable `settings.activeFeed` state
+* (ssbingo) New states **`status.dispenseRate`** (effective g/s) and **`status.activeFeedName`**. Backward compatible — with no profile defined, the single dispense rate is used
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.16.0 (2026-08-31)
 * (ssbingo) **Feeding-amount model – high-temperature throttling** (issue #23). The percentage table no longer stays at 3 % above 23 °C: the top band now ends at 28 °C and two new editable bands throttle the amount in the heat – **1.5 % at 28–30 °C** and **0.5 % above 30 °C** (the temperature response peaks around 24–26 °C and falls off above it). Behaviour up to 28 °C is unchanged; existing switches get the new bands with sensible defaults
 * (ssbingo) **Feeding-amount settings are now editable from VIS/scripts** (issue #24): the model's config (`amountModelEnabled`, fish counts, temperature percentages, `amountControlEnabled`, `dispenseGramsPerSec`, `feedDailyMaxGrams`) is mirrored as writable `switches.<id>.settings.*` states, so a VIS widget can edit them
@@ -755,13 +768,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 ### 1.12.0 (2026-08-28)
 * (ssbingo) **Feeding-amount model (advisory).** New optional per-switch calculator that estimates the **recommended daily food amount** from the **fish stock** (count and editable weight per size class 15–60 cm) and the **water temperature** (feeding percentage per temperature band), following the original feeder manual: `daily amount [g] = total fish weight × percentage(water temperature)`. Defaults are taken from the manual and stay fully editable
 * (ssbingo) The result is published in the new states **`status.fishTotalWeight`** (g), **`status.feedPercentToday`** (%) and **`status.feedTargetGramsToday`** (g); the switch tab additionally shows the estimated total weight and an example. This is a **calculator only** — it computes and shows the recommendation but does **not** change how or when the switch feeds (actually dispensing the amount is planned for a later step)
-* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
-
-### 1.11.0 (2026-08-26)
-* (ssbingo) **Feeding through the relay board.** For a switch that uses the Automatic-Feeder relay board, a feeding is now triggered **primarily through the board** (`POST /api/trigger` for exactly the computed duration) instead of switching the Shelly directly. The **board itself** runs the countdown, shows it on its OLED and switches its relay off again – so its display and log finally reflect the real feeding
-* (ssbingo) **Two-tier with automatic fallback:** only when the board **cannot be reached** does the adapter fall back to switching the target (Shelly) object directly (the previous behaviour). Non-board switches are unaffected
-* (ssbingo) New per-switch option **Feed primarily through the relay board (fallback: Shelly directly)** (default on) on the relay tab, and a new state **`relay.lastTriggerPath`** (`board`/`direct`); the path used is also added to the success message and the log
-* (ssbingo) **Strict verification & safety back-stop:** a board feeding counts as done only when **both** the board relay **and** the target confirm the on/off state; if the board ever fails to switch off on its own, the adapter forces it off (`POST /api/stop`) and the Shelly off
 * (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
 
 ---

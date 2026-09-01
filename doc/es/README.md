@@ -325,6 +325,8 @@ Por sí solo es una **calculadora**: calcula y muestra la recomendación. Los re
 
 Opcionalmente puedes dejar que esta cantidad **controle la alimentación**: activa **Controlar la alimentación con esta cantidad** y los gramos diarios recomendados se convierten en tiempo de funcionamiento del motor y se reparten entre las alimentaciones del día. Para ello calibras la **tasa de dispensado** (g/s) —un pequeño asistente hace funcionar el motor durante unos segundos para que puedas pesar la comida dispensada y dejar que el adaptador calcule la tasa— y puedes fijar un **máximo diario (g)** opcional como protección contra la sobrealimentación. Este modo es **mutuamente excluyente con la alimentación dinámica (Q10)**; el **«cuándo»** (horas fijas / intervalo / ventana astronómica) y todos los bloqueos (noche, temperatura, O₂, pausas, invierno) permanecen sin cambios y mantienen la prioridad. El tiempo de funcionamiento resultante se publica en `status.feedTargetSecondsToday` (s por día) y `status.feedEffectiveDurationSec` (s por alimentación); la duración por alimentación se limita por seguridad.
 
+En lugar de una única tasa puedes definir varios **perfiles de comida** —tipos de comida con nombre (p. ej. un pellet universal de 3 mm y un pellet de verano de 6 mm), cada uno con su **propia tasa calibrada (g/s)**. La tasa del perfil **activo** impulsa el cálculo; el asistente de calibración rellena el perfil activo. La comida activa se puede cambiar desde el widget de VIS (estado `status.activeFeedName`, tasa efectiva `status.dispenseRate`). Si no hay ningún perfil definido, se usa la tasa de dispensado única indicada arriba.
+
 #### Pausa de invierno
 
 Para cada interruptor puedes definir una **pausa de invierno** recurrente (estacional, como fechas `MM-DD` que se repiten cada año y pueden cruzar el Año Nuevo).
@@ -569,6 +571,8 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.feedTargetPortionGrams` | number (ro) | Modelo de ración de comida: cantidad recomendada por toma individual (g) = cantidad diaria ÷ tomas (tras el límite / reducción por calidad del agua). |
 | `status.feedTargetSecondsToday` | number (ro) | Modelo de ración de comida (modo de control): tiempo total de funcionamiento del motor por día (s) para dispensar la cantidad. 0 cuando el control está desactivado. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modelo de ración de comida (modo de control): duración por alimentación que impulsa actualmente (s). 0 cuando el control está desactivado. |
+| `status.dispenseRate` | number (ro) | Modelo de ración de comida: tasa de dispensado efectiva (g/s) del perfil de comida activo. |
+| `status.activeFeedName` | string (ro) | Modelo de ración de comida: nombre del perfil de comida activo (vacío cuando no hay ninguno configurado). |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Orto/ocaso como tiempo Unix en ms, p. ej. para una barra de progreso del día en VIS. |
 | `relay.connected` | boolean (ro) | La placa de relé configurada para este interruptor es accesible (solo cuando este interruptor usa una placa de relé). |

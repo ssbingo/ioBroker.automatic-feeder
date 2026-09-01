@@ -111,6 +111,8 @@ const STATUS_STATE_IDS = [
 	'feedTargetPortionGrams',
 	'feedTargetSecondsToday',
 	'feedEffectiveDurationSec',
+	'dispenseRate',
+	'activeFeedName',
 	'sunrise',
 	'sunriseTs',
 	'sunset',
@@ -166,6 +168,7 @@ const NUMERIC_BOUNDS = {
 	feedPct28: [0, 10],
 	feedPct30: [0, 10],
 	dispenseGramsPerSec: [0, 100000],
+	activeFeed: [0, 999],
 };
 
 /**
@@ -288,6 +291,10 @@ const SWITCH_DEFAULTS = {
 	amountControlEnabled: false,
 	dispenseGramsPerSec: 0,
 	feedDailyMaxGrams: null,
+	// feed profiles: named food types each with their own calibrated dispense rate (g/s).
+	// The active profile's rate drives Phase B; empty list falls back to dispenseGramsPerSec.
+	feedProfiles: [],
+	activeFeed: 0,
 };
 
 /**
@@ -915,6 +922,13 @@ const SWITCH_SETTINGS = [
 		unit: 'g',
 		get: sw => sw.feedDailyMaxGrams ?? null,
 	},
+	{
+		id: 'activeFeed',
+		name: 'Active feed profile (index)',
+		type: 'number',
+		role: 'value',
+		get: sw => Math.max(0, Math.floor(Number(sw.activeFeed) || 0)),
+	},
 ];
 
 class AutomaticFeeder extends utils.Adapter {
@@ -1479,6 +1493,49 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
+	 * The feed profiles configured for a switch, as a clean array of {name, gramsPerSec}.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {{name: string, gramsPerSec: number}[]} the profiles (possibly empty)
+	 */
+
+	feedProfilesOf(sw) {
+		return Array.isArray(sw.feedProfiles)
+			? sw.feedProfiles
+					.filter(p => p && typeof p === 'object')
+					.map(p => ({ name: String(p.name ?? ''), gramsPerSec: Number(p.gramsPerSec) || 0 }))
+			: [];
+	}
+
+	/**
+	 * Effective dispense rate (g/s): the active feed profile's rate, or the single
+	 * `dispenseGramsPerSec` when no (valid) profile is configured.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {number} dispense rate in g/s
+	 */
+	dispenseRateFor(sw) {
+		const profs = this.feedProfilesOf(sw);
+		const i = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
+		if (profs.length && profs[i] && profs[i].gramsPerSec > 0) {
+			return profs[i].gramsPerSec;
+		}
+		return Number(sw.dispenseGramsPerSec) || 0;
+	}
+
+	/**
+	 * Name of the active feed profile (empty when no profiles are configured).
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {string} the active profile name, or ''
+	 */
+	activeFeedName(sw) {
+		const profs = this.feedProfilesOf(sw);
+		const i = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
+		return profs.length && profs[i] ? profs[i].name : '';
+	}
+
+	/**
 	 * Phase B: turns the recommended daily amount into motor run-time. Applies the optional daily
 	 * cap, divides by the calibrated dispense rate (g/s) to get the total daily seconds, and splits
 	 * that across the day's feedings. The per-feeding duration is clamped to [0, MAX_DURATION_SEC].
@@ -1492,7 +1549,8 @@ class AutomaticFeeder extends utils.Adapter {
 		const wqFactor = this.waterQualityFactor(sw);
 		const reduced = grams == null ? null : grams * wqFactor;
 		const capped = applyDailyCap(reduced, sw.feedDailyMaxGrams);
-		const rate = Number(sw.dispenseGramsPerSec);
+		// the active feed profile's rate drives Phase B (falls back to the single rate)
+		const rate = this.dispenseRateFor(sw);
 		const N = this.feedingsPerDay(sw);
 		const dailySec = dispenseSeconds(capped, rate);
 		const perRaw = perFeedingSeconds(dailySec, N);
@@ -1521,11 +1579,15 @@ class AutomaticFeeder extends utils.Adapter {
 			this.setStateAsync(`${base}.feedTargetPortionGrams`, { val: null, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: 0, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.dispenseRate`, { val: 0, ack: true }).catch(() => {});
+			this.setStateAsync(`${base}.activeFeedName`, { val: '', ack: true }).catch(() => {});
 			return;
 		}
 		this.setStateAsync(`${base}.fishTotalWeight`, { val: weight, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedPercentToday`, { val: percent, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedTargetGramsToday`, { val: grams, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.dispenseRate`, { val: this.dispenseRateFor(sw), ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.activeFeedName`, { val: this.activeFeedName(sw), ack: true }).catch(() => {});
 		this.log.debug(
 			`Feeding-amount ${this.swLabel(sw)}: weight=${weight} g, water=${temp == null ? '?' : temp} °C ` +
 				`-> ${percent == null ? '?' : percent} % -> ${grams == null ? '?' : grams} g/day.`,
@@ -2131,6 +2193,29 @@ class AutomaticFeeder extends utils.Adapter {
 					type: 'number',
 					role: 'value',
 					unit: 's',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.dispenseRate`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: effective dispense rate of the active feed',
+					type: 'number',
+					role: 'value',
+					unit: 'g/s',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedName`, {
+				type: 'state',
+				common: {
+					name: 'Feeding-amount model: name of the active feed profile',
+					type: 'string',
+					role: 'text',
 					read: true,
 					write: false,
 				},
