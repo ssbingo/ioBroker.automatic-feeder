@@ -191,9 +191,27 @@ Przy usuwaniu kasowane są także jego punkty danych.
 * **Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder (dodaje zakładkę przekaźnika)**
   (przełącznik wł./wył.) – włącz to tylko dla przełącznika, którego stacja karmienia korzysta z
   opcjonalnej płytki przekaźnikowej Automatic-Feeder (ESP32). Gdy włączone, ten przełącznik
-  otrzymuje dodatkową zakładkę **Przekaźnik** (zobacz sekcję 5.3).
+  otrzymuje dodatkową zakładkę **Przekaźnik** (zobacz sekcję 5.4).
 
-### 5.2 Zakładki przełączników
+### 5.2 Zakładka „Lista karm"
+
+Centralna, **utrzymywana przez użytkownika lista rodzajów karmy**, wspólna dla wszystkich przełączników.
+Dla każdej karmy wpisujesz:
+
+* **Nazwę karmy** oraz **dostawcę / sprzedawcę**,
+* **rozmiar granulatu (mm)**,
+* cztery standardowe **wartości odżywcze** ze *składników analitycznych* producenta — **surowe
+  białko / tłuszcz / włókno / popiół (%)**,
+* opcjonalny **link do oferty / zakupu** (ukryte pole, odsłaniane przyciskiem linku) do ponownego
+  zamawiania online.
+
+Dodaj dowolną liczbę karm za pomocą **Dodaj karmę** i usuwaj je ikoną kosza. Lista jest przechowywana
+centralnie i jest też publikowana jako JSON w `info.feeds` dla VIS/widżetów. W każdej **zakładce
+przełącznika** wybierasz następnie w polu **Aktualnie załadowana karma**, która z tych karm jest obecnie
+napełniona do tego automatu — jej nazwa, rozmiar i wartości odżywcze są udostępniane jako
+`status.activeFeed*` i można je przełączać również z widżetu VIS.
+
+### 5.3 Zakładki przełączników
 
 Każdy skonfigurowany przełącznik otrzymuje własną zakładkę z jego nazwą. Zawiera ona następujące
 sekcje.
@@ -319,7 +337,7 @@ Domyślnie jest to **kalkulator** – oblicza i pokazuje zalecenie. Wyniki są p
 
 Opcjonalnie możesz pozwolić, aby ta ilość **sterowała karmieniem**: włącz **Steruj karmieniem tą ilością**, a zalecana dzienna liczba gramów zostanie przeliczona na czas działania silnika i rozłożona na karmienia w ciągu dnia. W tym celu kalibrujesz **wydajność wydawania** (g/s) — mały pomocnik uruchamia silnik na kilka sekund, abyś mógł zważyć wydaną karmę i pozwolić adapterowi obliczyć wydajność — oraz możesz ustawić opcjonalne **maksimum dzienne (g)** jako zabezpieczenie przed przekarmieniem. Ten tryb **wyklucza się wzajemnie z karmieniem dynamicznym (Q10)**; **„kiedy"** (stałe godziny / interwał / okno astronomiczne) oraz wszystkie blokady (noc, temperatura, O₂, przerwy, zima) pozostają bez zmian i zachowują priorytet. Wynikowy czas działania jest publikowany w `status.feedTargetSecondsToday` (s na dzień) i `status.feedEffectiveDurationSec` (s na karmienie); czas trwania pojedynczego karmienia jest ograniczany ze względów bezpieczeństwa.
 
-Zamiast pojedynczej wydajności możesz zdefiniować kilka **profili karmy** — nazwane rodzaje karmy (np. uniwersalna 3 mm oraz letni granulat 6 mm), każdy z **własną skalibrowaną wydajnością (g/s)**. Wydajność **aktywnego** profilu steruje obliczeniem; pomocnik kalibracji wypełnia aktywny profil. Aktywną karmę można przełączać z widżetu VIS (stan `status.activeFeedName`, efektywna wydajność `status.dispenseRate`). Gdy nie zdefiniowano żadnego profilu, używana jest pojedyncza wydajność wydawania powyżej.
+**Karma** aktualnie napełniona do automatu jest wybierana dla każdego przełącznika w polu **Aktualnie załadowana karma**, z centralnej **Listy karm** (zobacz sekcję 5.2). Jej nazwa, rozmiar granulatu i wartości odżywcze są publikowane w `status.activeFeed*` i można ją przełączać również z widżetu VIS poprzez zapisywalny stan `settings.activeFeed` (identyfikator karmy). **Wydajność wydawania (g/s)** jest kalibrowana **dla każdego przełącznika** (zależy od mechaniki automatu), niezależnie od tego, która karma jest załadowana.
 
 #### Przerwa zimowa
 
@@ -425,7 +443,7 @@ Zapowiedź jest planowana razem z każdym karmieniem. Jeśli w momencie zapowied
 pomijana, dzięki czemu nigdy nie obiecuje karmienia, które się nie odbędzie. Karmienia ręczne
 (przycisk *Nakarm teraz* / `feedFor`) nie mają wyprzedzenia i nie są zapowiadane.
 
-### 5.3 Zakładka przekaźnika (opcjonalnie)
+### 5.4 Zakładka przekaźnika (opcjonalnie)
 
 Ta zakładka pojawia się tylko wtedy, gdy w ustawieniach podstawowych włączono dla tego przełącznika
 opcję **Ten przełącznik używa płytki przekaźnikowej Automatic-Feeder …** (zobacz sekcję 5.1).
@@ -491,6 +509,7 @@ Adapter tworzy następujące punkty danych w swojej przestrzeni nazw
 | Punkt danych | Typ | Znaczenie |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter działa, a konfiguracja jest prawidłowa. |
+| `info.feeds` | string (ro) | Centralna lista karm w formacie JSON (każdy rodzaj karmy z nazwą, dostawcą, rozmiarem granulatu, wartościami odżywczymi i linkiem do oferty) — aby VIS/widżety mogły wyświetlić listę bez odczytywania konfiguracji instancji. |
 
 **Dla każdego przełącznika pod `switches.<id>.`** (`<id>` to wewnętrzny identyfikator, np. `sw-0`)
 
@@ -546,8 +565,15 @@ Bezpośrednio pod przełącznikiem znajdują się ręczny wyzwalacz oraz dwa pod
 | `status.feedTargetPortionGrams` | number (ro) | Model ilości karmy: zalecana ilość na pojedyncze karmienie (g) = ilość dzienna ÷ liczba karmień (po ograniczeniu / redukcji z powodu jakości wody). |
 | `status.feedTargetSecondsToday` | number (ro) | Model ilości karmy (tryb sterowania): łączny czas działania silnika na dzień (s) potrzebny do wydania tej ilości. 0, gdy sterowanie jest wyłączone. |
 | `status.feedEffectiveDurationSec` | number (ro) | Model ilości karmy (tryb sterowania): czas trwania pojedynczego karmienia, który aktualnie wymusza (s). 0, gdy sterowanie jest wyłączone. |
-| `status.dispenseRate` | number (ro) | Model ilości karmy: efektywna wydajność wydawania (g/s) aktywnego profilu karmy. |
-| `status.activeFeedName` | string (ro) | Model ilości karmy: nazwa aktywnego profilu karmy (pusta, gdy żaden nie jest skonfigurowany). |
+| `status.dispenseRate` | number (ro) | Model ilości karmy: skalibrowana wydajność wydawania tego przełącznika (g/s). |
+| `status.activeFeedName` | string (ro) | Aktualnie załadowana karma: nazwa (pusta, gdy żadna nie jest wybrana). |
+| `status.activeFeedVendor` | string (ro) | Aktualnie załadowana karma: dostawca / sprzedawca. |
+| `status.activeFeedSize` | number (ro) | Aktualnie załadowana karma: rozmiar granulatu (mm). |
+| `status.activeFeedProtein` | number (ro) | Aktualnie załadowana karma: surowe białko (%). |
+| `status.activeFeedFat` | number (ro) | Aktualnie załadowana karma: surowy tłuszcz (%). |
+| `status.activeFeedFibre` | number (ro) | Aktualnie załadowana karma: surowe włókno (%). |
+| `status.activeFeedAsh` | number (ro) | Aktualnie załadowana karma: surowy popiół (%). |
+| `status.activeFeedUrl` | string (ro) | Aktualnie załadowana karma: link do oferty / zakupu (opcjonalny). |
 | `status.sunrise` / `status.sunset` | string (ro) | Obliczony wschód/zachód słońca dla lokalizacji tego przełącznika (astronomiczne okno). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Wschód/zachód słońca jako czas uniksowy w ms — np. dla paska postępu dnia w VIS. |
 | `relay.connected` | boolean (ro) | Płytka przekaźnikowa skonfigurowana dla tego przełącznika jest osiągalna (tylko gdy ten przełącznik używa płytki przekaźnikowej). |

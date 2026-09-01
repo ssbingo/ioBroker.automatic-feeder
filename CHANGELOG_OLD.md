@@ -3,6 +3,11 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.12.0 (2026-08-28)
+* (ssbingo) **Feeding-amount model (advisory).** New optional per-switch calculator that estimates the **recommended daily food amount** from the **fish stock** (count and editable weight per size class 15–60 cm) and the **water temperature** (feeding percentage per temperature band), following the original feeder manual: `daily amount [g] = total fish weight × percentage(water temperature)`. Defaults are taken from the manual and stay fully editable
+* (ssbingo) The result is published in the new states **`status.fishTotalWeight`** (g), **`status.feedPercentToday`** (%) and **`status.feedTargetGramsToday`** (g); the switch tab additionally shows the estimated total weight and an example. This is a **calculator only** — it computes and shows the recommendation but does **not** change how or when the switch feeds (actually dispensing the amount is planned for a later step)
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.11.0 (2026-08-26)
 * (ssbingo) **Feeding through the relay board.** For a switch that uses the Automatic-Feeder relay board, a feeding is now triggered **primarily through the board** (`POST /api/trigger` for exactly the computed duration) instead of switching the Shelly directly. The **board itself** runs the countdown, shows it on its OLED and switches its relay off again – so its display and log finally reflect the real feeding
 * (ssbingo) **Two-tier with automatic fallback:** only when the board **cannot be reached** does the adapter fall back to switching the target (Shelly) object directly (the previous behaviour). Non-board switches are unaffected

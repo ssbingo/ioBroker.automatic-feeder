@@ -437,7 +437,15 @@ content.push(
 		'Die Liste der Fütterungsstellen (max. 5). Pro Eintrag: Aktiv-Häkchen, Name (wird zum Tab-Titel), zu schaltendes Objekt sowie – wenn diese Fütterungsstelle die optionale Relaisplatine nutzt – der Schalter „Dieser Schalter nutzt die Automatic-Feeder-Relaisplatine“ (blendet den Relais-Tab ein).',
 	),
 
-	sub('5.2  Schalter-Tabs'),
+	sub('5.2  Tab „Futterliste“'),
+	p(
+		'Eine zentrale, vom Anwender gepflegte Liste deiner Futtersorten, die für alle Schalter gilt. Pro Futter trägst du ein: Futtername und Händler, Pelletgröße (mm) sowie die vier üblichen Nährwerte aus den Herstellerangaben (analytische Bestandteile) – Rohprotein / Rohfett / Rohfaser / Rohasche (%). Ein optionaler Angebots-/Bestell-Link ist ein verstecktes Feld, das sich über die Link-Schaltfläche einblenden lässt (zum Nachbestellen).',
+	),
+	p(
+		'Füge beliebig viele Futter mit „Futter hinzufügen“ hinzu und entferne sie über das Papierkorb-Symbol. Die Liste wird zentral gespeichert und zusätzlich als JSON in info.feeds für VIS/Widgets veröffentlicht. In jedem Schalter-Tab wählst du dann unter „Aktuell befülltes Futter“, welches dieser Futter gerade in diesem Automaten befüllt ist; Name, Größe und Nährwerte stehen als status.activeFeed* bereit und lassen sich auch aus dem VIS-Widget umschalten.',
+	),
+
+	sub('5.3  Schalter-Tabs'),
 	p('Jeder aktive Schalter hat einen eigenen Tab mit den folgenden Abschnitten:'),
 	subsub('Manuelle Fütterung'),
 	p(
@@ -479,7 +487,7 @@ content.push(
 		'Für sich genommen ist das ein Rechner – er berechnet und zeigt die Empfehlung. Die Ergebnisse stehen in den Datenpunkten status.fishTotalWeight (g), status.feedPercentToday (%) und status.feedTargetGramsToday (g); der Schalter-Tab zeigt zusätzlich das geschätzte Gesamtgewicht und ein Beispiel.',
 	),
 	p(
-		'Optional kann diese Menge auch die Fütterung steuern: Aktiviere „Fütterung mit dieser Menge steuern", dann wird die empfohlene Tagesmenge (g) über die kalibrierte Dosierrate (g/s) in Motor-Laufzeit umgerechnet und auf die Fütterungen des Tages verteilt. Eine kleine Kalibrier-Hilfe lässt den Motor einige Sekunden laufen; du wiegst das ausgeworfene Futter und der Adapter berechnet die Rate. Optional begrenzt ein Tages-Maximum (g) die Menge (Überfütterungs-Schutz). Dieser Modus schließt sich mit dem dynamischen Füttern (Q10) gegenseitig aus; das „Wann" (feste Zeiten / Intervall / astronomisches Fenster) und alle Sperren bleiben unverändert und vorrangig. Die resultierende Laufzeit steht in status.feedTargetSecondsToday (s/Tag) und status.feedEffectiveDurationSec (s je Fütterung); die Dauer je Fütterung wird zur Sicherheit begrenzt. Statt einer einzelnen Rate lassen sich mehrere Futterprofile (benannte Futtersorten mit je eigener Rate g/s) anlegen; die Rate des aktiven Profils bestimmt die Berechnung, umschaltbar aus dem VIS-Widget (status.activeFeedName / status.dispenseRate).',
+		'Optional kann diese Menge auch die Fütterung steuern: Aktiviere „Fütterung mit dieser Menge steuern", dann wird die empfohlene Tagesmenge (g) über die kalibrierte Dosierrate (g/s) in Motor-Laufzeit umgerechnet und auf die Fütterungen des Tages verteilt. Eine kleine Kalibrier-Hilfe lässt den Motor einige Sekunden laufen; du wiegst das ausgeworfene Futter und der Adapter berechnet die Rate. Optional begrenzt ein Tages-Maximum (g) die Menge (Überfütterungs-Schutz). Dieser Modus schließt sich mit dem dynamischen Füttern (Q10) gegenseitig aus; das „Wann" (feste Zeiten / Intervall / astronomisches Fenster) und alle Sperren bleiben unverändert und vorrangig. Die resultierende Laufzeit steht in status.feedTargetSecondsToday (s/Tag) und status.feedEffectiveDurationSec (s je Fütterung); die Dauer je Fütterung wird zur Sicherheit begrenzt. Das gerade befüllte Futter wählst du je Schalter unter „Aktuell befülltes Futter“ aus der zentralen Futterliste (Abschnitt 5.2); Name, Größe und Nährwerte stehen in status.activeFeed*, umschaltbar auch aus dem VIS-Widget über settings.activeFeed. Die Dosierrate (g/s) wird je Schalter kalibriert, unabhängig davon, welches Futter befüllt ist.',
 	),
 	subsub('Einschränkungen'),
 	p(
@@ -510,7 +518,7 @@ content.push(
 		'Kündigt eine bevorstehende Fütterung eine einstellbare Zeit im Voraus an, per Telegram und/oder Sayit – z. B. „Achtung! Die nächste Fütterung beginnt in 5 Minuten. Die Fütterung wird ca. 8 Sekunden dauern.“ Die Ansage wird übersprungen, wenn die Fütterung zu diesem Zeitpunkt gesperrt oder pausiert wäre.',
 	),
 
-	sub('5.3  Relaisplatinen-Tab (optional)'),
+	sub('5.4  Relaisplatinen-Tab (optional)'),
 	p(
 		'Erscheint nur, wenn für den Schalter die Relaisplatine aktiviert ist. Hier stellst du die Adresse der Platine (IP oder mDNS, Port 80) ein, testest die Verbindung, liest/schreibst die drei Tasten-Fütterungszeiten S1–S3, kannst die Platine neu starten und siehst unten eine Systemübersicht (Firmware-Version und -Build, IP, WLAN, Signal, MAC, Betriebszeit, freier Speicher, letzter Neustartgrund in Worten). Beim Öffnen des Tabs werden Verbindungstest und Einlesen der Platinendaten automatisch einmal ausgeführt, sofern eine Adresse hinterlegt ist.',
 	),
@@ -530,7 +538,14 @@ content.push(
 	sub('Global'),
 	table(
 		['Datenpunkt', 'Typ', 'Bedeutung'],
-		[['info.connection', 'boolean (ro)', 'Adapter läuft und die Konfiguration ist gültig.']],
+		[
+			['info.connection', 'boolean (ro)', 'Adapter läuft und die Konfiguration ist gültig.'],
+			[
+				'info.feeds',
+				'string (ro)',
+				'Zentrale Futterliste als JSON (Name, Händler, Pelletgröße, Nährwerte, Angebots-Link) – für VIS/Widgets.',
+			],
+		],
 		['auto', 'auto', '*'],
 	),
 	sub('Je Schalter (switches.<id>.)'),
@@ -596,9 +611,14 @@ content.push(
 				'Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist.',
 			],
 			[
-				'status.dispenseRate / activeFeedName',
-				'number/string (ro)',
-				'Futtermengen-Modell: effektive Dosierrate (g/s) und Name des aktiven Futterprofils.',
+				'status.dispenseRate',
+				'number (ro)',
+				'Futtermengen-Modell: kalibrierte Dosierrate (g/s) dieses Schalters.',
+			],
+			[
+				'status.activeFeedName / Vendor / Size / Protein / Fat / Fibre / Ash / Url',
+				'string/number (ro)',
+				'Aktuell befülltes Futter: Name, Händler, Pelletgröße (mm), Nährwerte (Rohprotein/-fett/-faser/-asche %) und Angebots-Link.',
 			],
 			['status.sunrise / sunset / …Ts', 'string/number (ro)', 'Berechneter Sonnenauf-/-untergang.'],
 			[

@@ -183,9 +183,28 @@ verwijder je er een. Bij het verwijderen worden ook diens datapunten gewist.
 * **Deze schakelaar gebruikt de Automatic-Feeder relaisprint (voegt een relaistabblad toe)**
   (aan/uit-schakelaar) – schakel dit alleen in voor een schakelaar waarvan het voederstation de
   optionele Automatic-Feeder relaisprint (ESP32) gebruikt. Wanneer ingeschakeld krijgt díe
-  schakelaar een extra **Relais**-tabblad (zie sectie 5.3).
+  schakelaar een extra **Relais**-tabblad (zie sectie 5.4).
 
-### 5.2 Schakelaar-tabbladen
+### 5.2 Voerlijst-tabblad
+
+Een centrale, **door de gebruiker beheerde lijst van je voersoorten**, gedeeld door alle
+schakelaars. Voor elk voer voer je in:
+
+* **voernaam** en **leverancier / dealer**,
+* **pelletgrootte (mm)**,
+* de vier standaard **voedingswaarden** uit de *analytische bestanddelen* van de fabrikant —
+  **ruw eiwit / ruw vet / ruwe celstof / ruwe as (%)**,
+* een optionele **aanbiedings- / aankooplink** (een verborgen veld, zichtbaar via de link-knop) om
+  online bij te bestellen.
+
+Voeg zoveel voersoorten toe als je wilt met **Voer toevoegen** en verwijder ze met het
+prullenbak-symbool. De lijst wordt centraal opgeslagen en wordt ook als JSON in `info.feeds`
+gepubliceerd voor VIS/widgets. In elk **schakelaar-tabblad** kies je vervolgens, onder **Momenteel
+geladen voer**, welk van deze voersoorten momenteel in die automaat zit — de naam, grootte en
+voedingswaarden ervan worden als `status.activeFeed*` beschikbaar gesteld en kunnen ook vanuit de
+VIS-widget worden gewisseld.
+
+### 5.3 Schakelaar-tabbladen
 
 Elke geconfigureerde schakelaar krijgt een eigen tabblad met zijn naam. Het bevat de volgende
 secties.
@@ -297,7 +316,7 @@ Dit is een **rekenmachine** — het berekent en toont de aanbeveling. De resulta
 
 Optioneel kun je deze hoeveelheid de **voedering laten regelen**: schakel **Voedering regelen met deze hoeveelheid** in en de aanbevolen dagelijkse grammen worden omgerekend naar motorlooptijd en over de voederingen van de dag verdeeld. Daarvoor kalibreer je de **doseersnelheid** (g/s) — een kleine hulp laat de motor enkele seconden lopen zodat je het afgegeven voer kunt wegen en de adapter de snelheid laat berekenen — en kun je een optioneel **dagmaximum (g)** instellen als beveiliging tegen overvoeren. Deze modus is **wederzijds uitsluitend met dynamisch voeren (Q10)**; het **„wanneer"** (vaste tijden / interval / astronomisch venster) en alle blokkeringen (nacht, temperatuur, O₂, pauzes, winter) blijven ongewijzigd en behouden voorrang. De resulterende looptijd wordt gepubliceerd in `status.feedTargetSecondsToday` (s per dag) en `status.feedEffectiveDurationSec` (s per voedering); de duur per voedering wordt voor de veiligheid begrensd.
 
-In plaats van één enkele snelheid kun je meerdere **voederprofielen** definiëren — benoemde voersoorten (bijv. een 3 mm allround en een 6 mm zomerpellet) elk met een **eigen gekalibreerde snelheid (g/s)**. De snelheid van het **actieve** profiel stuurt de berekening aan; de kalibratiehulp vult het actieve profiel. Het actieve voer kan vanuit de VIS-widget worden gewisseld (state `status.activeFeedName`, effectieve snelheid `status.dispenseRate`). Zonder gedefinieerd profiel wordt de hierboven genoemde enkele doseersnelheid gebruikt.
+Het voer dat momenteel in de automaat zit, kies je per schakelaar onder **Momenteel geladen voer**, uit de centrale **voerlijst** (zie sectie 5.2). De naam, pelletgrootte en voedingswaarden ervan worden gepubliceerd in `status.activeFeed*` en het kan ook vanuit de VIS-widget worden gewisseld via de beschrijfbare state `settings.activeFeed` (het id van het voer). De **doseersnelheid (g/s)** wordt **per schakelaar** gekalibreerd (ze hangt af van de mechaniek van de automaat), onafhankelijk van welk voer geladen is.
 
 #### Winterpauze
 
@@ -401,7 +420,7 @@ wordt de aankondiging overgeslagen, zodat er nooit een voedering wordt beloofd d
 Handmatige voederingen (de knop *Nu voeren* / `feedFor`) hebben geen voorlooptijd en worden niet
 aangekondigd.
 
-### 5.3 Relaisprint-tabblad (optioneel)
+### 5.4 Relaisprint-tabblad (optioneel)
 
 Dit tabblad verschijnt alleen wanneer de per-schakelaar-optie **Deze schakelaar gebruikt de
 Automatic-Feeder relaisprint …** van deze schakelaar in de algemene instellingen is ingeschakeld
@@ -468,6 +487,7 @@ De adapter legt de volgende datapunten in zijn namespace aan
 | Datapunt | Type | Betekenis |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter draait en de configuratie is geldig. |
+| `info.feeds` | string (ro) | De centrale **voerlijst** als JSON (elke voersoort met naam, leverancier, pelletgrootte, voedingswaarden en aanbiedingslink) — zodat VIS/widgets de lijst kunnen weergeven zonder de instantieconfiguratie te lezen. |
 
 **Per schakelaar onder `switches.<id>.`** (`<id>` is een interne ID zoals `sw-0`)
 
@@ -523,8 +543,15 @@ Direct onder de schakelaar bevinden zich de handmatige trigger en twee subkanale
 | `status.feedTargetPortionGrams` | number (ro) | Voederhoeveelheidsmodel: aanbevolen hoeveelheid per afzonderlijke voedering (g) = dagelijkse hoeveelheid ÷ voederingen (na begrenzing / verlaging bij waterkwaliteit). |
 | `status.feedTargetSecondsToday` | number (ro) | Voederhoeveelheidsmodel (regelmodus): totale motorlooptijd per dag (s) om de hoeveelheid te doseren. 0 wanneer regelen uit staat. |
 | `status.feedEffectiveDurationSec` | number (ro) | Voederhoeveelheidsmodel (regelmodus): duur per voedering die het momenteel aanstuurt (s). 0 wanneer regelen uit staat. |
-| `status.dispenseRate` | number (ro) | Voederhoeveelheidsmodel: effectieve doseersnelheid (g/s) van het actieve voederprofiel. |
-| `status.activeFeedName` | string (ro) | Voederhoeveelheidsmodel: naam van het actieve voederprofiel (leeg wanneer er geen is geconfigureerd). |
+| `status.dispenseRate` | number (ro) | Voederhoeveelheidsmodel: de gekalibreerde doseersnelheid van deze schakelaar (g/s). |
+| `status.activeFeedName` | string (ro) | Momenteel geladen voer: naam (leeg wanneer er niets is geselecteerd). |
+| `status.activeFeedVendor` | string (ro) | Momenteel geladen voer: leverancier / dealer. |
+| `status.activeFeedSize` | number (ro) | Momenteel geladen voer: pelletgrootte (mm). |
+| `status.activeFeedProtein` | number (ro) | Momenteel geladen voer: ruw eiwit (%). |
+| `status.activeFeedFat` | number (ro) | Momenteel geladen voer: ruw vet (%). |
+| `status.activeFeedFibre` | number (ro) | Momenteel geladen voer: ruwe celstof (%). |
+| `status.activeFeedAsh` | number (ro) | Momenteel geladen voer: ruwe as (%). |
+| `status.activeFeedUrl` | string (ro) | Momenteel geladen voer: aanbiedings- / aankooplink (optioneel). |
 | `status.sunrise` / `status.sunset` | string (ro) | Berekende zonsop-/-ondergang voor de locatie van deze schakelaar (astronomisch venster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Zonsop-/-ondergang als Unix-tijd in ms — bijv. voor een dagvoortgangsbalk in VIS. |
 | `relay.connected` | boolean (ro) | De voor deze schakelaar geconfigureerde relaisprint is bereikbaar (alleen wanneer deze schakelaar een relaisprint gebruikt). |

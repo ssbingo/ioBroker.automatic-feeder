@@ -113,6 +113,13 @@ const STATUS_STATE_IDS = [
 	'feedEffectiveDurationSec',
 	'dispenseRate',
 	'activeFeedName',
+	'activeFeedVendor',
+	'activeFeedSize',
+	'activeFeedProtein',
+	'activeFeedFat',
+	'activeFeedFibre',
+	'activeFeedAsh',
+	'activeFeedUrl',
 	'sunrise',
 	'sunriseTs',
 	'sunset',
@@ -168,7 +175,6 @@ const NUMERIC_BOUNDS = {
 	feedPct28: [0, 10],
 	feedPct30: [0, 10],
 	dispenseGramsPerSec: [0, 100000],
-	activeFeed: [0, 999],
 };
 
 /**
@@ -291,10 +297,9 @@ const SWITCH_DEFAULTS = {
 	amountControlEnabled: false,
 	dispenseGramsPerSec: 0,
 	feedDailyMaxGrams: null,
-	// feed profiles: named food types each with their own calibrated dispense rate (g/s).
-	// The active profile's rate drives Phase B; empty list falls back to dispenseGramsPerSec.
-	feedProfiles: [],
-	activeFeed: 0,
+	// currently loaded feed: id referencing an entry in the central feed list (native.feeds).
+	// Empty = no feed selected. The dispense rate stays per-switch (dispenseGramsPerSec).
+	activeFeed: '',
 };
 
 /**
@@ -924,10 +929,10 @@ const SWITCH_SETTINGS = [
 	},
 	{
 		id: 'activeFeed',
-		name: 'Active feed profile (index)',
-		type: 'number',
-		role: 'value',
-		get: sw => Math.max(0, Math.floor(Number(sw.activeFeed) || 0)),
+		name: 'Currently loaded feed (id from the central feed list)',
+		type: 'string',
+		role: 'text',
+		get: sw => String(sw.activeFeed || ''),
 	},
 ];
 
@@ -987,6 +992,8 @@ class AutomaticFeeder extends utils.Adapter {
 		this.dynamicAppliedInterval = new Map();
 
 		this.switches = [];
+		// central feed list (user-maintained food types); loaded from native.feeds in onReady
+		this.feeds = [];
 
 		// message language for user-facing texts (lastResult + Telegram);
 		// resolved from the ioBroker system language in onReady, English fallback
@@ -1202,10 +1209,18 @@ class AutomaticFeeder extends utils.Adapter {
 				return; // configuration was rewritten -> the adapter restarts
 			}
 
+			// --- one-time migration of the per-switch feed profiles into the central feed list ---
+			if (await this.migrateFeedList()) {
+				return; // configuration was rewritten -> the adapter restarts
+			}
+
 			// --- backfill defaults for switches created by older versions ---
 			if (await this.migrateSwitchDefaults()) {
 				return; // configuration was rewritten -> the adapter restarts
 			}
+
+			// --- central feed list (user-maintained food types) ---
+			this.feeds = Array.isArray(this.config.feeds) ? this.config.feeds : [];
 
 			this.log.debug(
 				`Configuration: ${JSON.stringify({
@@ -1493,46 +1508,86 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * The feed profiles configured for a switch, as a clean array of {name, gramsPerSec}.
+	 * The central feed list (native.feeds), cleaned to a stable array. Loaded in onReady into
+	 * `this.feeds`; each entry is a user-maintained food type.
 	 *
-	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
-	 * @returns {{name: string, gramsPerSec: number}[]} the profiles (possibly empty)
+	 * @returns {{id: string, name: string, vendor: string, size: number, protein: number, fat: number, fibre: number, ash: number, url: string}[]}
 	 */
-
-	feedProfilesOf(sw) {
-		return Array.isArray(sw.feedProfiles)
-			? sw.feedProfiles
-					.filter(p => p && typeof p === 'object')
-					.map(p => ({ name: String(p.name ?? ''), gramsPerSec: Number(p.gramsPerSec) || 0 }))
-			: [];
+	feedList() {
+		return Array.isArray(this.feeds) ? this.feeds.filter(f => f && f.id) : [];
 	}
 
 	/**
-	 * Effective dispense rate (g/s): the active feed profile's rate, or the single
-	 * `dispenseGramsPerSec` when no (valid) profile is configured.
+	 * Looks up a feed in the central list by its id.
+	 *
+	 * @param {string} id - feed id (from native.feeds)
+	 * @returns {object|null} the feed entry, or null when not found
+	 */
+	feedById(id) {
+		if (!id) {
+			return null;
+		}
+		return this.feedList().find(f => String(f.id) === String(id)) || null;
+	}
+
+	/**
+	 * The feed currently loaded in a switch's feeder — the central-list entry referenced by
+	 * `sw.activeFeed` (an id), or null when none is selected.
+	 *
+	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
+	 * @returns {object|null} the active feed entry, or null
+	 */
+	activeFeedOf(sw) {
+		return this.feedById(sw && sw.activeFeed);
+	}
+
+	/**
+	 * Effective dispense rate (g/s): calibrated per switch (independent of the loaded feed).
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
 	 * @returns {number} dispense rate in g/s
 	 */
+
 	dispenseRateFor(sw) {
-		const profs = this.feedProfilesOf(sw);
-		const i = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
-		if (profs.length && profs[i] && profs[i].gramsPerSec > 0) {
-			return profs[i].gramsPerSec;
-		}
 		return Number(sw.dispenseGramsPerSec) || 0;
 	}
 
 	/**
-	 * Name of the active feed profile (empty when no profiles are configured).
+	 * Name of the feed currently loaded in a switch (empty when none is selected).
 	 *
 	 * @param {ioBroker.AutomaticFeederSwitchConfig} sw - switch configuration
-	 * @returns {string} the active profile name, or ''
+	 * @returns {string} the active feed name, or ''
 	 */
 	activeFeedName(sw) {
-		const profs = this.feedProfilesOf(sw);
-		const i = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
-		return profs.length && profs[i] ? profs[i].name : '';
+		const f = this.activeFeedOf(sw);
+		return f ? String(f.name || '') : '';
+	}
+
+	/**
+	 * Writes the "currently loaded feed" status states (name/vendor/size/nutrition/url) for a switch
+	 * from a central feed entry, or clears them when feed is null.
+	 *
+	 * @param {string} base - "switches.<id>.status"
+	 * @param {object|null} feed - the active feed entry from the central list, or null
+	 */
+	setActiveFeedStatus(base, feed) {
+		const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+		this.setStateAsync(`${base}.activeFeedName`, { val: feed ? String(feed.name || '') : '', ack: true }).catch(
+			() => {},
+		);
+		this.setStateAsync(`${base}.activeFeedVendor`, { val: feed ? String(feed.vendor || '') : '', ack: true }).catch(
+			() => {},
+		);
+		this.setStateAsync(`${base}.activeFeedSize`, { val: feed ? num(feed.size) : 0, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.activeFeedProtein`, { val: feed ? num(feed.protein) : 0, ack: true }).catch(
+			() => {},
+		);
+		this.setStateAsync(`${base}.activeFeedFat`, { val: feed ? num(feed.fat) : 0, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.activeFeedFibre`, { val: feed ? num(feed.fibre) : 0, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.activeFeedAsh`, { val: feed ? num(feed.ash) : 0, ack: true }).catch(() => {});
+		this.setStateAsync(`${base}.activeFeedUrl`, { val: feed ? String(feed.url || '') : '', ack: true }).catch(
+			() => {},
+		);
 	}
 
 	/**
@@ -1549,7 +1604,7 @@ class AutomaticFeeder extends utils.Adapter {
 		const wqFactor = this.waterQualityFactor(sw);
 		const reduced = grams == null ? null : grams * wqFactor;
 		const capped = applyDailyCap(reduced, sw.feedDailyMaxGrams);
-		// the active feed profile's rate drives Phase B (falls back to the single rate)
+		// dispense rate is calibrated per switch (independent of the loaded feed)
 		const rate = this.dispenseRateFor(sw);
 		const N = this.feedingsPerDay(sw);
 		const dailySec = dispenseSeconds(capped, rate);
@@ -1580,14 +1635,14 @@ class AutomaticFeeder extends utils.Adapter {
 			this.setStateAsync(`${base}.feedTargetSecondsToday`, { val: 0, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.feedEffectiveDurationSec`, { val: 0, ack: true }).catch(() => {});
 			this.setStateAsync(`${base}.dispenseRate`, { val: 0, ack: true }).catch(() => {});
-			this.setStateAsync(`${base}.activeFeedName`, { val: '', ack: true }).catch(() => {});
+			this.setActiveFeedStatus(base, null);
 			return;
 		}
 		this.setStateAsync(`${base}.fishTotalWeight`, { val: weight, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedPercentToday`, { val: percent, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.feedTargetGramsToday`, { val: grams, ack: true }).catch(() => {});
 		this.setStateAsync(`${base}.dispenseRate`, { val: this.dispenseRateFor(sw), ack: true }).catch(() => {});
-		this.setStateAsync(`${base}.activeFeedName`, { val: this.activeFeedName(sw), ack: true }).catch(() => {});
+		this.setActiveFeedStatus(base, this.activeFeedOf(sw));
 		this.log.debug(
 			`Feeding-amount ${this.swLabel(sw)}: weight=${weight} g, water=${temp == null ? '?' : temp} °C ` +
 				`-> ${percent == null ? '?' : percent} % -> ${grams == null ? '?' : grams} g/day.`,
@@ -1685,6 +1740,20 @@ class AutomaticFeeder extends utils.Adapter {
 			},
 			native: {},
 		});
+		// central feed list, mirrored as JSON for VIS/widgets (read-only)
+		await this.setObjectNotExistsAsync('info.feeds', {
+			type: 'state',
+			common: {
+				name: 'Central feed list (JSON)',
+				type: 'string',
+				role: 'json',
+				read: true,
+				write: false,
+				def: '[]',
+			},
+			native: {},
+		});
+		await this.setStateAsync('info.feeds', { val: JSON.stringify(this.feedList()), ack: true }).catch(() => {});
 		// legacy global states that moved per switch (temperature mirrors + sun times): remove them
 		for (const legacy of ['airTemperature', 'waterTemperature', 'sunrise', 'sunset']) {
 			if (await this.getObjectAsync(legacy)) {
@@ -2201,7 +2270,7 @@ class AutomaticFeeder extends utils.Adapter {
 			await this.setObjectNotExistsAsync(`${base}.status.dispenseRate`, {
 				type: 'state',
 				common: {
-					name: 'Feeding-amount model: effective dispense rate of the active feed',
+					name: 'Feeding-amount model: calibrated dispense rate of this switch',
 					type: 'number',
 					role: 'value',
 					unit: 'g/s',
@@ -2213,9 +2282,91 @@ class AutomaticFeeder extends utils.Adapter {
 			await this.setObjectNotExistsAsync(`${base}.status.activeFeedName`, {
 				type: 'state',
 				common: {
-					name: 'Feeding-amount model: name of the active feed profile',
+					name: 'Currently loaded feed: name',
 					type: 'string',
 					role: 'text',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedVendor`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: vendor / dealer',
+					type: 'string',
+					role: 'text',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedSize`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: pellet size',
+					type: 'number',
+					role: 'value',
+					unit: 'mm',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedProtein`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: crude protein',
+					type: 'number',
+					role: 'value',
+					unit: '%',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedFat`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: crude fat',
+					type: 'number',
+					role: 'value',
+					unit: '%',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedFibre`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: crude fibre',
+					type: 'number',
+					role: 'value',
+					unit: '%',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedAsh`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: crude ash',
+					type: 'number',
+					role: 'value',
+					unit: '%',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${base}.status.activeFeedUrl`, {
+				type: 'state',
+				common: {
+					name: 'Currently loaded feed: offer / purchase link',
+					type: 'string',
+					role: 'url',
 					read: true,
 					write: false,
 				},
@@ -2369,8 +2520,11 @@ class AutomaticFeeder extends utils.Adapter {
 					},
 					native: {},
 				});
-				// keep role + write flag in sync for objects created by older versions
-				await this.extendObjectAsync(`${base}.settings.${s.id}`, { common: { role, write: writable } });
+				// keep type + role + write flag in sync for objects created by older versions
+				// (e.g. activeFeed changed from number index to string id)
+				await this.extendObjectAsync(`${base}.settings.${s.id}`, {
+					common: { type: asCommonType(s.type), role, write: writable, ...(s.unit ? { unit: s.unit } : {}) },
+				});
 				await this.setStateAsync(`${base}.settings.${s.id}`, { val: s.get(sw), ack: true });
 			}
 		}
@@ -2446,6 +2600,95 @@ class AutomaticFeeder extends utils.Adapter {
 		await this.setForeignObjectAsync(objId, obj);
 		this.log.info(
 			`Migrated the global temperature/oxygen source(s) into ${switches.length} switch(es); the adapter restarts to apply the new per-switch configuration.`,
+		);
+		return true;
+	}
+
+	/**
+	 * One-time migration: turns the per-switch feed profiles (v1.17.0) into the central feed list.
+	 * All switches' profiles are merged (deduplicated by name) into native.feeds with generated ids;
+	 * each switch's dispenseGramsPerSec is backfilled from its active profile's rate when still unset,
+	 * its numeric activeFeed index is replaced by the matching feed id, and the obsolete feedProfiles
+	 * array is removed. Writing the instance config restarts the adapter; idempotent afterwards.
+	 *
+	 * @returns {Promise<boolean>} true if the configuration was rewritten (restart imminent)
+	 */
+	async migrateFeedList() {
+		if (this.config.feedListMigrated) {
+			return false;
+		}
+		const objId = `system.adapter.${this.namespace}`;
+		let obj;
+		try {
+			obj = await this.getForeignObjectAsync(objId);
+		} catch (e) {
+			this.log.warn(`Feed-list migration skipped (could not read ${objId}): ${e.message}`);
+			return false;
+		}
+		if (!obj || !obj.native) {
+			return false;
+		}
+		const switches = Array.isArray(obj.native.switches) ? obj.native.switches : [];
+		const feeds = Array.isArray(obj.native.feeds) ? obj.native.feeds : [];
+		const byName = new Map(
+			feeds.map(f => [
+				String((f && f.name) || '')
+					.trim()
+					.toLowerCase(),
+				f,
+			]),
+		);
+		let counter = 0;
+		const makeId = () => `feed_${Date.now().toString(36)}${(counter++).toString(36)}`;
+		for (const sw of switches) {
+			const profs = Array.isArray(sw.feedProfiles) ? sw.feedProfiles : [];
+			if (profs.length) {
+				const idx = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
+				// merge every profile into the central list (dedup by name), keep the active one's id
+				const ids = profs.map(p => {
+					const name = String((p && p.name) || '').trim();
+					const key = name.toLowerCase();
+					let feed = key ? byName.get(key) : null;
+					if (!feed) {
+						feed = {
+							id: makeId(),
+							name,
+							vendor: '',
+							size: 0,
+							protein: 0,
+							fat: 0,
+							fibre: 0,
+							ash: 0,
+							url: '',
+						};
+						feeds.push(feed);
+						if (key) {
+							byName.set(key, feed);
+						}
+					}
+					return feed.id;
+				});
+				// preserve the calibrated dispense rate of the previously active profile
+				const activeProf = profs[idx];
+				if (
+					(!sw.dispenseGramsPerSec || Number(sw.dispenseGramsPerSec) === 0) &&
+					activeProf &&
+					Number(activeProf.gramsPerSec) > 0
+				) {
+					sw.dispenseGramsPerSec = Number(activeProf.gramsPerSec);
+				}
+				sw.activeFeed = ids[idx] || ids[0] || '';
+			} else {
+				// no profiles: normalise the old numeric activeFeed to an (empty) id string
+				sw.activeFeed = typeof sw.activeFeed === 'string' ? sw.activeFeed : '';
+			}
+			delete sw.feedProfiles;
+		}
+		obj.native.feeds = feeds;
+		obj.native.feedListMigrated = true;
+		await this.setForeignObjectAsync(objId, obj);
+		this.log.info(
+			`Migrated per-switch feed profiles into a central feed list (${feeds.length} feed(s)); the adapter restarts to apply it.`,
 		);
 		return true;
 	}

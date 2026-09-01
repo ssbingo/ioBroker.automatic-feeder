@@ -192,9 +192,28 @@ Alla rimozione vengono cancellati anche i relativi punti dati.
 * **Questo interruttore usa la scheda relè Automatic-Feeder (aggiunge una scheda relè)**
   (interruttore acceso/spento) – attivala solo per un interruttore la cui stazione di alimentazione
   usa la scheda relè Automatic-Feeder opzionale (ESP32). Quando è attiva, quell'interruttore ottiene
-  una scheda **Relè** aggiuntiva (vedi sezione 5.3).
+  una scheda **Relè** aggiuntiva (vedi sezione 5.4).
 
-### 5.2 Schede degli interruttori
+### 5.2 Scheda Elenco mangimi
+
+Un elenco centrale, **gestito dall'utente, dei tuoi tipi di mangime**, condiviso da tutti gli
+interruttori. Per ogni mangime inserisci:
+
+* **Nome del mangime** e **fornitore / rivenditore**,
+* **dimensione del pellet (mm)**,
+* i quattro **valori nutrizionali** standard dai *costituenti analitici* del produttore —
+  **proteina grezza / grassi grezzi / fibra grezza / ceneri grezze (%)**,
+* un **link all'offerta / di acquisto** facoltativo (un campo nascosto, mostrato con il pulsante del
+  link) per riordinare online.
+
+Aggiungi tutti i mangimi che vuoi con **Aggiungi mangime** e rimuovili con l'icona del cestino.
+L'elenco è memorizzato centralmente ed è anche pubblicato in formato JSON in `info.feeds` per VIS/i
+widget. In ogni **scheda dell'interruttore** scegli poi, sotto **Mangime attualmente caricato**,
+quale di questi mangimi è attualmente caricato in quel distributore — il suo nome, la dimensione e i
+valori nutrizionali sono esposti come `status.activeFeed*` e possono essere cambiati anche dal widget
+VIS.
+
+### 5.3 Schede degli interruttori
 
 Ogni interruttore configurato riceve una propria scheda con il suo nome. Contiene le seguenti
 sezioni.
@@ -332,7 +351,7 @@ Si tratta di un **calcolatore**: calcola e mostra la raccomandazione. I risultat
 
 Facoltativamente puoi lasciare che questa quantità **controlli l'alimentazione**: attiva **Controlla l'alimentazione con questa quantità** e i grammi giornalieri consigliati vengono convertiti in tempo di funzionamento del motore e ripartiti tra le distribuzioni della giornata. A tal fine calibri la **portata di erogazione** (g/s) — un piccolo strumento di aiuto fa girare il motore per alcuni secondi, così puoi pesare il mangime erogato e lasciare che l'adattatore calcoli la portata — e puoi impostare un **massimo giornaliero (g)** facoltativo come protezione contro la sovralimentazione. Questa modalità è **mutuamente esclusiva con l'alimentazione dinamica (Q10)**; il **„quando"** (orari fissi / intervallo / finestra astronomica) e tutti i blocchi (notte, temperatura, O₂, pause, inverno) restano invariati e mantengono la priorità. Il tempo di funzionamento risultante viene pubblicato in `status.feedTargetSecondsToday` (s al giorno) e `status.feedEffectiveDurationSec` (s per distribuzione); la durata per singola distribuzione è limitata per sicurezza.
 
-Invece di un'unica portata puoi definire diversi **profili di mangime** — tipi di mangime con nome (ad es. un pellet universale da 3 mm e un pellet estivo da 6 mm), ciascuno con la propria **portata calibrata (g/s)**. La portata del profilo **attivo** pilota il calcolo; lo strumento di aiuto per la calibrazione riempie il profilo attivo. Il mangime attivo può essere cambiato dal widget VIS (stato `status.activeFeedName`, portata effettiva `status.dispenseRate`). Se non è definito alcun profilo, viene usata l'unica portata di erogazione indicata sopra.
+Il **mangime** attualmente caricato nel distributore si sceglie per ogni interruttore sotto **Mangime attualmente caricato**, dall'**Elenco mangimi** centrale (vedi 5.2). Il suo nome, la dimensione del pellet e i valori nutrizionali vengono pubblicati in `status.activeFeed*` e può anche essere cambiato dal widget VIS tramite lo stato modificabile `settings.activeFeed` (l'id del mangime). La **portata di erogazione (g/s)** è calibrata **per ogni interruttore** (dipende dalla meccanica del distributore), indipendentemente dal mangime caricato.
 
 #### Pausa invernale
 
@@ -459,7 +478,7 @@ alimentazione), l'annuncio viene saltato, così non promette mai una distribuzio
 Le distribuzioni manuali (il pulsante *Distribuisci ora* / `feedFor`) non hanno anticipo e non
 vengono annunciate.
 
-### 5.3 Scheda Relè (opzionale)
+### 5.4 Scheda Relè (opzionale)
 
 Questa scheda compare solo quando l'opzione per interruttore **Questo interruttore usa la scheda
 relè Automatic-Feeder …** di questo interruttore è attiva nelle impostazioni di base (vedi sezione
@@ -527,6 +546,7 @@ L'adattatore crea i seguenti punti dati nel suo namespace
 | Punto dati | Tipo | Significato |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | L'adattatore è in esecuzione e la configurazione è valida. |
+| `info.feeds` | string (ro) | L'elenco centrale dei mangimi in formato JSON (ogni tipo di mangime con nome, fornitore, dimensione del pellet, valori nutrizionali e link all'offerta) — per far sì che VIS/i widget mostrino l'elenco senza leggere la configurazione dell'istanza. |
 
 **Per ogni interruttore sotto `switches.<id>.`** (`<id>` è un ID interno come `sw-0`)
 
@@ -581,8 +601,15 @@ Direttamente sotto l'interruttore si trovano l'attivatore manuale e due sotto-ca
 | `status.feedTargetPortionGrams` | number (ro) | Modello della quantità di mangime: quantità consigliata per singola distribuzione (g) = quantità giornaliera ÷ distribuzioni (dopo il limite massimo / la riduzione per la qualità dell'acqua). |
 | `status.feedTargetSecondsToday` | number (ro) | Modello della quantità di mangime (modalità di controllo): tempo di funzionamento totale del motore al giorno (s) per erogare la quantità. 0 quando il controllo è disattivato. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modello della quantità di mangime (modalità di controllo): durata per distribuzione attualmente pilotata (s). 0 quando il controllo è disattivato. |
-| `status.dispenseRate` | number (ro) | Modello della quantità di mangime: portata di erogazione effettiva (g/s) del profilo di mangime attivo. |
-| `status.activeFeedName` | string (ro) | Modello della quantità di mangime: nome del profilo di mangime attivo (vuoto quando nessuno è configurato). |
+| `status.dispenseRate` | number (ro) | Modello della quantità di mangime: portata di erogazione calibrata di questo interruttore (g/s). |
+| `status.activeFeedName` | string (ro) | Mangime attualmente caricato: nome (vuoto quando nessuno è selezionato). |
+| `status.activeFeedVendor` | string (ro) | Mangime attualmente caricato: fornitore / rivenditore. |
+| `status.activeFeedSize` | number (ro) | Mangime attualmente caricato: dimensione del pellet (mm). |
+| `status.activeFeedProtein` | number (ro) | Mangime attualmente caricato: proteina grezza (%). |
+| `status.activeFeedFat` | number (ro) | Mangime attualmente caricato: grassi grezzi (%). |
+| `status.activeFeedFibre` | number (ro) | Mangime attualmente caricato: fibra grezza (%). |
+| `status.activeFeedAsh` | number (ro) | Mangime attualmente caricato: ceneri grezze (%). |
+| `status.activeFeedUrl` | string (ro) | Mangime attualmente caricato: link all'offerta / di acquisto (facoltativo). |
 | `status.sunrise` / `status.sunset` | string (ro) | Alba/tramonto calcolati per la posizione di questo interruttore (finestra astronomica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Alba/tramonto come tempo Unix in ms — ad es. per una barra di avanzamento del giorno in VIS. |
 | `relay.connected` | boolean (ro) | La scheda relè configurata per questo interruttore è raggiungibile (solo quando questo interruttore usa una scheda relè). |

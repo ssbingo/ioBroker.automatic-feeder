@@ -246,12 +246,17 @@ declare global {
 			dispenseGramsPerSec: number;
 			feedDailyMaxGrams: number | null;
 			/**
-			 * Feed profiles: named food types each with their own calibrated dispense rate (g/s).
-			 * The active profile (`activeFeed` index) drives Phase B; an empty list falls back to
-			 * `dispenseGramsPerSec`.
+			 * Currently loaded feed: the `id` of an entry in the central feed list
+			 * ({@link AdapterConfig.feeds}). Empty = no feed selected. The dispense rate stays
+			 * per-switch (`dispenseGramsPerSec`).
 			 */
-			feedProfiles: { name: string; gramsPerSec: number }[];
-			activeFeed: number;
+			activeFeed: string;
+			/**
+			 * @deprecated v1.17.0 per-switch feed profiles — migrated into the central feed list
+			 * (see {@link AdapterConfig.feeds}) by `migrateFeedList`. Kept only so the migration can
+			 * still read it from old configurations.
+			 */
+			feedProfiles?: { name: string; gramsPerSec: number }[];
 			/**
 			 * Use the Automatic-Feeder relay board for THIS switch. Decided per switch:
 			 * when on, this switch gets a "Relay" tab and its board is configured/polled.
@@ -307,6 +312,24 @@ declare global {
 			sourcesMigratedToSwitches: boolean;
 			/** Set to true once the Phase-4 location/astro-window migration has run. */
 			phase4Migrated: boolean;
+			/** Set to true once the per-switch feed profiles have been merged into the central feed list. */
+			feedListMigrated: boolean;
+			/**
+			 * Central, user-maintained feed list (food types). Each switch's `activeFeed` references an
+			 * entry by `id`. Sizes/nutrition come from the manufacturer's specs; `url` is an optional
+			 * offer/purchase link.
+			 */
+			feeds: {
+				id: string;
+				name: string;
+				vendor: string;
+				size: number;
+				protein: number;
+				fat: number;
+				fibre: number;
+				ash: number;
+				url: string;
+			}[];
 			switches: AutomaticFeederSwitchConfig[];
 		}
 	}

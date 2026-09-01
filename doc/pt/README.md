@@ -185,9 +185,27 @@ remove um. Ao remover, também são excluídos os pontos de dados dele.
 * **Este interruptor usa a placa de relé Automatic-Feeder (adiciona uma aba de relé)** (alternância) –
   ative isto apenas para um interruptor cuja estação de alimentação use a placa de relé
   Automatic-Feeder (ESP32) opcional. Quando ativo, esse interruptor recebe uma aba **Relé**
-  adicional (ver seção 5.3).
+  adicional (ver seção 5.4).
 
-### 5.2 Abas dos interruptores
+### 5.2 Aba da lista de rações
+
+Uma lista central, **mantida por você, dos seus tipos de ração**, partilhada por todos os
+interruptores. Para cada ração você indica:
+
+* **nome da ração** e **fornecedor / revendedor**,
+* **tamanho do grânulo (mm)**,
+* os quatro **valores nutricionais** padrão dos *constituintes analíticos* do fabricante —
+  **proteína bruta / gordura / fibra / cinza (%)**,
+* um **link de oferta / compra** opcional (um campo oculto, revelado com o botão de link) para
+  reencomendar online.
+
+Adicione quantas rações quiser com **Adicionar ração** e remova-as com o ícone da lixeira. A lista
+é armazenada centralmente e também é publicada como JSON em `info.feeds` para o VIS/widgets. Em cada
+**aba do interruptor** você escolhe depois, em **Ração atualmente carregada**, qual destas rações
+está atualmente colocada nesse alimentador — o seu nome, tamanho e nutrição são expostos como
+`status.activeFeed*` e também podem ser alternados a partir do widget VIS.
+
+### 5.3 Abas dos interruptores
 
 Cada interruptor configurado recebe uma aba própria com seu nome. Ela contém as seguintes
 seções.
@@ -296,7 +314,7 @@ Isto é **apenas uma calculadora** – calcula e mostra a recomendação. Os res
 
 Opcionalmente, você pode deixar esta quantidade **controlar a alimentação**: ative **Controlar a alimentação com esta quantidade** e as gramas diárias recomendadas são convertidas em tempo de funcionamento do motor e distribuídas pelas alimentações do dia. Para isso, você calibra a **taxa de dispensa** (g/s) — um pequeno auxiliar faz o motor funcionar durante alguns segundos para que você possa pesar a ração dispensada e deixar o adaptador calcular a taxa — e pode definir um **máximo diário (g)** opcional como salvaguarda contra a sobrealimentação. Este modo é **mutuamente exclusivo com a alimentação dinâmica (Q10)**; o **"quando"** (horários fixos / intervalo / janela astronómica) e todos os bloqueios (noite, temperatura, O₂, pausas, inverno) permanecem inalterados e mantêm prioridade. O tempo de funcionamento resultante é publicado em `status.feedTargetSecondsToday` (s por dia) e `status.feedEffectiveDurationSec` (s por alimentação); a duração por alimentação é limitada por segurança.
 
-Em vez de uma única taxa, você pode definir vários **perfis de ração** — tipos de ração nomeados (por exemplo, um granulado universal de 3 mm e um granulado de verão de 6 mm), cada um com a **sua própria taxa calibrada (g/s)**. A taxa do perfil **ativo** conduz o cálculo; o auxiliar de calibração preenche o perfil ativo. A ração ativa pode ser alternada a partir do widget VIS (estado `status.activeFeedName`, taxa efetiva `status.dispenseRate`). Se nenhum perfil estiver definido, é usada a taxa de dispensa única acima.
+A ração atualmente colocada no alimentador é escolhida por interruptor em **Ração atualmente carregada**, a partir da **lista de rações** central (ver seção 5.2). O seu nome, tamanho do grânulo e nutrição são publicados em `status.activeFeed*` e também pode ser alternada a partir do widget VIS através do estado gravável `settings.activeFeed` (o id da ração). A **taxa de dispensa (g/s)** é calibrada **por interruptor** (depende da mecânica do alimentador), independentemente da ração carregada.
 
 #### Pausa de inverno
 
@@ -400,7 +418,7 @@ O anúncio é planejado junto com cada alimentação. Se, no momento do anúncio
 ignorado, de modo que ele nunca promete uma alimentação que não vai acontecer. As alimentações
 manuais (o botão *Alimentar agora* / `feedFor`) não têm antecedência e não são anunciadas.
 
-### 5.3 Aba da placa de relé (opcional)
+### 5.4 Aba da placa de relé (opcional)
 
 Esta aba só aparece quando a alternância por interruptor **Este interruptor usa a placa de relé
 Automatic-Feeder …** deste interruptor está ativada nas configurações básicas (ver seção 5.1). Uma placa de relé pertence a um interruptor (estação de alimentação). A
@@ -462,6 +480,7 @@ O adaptador cria os seguintes pontos de dados no seu namespace
 | Ponto de dados | Tipo | Significado |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | O adaptador está em execução e a configuração é válida. |
+| `info.feeds` | string (ro) | A **lista de rações** central como JSON (cada tipo de ração com nome, fornecedor, tamanho do grânulo, nutrição e link de oferta) — para o VIS/widgets renderizarem a lista sem ler a configuração da instância. |
 
 **Por interruptor em `switches.<id>.`** (`<id>` é um ID interno como `sw-0`)
 
@@ -516,8 +535,15 @@ Diretamente sob o interruptor há o acionador manual e dois subcanais:
 | `status.feedTargetPortionGrams` | number (ro) | Modelo de quantidade de ração: quantidade recomendada por alimentação individual (g) = quantidade diária ÷ alimentações (após o limite máximo / redução por qualidade da água). |
 | `status.feedTargetSecondsToday` | number (ro) | Modelo de quantidade de ração (modo de controlo): tempo total de funcionamento do motor por dia (s) para dispensar a quantidade. 0 quando o controlo está desativado. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modelo de quantidade de ração (modo de controlo): duração por alimentação que ele aciona atualmente (s). 0 quando o controlo está desativado. |
-| `status.dispenseRate` | number (ro) | Modelo de quantidade de ração: taxa de dispensa efetiva (g/s) do perfil de ração ativo. |
-| `status.activeFeedName` | string (ro) | Modelo de quantidade de ração: nome do perfil de ração ativo (vazio quando nenhum está configurado). |
+| `status.dispenseRate` | number (ro) | Modelo de quantidade de ração: taxa de dispensa calibrada deste interruptor (g/s). |
+| `status.activeFeedName` | string (ro) | Ração atualmente carregada: nome (vazio quando nenhuma está selecionada). |
+| `status.activeFeedVendor` | string (ro) | Ração atualmente carregada: fornecedor / revendedor. |
+| `status.activeFeedSize` | number (ro) | Ração atualmente carregada: tamanho do grânulo (mm). |
+| `status.activeFeedProtein` | number (ro) | Ração atualmente carregada: proteína bruta (%). |
+| `status.activeFeedFat` | number (ro) | Ração atualmente carregada: gordura bruta (%). |
+| `status.activeFeedFibre` | number (ro) | Ração atualmente carregada: fibra bruta (%). |
+| `status.activeFeedAsh` | number (ro) | Ração atualmente carregada: cinza bruta (%). |
+| `status.activeFeedUrl` | string (ro) | Ração atualmente carregada: link de oferta / compra (opcional). |
 | `status.sunrise` / `status.sunset` | string (ro) | Nascer/pôr do sol calculado para a localização deste interruptor (janela astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Nascer/pôr do sol como tempo Unix em ms — p. ex. para uma barra de progresso do dia no VIS. |
 | `relay.connected` | boolean (ro) | A placa de relé configurada para este interruptor está acessível (apenas quando este interruptor usa uma placa de relé). |

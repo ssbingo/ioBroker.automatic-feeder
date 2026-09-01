@@ -20,6 +20,7 @@ import {
 	InputLabel,
 	Select,
 	MenuItem,
+	Link,
 	Table,
 	TableBody,
 	TableCell,
@@ -279,18 +280,11 @@ function SwitchTab(props) {
 		setCalBusy(false);
 	};
 
-	// dispense-rate calibration: rate (g/s) = weighed grams / test-run seconds
-	// feed profiles: named food types, each with a calibrated dispense rate (g/s)
-	const feedProfiles = Array.isArray(sw.feedProfiles) ? sw.feedProfiles : [];
-	const activeFeed = Math.max(0, Math.floor(Number(sw.activeFeed) || 0));
-	const addFeed = () => onChange({ feedProfiles: [...feedProfiles, { name: '', gramsPerSec: 0 }] });
-	const updateFeed = (i, patch) =>
-		onChange({ feedProfiles: feedProfiles.map((p, idx) => (idx === i ? { ...p, ...patch } : p)) });
-	const removeFeed = (i) => {
-		const next = feedProfiles.filter((_, idx) => idx !== i);
-		onChange({ feedProfiles: next, activeFeed: Math.min(activeFeed, Math.max(0, next.length - 1)) });
-	};
+	// central feed list (native.feeds): the switch selects its currently loaded feed by id
+	const feeds = Array.isArray(native.feeds) ? native.feeds : [];
+	const activeFeed = feeds.find((f) => f && String(f.id) === String(sw.activeFeed)) || null;
 
+	// dispense-rate calibration: rate (g/s) = weighed grams / test-run seconds (per switch)
 	const computeRate = () => {
 		const g = Number(calGrams);
 		const s = Number(calRunSec);
@@ -299,12 +293,7 @@ function SwitchTab(props) {
 			return;
 		}
 		const rate = Math.round((g / s) * 1000) / 1000;
-		// with feed profiles, calibration fills the active profile's rate; otherwise the single rate
-		if (feedProfiles.length) {
-			updateFeed(activeFeed, { gramsPerSec: rate });
-		} else {
-			onChange({ dispenseGramsPerSec: rate });
-		}
+		onChange({ dispenseGramsPerSec: rate });
 		setCalMsg({ severity: 'success', text: I18n.t('Dispense rate calculated.') });
 	};
 
@@ -870,6 +859,51 @@ function SwitchTab(props) {
 				)}
 			</Section>
 
+			{/* Currently loaded feed (selected from the central feed list) */}
+			<Section title={I18n.t('Currently loaded feed')}>
+				{feeds.length === 0 ? (
+					<Typography variant="body2" color="textSecondary">
+						{I18n.t('No feeds defined yet — add food types in the "Feed list" tab.')}
+					</Typography>
+				) : (
+					<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+						<FormControl variant="standard" sx={{ minWidth: 260 }}>
+							<InputLabel>{I18n.t('Loaded feed')}</InputLabel>
+							<Select
+								value={feeds.some((f) => String(f.id) === String(sw.activeFeed)) ? sw.activeFeed : ''}
+								onChange={(e) => onChange({ activeFeed: e.target.value })}
+							>
+								<MenuItem value="">
+									<em>{I18n.t('— none —')}</em>
+								</MenuItem>
+								{feeds.map((f) => (
+									<MenuItem key={f.id} value={f.id}>
+										{f.name || I18n.t('(unnamed feed)')}
+										{f.size ? ` — ${f.size} mm` : ''}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+						{activeFeed ? (
+							<Typography variant="caption" color="textSecondary" sx={{ maxWidth: 420 }}>
+								{activeFeed.vendor ? `${activeFeed.vendor} · ` : ''}
+								{I18n.t('Crude protein')} {activeFeed.protein || 0}% · {I18n.t('crude fat')}{' '}
+								{activeFeed.fat || 0}% · {I18n.t('crude fibre')} {activeFeed.fibre || 0}% ·{' '}
+								{I18n.t('crude ash')} {activeFeed.ash || 0}%
+								{activeFeed.url ? (
+									<>
+										{' · '}
+										<Link href={activeFeed.url} target="_blank" rel="noopener noreferrer">
+											{I18n.t('Offer')}
+										</Link>
+									</>
+								) : null}
+							</Typography>
+						) : null}
+					</Box>
+				)}
+			</Section>
+
 			{/* Feeding-amount model (advisory) */}
 			<Section title={I18n.t('Feeding-amount model (advisory)')}>
 				{!sw.waterTempEnabled ? (
@@ -993,47 +1027,6 @@ function SwitchTab(props) {
 											})
 										}
 									/>
-								</Box>
-								<Box sx={{ mt: 2, maxWidth: 620 }}>
-									<Typography variant="subtitle2">{I18n.t('Feed profiles')}</Typography>
-									<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-										{I18n.t(
-											'Named food types, each with its own dispense rate (g/s). The active one drives feeding; with no profile the single rate above is used. Switchable from the widget.',
-										)}
-									</Typography>
-									{feedProfiles.map((p, i) => (
-										<Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 0.5 }}>
-											<Radio
-												size="small"
-												checked={activeFeed === i}
-												onChange={() => onChange({ activeFeed: i })}
-											/>
-											<TextField
-												variant="standard"
-												sx={{ flexGrow: 1, minWidth: 120 }}
-												label={I18n.t('Feed name')}
-												value={p.name ?? ''}
-												onChange={(e) => updateFeed(i, { name: e.target.value })}
-											/>
-											<TextField
-												variant="standard"
-												type="number"
-												sx={{ width: 110 }}
-												inputProps={{ step: 0.1, min: 0 }}
-												label={I18n.t('Rate (g/s)')}
-												value={p.gramsPerSec ?? 0}
-												onChange={(e) => updateFeed(i, { gramsPerSec: Math.max(0, Number(e.target.value) || 0) })}
-											/>
-											<Tooltip title={I18n.t('Remove feed')}>
-												<IconButton size="small" onClick={() => removeFeed(i)}>
-													<DeleteIcon fontSize="small" />
-												</IconButton>
-											</Tooltip>
-										</Box>
-									))}
-									<Button size="small" startIcon={<AddIcon />} onClick={addFeed}>
-										{I18n.t('Add feed')}
-									</Button>
 								</Box>
 								<Paper variant="outlined" sx={{ p: 1.5, mt: 2, maxWidth: 620 }}>
 									<Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>

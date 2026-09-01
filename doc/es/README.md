@@ -191,9 +191,27 @@ eliminarlo también se borran sus puntos de datos.
 * **Este interruptor usa la placa de relé Automatic-Feeder (añade una pestaña de relé)** (conmutador)
   – actívalo solo para un interruptor cuya estación de alimentación use la placa de relé Automatic-Feeder
   opcional (ESP32). Cuando está activado, ese interruptor recibe una pestaña **Relé** adicional (consulta
-  la sección 5.3).
+  la sección 5.4).
 
-### 5.2 Pestañas de interruptor
+### 5.2 Pestaña Lista de comidas
+
+Una lista central, **mantenida por el usuario, de tus tipos de comida**, compartida por todos los
+interruptores. Por cada comida introduces:
+
+* **Nombre de la comida** y **proveedor / distribuidor**,
+* **tamaño del pellet (mm)**,
+* los cuatro **valores nutricionales** estándar de los *componentes analíticos* del fabricante —
+  **proteína bruta / grasa bruta / fibra bruta / ceniza bruta (%)**,
+* un **enlace de oferta / de compra** opcional (un campo oculto, que se muestra con el botón de
+  enlace) para volver a pedir en línea.
+
+Añade tantas comidas como quieras con **Añadir comida** y elimínalas con el icono de la papelera. La
+lista se almacena de forma central y también se publica en formato JSON en `info.feeds` para VIS/los
+widgets. En cada **pestaña de interruptor** eliges luego, en **Comida cargada actualmente**, cuál de
+estas comidas está cargada actualmente en ese comedero — su nombre, tamaño y valores nutricionales se
+exponen como `status.activeFeed*` y también se pueden cambiar desde el widget de VIS.
+
+### 5.3 Pestañas de interruptor
 
 Cada interruptor configurado recibe su propia pestaña con su nombre. Contiene las siguientes
 secciones.
@@ -325,7 +343,7 @@ Por sí solo es una **calculadora**: calcula y muestra la recomendación. Los re
 
 Opcionalmente puedes dejar que esta cantidad **controle la alimentación**: activa **Controlar la alimentación con esta cantidad** y los gramos diarios recomendados se convierten en tiempo de funcionamiento del motor y se reparten entre las alimentaciones del día. Para ello calibras la **tasa de dispensado** (g/s) —un pequeño asistente hace funcionar el motor durante unos segundos para que puedas pesar la comida dispensada y dejar que el adaptador calcule la tasa— y puedes fijar un **máximo diario (g)** opcional como protección contra la sobrealimentación. Este modo es **mutuamente excluyente con la alimentación dinámica (Q10)**; el **«cuándo»** (horas fijas / intervalo / ventana astronómica) y todos los bloqueos (noche, temperatura, O₂, pausas, invierno) permanecen sin cambios y mantienen la prioridad. El tiempo de funcionamiento resultante se publica en `status.feedTargetSecondsToday` (s por día) y `status.feedEffectiveDurationSec` (s por alimentación); la duración por alimentación se limita por seguridad.
 
-En lugar de una única tasa puedes definir varios **perfiles de comida** —tipos de comida con nombre (p. ej. un pellet universal de 3 mm y un pellet de verano de 6 mm), cada uno con su **propia tasa calibrada (g/s)**. La tasa del perfil **activo** impulsa el cálculo; el asistente de calibración rellena el perfil activo. La comida activa se puede cambiar desde el widget de VIS (estado `status.activeFeedName`, tasa efectiva `status.dispenseRate`). Si no hay ningún perfil definido, se usa la tasa de dispensado única indicada arriba.
+La **comida** actualmente cargada en el comedero se elige por interruptor en **Comida cargada actualmente**, desde la **Lista de comidas** central (consulta 5.2). Su nombre, tamaño de pellet y valores nutricionales se publican en `status.activeFeed*` y también se puede cambiar desde el widget de VIS mediante el estado editable `settings.activeFeed` (el id de la comida). La **tasa de dispensado (g/s)** se calibra **por interruptor** (depende de la mecánica del comedero), con independencia de la comida que esté cargada.
 
 #### Pausa de invierno
 
@@ -448,7 +466,7 @@ anuncio se omite, de modo que nunca promete una alimentación que no vaya a prod
 alimentaciones manuales (el botón *Alimentar ahora* / `feedFor`) no tienen antelación y no se
 anuncian.
 
-### 5.3 Pestaña de la placa de relé (opcional)
+### 5.4 Pestaña de la placa de relé (opcional)
 
 Esta pestaña solo aparece cuando el conmutador por interruptor **Este interruptor usa la placa de relé
 Automatic-Feeder …** de este interruptor está activado en los ajustes generales (consulta la sección 5.1).
@@ -515,6 +533,7 @@ El adaptador crea los siguientes puntos de datos en su espacio de nombres
 | Punto de datos | Tipo | Significado |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | El adaptador está en ejecución y la configuración es válida. |
+| `info.feeds` | string (ro) | La lista central de comidas en formato JSON (cada tipo de comida con nombre, proveedor, tamaño del pellet, valores nutricionales y enlace de oferta) — para que VIS/los widgets muestren la lista sin leer la configuración de la instancia. |
 
 **Por interruptor bajo `switches.<id>.`** (`<id>` es un ID interno como `sw-0`)
 
@@ -571,8 +590,15 @@ Directamente bajo el interruptor están el activador manual y dos subcanales:
 | `status.feedTargetPortionGrams` | number (ro) | Modelo de ración de comida: cantidad recomendada por toma individual (g) = cantidad diaria ÷ tomas (tras el límite / reducción por calidad del agua). |
 | `status.feedTargetSecondsToday` | number (ro) | Modelo de ración de comida (modo de control): tiempo total de funcionamiento del motor por día (s) para dispensar la cantidad. 0 cuando el control está desactivado. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modelo de ración de comida (modo de control): duración por alimentación que impulsa actualmente (s). 0 cuando el control está desactivado. |
-| `status.dispenseRate` | number (ro) | Modelo de ración de comida: tasa de dispensado efectiva (g/s) del perfil de comida activo. |
-| `status.activeFeedName` | string (ro) | Modelo de ración de comida: nombre del perfil de comida activo (vacío cuando no hay ninguno configurado). |
+| `status.dispenseRate` | number (ro) | Modelo de ración de comida: tasa de dispensado calibrada de este interruptor (g/s). |
+| `status.activeFeedName` | string (ro) | Comida cargada actualmente: nombre (vacío cuando no hay ninguna seleccionada). |
+| `status.activeFeedVendor` | string (ro) | Comida cargada actualmente: proveedor / distribuidor. |
+| `status.activeFeedSize` | number (ro) | Comida cargada actualmente: tamaño del pellet (mm). |
+| `status.activeFeedProtein` | number (ro) | Comida cargada actualmente: proteína bruta (%). |
+| `status.activeFeedFat` | number (ro) | Comida cargada actualmente: grasa bruta (%). |
+| `status.activeFeedFibre` | number (ro) | Comida cargada actualmente: fibra bruta (%). |
+| `status.activeFeedAsh` | number (ro) | Comida cargada actualmente: ceniza bruta (%). |
+| `status.activeFeedUrl` | string (ro) | Comida cargada actualmente: enlace de oferta / de compra (opcional). |
 | `status.sunrise` / `status.sunset` | string (ro) | Orto/ocaso calculados para la ubicación de este interruptor (ventana astronómica). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Orto/ocaso como tiempo Unix en ms, p. ej. para una barra de progreso del día en VIS. |
 | `relay.connected` | boolean (ro) | La placa de relé configurada para este interruptor es accesible (solo cuando este interruptor usa una placa de relé). |

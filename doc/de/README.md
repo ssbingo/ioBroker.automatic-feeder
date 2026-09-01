@@ -190,9 +190,26 @@ entfernst du einen. Beim Entfernen werden auch dessen Datenpunkte gelöscht.
 * **Dieser Schalter nutzt die Automatic-Feeder-Relaisplatine (fügt einen Relais-Tab hinzu)**
   (Umschalter) – nur für einen Schalter aktivieren, dessen Futterstation die optionale
   Automatic-Feeder-Relaisplatine (ESP32) nutzt. Wenn aktiv, erhält **dieser** Schalter einen
-  zusätzlichen **Relais**-Tab (siehe Abschnitt 5.3).
+  zusätzlichen **Relais**-Tab (siehe Abschnitt 5.4).
 
-### 5.2 Schalter-Tabs
+### 5.2 Tab „Futterliste"
+
+Eine zentrale, **vom Anwender gepflegte Liste deiner Futtersorten**, die für alle Schalter gilt. Pro Futter trägst du ein:
+
+* **Futtername** und **Händler**,
+* **Pelletgröße (mm)**,
+* die vier üblichen **Nährwerte** aus den Herstellerangaben (*analytische Bestandteile*) — **Rohprotein / Rohfett /
+  Rohfaser / Rohasche (%)**,
+* einen optionalen **Angebots-/Bestell-Link** (ein verstecktes Feld, das sich über die Link-Schaltfläche einblenden
+  lässt) zum Nachbestellen.
+
+Füge beliebig viele Futter mit **Futter hinzufügen** hinzu und entferne sie über das Papierkorb-Symbol. Die Liste wird
+zentral gespeichert und zusätzlich als JSON in `info.feeds` für VIS/Widgets veröffentlicht. In jedem **Schalter-Tab**
+wählst du dann unter **Aktuell befülltes Futter**, welches dieser Futter gerade in diesem Automaten befüllt ist — dessen
+Name, Größe und Nährwerte werden als `status.activeFeed*` bereitgestellt und lassen sich auch aus dem VIS-Widget
+umschalten.
+
+### 5.3 Schalter-Tabs
 
 Jeder konfigurierte Schalter erhält einen eigenen Tab mit seinem Namen. Er enthält folgende
 Abschnitte.
@@ -335,11 +352,11 @@ unverändert und weiterhin vorrangig. Die resultierende Laufzeit steht in
 `status.feedTargetSecondsToday` (s/Tag) und `status.feedEffectiveDurationSec` (s je Fütterung); die
 Dauer je Fütterung wird zur Sicherheit begrenzt.
 
-Statt einer einzelnen Rate kannst du mehrere **Futterprofile** anlegen – benannte Futtersorten
-(z. B. ein 3-mm-Allround und ein 6-mm-Sommerpellet) mit je **eigener kalibrierter Rate (g/s)**. Die
-Rate des **aktiven** Profils bestimmt die Berechnung; die Kalibrier-Hilfe füllt das aktive Profil.
-Das aktive Futter lässt sich aus dem VIS-Widget umschalten (Datenpunkt `status.activeFeedName`,
-effektive Rate `status.dispenseRate`). Ohne Profil wird die einzelne Dosierrate oben verwendet.
+Das gerade in den Automaten **befüllte Futter** wählst du je Schalter unter **Aktuell befülltes Futter**
+aus der zentralen **Futterliste** (siehe Abschnitt 5.2). Name, Pelletgröße und Nährwerte werden in
+`status.activeFeed*` veröffentlicht; das Futter lässt sich auch aus dem VIS-Widget über den beschreibbaren
+Datenpunkt `settings.activeFeed` (die `id` des Futters) umschalten. Die **Dosierrate (g/s)** wird **je Schalter**
+kalibriert (sie hängt von der Mechanik des Automaten ab), unabhängig davon, welches Futter befüllt ist.
 
 #### Winterpause
 
@@ -445,7 +462,7 @@ Ansage übersprungen, sodass sie nie eine Fütterung ankündigt, die gar nicht s
 Fütterungen (der Button *Jetzt füttern* / `feedFor`) haben keine Vorlaufzeit und werden nicht
 angekündigt.
 
-### 5.3 Relaisplatinen-Tab (optional)
+### 5.4 Relaisplatinen-Tab (optional)
 
 Dieser Tab erscheint nur, wenn für **diesen Schalter** in den Grundeinstellungen der
 schalterspezifische Umschalter **Dieser Schalter nutzt die Automatic-Feeder-Relaisplatine …**
@@ -512,6 +529,7 @@ Der Adapter legt folgende Datenpunkte in seinem Namespace an
 | Datenpunkt | Typ | Bedeutung |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | Adapter läuft und die Konfiguration ist gültig. |
+| `info.feeds` | string (ro) | Die zentrale **Futterliste** als JSON (jede Futtersorte mit Name, Händler, Pelletgröße, Nährwerten und Angebots-Link) — damit VIS/Widgets die Liste anzeigen können, ohne die Instanzkonfiguration zu lesen. |
 
 **Pro Schalter unter `switches.<id>.`** (`<id>` ist eine interne ID wie `sw-0`)
 
@@ -567,8 +585,15 @@ Direkt unter dem Schalter liegen der manuelle Auslöser und zwei Unterrubriken:
 | `status.feedTargetPortionGrams` | number (ro) | Futtermengen-Modell: empfohlene Menge je Einzel-Fütterung (g) = Tagesmenge ÷ Fütterungen (nach Deckel / Wasserqualitäts-Reduktion). |
 | `status.feedTargetSecondsToday` | number (ro) | Futtermengen-Modell (Steuermodus): gesamte Motor-Laufzeit pro Tag (s) für die Menge. 0, wenn die Steuerung aus ist. |
 | `status.feedEffectiveDurationSec` | number (ro) | Futtermengen-Modell (Steuermodus): aktuell wirksame Dauer je Fütterung (s). 0, wenn die Steuerung aus ist. |
-| `status.dispenseRate` | number (ro) | Futtermengen-Modell: effektive Dosierrate (g/s) des aktiven Futterprofils. |
-| `status.activeFeedName` | string (ro) | Futtermengen-Modell: Name des aktiven Futterprofils (leer, wenn keines konfiguriert ist). |
+| `status.dispenseRate` | number (ro) | Futtermengen-Modell: kalibrierte Dosierrate (g/s) dieses Schalters. |
+| `status.activeFeedName` | string (ro) | Aktuell befülltes Futter: Name (leer, wenn keines gewählt ist). |
+| `status.activeFeedVendor` | string (ro) | Aktuell befülltes Futter: Händler. |
+| `status.activeFeedSize` | number (ro) | Aktuell befülltes Futter: Pelletgröße (mm). |
+| `status.activeFeedProtein` | number (ro) | Aktuell befülltes Futter: Rohprotein (%). |
+| `status.activeFeedFat` | number (ro) | Aktuell befülltes Futter: Rohfett (%). |
+| `status.activeFeedFibre` | number (ro) | Aktuell befülltes Futter: Rohfaser (%). |
+| `status.activeFeedAsh` | number (ro) | Aktuell befülltes Futter: Rohasche (%). |
+| `status.activeFeedUrl` | string (ro) | Aktuell befülltes Futter: Angebots-/Bestell-Link (optional). |
 | `status.sunrise` / `status.sunset` | string (ro) | Berechneter Sonnenauf-/-untergang für den Standort dieses Schalters (astronomisches Fenster). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sonnenauf-/-untergang als Unix-Zeit in ms — z. B. für einen Tagesverlaufs-Balken in VIS. |
 | `relay.connected` | boolean (ro) | Die für diesen Schalter konfigurierte Relaisplatine ist erreichbar (nur wenn dieser Schalter eine Relaisplatine nutzt). |

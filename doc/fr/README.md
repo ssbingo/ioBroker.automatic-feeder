@@ -200,9 +200,28 @@ en supprimes un. Lors de la suppression, ses points de données sont également 
 * **Cet interrupteur utilise la carte relais Automatic-Feeder (ajoute un onglet relais)**
   (bascule) — active ceci uniquement pour un interrupteur dont la station de distribution utilise
   la carte relais Automatic-Feeder (ESP32) optionnelle. Lorsqu'elle est activée, cet interrupteur
-  reçoit un onglet **Relais** supplémentaire (voir section 5.3).
+  reçoit un onglet **Relais** supplémentaire (voir section 5.4).
 
-### 5.2 Onglets d'interrupteur
+### 5.2 Onglet Liste des aliments
+
+Une liste centralisée, **gérée par l'utilisateur, de tes types de nourriture**, partagée par tous
+les interrupteurs. Pour chaque aliment, tu saisis :
+
+* **Nom de l'aliment** et **fournisseur / revendeur**,
+* **taille des granulés (mm)**,
+* les quatre **valeurs nutritionnelles** standard issues des *constituants analytiques* du fabricant
+  — **protéine brute / matières grasses brutes / cellulose brute / cendres brutes (%)**,
+* un **lien d'offre / d'achat** facultatif (un champ masqué, révélé par le bouton de lien) pour
+  recommander en ligne.
+
+Ajoute autant d'aliments que tu veux avec **Ajouter un aliment** et supprime-les avec l'icône de
+corbeille. La liste est stockée de façon centralisée et est également publiée au format JSON dans
+`info.feeds` pour VIS/les widgets. Dans chaque **onglet d'interrupteur**, tu choisis ensuite, sous
+**Aliment actuellement chargé**, lequel de ces aliments est actuellement chargé dans ce distributeur
+— son nom, sa taille et sa valeur nutritionnelle sont exposés sous forme de `status.activeFeed*` et
+peuvent aussi être changés depuis le widget VIS.
+
+### 5.3 Onglets d'interrupteur
 
 Chaque interrupteur configuré reçoit son propre onglet portant son nom. Il contient les sections
 suivantes.
@@ -339,7 +358,7 @@ Il s'agit d'un **calculateur** qui calcule et affiche la recommandation. Les ré
 
 En option, vous pouvez laisser cette quantité **commander l'alimentation** : activez **Commander l'alimentation avec cette quantité** et les grammes quotidiens recommandés sont convertis en temps de fonctionnement du moteur et répartis sur les distributions de la journée. Pour cela, vous calibrez le **débit de distribution** (g/s) — une petite aide fait tourner le moteur pendant quelques secondes afin que vous puissiez peser la nourriture distribuée et laisser l'adaptateur calculer le débit — et pouvez définir un **maximum quotidien (g)** facultatif comme protection contre la suralimentation. Ce mode **s'exclut mutuellement avec l'alimentation dynamique (Q10)** ; le **« quand »** (heures fixes / intervalle / fenêtre astronomique) et tous les blocages (nuit, température, O₂, pauses, hiver) restent inchangés et conservent la priorité. Le temps de fonctionnement résultant est publié dans `status.feedTargetSecondsToday` (s par jour) et `status.feedEffectiveDurationSec` (s par distribution) ; la durée par distribution est limitée par sécurité.
 
-Au lieu d'un débit unique, vous pouvez définir plusieurs **profils d'alimentation** — des types de nourriture nommés (p. ex. une nourriture polyvalente de 3 mm et un granulé d'été de 6 mm) chacun avec son **propre débit calibré (g/s)**. Le débit du profil **actif** pilote le calcul ; l'aide de calibrage renseigne le profil actif. La nourriture active peut être changée depuis le widget VIS (état `status.activeFeedName`, débit effectif `status.dispenseRate`). Si aucun profil n'est défini, le débit de distribution unique ci-dessus est utilisé.
+L'**aliment** actuellement chargé dans le distributeur se choisit par interrupteur sous **Aliment actuellement chargé**, à partir de la **Liste des aliments** centrale (voir 5.2). Son nom, sa taille de granulés et sa valeur nutritionnelle sont publiés dans `status.activeFeed*`, et il peut aussi être changé depuis le widget VIS via l'état modifiable `settings.activeFeed` (l'id de l'aliment). Le **débit de distribution (g/s)** est calibré **par interrupteur** (il dépend de la mécanique du distributeur), indépendamment de l'aliment chargé.
 
 #### Pause hivernale
 
@@ -445,7 +464,7 @@ distribution), l'annonce est ignorée, de sorte qu'elle ne promet jamais une dis
 pas lieu. Les distributions manuelles (le bouton *Distribuer maintenant* / `feedFor`) n'ont pas de
 délai et ne sont pas annoncées.
 
-### 5.3 Onglet de la carte relais (optionnel)
+### 5.4 Onglet de la carte relais (optionnel)
 
 Cet onglet n'apparaît que lorsque la bascule propre à cet interrupteur (**Cet interrupteur utilise
 la carte relais Automatic-Feeder …**) est activée dans les réglages de base (voir section 5.1). Une
@@ -513,6 +532,7 @@ L'adaptateur crée les points de données suivants dans son espace de noms
 | Point de données | Type | Signification |
 |------------|-----|-----------|
 | `info.connection` | boolean (ro) | L'adaptateur fonctionne et la configuration est valide. |
+| `info.feeds` | string (ro) | La liste des aliments centrale au format JSON (chaque type de nourriture avec nom, fournisseur, taille des granulés, valeur nutritionnelle et lien d'offre) — pour que VIS/les widgets affichent la liste sans lire la configuration de l'instance. |
 
 **Par interrupteur sous `switches.<id>.`** (`<id>` est un ID interne comme `sw-0`)
 
@@ -568,8 +588,15 @@ Directement sous l'interrupteur se trouvent le déclencheur manuel et deux sous-
 | `status.feedTargetPortionGrams` | number (ro) | Modèle de quantité d'alimentation : quantité recommandée par repas (g) = quantité quotidienne ÷ nombre de repas (après plafonnement / réduction pour la qualité de l'eau). |
 | `status.feedTargetSecondsToday` | number (ro) | Modèle de quantité d'alimentation (mode commande) : temps de fonctionnement total du moteur par jour (s) pour distribuer la quantité. 0 lorsque la commande est désactivée. |
 | `status.feedEffectiveDurationSec` | number (ro) | Modèle de quantité d'alimentation (mode commande) : durée par distribution actuellement pilotée (s). 0 lorsque la commande est désactivée. |
-| `status.dispenseRate` | number (ro) | Modèle de quantité d'alimentation : débit de distribution effectif (g/s) du profil d'alimentation actif. |
-| `status.activeFeedName` | string (ro) | Modèle de quantité d'alimentation : nom du profil d'alimentation actif (vide lorsqu'aucun n'est configuré). |
+| `status.dispenseRate` | number (ro) | Modèle de quantité d'alimentation : débit de distribution calibré de cet interrupteur (g/s). |
+| `status.activeFeedName` | string (ro) | Aliment actuellement chargé : nom (vide si aucun n'est sélectionné). |
+| `status.activeFeedVendor` | string (ro) | Aliment actuellement chargé : fournisseur / revendeur. |
+| `status.activeFeedSize` | number (ro) | Aliment actuellement chargé : taille des granulés (mm). |
+| `status.activeFeedProtein` | number (ro) | Aliment actuellement chargé : protéine brute (%). |
+| `status.activeFeedFat` | number (ro) | Aliment actuellement chargé : matières grasses brutes (%). |
+| `status.activeFeedFibre` | number (ro) | Aliment actuellement chargé : cellulose brute (%). |
+| `status.activeFeedAsh` | number (ro) | Aliment actuellement chargé : cendres brutes (%). |
+| `status.activeFeedUrl` | string (ro) | Aliment actuellement chargé : lien d'offre / d'achat (facultatif). |
 | `status.sunrise` / `status.sunset` | string (ro) | Lever/coucher du soleil calculé pour l'emplacement de cet interrupteur (fenêtre astronomique). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Lever/coucher du soleil en temps Unix en ms — p. ex. pour une barre de progression du jour dans VIS. |
 | `relay.connected` | boolean (ro) | La carte relais configurée pour cet interrupteur est joignable (uniquement lorsque cet interrupteur utilise une carte relais). |

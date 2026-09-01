@@ -4,6 +4,7 @@ import { Box, Tabs, Tab } from '@mui/material';
 import { I18n } from '@iobroker/adapter-react-v5';
 
 import GeneralTab from './GeneralTab';
+import FeedsTab from './FeedsTab';
 import SwitchTab from './SwitchTab';
 import RelayTab from './RelayTab';
 
@@ -138,8 +139,7 @@ function createSwitch(switches) {
 		amountControlEnabled: false,
 		dispenseGramsPerSec: 0,
 		feedDailyMaxGrams: null,
-		feedProfiles: [],
-		activeFeed: 0,
+		activeFeed: '',
 		relayEnabled: false,
 		relayHost: '',
 		relayPreferBoard: true,
@@ -219,7 +219,7 @@ function Settings(props) {
 	// Tab layout: [general] then, per switch, its config tab and — only for switches
 	// that use a relay board (decided per switch) — an additional relay tab right after
 	// it, so a switch and its board stay next to each other.
-	const tabDefs = [{ type: 'general' }];
+	const tabDefs = [{ type: 'general' }, { type: 'feeds' }];
 	switches.forEach((sw, index) => {
 		tabDefs.push({ type: 'switch', index });
 		if (sw.relayEnabled) {
@@ -245,6 +245,9 @@ function Settings(props) {
 					if (def.type === 'general') {
 						return <Tab key="general" label={I18n.t('General settings')} />;
 					}
+					if (def.type === 'feeds') {
+						return <Tab key="feeds" label={I18n.t('Feed list')} />;
+					}
 					const sw = switches[def.index];
 					const key = `${sw.id || def.index}-${def.type}`;
 					const label =
@@ -269,6 +272,8 @@ function Settings(props) {
 					instanceId={instanceId}
 				/>
 			) : null}
+
+			{currentDef && currentDef.type === 'feeds' ? <FeedsTab native={native} onChange={onChange} /> : null}
 
 			{currentDef && currentDef.type === 'switch' ? (
 				<SwitchTab

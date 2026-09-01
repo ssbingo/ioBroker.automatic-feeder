@@ -191,9 +191,24 @@ switch also deletes its data points.
 
 * **This switch uses the Automatic-Feeder relay board** (per-switch toggle) – turn this on only
   for a switch whose feeding station uses the optional Automatic-Feeder relay board (ESP32). When
-  on, that switch gets an additional **Relay** tab (see [5.3](#53-relay-board-tab-optional)).
+  on, that switch gets an additional **Relay** tab (see [5.4](#54-relay-board-tab-optional)).
 
-### 5.2 Switch tabs
+### 5.2 Feed list tab
+
+A central, **user-maintained list of your food types**, shared by all switches. For each feed you enter:
+
+* **Feed name** and **vendor / dealer**,
+* **pellet size (mm)**,
+* the four standard **nutritional values** from the manufacturer's *analytical constituents* — **crude
+  protein / fat / fibre / ash (%)**,
+* an optional **offer / purchase link** (a hidden field, revealed with the link button) for re-ordering online.
+
+Add as many feeds as you like with **Add feed** and remove them with the bin icon. The list is stored
+centrally and is also published as JSON in `info.feeds` for VIS/widgets. In each **switch tab** you then
+pick, under **Currently loaded feed**, which of these feeds is currently filled into that feeder — its
+name, size and nutrition are exposed as `status.activeFeed*` and can be switched from the VIS widget too.
+
+### 5.3 Switch tabs
 
 Each configured switch gets its own tab, titled with its name. It contains the following
 sections.
@@ -329,11 +344,11 @@ blocks (night, temperature, O₂, pauses, winter) stay unchanged and keep priori
 run-time is published in `status.feedTargetSecondsToday` (s per day) and
 `status.feedEffectiveDurationSec` (s per feeding); the per-feeding duration is capped for safety.
 
-Instead of a single rate you can define several **feed profiles** — named food types (e.g. a 3 mm
-all-round and a 6 mm summer pellet) each with their **own calibrated rate (g/s)**. The **active**
-profile's rate drives the calculation; the calibration helper fills the active profile. The active
-feed can be switched from the VIS widget (state `status.activeFeedName`, effective rate
-`status.dispenseRate`). With no profile defined, the single dispense rate above is used.
+The **feed** currently filled into the feeder is chosen per switch under **Currently loaded feed**,
+from the central **Feed list** (see [5.2](#52-feed-list-tab)). Its name, pellet size and nutrition are
+published in `status.activeFeed*` and it can also be switched from the VIS widget via the writable
+`settings.activeFeed` state (the feed's id). The **dispense rate (g/s)** is calibrated **per switch**
+(it depends on the feeder's mechanics), independent of which feed is loaded.
 
 #### Winter pause
 
@@ -434,7 +449,7 @@ would be **blocked or paused** (night, temperature, oxygen or a feeding pause), 
 is skipped, so it never promises a feeding that will not happen. Manual feedings (the *Feed now*
 button / `feedFor`) have no lead time and are not announced.
 
-### 5.3 Relay board tab (optional)
+### 5.4 Relay board tab (optional)
 
 This tab only appears when the switch's **This switch uses the Automatic-Feeder relay board**
 toggle is enabled in the general settings (see [5.1](#switches)). One relay board belongs to one
@@ -496,6 +511,7 @@ The adapter creates the following states under its namespace
 | Data point | Type | Meaning |
 |------------|------|---------|
 | `info.connection` | boolean (ro) | Adapter is running and the configuration is valid. |
+| `info.feeds` | string (ro) | The central **feed list** as JSON (each food type with name, vendor, pellet size, nutrition and offer link) — for VIS/widgets to render the list without reading the instance config. |
 
 **Per switch, under `switches.<id>.`** (`<id>` is an internal id like `sw-0`)
 
@@ -550,8 +566,15 @@ Directly under the switch there is the manual trigger and two sub-channels:
 | `status.feedTargetPortionGrams` | number (ro) | Feeding-amount model: recommended amount per single feeding (g) = daily amount ÷ feedings (after cap / water-quality reduction). |
 | `status.feedTargetSecondsToday` | number (ro) | Feeding-amount model (control mode): total motor run-time per day (s) to dispense the amount. 0 when control is off. |
 | `status.feedEffectiveDurationSec` | number (ro) | Feeding-amount model (control mode): duration per feeding it currently drives (s). 0 when control is off. |
-| `status.dispenseRate` | number (ro) | Feeding-amount model: effective dispense rate (g/s) of the active feed profile. |
-| `status.activeFeedName` | string (ro) | Feeding-amount model: name of the active feed profile (empty when none configured). |
+| `status.dispenseRate` | number (ro) | Feeding-amount model: this switch's calibrated dispense rate (g/s). |
+| `status.activeFeedName` | string (ro) | Currently loaded feed: name (empty when none selected). |
+| `status.activeFeedVendor` | string (ro) | Currently loaded feed: vendor / dealer. |
+| `status.activeFeedSize` | number (ro) | Currently loaded feed: pellet size (mm). |
+| `status.activeFeedProtein` | number (ro) | Currently loaded feed: crude protein (%). |
+| `status.activeFeedFat` | number (ro) | Currently loaded feed: crude fat (%). |
+| `status.activeFeedFibre` | number (ro) | Currently loaded feed: crude fibre (%). |
+| `status.activeFeedAsh` | number (ro) | Currently loaded feed: crude ash (%). |
+| `status.activeFeedUrl` | string (ro) | Currently loaded feed: offer / purchase link (optional). |
 | `status.sunrise` / `status.sunset` | string (ro) | Calculated sunrise/sunset for this switch's location (astronomical window). |
 | `status.sunriseTs` / `status.sunsetTs` | number (ro) | Sunrise/sunset as Unix time in ms — e.g. for a day-progress bar in VIS. |
 | `relay.connected` | boolean (ro) | The relay board configured for this switch is reachable (only when this switch uses a relay board). |
@@ -725,6 +748,12 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.18.0 (2026-09-01)
+* (ssbingo) **Central feed list** with its own **Feed list** tab (issue #26). Maintain your food types centrally — **name, vendor/dealer, pellet size (mm)** and the four standard **nutritional values** (crude protein / fat / fibre / ash %), plus an optional **offer/purchase link**. In each switch tab you pick, under **Currently loaded feed**, which feed is currently filled into that feeder
+* (ssbingo) This **replaces the per-switch feed profiles** from 1.17.0 (issue #25): existing profiles are automatically merged into the central list, each switch's calibrated **dispense rate stays per switch** (`dispenseGramsPerSec`), and its `activeFeed` now references a feed by **id**
+* (ssbingo) New states: **`info.feeds`** (the list as JSON, for VIS/widgets) and per switch **`status.activeFeedName` / `activeFeedVendor` / `activeFeedSize` / `activeFeedProtein` / `activeFeedFat` / `activeFeedFibre` / `activeFeedAsh` / `activeFeedUrl`**. The active feed is selectable from VIS via the writable `settings.activeFeed` (feed id)
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+
 ### 1.17.0 (2026-09-01)
 * (ssbingo) **Feed profiles for the feeding-amount model.** Instead of a single rate you can define several **named feed types** per switch, each with its own calibrated **dispense rate (g/s)** (e.g. a 3 mm all-round and a 6 mm summer pellet); the **active** profile's rate drives Phase B. Manage the list in the admin (the calibration helper fills the active profile), switch the active feed from the VIS widget via the writable `settings.activeFeed` state
 * (ssbingo) New states **`status.dispenseRate`** (effective g/s) and **`status.activeFeedName`**. Backward compatible — with no profile defined, the single dispense rate is used
@@ -764,11 +793,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 * (ssbingo) The per-size **weight is no longer an editable field** — it is a fixed estimate from the manual (60/125/350/1000/2000/4000 g). You now only enter **how many fish** there are per size class; the calculation and the states (`status.fishTotalWeight` / `status.feedPercentToday` / `status.feedTargetGramsToday`) are unchanged
 * (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
 * (ssbingo) Maintenance: bumped the `@alcalzone/release-script-plugin-license` devDependency to 5.2.2
-
-### 1.12.0 (2026-08-28)
-* (ssbingo) **Feeding-amount model (advisory).** New optional per-switch calculator that estimates the **recommended daily food amount** from the **fish stock** (count and editable weight per size class 15–60 cm) and the **water temperature** (feeding percentage per temperature band), following the original feeder manual: `daily amount [g] = total fish weight × percentage(water temperature)`. Defaults are taken from the manual and stay fully editable
-* (ssbingo) The result is published in the new states **`status.fishTotalWeight`** (g), **`status.feedPercentToday`** (%) and **`status.feedTargetGramsToday`** (g); the switch tab additionally shows the estimated total weight and an example. This is a **calculator only** — it computes and shows the recommendation but does **not** change how or when the switch feeds (actually dispensing the amount is planned for a later step)
-* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
 
 ---
 
