@@ -3,6 +3,12 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.13.0 (2026-08-28)
+* (ssbingo) **Feeding-amount model – redesigned input.** The fish stock is now entered in a compact **table** modelled on the feeder manual: one row per size class with a **fish icon**, the size, the **fixed weight estimate** and a **count** field
+* (ssbingo) The per-size **weight is no longer an editable field** — it is a fixed estimate from the manual (60/125/350/1000/2000/4000 g). You now only enter **how many fish** there are per size class; the calculation and the states (`status.fishTotalWeight` / `status.feedPercentToday` / `status.feedTargetGramsToday`) are unchanged
+* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
+* (ssbingo) Maintenance: bumped the `@alcalzone/release-script-plugin-license` devDependency to 5.2.2
+
 ### 1.12.0 (2026-08-28)
 * (ssbingo) **Feeding-amount model (advisory).** New optional per-switch calculator that estimates the **recommended daily food amount** from the **fish stock** (count and editable weight per size class 15–60 cm) and the **water temperature** (feeding percentage per temperature band), following the original feeder manual: `daily amount [g] = total fish weight × percentage(water temperature)`. Defaults are taken from the manual and stay fully editable
 * (ssbingo) The result is published in the new states **`status.fishTotalWeight`** (g), **`status.feedPercentToday`** (%) and **`status.feedTargetGramsToday`** (g); the switch tab additionally shows the estimated total weight and an example. This is a **calculator only** — it computes and shows the recommendation but does **not** change how or when the switch feeds (actually dispensing the amount is planned for a later step)

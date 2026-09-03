@@ -748,6 +748,9 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 	### **WORK IN PROGRESS**
 -->
 
+### 1.18.1 (2026-09-03)
+* (ssbingo) **Fix – Sayit announcement.** The pre-feeding announcement via **Sayit** now reliably speaks the **current** text: it uses Sayit's documented **`say` message command** (`sendTo`) instead of writing the `tts.text` / `tts.volume` states, which could re-play a **stale/old** announcement (e.g. a previous test message) and raced the separate volume write. Telegram announcements were never affected
+
 ### 1.18.0 (2026-09-01)
 * (ssbingo) **Central feed list** with its own **Feed list** tab (issue #26). Maintain your food types centrally — **name, vendor/dealer, pellet size (mm)** and the four standard **nutritional values** (crude protein / fat / fibre / ash %), plus an optional **offer/purchase link**. In each switch tab you pick, under **Currently loaded feed**, which feed is currently filled into that feeder
 * (ssbingo) This **replaces the per-switch feed profiles** from 1.17.0 (issue #25): existing profiles are automatically merged into the central list, each switch's calibrated **dispense rate stays per switch** (`dispenseGramsPerSec`), and its `activeFeed` now references a feed by **id**
@@ -787,12 +790,6 @@ stratification visible (`status.waterStratification`). For most ponds it is opti
 
 ### 1.13.1 (2026-08-28)
 * (ssbingo) UI: the feeding-amount **fish-stock table is larger and easier to read** — the fish icons now **scale with the size class** (a 15 cm fish is shown smaller than a 60 cm one, on a common baseline), the table is about 50 % wider and the rows are roughly twice as tall. Purely visual, no functional change
-
-### 1.13.0 (2026-08-28)
-* (ssbingo) **Feeding-amount model – redesigned input.** The fish stock is now entered in a compact **table** modelled on the feeder manual: one row per size class with a **fish icon**, the size, the **fixed weight estimate** and a **count** field
-* (ssbingo) The per-size **weight is no longer an editable field** — it is a fixed estimate from the manual (60/125/350/1000/2000/4000 g). You now only enter **how many fish** there are per size class; the calculation and the states (`status.fishTotalWeight` / `status.feedPercentToday` / `status.feedTargetGramsToday`) are unchanged
-* (ssbingo) Documentation updated in all 11 languages and in the German PDF handbook
-* (ssbingo) Maintenance: bumped the `@alcalzone/release-script-plugin-license` devDependency to 5.2.2
 
 ---
 

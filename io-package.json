@@ -1,20 +1,20 @@
 {
   "common": {
     "name": "automatic-feeder",
-    "version": "1.18.0",
+    "version": "1.18.1",
     "news": {
-      "1.18.0": {
-        "en": "New central feed list (own tab): name, vendor, pellet size and nutrition per food type; each switch selects its currently loaded feed. Replaces the per-switch feed profiles (migrated automatically). New states info.feeds and status.activeFeed*.",
-        "de": "Neue zentrale Futterliste (eigener Tab): Name, Händler, Pelletgröße und Nährwerte je Futter; jeder Schalter wählt sein aktuell befülltes Futter. Ersetzt die per-Schalter-Futterprofile (automatisch migriert). Neue Datenpunkte info.feeds und status.activeFeed*.",
-        "ru": "Новый центральный список кормов (отдельная вкладка): название, продавец, размер гранул и питательные значения для каждого корма; каждый переключатель выбирает загруженный корм. Заменяет профили кормов по переключателям (автоматическая миграция). Новые состояния info.feeds и status.activeFeed*.",
-        "pt": "Nova lista central de rações (separador próprio): nome, fornecedor, tamanho do pellet e valores nutricionais por ração; cada interruptor escolhe a ração carregada. Substitui os perfis de ração por interruptor (migração automática). Novos estados info.feeds e status.activeFeed*.",
-        "nl": "Nieuwe centrale voerlijst (eigen tabblad): naam, leverancier, pelletgrootte en voedingswaarden per voer; elke schakelaar kiest het geladen voer. Vervangt de voerprofielen per schakelaar (automatisch gemigreerd). Nieuwe states info.feeds en status.activeFeed*.",
-        "fr": "Nouvelle liste centrale d’aliments (onglet dédié) : nom, vendeur, taille des granulés et valeurs nutritionnelles par aliment ; chaque interrupteur choisit l’aliment chargé. Remplace les profils d’aliments par interrupteur (migration automatique). Nouveaux états info.feeds et status.activeFeed*.",
-        "it": "Nuovo elenco centrale mangimi (scheda dedicata): nome, rivenditore, dimensione dei pellet e valori nutrizionali per mangime; ogni interruttore sceglie il mangime caricato. Sostituisce i profili mangime per interruttore (migrazione automatica). Nuovi stati info.feeds e status.activeFeed*.",
-        "es": "Nueva lista central de alimentos (pestaña propia): nombre, vendedor, tamaño del pellet y valores nutricionales por alimento; cada interruptor elige el alimento cargado. Sustituye los perfiles de alimento por interruptor (migración automática). Nuevos estados info.feeds y status.activeFeed*.",
-        "pl": "Nowa centralna lista karm (własna zakładka): nazwa, sprzedawca, rozmiar granulek i wartości odżywcze dla każdej karmy; każdy przełącznik wybiera załadowaną karmę. Zastępuje profile karm per przełącznik (migracja automatyczna). Nowe stany info.feeds i status.activeFeed*.",
-        "uk": "Новий центральний список кормів (окрема вкладка): назва, продавець, розмір гранул і поживні значення для кожного корму; кожен перемикач обирає завантажений корм. Замінює профілі кормів по перемикачах (автоматична міграція). Нові стани info.feeds та status.activeFeed*.",
-        "zh-cn": "全新的中央饲料列表（独立选项卡）：每种饲料的名称、经销商、颗粒大小和营养值；每个开关选择当前装填的饲料。取代按开关的饲料配置（自动迁移）。新增状态 info.feeds 和 status.activeFeed*。"
+      "1.18.1": {
+        "en": "Fix: the pre-feeding announcement via Sayit now reliably speaks the current text — it uses Sayit’s “say” command instead of writing the tts.* states, which could replay a stale/old announcement. Telegram was unaffected.",
+        "de": "Fix: Die Fütterungsansage über Sayit spricht jetzt zuverlässig den aktuellen Text — sie nutzt den „say“-Befehl von Sayit, statt die tts.*-States zu schreiben (die eine alte Ansage erneut abspielen konnten). Telegram war nicht betroffen.",
+        "ru": "Исправление: анонс перед кормлением через Sayit теперь надёжно произносит актуальный текст — используется команда «say» вместо записи состояний tts.* (которые могли повторить старый анонс). Telegram не затронут.",
+        "pt": "Correção: o anúncio antes da alimentação via Sayit agora fala de forma fiável o texto atual — usa o comando “say” do Sayit em vez de escrever os estados tts.* (que podiam repetir um anúncio antigo). O Telegram não era afetado.",
+        "nl": "Fix: de aankondiging vóór het voeren via Sayit spreekt nu betrouwbaar de actuele tekst — via het „say“-commando van Sayit in plaats van de tts.*-states te schrijven (die een oude aankondiging konden herhalen). Telegram was niet getroffen.",
+        "fr": "Correctif : l’annonce avant distribution via Sayit prononce désormais de façon fiable le texte actuel — elle utilise la commande « say » de Sayit au lieu d’écrire les états tts.* (qui pouvaient rejouer une ancienne annonce). Telegram n’était pas concerné.",
+        "it": "Correzione: l’annuncio prima dell’alimentazione via Sayit ora pronuncia in modo affidabile il testo attuale — usa il comando “say” di Sayit invece di scrivere gli stati tts.* (che potevano ripetere un annuncio vecchio). Telegram non era interessato.",
+        "es": "Corrección: el anuncio previo a la alimentación por Sayit ahora dice de forma fiable el texto actual — usa el comando “say” de Sayit en lugar de escribir los estados tts.* (que podían repetir un anuncio antiguo). Telegram no se veía afectado.",
+        "pl": "Poprawka: zapowiedź przed karmieniem przez Sayit teraz niezawodnie wypowiada aktualny tekst — używa polecenia „say“ zamiast zapisu stanów tts.* (które mogły powtórzyć starą zapowiedź). Telegram nie był dotknięty.",
+        "uk": "Виправлення: анонс перед годуванням через Sayit тепер надійно озвучує актуальний текст — використовується команда «say» замість запису станів tts.* (які могли повторити старий анонс). Telegram не зачеплено.",
+        "zh-cn": "修复：通过 Sayit 的投喂前播报现在可可靠地朗读当前文本——使用 Sayit 的“say”命令，而不是写入 tts.* 状态（后者可能重播旧的播报）。Telegram 不受影响。"
       }
     },
     "titleLang": {

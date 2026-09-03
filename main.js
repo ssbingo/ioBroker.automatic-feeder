@@ -66,11 +66,6 @@ const RELAY_TIME_MAX_SEC = 600;
  * than the 60 s status poll so an unreachable board falls back to the direct switch quickly.
  */
 const RELAY_TRIGGER_TIMEOUT_MS = 3000;
-/**
- * Delay after writing a Sayit volume before writing the text, so the instance applies the
- *  new volume to THIS announcement instead of the previous one (milliseconds).
- */
-const SAYIT_VOLUME_DELAY_MS = 400;
 
 /** Read-only status states that live under `switches.<id>.status.*` (used for cleanup of legacy flat states). */
 const STATUS_STATE_IDS = [
@@ -3796,35 +3791,23 @@ class AutomaticFeeder extends utils.Adapter {
 	}
 
 	/**
-	 * Speaks a text via a Sayit (TTS) instance. An optional volume 0..100 is written to the
-	 * instance's own `<instance>.tts.volume` state first (only if that state exists), then the
-	 * plain text is written to `<instance>.tts.text`. Empty volume = keep the instance's volume.
+	 * Speaks a text via a Sayit (TTS) instance using its documented `say` message command
+	 * (`sendTo(instance, 'say', { text, volume })`). This is the explicit, atomic way to trigger
+	 * speech: writing the `tts.text` / `tts.volume` states instead proved unreliable (Sayit's
+	 * queue could replay a stale text, and the separate volume write raced the text write).
+	 * An optional volume 0..100 is passed along; empty keeps the instance's volume.
 	 *
 	 * @param {string} instance - sayit instance id, e.g. "sayit.0"
 	 * @param {string} text - the fully composed message
 	 * @param {unknown} volume - optional volume 0..100 (null/empty = keep instance volume)
-	 * @returns {Promise<void>} resolves when the text state was written
+	 * @returns {Promise<void>} resolves when the command was delivered
 	 */
 	async writeSayit(instance, text, volume) {
-		const hasVol = volume !== null && volume !== undefined && volume !== '' && Number.isFinite(Number(volume));
-		if (hasVol) {
-			const v = Math.min(100, Math.max(0, Math.round(Number(volume))));
-			const volId = `${instance}.tts.volume`;
-			try {
-				const obj = await this.getForeignObjectAsync(volId);
-				if (obj) {
-					await this.setForeignStateAsync(volId, { val: v, ack: false });
-					// let sayit apply the new volume before the text is spoken, otherwise this
-					// announcement may still play at the previously set volume
-					await this.delay(SAYIT_VOLUME_DELAY_MS);
-				} else {
-					this.log.warn(`Sayit instance "${instance}" has no "${volId}" state; volume ignored.`);
-				}
-			} catch (e) {
-				this.log.warn(`Could not set Sayit volume (${volId}): ${e.message}`);
-			}
+		const msg = { text };
+		if (volume !== null && volume !== undefined && volume !== '' && Number.isFinite(Number(volume))) {
+			msg.volume = Math.min(100, Math.max(0, Math.round(Number(volume))));
 		}
-		await this.setForeignStateAsync(`${instance}.tts.text`, { val: text, ack: false });
+		await this.sendToAsync(instance, 'say', msg);
 	}
 
 	/**
