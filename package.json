@@ -1,6 +1,6 @@
 {
   "name": "iobroker.automatic-feeder",
-  "version": "1.18.3",
+  "version": "1.18.4",
   "description": "Scheduled automatic feeder for ioBroker: switches an existing state for a set duration, with temperature and day/night limits.",
   "author": {
     "name": "ssbingo",
@@ -42,7 +42,7 @@
     "@iobroker/adapter-react-v5": "^8.3.3",
     "@iobroker/dev-server": "^0.8.0",
     "@iobroker/eslint-config": "^2.3.4",
-    "@iobroker/testing": "^5.2.2",
+    "@iobroker/testing": "^6.2.1",
     "@mui/icons-material": "^6.5.0",
     "@mui/material": "^6.5.0",
     "@mui/x-date-pickers": "^7.29.4",

@@ -3,6 +3,9 @@
 Changelog entries that were moved out of [README.md](README.md) (it keeps the latest 10) are
 collected here.
 
+### 1.14.1 (2026-08-29)
+* (ssbingo) UI: opening a switch's **Relay** tab now runs the **connection test and reads the board data automatically** (once, when a board address is configured) — the connection status, system overview and S1–S3 button times load without clicking *Test connection*. A plain read no longer marks the configuration as changed
+
 ### 1.14.0 (2026-08-29)
 * (ssbingo) **The feeding-amount model can now control feeding (opt-in).** Enable **Control feeding with this amount** on a switch and the recommended daily grams are converted to motor run-time — via a calibrated **dispense rate** (g/s) — and split across the day's feedings. The amount model becomes the "how much" driver, **mutually exclusive with dynamic (Q10)**
 * (ssbingo) **Calibration helper** on the switch tab: run the motor for a few seconds, weigh the dispensed food, and the adapter computes the g/s rate. An optional **daily maximum (g)** guards against overfeeding, and the per-feeding duration is capped

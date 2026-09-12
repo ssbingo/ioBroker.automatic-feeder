@@ -1,20 +1,20 @@
 {
   "common": {
     "name": "automatic-feeder",
-    "version": "1.18.3",
+    "version": "1.18.4",
     "news": {
-      "1.18.3": {
-        "en": "Maintenance: updated @iobroker/adapter-core to 3.4.3 (repository checker W0034). No functional changes.",
-        "de": "Wartung: @iobroker/adapter-core auf 3.4.3 aktualisiert (Repository-Checker W0034). Keine funktionalen Änderungen.",
-        "ru": "Обслуживание: @iobroker/adapter-core обновлён до 3.4.3 (repository checker W0034). Без функциональных изменений.",
-        "pt": "Manutenção: @iobroker/adapter-core atualizado para 3.4.3 (repository checker W0034). Sem alterações funcionais.",
-        "nl": "Onderhoud: @iobroker/adapter-core bijgewerkt naar 3.4.3 (repository checker W0034). Geen functionele wijzigingen.",
-        "fr": "Maintenance : @iobroker/adapter-core mis à jour vers 3.4.3 (repository checker W0034). Aucun changement fonctionnel.",
-        "it": "Manutenzione: @iobroker/adapter-core aggiornato a 3.4.3 (repository checker W0034). Nessuna modifica funzionale.",
-        "es": "Mantenimiento: @iobroker/adapter-core actualizado a 3.4.3 (repository checker W0034). Sin cambios funcionales.",
-        "pl": "Konserwacja: zaktualizowano @iobroker/adapter-core do 3.4.3 (repository checker W0034). Bez zmian funkcjonalnych.",
-        "uk": "Обслуговування: @iobroker/adapter-core оновлено до 3.4.3 (repository checker W0034). Без функціональних змін.",
-        "zh-cn": "维护：将 @iobroker/adapter-core 更新到 3.4.3（repository checker W0034）。无功能变更。"
+      "1.18.4": {
+        "en": "Maintenance: added Node.js 26 to the CI test matrix (issue #31) and updated @iobroker/testing to 6.x (repository checker S0064). No functional changes.",
+        "de": "Wartung: Node.js 26 zur CI-Testmatrix hinzugefügt (Issue #31) und @iobroker/testing auf 6.x aktualisiert (Repository-Checker S0064). Keine funktionalen Änderungen.",
+        "ru": "Обслуживание: Node.js 26 добавлен в матрицу тестов CI (issue #31) и @iobroker/testing обновлён до 6.x (repository checker S0064). Без функциональных изменений.",
+        "pt": "Manutenção: adicionado Node.js 26 à matriz de testes de CI (issue #31) e @iobroker/testing atualizado para 6.x (repository checker S0064). Sem alterações funcionais.",
+        "nl": "Onderhoud: Node.js 26 toegevoegd aan de CI-testmatrix (issue #31) en @iobroker/testing bijgewerkt naar 6.x (repository checker S0064). Geen functionele wijzigingen.",
+        "fr": "Maintenance : Node.js 26 ajouté à la matrice de tests CI (issue #31) et @iobroker/testing mis à jour vers 6.x (repository checker S0064). Aucun changement fonctionnel.",
+        "it": "Manutenzione: aggiunto Node.js 26 alla matrice di test CI (issue #31) e @iobroker/testing aggiornato a 6.x (repository checker S0064). Nessuna modifica funzionale.",
+        "es": "Mantenimiento: añadido Node.js 26 a la matriz de pruebas de CI (issue #31) y @iobroker/testing actualizado a 6.x (repository checker S0064). Sin cambios funcionales.",
+        "pl": "Konserwacja: dodano Node.js 26 do macierzy testów CI (issue #31) i zaktualizowano @iobroker/testing do 6.x (repository checker S0064). Bez zmian funkcjonalnych.",
+        "uk": "Обслуговування: Node.js 26 додано до матриці тестів CI (issue #31) та @iobroker/testing оновлено до 6.x (repository checker S0064). Без функціональних змін.",
+        "zh-cn": "维护：将 Node.js 26 加入 CI 测试矩阵（issue #31），并将 @iobroker/testing 更新到 6.x（repository checker S0064）。无功能变更。"
       }
     },
     "titleLang": {
