@@ -54,7 +54,7 @@
     "leaflet": "^1.9.4",
     "pdfmake": "^0.2.23",
     "react": "^19.3.0",
-    "react-dom": "^19.2.8",
+    "react-dom": "^19.3.0",
     "typescript": "~6.0.3"
   },
   "main": "main.js",
